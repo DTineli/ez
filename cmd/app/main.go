@@ -20,18 +20,27 @@ func login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Erro na sessao", http.StatusInternalServerError)
 	}
-	// Exemplo: usuário autenticado
-	session.Values["user_name"] = 123
-	session.Values["email"] = "mano@email.com"
+
+	session.Values["user_name"] = "Nelso"
+	session.Values["email"] = r.FormValue("email")
 
 	session.Save(r, w)
-
-	// HTMX-friendly
 	w.Header().Set("HX-Redirect", "/dashboard")
 }
 
 func get_dashboard(w http.ResponseWriter, r *http.Request) {
-	dashboard_page := views.MainPage()
+	sess, err := session.Store.Get(r, "session")
+	if err != nil {
+		http.Error(w, "Erro na sessao", http.StatusInternalServerError)
+	}
+
+	email, _ := sess.Values["email"].(string)
+	if email == "" {
+		w.Header().Set("HX-Redirect", "/")
+		return
+	}
+
+	dashboard_page := views.Nome_email("Nelso", email)
 
 	dashboard_page.Render(r.Context(), w)
 }
@@ -43,7 +52,8 @@ func main() {
 	r.Use(middleware.Logger)
 
 	r.Get("/", HelloWorld)
-	r.Get("/login", login)
+	r.Post("/login", login)
+	r.Get("/dashboard", get_dashboard)
 
 	// r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 	// 	w.Write([]byte("welcome"))

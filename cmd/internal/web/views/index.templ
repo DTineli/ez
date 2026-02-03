@@ -2,6 +2,32 @@ package views
 
 templ MainPage() {
 	<!DOCTYPE html>
+	<html lang="pt-br" hx-boost="true">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js" integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz" crossorigin="anonymous"></script>
+			<title>Main Page</title>
+		</head>
+		<body hx-boost="true">
+			<div>
+				<h1>Login Page</h1>
+				<form hx-post="/login">
+					<input type="text" name="email"/>
+					<input type="password" name="password"/>
+					<button>Entrar</button>
+				</form>
+			</div>
+		</body>
+	</html>
+}
+
+templ Nome_email(nome, email string) {
+	<div>{ nome } - { email }</div>
+}
+
+templ Dashboard(userName string) {
+	<!DOCTYPE html>
 	<html lang="pt-br">
 		<head>
 			<meta charset="UTF-8"/>
@@ -9,12 +35,8 @@ templ MainPage() {
 			<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js" integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz" crossorigin="anonymous"></script>
 			<title>Main Page</title>
 		</head>
-		<body>
-			<div>
-				<form>
-					<input type="text"/>
-				</form>
-			</div>
+		<body hx-boost="true">
+			<div>{ userName }</div>
 		</body>
 	</html>
 }
