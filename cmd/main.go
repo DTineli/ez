@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/DTineli/ez/internal/config"
+	"github.com/DTineli/ez/internal/handlers"
 	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store/dbstore"
 
@@ -57,8 +58,10 @@ func main() {
 		)
 	})
 
+	r.Get("/", handlers.NewHomeHandler().ServeHTTP)
+
 	// r.Get("/login", handlers.NewGetLoginHandler().ServeHTTP)
-	//
+
 	// r.Post("/login", handlers.NewPostLoginHandler(handlers.PostLoginHandlerParams{
 	// 	UserStore:         userStore,
 	// 	SessionStore:      sessionStore,

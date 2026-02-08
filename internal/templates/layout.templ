@@ -1,0 +1,57 @@
+package templates
+
+import (
+	"github.com/DTineli/ez/internal/middleware"
+)
+
+templ header(title string) {
+	<head>
+		<title>{ title }</title>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	</head>
+}
+
+templ footer() {
+	<footer class="bg-primary-600 p-4"></footer>
+}
+
+templ nav() {
+	<nav class="bg-primary-600 p-4">
+		<div class="container flex justify-between">
+			<ol class="flex space-x-4">
+				<li>
+					<a class="text-gray-200" href="/">Home</a>
+				</li>
+				<li>
+					<a class="text-gray-200" href="/about">About</a>
+				</li>
+			</ol>
+			<ol class="flex space-x-4">
+				if middleware.GetUser(ctx) != nil {
+					<li>
+						<button class="text-gray-200" hx-target="body" hx-swap="innerHTML" hx-post="/logout">Logout</button>
+					</li>
+				} else {
+					<li>
+						<a class="text-gray-200" href="/register">Register</a>
+					</li>
+					<li>
+						<a class="text-gray-200" href="/login">Login</a>
+					</li>
+				}
+			</ol>
+		</div>
+	</nav>
+}
+
+templ Layout(contents templ.Component, title string) {
+	@header(title)
+	<body class="flex flex-col h-full">
+		@nav()
+		<main class="flex-1 container ">
+			@contents
+		</main>
+		@footer()
+	</body>
+}
