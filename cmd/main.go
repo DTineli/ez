@@ -59,6 +59,10 @@ func main() {
 	})
 
 	r.Get("/", handlers.NewHomeHandler().ServeHTTP)
+	r.Get(
+		"/register",
+		handlers.NewRegisterHandlerWithService().GetRegisterPage,
+	)
 
 	// r.Get("/login", handlers.NewGetLoginHandler().ServeHTTP)
 

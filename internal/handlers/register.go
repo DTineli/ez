@@ -3,25 +3,27 @@ package handlers
 import (
 	"net/http"
 
-	"gorm.io/gorm"
+	"github.com/DTineli/ez/internal/templates"
 )
 
 type RegisterService struct {
-	db *gorm.DB
 }
 
 type RegisterHandler struct {
 	service *RegisterService
 }
 
-func NewRegisterHandlerWithService(db *gorm.DB) *RegisterHandler {
+func NewRegisterHandlerWithService() *RegisterHandler {
 	return &RegisterHandler{
-		service: &RegisterService{
-			db: db,
-		},
+		service: &RegisterService{},
 	}
 }
 
-func (l *RegisterService) GetRegisterPage(w http.ResponseWriter, r *http.Request) {
+func (l *RegisterHandler) GetRegisterPage(w http.ResponseWriter, r *http.Request) {
+	err := templates.Layout(templates.RegisterPage(), "My Page").Render(r.Context(), w)
 
+	if err != nil {
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
 }
