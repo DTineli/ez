@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+@import "tailwindcss/preflight";
+@import "components";
+@import "utilities";

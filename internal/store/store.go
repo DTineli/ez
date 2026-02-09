@@ -2,6 +2,13 @@ package store
 
 type User struct {
 	ID       uint   `gorm:"primaryKey" json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"-"`
+}
+
+type UserDTO struct {
+	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"-"`
 }
@@ -14,7 +21,7 @@ type Session struct {
 }
 
 type UserStore interface {
-	CreateUser(email string, password string) error
+	CreateUser(UserDTO) error
 	GetUser(email string) (*User, error)
 }
 
