@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/DTineli/ez/internal/middleware"
-	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 )
 
@@ -21,24 +20,23 @@ func (h *HomeHandler) GetMainPage(w http.ResponseWriter, r *http.Response) {
 func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	const website_name = "EZ"
 
-	user, ok := r.Context().Value(middleware.UserKey).(*store.User)
+	user := middleware.GetUser(r.Context())
+	loggedIn := user != nil
+	email := ""
+	if user != nil {
+		email = user.Email
+	}
 
-	if !ok {
-		c := templates.GuestIndex()
-
-		err := templates.Layout(c, website_name).Render(r.Context(), w)
-
+	if !loggedIn {
+		err := templates.Layout(templates.GuestIndex(), website_name, false, "").Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, "Error rendering template", http.StatusInternalServerError)
 			return
 		}
-
 		return
 	}
 
-	c := templates.Index(user.Email)
-	err := templates.Layout(c, website_name).Render(r.Context(), w)
-
+	err := templates.Layout(templates.Index(email), website_name, true, email).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return

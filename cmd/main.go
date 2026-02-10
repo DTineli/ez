@@ -39,6 +39,7 @@ func main() {
 	r.Use(middleware.Logger)
 
 	db := database.MustOpen(cfg.DatabaseName)
+	userStore := dbstore.NewUserStore(db)
 	sessionStore := dbstore.NewSessionStore(
 		dbstore.NewSessionStoreParams{
 			DB: db,
@@ -49,33 +50,19 @@ func main() {
 	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
 
 	authMiddleware := m.NewAuthMiddleware(sessionStore, cfg.SessionCookieName)
+	registerHandler := handlers.NewRegisterHandler(userStore)
+	loginHandler := handlers.NewLoginHandler(userStore, sessionStore, cfg.SessionCookieName)
 
-	r.Group(func(r chi.Router) {
-		r.Use(
-			middleware.Logger,
-			m.TextHTMLMiddleware,
-			authMiddleware.AddUserToContext,
-		)
+	r.Route("/", func(r chi.Router) {
+		r.Use(m.TextHTMLMiddleware, authMiddleware.AddUserToContext)
+
+		r.Get("/", handlers.NewHomeHandler().ServeHTTP)
+		r.Get("/register", registerHandler.GetRegisterPage)
+		r.Post("/register", registerHandler.PostRegister)
+		r.Get("/login", loginHandler.GetLoginPage)
+		r.Post("/login", loginHandler.PostLogin)
+		r.Post("/logout", loginHandler.PostLogout)
 	})
-
-	r.Get("/", handlers.NewHomeHandler().ServeHTTP)
-	r.Get(
-		"/register",
-		handlers.NewRegisterHandlerWithService().GetRegisterPage,
-	)
-
-	// r.Get("/login", handlers.NewGetLoginHandler().ServeHTTP)
-
-	// r.Post("/login", handlers.NewPostLoginHandler(handlers.PostLoginHandlerParams{
-	// 	UserStore:         userStore,
-	// 	SessionStore:      sessionStore,
-	// 	PasswordHash:      passwordhash,
-	// 	SessionCookieName: cfg.SessionCookieName,
-	// }).ServeHTTP)
-	//
-	// r.Post("/logout", handlers.NewPostLogoutHandler(handlers.PostLogoutHandlerParams{
-	// 	SessionCookieName: cfg.SessionCookieName,
-	// }).ServeHTTP)
 
 	killSig := make(chan os.Signal, 1)
 
