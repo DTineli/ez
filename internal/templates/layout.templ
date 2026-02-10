@@ -93,6 +93,13 @@ templ nav(loggedIn bool, email string) {
 									Home
 								</a>
 							</li>
+							if loggedIn {
+								<li>
+									<a class="text-gray-500 transition hover:text-gray-500/75 dark:text-white dark:hover:text-white/75" href="/produtos">
+										Produtos
+									</a>
+								</li>
+							}
 						</ul>
 					</nav>
 				</div>
@@ -132,9 +139,9 @@ templ nav(loggedIn bool, email string) {
 templ Layout(contents templ.Component, title string, loggedIn bool, email string) {
 	<html lang="pt-br">
 		@header(title)
-		<body class="min-h-screen bg-gray-100 flex-col m-o">
+		<body hx-boost="true" hx-target="#main-content" hx-swap="innerHTML" class="min-h-screen bg-gray-100 flex-col m-o">
 			@nav(loggedIn, email)
-			<main class="flex-1 w-full dlex justify-center">
+			<main id="main-content" class="flex-1 w-full dlex justify-center">
 				@contents
 			</main>
 			@footer()

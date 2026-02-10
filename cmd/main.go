@@ -53,15 +53,30 @@ func main() {
 	registerHandler := handlers.NewRegisterHandler(userStore)
 	loginHandler := handlers.NewLoginHandler(userStore, sessionStore, cfg.SessionCookieName)
 
-	r.Route("/", func(r chi.Router) {
-		r.Use(m.TextHTMLMiddleware, authMiddleware.AddUserToContext)
+	r.Group(func(r chi.Router) {
+		r.Use(m.TextHTMLMiddleware)
 
-		r.Get("/", handlers.NewHomeHandler().ServeHTTP)
-		r.Get("/register", registerHandler.GetRegisterPage)
-		r.Post("/register", registerHandler.PostRegister)
 		r.Get("/login", loginHandler.GetLoginPage)
 		r.Post("/login", loginHandler.PostLogin)
-		r.Post("/logout", loginHandler.PostLogout)
+		r.Get("/register", registerHandler.GetRegisterPage)
+		r.Post("/register", registerHandler.PostRegister)
+
+		r.Get("/logout", loginHandler.PostLogout)
+	})
+
+	// autenticado
+	r.Group(func(r chi.Router) {
+		r.Use(m.TextHTMLMiddleware, authMiddleware.AddUserToContext)
+		r.Get("/", handlers.NewHomeHandler().ServeHTTP)
+
+		r.Route("/produtos", func(r chi.Router) {
+			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+				w.Write([]byte("<h1>PENES</h1>"))
+			})
+
+			// r.Get("/{id}", produtoHandler.Show)
+			// r.Post("/", produtoHandler.Create)
+		})
 	})
 
 	killSig := make(chan os.Signal, 1)

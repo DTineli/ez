@@ -13,22 +13,39 @@ func NewHomeHandler() *HomeHandler {
 	return &HomeHandler{}
 }
 
-func (h *HomeHandler) GetMainPage(w http.ResponseWriter, r *http.Response) {
-
-}
-
 func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	const website_name = "EZ"
+	var is_hxRequest = r.Header.Get("HX-Request") == "true"
 
 	user := middleware.GetUser(r.Context())
 	loggedIn := user != nil
+
 	email := ""
 	if user != nil {
 		email = user.Email
 	}
 
 	if !loggedIn {
+		if is_hxRequest {
+			err := templates.GuestIndex().Render(r.Context(), w)
+			if err != nil {
+				http.Error(w, "Error rendering template", http.StatusInternalServerError)
+				return
+			}
+			return
+		}
+
 		err := templates.Layout(templates.GuestIndex(), website_name, false, "").Render(r.Context(), w)
+
+		if err != nil {
+			http.Error(w, "Error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	if is_hxRequest {
+		err := templates.Index(email).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, "Error rendering template", http.StatusInternalServerError)
 			return
