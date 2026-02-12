@@ -40,6 +40,7 @@ func main() {
 
 	db := database.MustOpen(cfg.DatabaseName)
 	userStore := dbstore.NewUserStore(db)
+
 	sessionStore := dbstore.NewSessionStore(
 		dbstore.NewSessionStoreParams{
 			DB: db,
@@ -61,8 +62,10 @@ func main() {
 		r.Get("/register", registerHandler.GetRegisterPage)
 		r.Post("/register", registerHandler.PostRegister)
 
-		r.Get("/logout", loginHandler.PostLogout)
+		r.Post("/logout", loginHandler.PostLogout)
 	})
+
+	productHandler := handlers.NewProductHandler(dbstore.NewProductStore(db))
 
 	// autenticado
 	r.Group(func(r chi.Router) {
@@ -70,12 +73,11 @@ func main() {
 		r.Get("/", handlers.NewHomeHandler().ServeHTTP)
 
 		r.Route("/produtos", func(r chi.Router) {
-			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("<h1>PENES</h1>"))
-			})
+			r.Get("/", productHandler.GetProductPage)
+			r.Post("/", productHandler.PostNewProduct)
+			r.Get("/novo", productHandler.GetProductForm)
 
 			// r.Get("/{id}", produtoHandler.Show)
-			// r.Post("/", produtoHandler.Create)
 		})
 	})
 

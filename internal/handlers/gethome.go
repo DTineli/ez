@@ -21,8 +21,10 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	loggedIn := user != nil
 
 	email := ""
+	var id uint
 	if user != nil {
 		email = user.Email
+		id = user.ID
 	}
 
 	if !loggedIn {
@@ -45,7 +47,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if is_hxRequest {
-		err := templates.Index(email).Render(r.Context(), w)
+		err := templates.Index(email, id).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, "Error rendering template", http.StatusInternalServerError)
 			return
@@ -53,7 +55,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := templates.Layout(templates.Index(email), website_name, true, email).Render(r.Context(), w)
+	err := templates.Layout(templates.Index(email, id), website_name, true, email).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
