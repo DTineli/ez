@@ -5,6 +5,12 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `gorm:"uniqueIndex" json:"email"`
 	Password string `json:"-"`
+	TenantID uint
+	Tenant   Tenant
+}
+
+type Tenant struct {
+	ID uint
 }
 
 type Product struct {
