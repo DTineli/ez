@@ -31,7 +31,7 @@ func (p *ProductStore) GetProduct(id uint) (*store.Product, error) {
 func (p *ProductStore) FindAllByUser(userID uint) ([]store.Product, error) {
 	var products []store.Product
 
-	err := p.db.Find(&products).Error
+	err := p.db.Where("user_id = ?", userID).Find(&products).Error
 	if err != nil {
 		return nil, err
 	}

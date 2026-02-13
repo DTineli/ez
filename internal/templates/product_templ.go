@@ -8,7 +8,10 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/DTineli/ez/internal/store"
+import (
+	"fmt"
+	"github.com/DTineli/ez/internal/store"
+)
 
 // ---------- LISTAGEM ----------
 func ProductsPage(products []store.Product) templ.Component {
@@ -32,7 +35,7 @@ func ProductsPage(products []store.Product) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"bg-white rounded-2xl shadow p-6\"><div class=\"flex items-center justify-between mb-6\"><h2 class=\"text-xl font-semibold\">Lista de produtos</h2><button hx-get=\"/produtos/novo\" hx-target=\"#product-form\" hx-swap=\"innerHTML\" class=\"bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-xl transition\">Novo</button></div><!-- FORM CONTAINER --><div id=\"product-form\" class=\"mb-6\"></div><div id=\"content\" class=\"mb-6\"></div><div class=\"overflow-x-auto\"><table class=\"w-full text-left border-collapse\"><thead><tr class=\"border-b\"><th class=\"py-3 px-2 text-sm font-semibold text-gray-600\">ID</th><th class=\"py-3 px-2 text-sm font-semibold text-gray-600\">Descrição</th><th class=\"py-3 px-2 text-sm font-semibold text-gray-600\">SKU</th><th class=\"py-3 px-2 text-sm font-semibold text-gray-600\">Estoque</th><th class=\"py-3 px-2 text-sm font-semibold text-gray-600\">Preço</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"bg-white rounded-2xl shadow p-6\"><div class=\"flex items-center justify-between mb-6\"><h2 class=\"text-xl font-semibold\">Lista de produtos</h2><button hx-get=\"/produtos/novo\" hx-target=\"#product-form\" hx-swap=\"innerHTML\" class=\"bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-xl transition\">Novo</button></div><!-- FORM CONTAINER --><div id=\"product-form\" class=\"mb-6\"></div><div id=\"content\" class=\"mb-6\"></div><div class=\"overflow-x-auto\"><table class=\"w-full text-left border-collapse\"><thead><tr class=\"border-b\"><th class=\"py-3 px-2 text-sm font-semibold text-gray-600\">ID</th><th class=\"py-3 px-2 text-sm font-semibold text-gray-600\">Descrição</th><th class=\"py-3 px-2 text-sm font-semibold text-gray-600\">SKU</th><th class=\"py-3 px-2 text-sm font-semibold text-gray-600\">Estoque</th><th class=\"py-3 px-2 text-sm font-semibold text-gray-600\">Preço</th><th class=\"py-3 px-2 text-sm font-semibold text-gray-600\">Ação</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -44,7 +47,7 @@ func ProductsPage(products []store.Product) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(p.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 36, Col: 35}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 40, Col: 35}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -57,7 +60,7 @@ func ProductsPage(products []store.Product) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 37, Col: 37}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 41, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -70,7 +73,7 @@ func ProductsPage(products []store.Product) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(p.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 38, Col: 36}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 42, Col: 36}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -83,7 +86,7 @@ func ProductsPage(products []store.Product) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(p.Stock)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 39, Col: 38}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 43, Col: 38}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -96,18 +99,31 @@ func ProductsPage(products []store.Product) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(p.Price)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 40, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 44, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</td><td><div class=\"flex gap-10\"><button type=\"button\" class=\"btn\">Editar</button> <button type=\"button\" hx-delete=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/produtos/%d", p.ID))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 48, Col: 76}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-xl transition\">excluir</button></div></td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</tbody></table></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</tbody></table></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -132,12 +148,12 @@ func ProductForm() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var7 == nil {
-			templ_7745c5c3_Var7 = templ.NopComponent
+		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var8 == nil {
+			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"bg-gray-50 border rounded-2xl p-6\"><h3 class=\"text-lg font-semibold mb-4\">Cadastrar produto</h3><form hx-post=\"/produtos\" hx-target=\"#content\" hx-swap=\"innerHTML\" class=\"grid grid-cols-1 md:grid-cols-2 gap-4\"><div><label class=\"block text-sm font-medium text-gray-600 mb-1\">Descrição</label> <input name=\"name\" class=\"w-full border rounded-xl px-3 py-2\"></div><div><label class=\"block text-sm font-medium text-gray-600 mb-1\">SKU</label> <input name=\"sku\" class=\"w-full border rounded-xl px-3 py-2\"></div><div><label class=\"block text-sm font-medium text-gray-600 mb-1\">Estoque</label> <input type=\"number\" name=\"stock\" class=\"w-full border rounded-xl px-3 py-2\"></div><div><label class=\"block text-sm font-medium text-gray-600 mb-1\">Preço</label> <input type=\"number\" step=\"0.01\" name=\"price\" class=\"w-full border rounded-xl px-3 py-2\"></div><div class=\"md:col-span-2 flex justify-end mt-4\"><button class=\"bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2 rounded-xl\">Salvar</button></div></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"bg-gray-50 border rounded-2xl p-6\"><h3 class=\"text-lg font-semibold mb-4\">Cadastrar produto</h3><form hx-post=\"/produtos\" hx-target=\"#content\" hx-swap=\"innerHTML\" hx-on::response-error=\"this.innerHTML = event.detail.xhr.response\" class=\"grid grid-cols-1 md:grid-cols-2 gap-4\"><div><label class=\"block text-sm font-medium text-gray-600 mb-1\">Descrição</label> <input name=\"name\" class=\"w-full border rounded-xl px-3 py-2\"></div><div><label class=\"block text-sm font-medium text-gray-600 mb-1\">SKU</label> <input name=\"sku\" class=\"w-full border rounded-xl px-3 py-2\"></div><div><label class=\"block text-sm font-medium text-gray-600 mb-1\">Estoque</label> <input type=\"number\" name=\"stock\" class=\"w-full border rounded-xl px-3 py-2\"></div><div><label class=\"block text-sm font-medium text-gray-600 mb-1\">Preço</label> <input type=\"number\" step=\"0.01\" name=\"price\" class=\"w-full border rounded-xl px-3 py-2\"></div><div class=\"md:col-span-2 flex justify-end mt-4\"><button class=\"bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2 rounded-xl\">Salvar</button></div></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

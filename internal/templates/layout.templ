@@ -141,7 +141,7 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 		@header(title)
 		<body hx-boost="true" hx-target="#main-content" hx-swap="innerHTML" class="min-h-screen bg-gray-100 flex-col m-o">
 			@nav(loggedIn, email)
-			<main id="main-content" class="flex-1 h-full w-full dlex justify-center">
+			<main id="main-content" class="w-full dflex">
 				@contents
 			</main>
 			@footer()

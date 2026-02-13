@@ -76,6 +76,7 @@ func main() {
 			r.Get("/", productHandler.GetProductPage)
 			r.Post("/", productHandler.PostNewProduct)
 			r.Get("/novo", productHandler.GetProductForm)
+			r.Delete("/{id}", productHandler.DeleteProduct)
 
 			// r.Get("/{id}", produtoHandler.Show)
 		})
