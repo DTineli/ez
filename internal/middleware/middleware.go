@@ -12,6 +12,7 @@ import (
 var UserKey UserContextKey = "user"
 
 type UserContextKey string
+
 type AuthMiddleware struct {
 	sessionStore      store.SessionStore
 	sessionCookieName string

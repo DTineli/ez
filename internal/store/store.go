@@ -5,22 +5,25 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `gorm:"uniqueIndex" json:"email"`
 	Password string `json:"-"`
-	TenantID uint
+	TenantID uint   `json:"tenant_id"`
 	Tenant   Tenant
 }
 
 type Tenant struct {
-	ID uint
+	ID       uint
+	Slug     string `gorm:"uniqueIndex" json:"slug"`
+	Document string `json:"document"`
+	Users    []User
 }
 
 type Product struct {
-	ID     uint    `gorm:"primaryKey" json:"id"`
-	SKU    string  `json:"sku"`
-	Name   string  `json:"name"`
-	Price  float64 `json:"price"`
-	Stock  int     `json:"stock"`
-	User   User
-	UserID uint `json:"owner_id"`
+	ID       uint    `gorm:"primaryKey" json:"id"`
+	SKU      string  `json:"sku"`
+	Name     string  `json:"name"`
+	Price    float64 `json:"price"`
+	Stock    int     `json:"stock"`
+	Tenant   Tenant
+	TenantID uint `json:"owner_id"`
 }
 
 type UserDTO struct {
@@ -30,10 +33,19 @@ type UserDTO struct {
 }
 
 type Session struct {
-	ID        uint   `gorm:"primaryKey" json:"id"`
-	SessionID string `json:"session_id"`
-	UserID    uint   `json:"user_id"`
-	User      User   `gorm:"foreignKey:UserID" json:"user"`
+	ID         uint   `gorm:"primaryKey" json:"id"`
+	SessionID  string `json:"session_id"`
+	UserID     uint   `json:"user_id"`
+	User       User   `gorm:"foreignKey:UserID" json:"user"`
+	TenantID   uint   `json:"tenant_id"`
+	TenantSlug string `json:"tenant_slug"`
+}
+
+type TenantStore interface {
+	CreateTenant(Tenant) error
+
+	GetTenantById(id uint) (*Tenant, error)
+	GetTenantBySlug(slug string) (*Tenant, error)
 }
 
 type UserStore interface {
