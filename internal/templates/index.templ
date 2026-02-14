@@ -1,11 +1,11 @@
 package templates
 
-templ Index(email string, id uint) {
-	<div>Welcome { email } - userId { id }</div>
+templ Index(slug, email string, id uint) {
+	<div>Welcome { email } - userId { id } - slug { slug }</div>
 }
 
-templ GuestIndex() {
+templ GuestIndex(slug string) {
 	<div>
-		Welcome guest
+		Welcome guest - { slug }
 	</div>
 }

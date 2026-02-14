@@ -18,6 +18,13 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var is_hxRequest = r.Header.Get("HX-Request") == "true"
 
 	user := middleware.GetUser(r.Context())
+
+	slug, ok := r.Context().Value(middleware.TenantKey).(string)
+	if !ok {
+		http.Error(w, "tenant inválido", http.StatusBadRequest)
+		return
+	}
+
 	loggedIn := user != nil
 
 	email := ""
@@ -29,7 +36,8 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if !loggedIn {
 		if is_hxRequest {
-			err := templates.GuestIndex().Render(r.Context(), w)
+			err := templates.GuestIndex(slug).Render(r.Context(), w)
+
 			if err != nil {
 				http.Error(w, "Error rendering template", http.StatusInternalServerError)
 				return
@@ -37,7 +45,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err := templates.Layout(templates.GuestIndex(), website_name, false, "").Render(r.Context(), w)
+		err := templates.Layout(templates.GuestIndex(slug), website_name, false, "").Render(r.Context(), w)
 
 		if err != nil {
 			http.Error(w, "Error rendering template", http.StatusInternalServerError)
@@ -47,7 +55,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if is_hxRequest {
-		err := templates.Index(email, id).Render(r.Context(), w)
+		err := templates.Index(slug, email, id).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, "Error rendering template", http.StatusInternalServerError)
 			return
@@ -55,7 +63,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := templates.Layout(templates.Index(email, id), website_name, true, email).Render(r.Context(), w)
+	err := templates.Layout(templates.Index(slug, email, id), website_name, true, email).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return

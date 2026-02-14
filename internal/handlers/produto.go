@@ -55,11 +55,11 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 	}
 
 	product := &store.Product{
-		UserID: middleware.GetUser(r.Context()).ID,
-		Name:   name,
-		SKU:    sku,
-		Price:  price,
-		Stock:  stock,
+		TenantID: middleware.GetUser(r.Context()).ID,
+		Name:     name,
+		SKU:      sku,
+		Price:    price,
+		Stock:    stock,
 	}
 
 	err = p.productStore.CreateProduct(product)

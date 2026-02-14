@@ -10,8 +10,10 @@ import (
 )
 
 var UserKey UserContextKey = "user"
+var TenantKey TenantContextKey = "tenant"
 
 type UserContextKey string
+type TenantContextKey string
 
 type AuthMiddleware struct {
 	sessionStore      store.SessionStore
@@ -42,6 +44,18 @@ func GetUser(ctx context.Context) *store.User {
 		return nil
 	}
 	return u
+}
+
+func CheckTenantMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tenant := strings.Split(r.Host, ".")[0]
+
+		ctx := context.WithValue(r.Context(), TenantKey, tenant)
+		next.ServeHTTP(w, r.WithContext(ctx))
+
+		next.ServeHTTP(w, r)
+	})
+
 }
 
 func (m *AuthMiddleware) AddUserToContext(next http.Handler) http.Handler {

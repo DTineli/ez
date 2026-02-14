@@ -37,6 +37,7 @@ func main() {
 	cfg := config.MustLoadConfig()
 
 	r.Use(middleware.Logger)
+	r.Use(m.CheckTenantMiddleware)
 
 	db := database.MustOpen(cfg.DatabaseName)
 	userStore := dbstore.NewUserStore(db)
