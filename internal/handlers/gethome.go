@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/templates"
@@ -17,13 +18,9 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	const website_name = "EZ"
 	var is_hxRequest = r.Header.Get("HX-Request") == "true"
 
-	user := middleware.GetUser(r.Context())
+	slug := strings.Split(r.Host, ".")[0]
 
-	slug, ok := r.Context().Value(middleware.TenantKey).(string)
-	if !ok {
-		http.Error(w, "tenant inválido", http.StatusBadRequest)
-		return
-	}
+	user := middleware.GetUser(r.Context())
 
 	loggedIn := user != nil
 

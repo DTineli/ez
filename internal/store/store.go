@@ -26,12 +26,6 @@ type Product struct {
 	TenantID uint `json:"owner_id"`
 }
 
-type UserDTO struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"-"`
-}
-
 type Session struct {
 	ID         uint   `gorm:"primaryKey" json:"id"`
 	SessionID  string `json:"session_id"`
@@ -42,14 +36,14 @@ type Session struct {
 }
 
 type TenantStore interface {
-	CreateTenant(Tenant) error
+	CreateTenant(Tenant) (uint, error)
 
-	GetTenantById(id uint) (*Tenant, error)
-	GetTenantBySlug(slug string) (*Tenant, error)
+	// GetTenantById(id uint) (*Tenant, error)
+	// GetTenantBySlug(slug string) (*Tenant, error)
 }
 
 type UserStore interface {
-	CreateUser(UserDTO) error
+	CreateUser(User) error
 	GetUser(email string) (*User, error)
 }
 

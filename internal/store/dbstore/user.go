@@ -16,7 +16,7 @@ func NewUserStore(db *gorm.DB) *UserStore {
 	}
 }
 
-func (u *UserStore) CreateUser(dto store.UserDTO) error {
+func (u *UserStore) CreateUser(dto store.User) error {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(dto.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -24,6 +24,7 @@ func (u *UserStore) CreateUser(dto store.UserDTO) error {
 	user := store.User{
 		Name:     dto.Name,
 		Email:    dto.Email,
+		TenantID: dto.TenantID,
 		Password: string(hashed),
 	}
 	return u.db.Create(&user).Error

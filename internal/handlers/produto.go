@@ -74,8 +74,8 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
 	var is_hxRequest = r.Header.Get("HX-Request") == "true"
 
-	userID := middleware.GetUser(r.Context()).ID
-	produtos, err := p.productStore.FindAllByUser(userID)
+	// userID := middleware.GetUser(r.Context()).ID
+	produtos, err := p.productStore.FindAllByUser(10)
 
 	if err != nil {
 		http.Error(w, "Error listing Product", http.StatusInternalServerError)

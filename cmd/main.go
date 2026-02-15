@@ -37,7 +37,7 @@ func main() {
 	cfg := config.MustLoadConfig()
 
 	r.Use(middleware.Logger)
-	r.Use(m.CheckTenantMiddleware)
+	// r.Use(m.CheckTenantMiddleware)
 
 	db := database.MustOpen(cfg.DatabaseName)
 	userStore := dbstore.NewUserStore(db)
@@ -52,11 +52,14 @@ func main() {
 	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
 
 	authMiddleware := m.NewAuthMiddleware(sessionStore, cfg.SessionCookieName)
-	registerHandler := handlers.NewRegisterHandler(userStore)
+
+	tenantStore := dbstore.NewTenantStore(db)
+	registerHandler := handlers.NewRegisterHandler(userStore, tenantStore)
+
 	loginHandler := handlers.NewLoginHandler(userStore, sessionStore, cfg.SessionCookieName)
 
 	r.Group(func(r chi.Router) {
-		r.Use(m.TextHTMLMiddleware)
+		// r.Use(m.TextHTMLMiddleware)
 
 		r.Get("/login", loginHandler.GetLoginPage)
 		r.Post("/login", loginHandler.PostLogin)

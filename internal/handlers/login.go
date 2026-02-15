@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"golang.org/x/crypto/bcrypt"
@@ -27,13 +26,19 @@ func NewLoginHandler(userStore store.UserStore, sessionStore store.SessionStore,
 }
 
 func (h *LoginHandler) GetLoginPage(w http.ResponseWriter, r *http.Request) {
-	user := middleware.GetUser(r.Context())
-	loggedIn := user != nil
-	email := ""
-	if user != nil {
-		email = user.Email
+	var is_hxRequest = r.Header.Get("HX-Request") == "true"
+
+	if is_hxRequest {
+		err := templates.LoginPage().Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, "Error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
 	}
-	err := templates.Layout(templates.LoginPage(), "Entrar", loggedIn, email).Render(r.Context(), w)
+
+	err := templates.Layout(templates.LoginPage(), "Login", false, "").Render(r.Context(), w)
+
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
