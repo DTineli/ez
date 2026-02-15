@@ -23,7 +23,6 @@ func NewSessionStore(params NewSessionStoreParams) *SessionStore {
 }
 
 func (s *SessionStore) CreateSession(session *store.Session) (*store.Session, error) {
-
 	session.SessionID = uuid.New().String()
 
 	result := s.db.Create(session)
@@ -34,12 +33,19 @@ func (s *SessionStore) CreateSession(session *store.Session) (*store.Session, er
 	return session, nil
 }
 
-func (s *SessionStore) GetUserFromSession(sessionID string, userID string) (*store.User, error) {
+func (s SessionStore) GetSessionInfo(sessionID string) (*store.Session, error) {
+	var session store.Session
+
+	err := s.db.Where("session_id = ?", sessionID).First(&session).Error
+	return &session, err
+}
+
+func (s *SessionStore) GetUserFromSession(sessionID string) (*store.User, error) {
 	var session store.Session
 
 	err := s.db.Preload("User", func(db *gorm.DB) *gorm.DB {
-		return db.Select("ID", "Email")
-	}).Where("session_id = ? AND user_id = ?", sessionID, userID).First(&session).Error
+		return db.Select("ID", "Email", "Name")
+	}).Where("session_id = ?", sessionID).First(&session).Error
 
 	if err != nil {
 		return nil, err

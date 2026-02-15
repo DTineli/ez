@@ -38,18 +38,22 @@ type Session struct {
 type TenantStore interface {
 	CreateTenant(Tenant) (uint, error)
 
-	// GetTenantById(id uint) (*Tenant, error)
+	GetTenantByID(id uint) (*Tenant, error)
 	// GetTenantBySlug(slug string) (*Tenant, error)
 }
 
 type UserStore interface {
 	CreateUser(User) error
 	GetUser(email string) (*User, error)
+
+	// GetUserById(id uint) (*User, error)
 }
 
 type SessionStore interface {
 	CreateSession(session *Session) (*Session, error)
-	GetUserFromSession(sessionID string, userID string) (*User, error)
+	GetUserFromSession(sessionID string) (*User, error)
+
+	GetSessionInfo(sessionID string) (*Session, error)
 }
 
 type ProductStore interface {

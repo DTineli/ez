@@ -19,16 +19,15 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var is_hxRequest = r.Header.Get("HX-Request") == "true"
 
 	slug := strings.Split(r.Host, ".")[0]
+	sessionInfo := middleware.GetSessionInfo(r.Context())
 
-	user := middleware.GetUser(r.Context())
-
-	loggedIn := user != nil
+	loggedIn := sessionInfo != nil
 
 	email := ""
 	var id uint
-	if user != nil {
-		email = user.Email
-		id = user.ID
+	if sessionInfo != nil {
+		email = sessionInfo.User.Email
+		id = sessionInfo.ID
 	}
 
 	if !loggedIn {

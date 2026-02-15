@@ -56,10 +56,17 @@ func main() {
 	tenantStore := dbstore.NewTenantStore(db)
 	registerHandler := handlers.NewRegisterHandler(userStore, tenantStore)
 
-	loginHandler := handlers.NewLoginHandler(userStore, sessionStore, cfg.SessionCookieName)
+	loginHandler := handlers.NewLoginHandler(
+		handlers.LoginHandlerParams{
+			UserStore:    userStore,
+			SessionStore: sessionStore,
+			TenantStore:  *tenantStore,
+			CookieName:   cfg.SessionCookieName,
+		},
+	)
 
 	r.Group(func(r chi.Router) {
-		// r.Use(m.TextHTMLMiddleware)
+		r.Use(m.TextHTMLMiddleware)
 
 		r.Get("/login", loginHandler.GetLoginPage)
 		r.Post("/login", loginHandler.PostLogin)
@@ -73,7 +80,10 @@ func main() {
 
 	// autenticado
 	r.Group(func(r chi.Router) {
-		r.Use(m.TextHTMLMiddleware, authMiddleware.AddUserToContext)
+		r.Use(
+			m.TextHTMLMiddleware,
+			authMiddleware.AddSessionInfoToContext,
+		)
 		r.Get("/", handlers.NewHomeHandler().ServeHTTP)
 
 		r.Route("/produtos", func(r chi.Router) {

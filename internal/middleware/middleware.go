@@ -2,18 +2,19 @@ package middleware
 
 import (
 	"context"
-	b64 "encoding/base64"
 	"net/http"
 	"strings"
 
 	"github.com/DTineli/ez/internal/store"
 )
 
-var UserKey UserContextKey = "user"
-var TenantKey TenantContextKey = "tenant"
-
 type UserContextKey string
 type TenantContextKey string
+type SessionInfoContextKey string
+
+var UserKey UserContextKey = "user"
+var TenantKey TenantContextKey = "tenant"
+var SessionInfoKey SessionInfoContextKey = "info"
 
 type AuthMiddleware struct {
 	sessionStore      store.SessionStore
@@ -46,6 +47,15 @@ func GetUser(ctx context.Context) *store.User {
 	return u
 }
 
+func GetSessionInfo(ctx context.Context) *store.Session {
+	sessionInfo := ctx.Value(SessionInfoKey)
+	u, ok := sessionInfo.(*store.Session)
+	if !ok {
+		return nil
+	}
+	return u
+}
+
 func CheckTenantMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		tenant := strings.Split(r.Host, ".")[0]
@@ -58,12 +68,14 @@ func CheckTenantMiddleware(next http.Handler) http.Handler {
 
 }
 
-func (m *AuthMiddleware) AddUserToContext(next http.Handler) http.Handler {
+func (m *AuthMiddleware) AddSessionInfoToContext(next http.Handler) http.Handler {
 	if m == nil || m.sessionStore == nil {
 		return next
 	}
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sessionCookie, err := r.Cookie(m.sessionCookieName)
+
 		if err != nil {
 			next.ServeHTTP(w, r)
 			return
@@ -73,36 +85,19 @@ func (m *AuthMiddleware) AddUserToContext(next http.Handler) http.Handler {
 			return
 		}
 
-		decodedValue, err := b64.StdEncoding.DecodeString(sessionCookie.Value)
+		sessionID := sessionCookie.Value
+		sessionInfo, err := m.sessionStore.GetSessionInfo(sessionID)
 		if err != nil {
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		splitValue := strings.Split(string(decodedValue), ":")
-		if len(splitValue) != 2 {
+		if sessionInfo == nil {
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		sessionID := strings.TrimSpace(splitValue[0])
-		userID := strings.TrimSpace(splitValue[1])
-		if sessionID == "" || userID == "" {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		user, err := m.sessionStore.GetUserFromSession(sessionID, userID)
-		if err != nil {
-			next.ServeHTTP(w, r)
-			return
-		}
-		if user == nil {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), UserKey, user)
+		ctx := context.WithValue(r.Context(), SessionInfoKey, sessionInfo)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

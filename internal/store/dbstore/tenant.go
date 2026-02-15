@@ -20,3 +20,10 @@ func (t TenantStore) CreateTenant(tenant store.Tenant) (uint, error) {
 
 	return tenant.ID, queryresut.Error
 }
+
+func (t TenantStore) GetTenantByID(id uint) (*store.Tenant, error) {
+	var tenant store.Tenant
+	queryresut := t.db.Where("id = ?", id).First(&tenant)
+
+	return &tenant, queryresut.Error
+}

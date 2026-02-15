@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	b64 "encoding/base64"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -14,14 +14,23 @@ import (
 type LoginHandler struct {
 	userStore    store.UserStore
 	sessionStore store.SessionStore
+	tenantStore  store.TenantStore
 	cookieName   string
 }
 
-func NewLoginHandler(userStore store.UserStore, sessionStore store.SessionStore, cookieName string) *LoginHandler {
+type LoginHandlerParams struct {
+	UserStore    store.UserStore
+	SessionStore store.SessionStore
+	TenantStore  store.TenantStore
+	CookieName   string
+}
+
+func NewLoginHandler(params LoginHandlerParams) *LoginHandler {
 	return &LoginHandler{
-		userStore:    userStore,
-		sessionStore: sessionStore,
-		cookieName:   cookieName,
+		userStore:    params.UserStore,
+		sessionStore: params.SessionStore,
+		tenantStore:  params.TenantStore,
+		cookieName:   params.CookieName,
 	}
 }
 
@@ -50,6 +59,7 @@ func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
 		writeLoginError(r, w, "Dados inválidos.")
 		return
 	}
+
 	email := strings.TrimSpace(r.FormValue("email"))
 	password := r.FormValue("password")
 
@@ -73,23 +83,37 @@ func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.sessionStore.CreateSession(&store.Session{UserID: user.ID})
+	tenant, err := h.tenantStore.GetTenantByID(user.TenantID)
 	if err != nil {
 		writeLoginError(r, w, "Erro ao criar sessão. Tente novamente.")
 		return
 	}
 
-	cookieValue := b64.StdEncoding.EncodeToString(
-		[]byte(sess.SessionID + ":" + strconv.FormatUint(uint64(sess.UserID), 10)),
-	)
+	if tenant.Slug != strings.Split(r.Host, ".")[0] {
+		w.Header().Set(HXRedirect, fmt.Sprintf("%s.localhost:4000", tenant.Slug))
+		writeLoginError(r, w, "slug diferente")
+		return
+	}
+
+	sess, err := h.sessionStore.CreateSession(&store.Session{
+		UserID:     user.ID,
+		TenantID:   tenant.ID,
+		TenantSlug: tenant.Slug,
+	})
+
+	if err != nil {
+		writeLoginError(r, w, "Erro ao criar sessão. Tente novamente.")
+		return
+	}
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     h.cookieName,
-		Value:    cookieValue,
+		Value:    strconv.FormatUint(uint64(sess.ID), 10),
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
-		MaxAge:   7 * 24 * 3600, // 7 dias
+		MaxAge:   7 * 24 * 3600,
 	})
 
 	w.Header().Set(HXRedirect, "/")
