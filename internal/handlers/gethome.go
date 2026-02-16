@@ -4,13 +4,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/DTineli/ez/internal/middleware"
+	m "github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 )
 
-type HomeHandler struct{}
+type HomeHandler struct {
+}
 
-func NewHomeHandler() *HomeHandler {
+func NewHomeHandler(sessionStore store.SessionStore) *HomeHandler {
 	return &HomeHandler{}
 }
 
@@ -19,15 +21,16 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var is_hxRequest = r.Header.Get("HX-Request") == "true"
 
 	slug := strings.Split(r.Host, ".")[0]
-	sessionInfo := middleware.GetSessionInfo(r.Context())
+
+	sessionInfo := m.GetSessionFromContext(r)
 
 	loggedIn := sessionInfo != nil
 
 	email := ""
 	var id uint
 	if sessionInfo != nil {
-		email = sessionInfo.User.Email
-		id = sessionInfo.ID
+		email = sessionInfo.UserEmail
+		id = sessionInfo.UserID
 	}
 
 	if !loggedIn {

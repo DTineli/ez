@@ -54,8 +54,10 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	sess := middleware.GetSessionFromContext(r)
+
 	product := &store.Product{
-		TenantID: middleware.GetUser(r.Context()).ID,
+		TenantID: sess.TenantID,
 		Name:     name,
 		SKU:      sku,
 		Price:    price,

@@ -14,6 +14,7 @@ import (
 	"github.com/DTineli/ez/internal/config"
 	"github.com/DTineli/ez/internal/handlers"
 	m "github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/store/cookiesotore"
 	"github.com/DTineli/ez/internal/store/dbstore"
 
 	database "github.com/DTineli/ez/internal/store/db"
@@ -42,16 +43,10 @@ func main() {
 	db := database.MustOpen(cfg.DatabaseName)
 	userStore := dbstore.NewUserStore(db)
 
-	sessionStore := dbstore.NewSessionStore(
-		dbstore.NewSessionStoreParams{
-			DB: db,
-		},
-	)
+	sessionStore := cookiesotore.NewSessionStore("VERYSECRETKEY")
 
 	fileServer := http.FileServer(http.Dir("./static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
-
-	authMiddleware := m.NewAuthMiddleware(sessionStore, cfg.SessionCookieName)
 
 	tenantStore := dbstore.NewTenantStore(db)
 	registerHandler := handlers.NewRegisterHandler(userStore, tenantStore)
@@ -82,9 +77,9 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(
 			m.TextHTMLMiddleware,
-			authMiddleware.AddSessionInfoToContext,
+			m.SessionAuthMiddleware(sessionStore),
 		)
-		r.Get("/", handlers.NewHomeHandler().ServeHTTP)
+		r.Get("/", handlers.NewHomeHandler(sessionStore).ServeHTTP)
 
 		r.Route("/produtos", func(r chi.Router) {
 			r.Get("/", productHandler.GetProductPage)

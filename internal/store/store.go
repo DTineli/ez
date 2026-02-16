@@ -1,5 +1,9 @@
 package store
 
+import (
+	"net/http"
+)
+
 type User struct {
 	ID       uint   `gorm:"primaryKey" json:"id"`
 	Name     string `json:"name"`
@@ -27,10 +31,9 @@ type Product struct {
 }
 
 type Session struct {
-	ID         uint   `gorm:"primaryKey" json:"id"`
-	SessionID  string `json:"session_id"`
-	UserID     uint   `json:"user_id"`
-	User       User   `gorm:"foreignKey:UserID" json:"user"`
+	UserID     uint `json:"user_id"`
+	UserName   string
+	UserEmail  string
 	TenantID   uint   `json:"tenant_id"`
 	TenantSlug string `json:"tenant_slug"`
 }
@@ -50,10 +53,10 @@ type UserStore interface {
 }
 
 type SessionStore interface {
-	CreateSession(session *Session) (*Session, error)
-	GetUserFromSession(sessionID string) (*User, error)
+	CreateSession(*http.Request, http.ResponseWriter, Session) error
+	GetSessionInfo(*http.Request) (*Session, error)
 
-	GetSessionInfo(sessionID string) (*Session, error)
+	GetUserFromSession(sessionID string) (*User, error)
 }
 
 type ProductStore interface {

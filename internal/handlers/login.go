@@ -1,9 +1,7 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/DTineli/ez/internal/store"
@@ -72,6 +70,7 @@ func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//TODO: getUserWithTenant
 	user, err := h.userStore.GetUser(email)
 	if err != nil || user == nil {
 		writeLoginError(r, w, "Email ou senha incorretos.")
@@ -89,14 +88,16 @@ func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Se ele ta no slug errado troca ou da erro ?
 	if tenant.Slug != strings.Split(r.Host, ".")[0] {
-		w.Header().Set(HXRedirect, fmt.Sprintf("%s.localhost:4000", tenant.Slug))
+		// w.Header().Set(HXRedirect, fmt.Sprintf("http://%s.localhost:4000", tenant.Slug))
 		writeLoginError(r, w, "slug diferente")
 		return
 	}
 
-	sess, err := h.sessionStore.CreateSession(&store.Session{
+	err = h.sessionStore.CreateSession(r, w, store.Session{
 		UserID:     user.ID,
+		UserEmail:  user.Email,
 		TenantID:   tenant.ID,
 		TenantSlug: tenant.Slug,
 	})
@@ -105,16 +106,6 @@ func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
 		writeLoginError(r, w, "Erro ao criar sessão. Tente novamente.")
 		return
 	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     h.cookieName,
-		Value:    strconv.FormatUint(uint64(sess.ID), 10),
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
-		MaxAge:   7 * 24 * 3600,
-	})
 
 	w.Header().Set(HXRedirect, "/")
 	w.WriteHeader(http.StatusOK)
