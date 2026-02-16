@@ -1,12 +1,9 @@
 package handlers
 
 import (
-	b64 "encoding/base64"
 	"net/http"
-	"strconv"
 	"strings"
 
-	"github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"golang.org/x/crypto/bcrypt"
@@ -15,25 +12,40 @@ import (
 type LoginHandler struct {
 	userStore    store.UserStore
 	sessionStore store.SessionStore
+	tenantStore  store.TenantStore
 	cookieName   string
 }
 
-func NewLoginHandler(userStore store.UserStore, sessionStore store.SessionStore, cookieName string) *LoginHandler {
+type LoginHandlerParams struct {
+	UserStore    store.UserStore
+	SessionStore store.SessionStore
+	TenantStore  store.TenantStore
+	CookieName   string
+}
+
+func NewLoginHandler(params LoginHandlerParams) *LoginHandler {
 	return &LoginHandler{
-		userStore:    userStore,
-		sessionStore: sessionStore,
-		cookieName:   cookieName,
+		userStore:    params.UserStore,
+		sessionStore: params.SessionStore,
+		tenantStore:  params.TenantStore,
+		cookieName:   params.CookieName,
 	}
 }
 
 func (h *LoginHandler) GetLoginPage(w http.ResponseWriter, r *http.Request) {
-	user := middleware.GetUser(r.Context())
-	loggedIn := user != nil
-	email := ""
-	if user != nil {
-		email = user.Email
+	var is_hxRequest = r.Header.Get("HX-Request") == "true"
+
+	if is_hxRequest {
+		err := templates.LoginPage().Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, "Error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
 	}
-	err := templates.Layout(templates.LoginPage(), "Entrar", loggedIn, email).Render(r.Context(), w)
+
+	err := templates.Layout(templates.LoginPage(), "Login", false, "").Render(r.Context(), w)
+
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
@@ -45,6 +57,7 @@ func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
 		writeLoginError(r, w, "Dados inválidos.")
 		return
 	}
+
 	email := strings.TrimSpace(r.FormValue("email"))
 	password := r.FormValue("password")
 
@@ -57,6 +70,7 @@ func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//TODO: getUserWithTenant
 	user, err := h.userStore.GetUser(email)
 	if err != nil || user == nil {
 		writeLoginError(r, w, "Email ou senha incorretos.")
@@ -68,24 +82,30 @@ func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.sessionStore.CreateSession(&store.Session{UserID: user.ID})
+	tenant, err := h.tenantStore.GetTenantByID(user.TenantID)
 	if err != nil {
 		writeLoginError(r, w, "Erro ao criar sessão. Tente novamente.")
 		return
 	}
 
-	cookieValue := b64.StdEncoding.EncodeToString(
-		[]byte(sess.SessionID + ":" + strconv.FormatUint(uint64(sess.UserID), 10)),
-	)
+	// TODO: Se ele ta no slug errado troca ou da erro ?
+	if tenant.Slug != strings.Split(r.Host, ".")[0] {
+		// w.Header().Set(HXRedirect, fmt.Sprintf("http://%s.localhost:4000", tenant.Slug))
+		writeLoginError(r, w, "slug diferente")
+		return
+	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     h.cookieName,
-		Value:    cookieValue,
-		Path:     "/",
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		MaxAge:   7 * 24 * 3600, // 7 dias
+	err = h.sessionStore.CreateSession(r, w, store.Session{
+		UserID:     user.ID,
+		UserEmail:  user.Email,
+		TenantID:   tenant.ID,
+		TenantSlug: tenant.Slug,
 	})
+
+	if err != nil {
+		writeLoginError(r, w, "Erro ao criar sessão. Tente novamente.")
+		return
+	}
 
 	w.Header().Set(HXRedirect, "/")
 	w.WriteHeader(http.StatusOK)

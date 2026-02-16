@@ -14,6 +14,7 @@ import (
 	"github.com/DTineli/ez/internal/config"
 	"github.com/DTineli/ez/internal/handlers"
 	m "github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/store/cookiesotore"
 	"github.com/DTineli/ez/internal/store/dbstore"
 
 	database "github.com/DTineli/ez/internal/store/db"
@@ -37,22 +38,27 @@ func main() {
 	cfg := config.MustLoadConfig()
 
 	r.Use(middleware.Logger)
+	// r.Use(m.CheckTenantMiddleware)
 
 	db := database.MustOpen(cfg.DatabaseName)
 	userStore := dbstore.NewUserStore(db)
 
-	sessionStore := dbstore.NewSessionStore(
-		dbstore.NewSessionStoreParams{
-			DB: db,
-		},
-	)
+	sessionStore := cookiesotore.NewSessionStore("VERYSECRETKEY")
 
 	fileServer := http.FileServer(http.Dir("./static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
 
-	authMiddleware := m.NewAuthMiddleware(sessionStore, cfg.SessionCookieName)
-	registerHandler := handlers.NewRegisterHandler(userStore)
-	loginHandler := handlers.NewLoginHandler(userStore, sessionStore, cfg.SessionCookieName)
+	tenantStore := dbstore.NewTenantStore(db)
+	registerHandler := handlers.NewRegisterHandler(userStore, tenantStore)
+
+	loginHandler := handlers.NewLoginHandler(
+		handlers.LoginHandlerParams{
+			UserStore:    userStore,
+			SessionStore: sessionStore,
+			TenantStore:  *tenantStore,
+			CookieName:   cfg.SessionCookieName,
+		},
+	)
 
 	r.Group(func(r chi.Router) {
 		r.Use(m.TextHTMLMiddleware)
@@ -69,8 +75,11 @@ func main() {
 
 	// autenticado
 	r.Group(func(r chi.Router) {
-		r.Use(m.TextHTMLMiddleware, authMiddleware.AddUserToContext)
-		r.Get("/", handlers.NewHomeHandler().ServeHTTP)
+		r.Use(
+			m.TextHTMLMiddleware,
+			m.SessionAuthMiddleware(sessionStore),
+		)
+		r.Get("/", handlers.NewHomeHandler(sessionStore).ServeHTTP)
 
 		r.Route("/produtos", func(r chi.Router) {
 			r.Get("/", productHandler.GetProductPage)

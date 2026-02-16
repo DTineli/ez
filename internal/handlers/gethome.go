@@ -2,14 +2,17 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
-	"github.com/DTineli/ez/internal/middleware"
+	m "github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 )
 
-type HomeHandler struct{}
+type HomeHandler struct {
+}
 
-func NewHomeHandler() *HomeHandler {
+func NewHomeHandler(sessionStore store.SessionStore) *HomeHandler {
 	return &HomeHandler{}
 }
 
@@ -17,19 +20,23 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	const website_name = "EZ"
 	var is_hxRequest = r.Header.Get("HX-Request") == "true"
 
-	user := middleware.GetUser(r.Context())
-	loggedIn := user != nil
+	slug := strings.Split(r.Host, ".")[0]
+
+	sessionInfo := m.GetSessionFromContext(r)
+
+	loggedIn := sessionInfo != nil
 
 	email := ""
 	var id uint
-	if user != nil {
-		email = user.Email
-		id = user.ID
+	if sessionInfo != nil {
+		email = sessionInfo.UserEmail
+		id = sessionInfo.UserID
 	}
 
 	if !loggedIn {
 		if is_hxRequest {
-			err := templates.GuestIndex().Render(r.Context(), w)
+			err := templates.GuestIndex(slug).Render(r.Context(), w)
+
 			if err != nil {
 				http.Error(w, "Error rendering template", http.StatusInternalServerError)
 				return
@@ -37,7 +44,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err := templates.Layout(templates.GuestIndex(), website_name, false, "").Render(r.Context(), w)
+		err := templates.Layout(templates.GuestIndex(slug), website_name, false, "").Render(r.Context(), w)
 
 		if err != nil {
 			http.Error(w, "Error rendering template", http.StatusInternalServerError)
@@ -47,7 +54,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if is_hxRequest {
-		err := templates.Index(email, id).Render(r.Context(), w)
+		err := templates.Index(slug, email, id).Render(r.Context(), w)
 		if err != nil {
 			http.Error(w, "Error rendering template", http.StatusInternalServerError)
 			return
@@ -55,7 +62,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := templates.Layout(templates.Index(email, id), website_name, true, email).Render(r.Context(), w)
+	err := templates.Layout(templates.Index(slug, email, id), website_name, true, email).Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return

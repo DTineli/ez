@@ -27,6 +27,15 @@ templ RegisterPage() {
 					/>
 				</div>
 				<div class="flex flex-col">
+					<label class="text-sm mb-1">Slug</label>
+					<input
+						type="text"
+						name="slug"
+						class="bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500"
+						required
+					/>
+				</div>
+				<div class="flex flex-col">
 					<label class="text-sm mb-1">Email</label>
 					<input
 						type="email"
@@ -40,6 +49,15 @@ templ RegisterPage() {
 					<input
 						type="password"
 						name="password"
+						class="bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500"
+						required
+					/>
+				</div>
+				<div class="flex flex-col">
+					<label class="text-sm mb-1">Confimar Senha</label>
+					<input
+						type="password"
+						name="password_confirmation"
 						class="bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500"
 						required
 					/>

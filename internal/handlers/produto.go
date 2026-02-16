@@ -1,14 +1,12 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
-	"github.com/DTineli/ez/internal/middleware"
+	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
-	"github.com/go-chi/chi/v5"
 )
 
 type ProductHandler struct {
@@ -56,12 +54,14 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	sess := m.GetSessionFromContext(r)
+
 	product := &store.Product{
-		UserID: middleware.GetUser(r.Context()).ID,
-		Name:   name,
-		SKU:    sku,
-		Price:  price,
-		Stock:  stock,
+		TenantID: sess.TenantID,
+		Name:     name,
+		SKU:      sku,
+		Price:    price,
+		Stock:    stock,
 	}
 
 	err = p.productStore.CreateProduct(product)
@@ -74,10 +74,11 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 }
 
 func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
 	var is_hxRequest = r.Header.Get("HX-Request") == "true"
 
-	userID := middleware.GetUser(r.Context()).ID
-	produtos, err := p.productStore.FindAllByUser(userID)
+	produtos, err := p.productStore.FindAllByUser(sess.TenantID)
 
 	if err != nil {
 		http.Error(w, "Error listing Product", http.StatusInternalServerError)

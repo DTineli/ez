@@ -1,43 +1,60 @@
 package store
 
+import (
+	"net/http"
+)
+
 type User struct {
 	ID       uint   `gorm:"primaryKey" json:"id"`
 	Name     string `json:"name"`
 	Email    string `gorm:"uniqueIndex" json:"email"`
 	Password string `json:"-"`
+	TenantID uint   `json:"tenant_id"`
+	Tenant   Tenant
+}
+
+type Tenant struct {
+	ID       uint
+	Slug     string `gorm:"uniqueIndex" json:"slug"`
+	Document string `json:"document"`
+	Users    []User
 }
 
 type Product struct {
-	ID     uint    `gorm:"primaryKey" json:"id"`
-	SKU    string  `json:"sku"`
-	Name   string  `json:"name"`
-	Price  float64 `json:"price"`
-	Stock  int     `json:"stock"`
-	User   User
-	UserID uint `json:"owner_id"`
-}
-
-type UserDTO struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"-"`
+	ID       uint    `gorm:"primaryKey" json:"id"`
+	SKU      string  `json:"sku"`
+	Name     string  `json:"name"`
+	Price    float64 `json:"price"`
+	Stock    int     `json:"stock"`
+	Tenant   Tenant
+	TenantID uint `json:"owner_id"`
 }
 
 type Session struct {
-	ID        uint   `gorm:"primaryKey" json:"id"`
-	SessionID string `json:"session_id"`
-	UserID    uint   `json:"user_id"`
-	User      User   `gorm:"foreignKey:UserID" json:"user"`
+	UserID     uint `json:"user_id"`
+	UserName   string
+	UserEmail  string
+	TenantID   uint   `json:"tenant_id"`
+	TenantSlug string `json:"tenant_slug"`
+}
+
+type TenantStore interface {
+	CreateTenant(Tenant) (uint, error)
+
+	GetTenantByID(id uint) (*Tenant, error)
+	// GetTenantBySlug(slug string) (*Tenant, error)
 }
 
 type UserStore interface {
-	CreateUser(UserDTO) error
+	CreateUser(User) error
 	GetUser(email string) (*User, error)
+
+	// GetUserById(id uint) (*User, error)
 }
 
 type SessionStore interface {
-	CreateSession(session *Session) (*Session, error)
-	GetUserFromSession(sessionID string, userID string) (*User, error)
+	CreateSession(*http.Request, http.ResponseWriter, Session) error
+	GetSessionInfo(*http.Request) (*Session, error)
 }
 
 type ProductStore interface {
