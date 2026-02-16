@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/DTineli/ez/internal/middleware"
+	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 )
@@ -54,7 +54,7 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	sess := middleware.GetSessionFromContext(r)
+	sess := m.GetSessionFromContext(r)
 
 	product := &store.Product{
 		TenantID: sess.TenantID,
@@ -74,10 +74,11 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 }
 
 func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
 	var is_hxRequest = r.Header.Get("HX-Request") == "true"
 
-	// userID := middleware.GetUser(r.Context()).ID
-	produtos, err := p.productStore.FindAllByUser(10)
+	produtos, err := p.productStore.FindAllByUser(sess.TenantID)
 
 	if err != nil {
 		http.Error(w, "Error listing Product", http.StatusInternalServerError)

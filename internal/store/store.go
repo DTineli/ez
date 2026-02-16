@@ -55,8 +55,6 @@ type UserStore interface {
 type SessionStore interface {
 	CreateSession(*http.Request, http.ResponseWriter, Session) error
 	GetSessionInfo(*http.Request) (*Session, error)
-
-	GetUserFromSession(sessionID string) (*User, error)
 }
 
 type ProductStore interface {
