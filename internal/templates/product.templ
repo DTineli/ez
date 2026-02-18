@@ -30,7 +30,7 @@ templ ProductsPage(products []store.Product) {
 						<th class="py-3 px-2 text-sm font-semibold text-gray-600">Descrição</th>
 						<th class="py-3 px-2 text-sm font-semibold text-gray-600">SKU</th>
 						<th class="py-3 px-2 text-sm font-semibold text-gray-600">Estoque</th>
-						<th class="py-3 px-2 text-sm font-semibold text-gray-600">Preço</th>
+						<th class="py-3 px-2 text-sm font-semibold text-gray-600">Preço de Custo</th>
 						<th class="py-3 px-2 text-sm font-semibold text-gray-600">Ação</th>
 					</tr>
 				</thead>
@@ -40,8 +40,8 @@ templ ProductsPage(products []store.Product) {
 							<td class="py-3 px-2">{ p.ID }</td>
 							<td class="py-3 px-2">{ p.Name }</td>
 							<td class="py-3 px-2">{ p.SKU }</td>
-							<td class="py-3 px-2">{ p.Stock }</td>
-							<td class="py-3 px-2">R$ { p.Price }</td>
+							<td class="py-3 px-2">{ p.CurrentStock }</td>
+							<td class="py-3 px-2">R$ { p.CostPrice }</td>
 							<td>
 								<div class="flex gap-10">
 									<button type="button" class="btn">Editar</button>

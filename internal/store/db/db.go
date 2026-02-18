@@ -31,9 +31,11 @@ func MustOpen(dbName string) *gorm.DB {
 	}
 
 	err = db.AutoMigrate(
+		&store.Tenant{},
 		&store.User{},
-		&store.Session{},
 		&store.Product{},
+		&store.ProductPrice{},
+		&store.PriceTable{},
 	)
 
 	if err != nil {

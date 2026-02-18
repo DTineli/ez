@@ -57,11 +57,11 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 	sess := m.GetSessionFromContext(r)
 
 	product := &store.Product{
-		TenantID: sess.TenantID,
-		Name:     name,
-		SKU:      sku,
-		Price:    price,
-		Stock:    stock,
+		TenantID:     sess.TenantID,
+		Name:         name,
+		SKU:          sku,
+		CostPrice:    price,
+		CurrentStock: stock,
 	}
 
 	err = p.productStore.CreateProduct(product)
@@ -75,7 +75,6 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 
 func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
 	sess := m.GetSessionFromContext(r)
-
 	var is_hxRequest = r.Header.Get("HX-Request") == "true"
 
 	produtos, err := p.productStore.FindAllByUser(sess.TenantID)
