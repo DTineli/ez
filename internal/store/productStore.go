@@ -17,15 +17,22 @@ const (
 )
 
 type Product struct {
-	ID               uint   `gorm:"primaryKey" json:"id"`
-	SKU              string `gorm:"type:varchar(50);not null;index:idx_tenant_sku,unique,priority:2" json:"sku"`
-	Name             string `json:"name"`
-	ShortDescription string `gorm:"type:text" json:"short_description"`
-	FullDescription  string `gorm:"type:text" json:"full_description"`
-	Status           bool   `json:"status"`
+	ID              uint   `gorm:"primaryKey" json:"id"`
+	SKU             string `gorm:"type:varchar(50);not null;index:idx_tenant_sku,unique,priority:2" json:"sku"`
+	Name            string `json:"name"`
+	FullDescription string `gorm:"type:text" json:"full_description"`
+	Status          bool   `json:"status"`
 
 	//TODO: FOTOS ??
-	UOM UOM `gorm:"type:varchar(10);default:'UN'" json:"uom"` //UNIDADE DE MEDIDA
+
+	UOM UOM    `gorm:"type:varchar(10);default:'UN'" json:"uom"` //UNIDADE DE MEDIDA
+	EAN string `gorm:"type:varchar(20);" json:"ean"`
+	NCM string `gorm:"type:varchar(20);" json:"ncm"`
+
+	// Variacao
+	IsVariant bool     `gorm:"default:false" json:"is_variant"`
+	ParentID  uint     `gorm:"index" json:"parent_id,omitempty"`
+	Parent    *Product `gorm:"foreignKey:ParentID"`
 
 	CostPrice    float64 `json:"cost_price"`
 	CurrentStock int     `gorm:"default:0" json:"current_stock"`
@@ -42,13 +49,13 @@ type Product struct {
 }
 
 type PriceTable struct {
-	ID          uint           `gorm:"primaryKey" json:"id"`
-	Name        string         `gorm:"type:varchar(100);not null;index" json:"name"`
-	Description string         `gorm:"type:text" json:"description"`
-	Active      bool           `gorm:"default:true" json:"active"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
+	ID     uint   `gorm:"primaryKey" json:"id"`
+	Name   string `gorm:"type:varchar(100);not null;index" json:"name"`
+	Status bool   `gorm:"default:true" json:"active"`
+
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 
 	// Relationships
 	Prices []ProductPrice `gorm:"foreignKey:PriceTableID" json:"prices,omitempty"`

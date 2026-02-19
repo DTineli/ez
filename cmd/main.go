@@ -83,8 +83,10 @@ func main() {
 
 		r.Route("/produtos", func(r chi.Router) {
 			r.Get("/", productHandler.GetProductPage)
-			r.Post("/", productHandler.PostNewProduct)
 			r.Get("/novo", productHandler.GetProductForm)
+
+			r.Post("/", productHandler.PostNewProduct)
+			r.Put("/{id}", productHandler.GetTablePage)
 			r.Delete("/{id}", productHandler.DeleteProduct)
 
 			// r.Get("/{id}", produtoHandler.Show)

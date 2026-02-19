@@ -20,7 +20,24 @@ func NewProductHandler(db store.ProductStore) *ProductHandler {
 }
 
 func (p *ProductHandler) GetProductForm(w http.ResponseWriter, r *http.Request) {
-	err := templates.ProductForm().Render(r.Context(), w)
+	var is_hxRequest = r.Header.Get("HX-Request") == "true"
+
+	if is_hxRequest {
+		err := templates.ProductForm().Render(r.Context(), w)
+
+		if err != nil {
+			http.Error(w, "Error rendering template", http.StatusInternalServerError)
+			return
+		}
+		return
+	}
+
+	err := templates.Layout(
+		templates.ProductForm(),
+		"Ez",
+		true,
+		"",
+	).Render(r.Context(), w)
 
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
