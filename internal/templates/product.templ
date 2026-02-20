@@ -57,73 +57,221 @@ templ ProductsPage(products []store.Product) {
 }
 
 templ Button(label string) {
-	<button class="bg-sky-500 hover:bg-sky-700 text-white text-sm rounded-lg p-2">{ label }</button>
+	<button class="btn">{ label }</button>
 }
 
-// ---------- FORM NOVO PRODUTO ----------
 templ ProductForm() {
-	<div class="max-w-2xl mx-auto p-6">
-		<h1 class="text-2xl font-semibold mb-4">Cadastro de produto</h1>
-		<form
-			hx-post="/products"
-			hx-target="#form-result"
-			hx-swap="innerHTML"
-			class="space-y-4"
-		>
-			<div>
-				<label class="block text-sm font-medium">Nome</label>
-				<input
-					type="text"
-					name="name"
-					class="w-full border rounded px-3 py-2"
-					required
-				/>
-			</div>
-			<div>
-				<label class="block text-sm font-medium">SKU</label>
-				<input
-					type="text"
-					name="sku"
-					class="w-full border rounded px-3 py-2"
-					required
-				/>
-			</div>
-			<div>
-				<label class="block text-sm font-medium">Descrição</label>
-				<textarea
-					name="description"
-					class="w-full border rounded px-3 py-2"
-				></textarea>
-			</div>
-			<div class="grid grid-cols-3 gap-4">
-				<div>
-					<label class="block text-sm font-medium">Preço de custo</label>
-					<input type="number" step="0.01" name="cost_price" class="w-full border rounded px-3 py-2"/>
+	<div class="min-h-screen bg-base-200 p-10">
+		<div class="w-full max-w-7xl mx-auto">
+			<div class="card bg-base-100 shadow-2xl">
+				<div class="card-body">
+					<h1 class="text-3xl font-bold mb-8">
+						Cadastro de Produto
+					</h1>
+					<div class="form-control flex justify-end">
+						<label class="label">
+							<span class="label-text m-1">Produto Ativo</span>
+						</label>
+						<input
+							type="checkbox"
+							name="status"
+							class="toggle toggle-primary"
+							checked
+						/>
+					</div>
+					<form
+						hx-post="/produtos"
+						hx-target="#product-response"
+						hx-swap="innerHTML"
+						class="space-y-10"
+					>
+						<!-- DADOS GERAIS -->
+						<div>
+							<h2 class="text-xl font-semibold mb-4">
+								Dados Gerais
+							</h2>
+							<div class="flex flex-col  md:flex-row gap-6 justify-between">
+								<div class="form-control">
+									<label class="label">
+										<span class="label-text">Nome</span>
+									</label>
+									<input
+										type="text"
+										name="name"
+										class="input input-bordered w-full"
+										required
+									/>
+								</div>
+								<div class="form-control">
+									<label class="label">
+										<span class="label-text">SKU</span>
+									</label>
+									<input
+										type="text"
+										name="sku"
+										class="input input-bordered w-full"
+										required
+									/>
+								</div>
+								<div class="form-control">
+									<label class="label">
+										<span class="label-text">EAN</span>
+									</label>
+									<input
+										type="text"
+										name="ean"
+										class="input input-bordered w-full"
+									/>
+								</div>
+							</div>
+							<div class="form-control ">
+								<label class="label">
+									<span class="label-text">Descrição Completa</span>
+								</label>
+								<textarea
+									name="full_description"
+									class="textarea textarea-bordered w-full"
+								></textarea>
+							</div>
+						</div>
+						<!-- CLASSIFICAÇÃO -->
+						<div>
+							<h2 class="text-xl font-semibold mb-4">
+								Classificação
+							</h2>
+							<div class="flex flex-col  md:flex-row gap-6 justify-between">
+								<div class="form-control">
+									<label class="label">
+										<span class="label-text">Unidade de Medida</span>
+									</label>
+									<select name="uom" class="select select-bordered w-full">
+										<option value="UN">Unidade (UN)</option>
+										<option value="KG">Quilograma (KG)</option>
+										<option value="LT">Litro (LT)</option>
+										<option value="CX">Caixa (CX)</option>
+										<option value="MT">Metro (MT)</option>
+									</select>
+								</div>
+								<div class="form-control">
+									<label class="label">
+										<span class="label-text">NCM</span>
+									</label>
+									<input
+										type="text"
+										name="ncm"
+										class="input input-bordered w-full"
+									/>
+								</div>
+							</div>
+						</div>
+						<!-- ESTOQUE E CUSTO -->
+						<div>
+							<h2 class="text-xl font-semibold mb-4">
+								Estoque & Custos
+							</h2>
+							<div class="flex flex-col  md:flex-row gap-6 justify-between">
+								<div class="form-control">
+									<label class="label">
+										<span class="label-text">Preço de Custo</span>
+									</label>
+									<input
+										type="number"
+										step="0.01"
+										name="cost_price"
+										class="input input-bordered w-full"
+										required
+									/>
+								</div>
+								<div class="form-control">
+									<label class="label">
+										<span class="label-text">Estoque Atual</span>
+									</label>
+									<input
+										type="number"
+										name="current_stock"
+										class="input input-bordered w-full"
+									/>
+								</div>
+								<div class="form-control">
+									<label class="label">
+										<span class="label-text">Estoque Mínimo</span>
+									</label>
+									<input
+										type="number"
+										name="minimum_stock"
+										class="input input-bordered w-full"
+									/>
+								</div>
+							</div>
+						</div>
+						<!-- DIMENSÕES -->
+						<div>
+							<h2 class="text-xl font-semibold mb-4">
+								Dimensões
+							</h2>
+							<div class="flex flex-col  md:flex-row gap-6 justify-between">
+								<div class="form-control">
+									<label class="label">
+										<span class="label-text">Peso (kg)</span>
+									</label>
+									<input
+										type="number"
+										step="0.001"
+										name="weight"
+										class="input input-bordered w-full"
+									/>
+								</div>
+								<div class="form-control">
+									<label class="label">
+										<span class="label-text">Altura (cm)</span>
+									</label>
+									<input
+										type="number"
+										step="0.01"
+										name="height_cm"
+										class="input input-bordered w-full"
+									/>
+								</div>
+								<div class="form-control">
+									<label class="label">
+										<span class="label-text">Largura (cm)</span>
+									</label>
+									<input
+										type="number"
+										step="0.01"
+										name="width_cm"
+										class="input input-bordered w-full"
+									/>
+								</div>
+								<div class="form-control">
+									<label class="label">
+										<span class="label-text">Comprimento (cm)</span>
+									</label>
+									<input
+										type="number"
+										step="0.01"
+										name="length_cm"
+										class="input input-bordered w-full"
+									/>
+								</div>
+							</div>
+						</div>
+						<div class="divider"></div>
+						<div class="flex justify-end gap-4">
+							<a href="/produtos" class="btn btn-ghost">
+								Cancelar
+							</a>
+							<button
+								type="submit"
+								class="btn btn-primary"
+							>
+								Salvar Produto
+							</button>
+						</div>
+					</form>
+					<div id="product-response" class="mt-6"></div>
 				</div>
-				<div>
-					<label class="block text-sm font-medium">EAN</label>
-					<input type="number" step="0.01" name="cost_price" class="w-full border rounded px-3 py-2"/>
-				</div>
-				<div>
-					<label class="block text-sm font-medium">Estoque atual</label>
-					<input type="number" name="current_stock" class="w-full border rounded px-3 py-2"/>
-				</div>
-				<div>
-					<label class="block text-sm font-medium">Estoque mínimo</label>
-					<input type="number" name="minimum_stock" class="w-full border rounded px-3 py-2"/>
-				</div>
 			</div>
-			<div class="flex items-center gap-2">
-				<input type="checkbox" name="status" checked/>
-				<label>Ativo</label>
-			</div>
-			<button
-				class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-				type="submit"
-			>
-				Salvar produto
-			</button>
-		</form>
-		<div id="form-result" class="mt-4"></div>
+		</div>
 	</div>
 }

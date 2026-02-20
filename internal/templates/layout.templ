@@ -137,7 +137,7 @@ templ nav(loggedIn bool, email string) {
 }
 
 templ Layout(contents templ.Component, title string, loggedIn bool, email string) {
-	<html lang="pt-br">
+	<html lang="pt-br" data-theme="ligth">
 		@header(title)
 		<body hx-boost="true" hx-target="#main-content" hx-swap="innerHTML" class="min-h-screen bg-gray-100 flex-col m-o">
 			@nav(loggedIn, email)
