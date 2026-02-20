@@ -7,17 +7,17 @@ import (
 
 // ---------- LISTAGEM ----------
 templ ProductsPage(products []store.Product) {
-	<div class="bg-white rounded-2xl shadow p-6">
+	<div id="main-content" class="bg-white rounded-2xl shadow p-6">
 		<div class="flex items-center justify-between mb-6">
+			@Button("TESTE")
 			<h2 class="text-xl font-semibold">Lista de produtos</h2>
-			<button
-				hx-get="/produtos/novo"
-				hx-target="#content"
-				hx-swap="innerHTML"
+			<a
+				href="/produtos/novo"
+				required
 				class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-xl transition"
 			>
 				Novo
-			</button>
+			</a>
 		</div>
 		<!-- FORM CONTAINER -->
 		<div id="product-form" class="mb-6"></div>
@@ -56,6 +56,10 @@ templ ProductsPage(products []store.Product) {
 	</div>
 }
 
+templ Button(label string) {
+	<button class="bg-sky-500 hover:bg-sky-700 text-white text-sm rounded-lg p-2">{ label }</button>
+}
+
 // ---------- FORM NOVO PRODUTO ----------
 templ ProductForm() {
 	<div class="max-w-2xl mx-auto p-6">
@@ -85,15 +89,19 @@ templ ProductForm() {
 				/>
 			</div>
 			<div>
-				<label class="block text-sm font-medium">Descrição curta</label>
+				<label class="block text-sm font-medium">Descrição</label>
 				<textarea
-					name="short_description"
+					name="description"
 					class="w-full border rounded px-3 py-2"
 				></textarea>
 			</div>
 			<div class="grid grid-cols-3 gap-4">
 				<div>
 					<label class="block text-sm font-medium">Preço de custo</label>
+					<input type="number" step="0.01" name="cost_price" class="w-full border rounded px-3 py-2"/>
+				</div>
+				<div>
+					<label class="block text-sm font-medium">EAN</label>
 					<input type="number" step="0.01" name="cost_price" class="w-full border rounded px-3 py-2"/>
 				</div>
 				<div>
