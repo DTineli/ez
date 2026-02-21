@@ -6,6 +6,14 @@ import (
 	"gorm.io/gorm"
 )
 
+func (p Product) StatusToString() string {
+	if p.Status {
+		return "Ativo"
+	}
+
+	return "Inativo"
+}
+
 type UOM string
 
 const (
