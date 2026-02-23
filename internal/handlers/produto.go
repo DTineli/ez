@@ -23,37 +23,25 @@ func NewProductHandler(db store.ProductStore) *ProductHandler {
 	}
 }
 
-func Render(templ templ.Component, r *http.Request, w http.ResponseWriter) error {
-	var is_hxRequest = r.Header.Get("HX-Request") == "true"
-	if is_hxRequest {
-		return templ.Render(r.Context(), w)
+/*
+|--------------------------------------------------------------------------
+| Helpers
+|--------------------------------------------------------------------------
+*/
+
+func Render(c templ.Component, r *http.Request, w http.ResponseWriter) error {
+	if r.Header.Get("HX-Request") == "true" {
+		return c.Render(r.Context(), w)
 	}
 
-	return templates.Layout(
-		templ,
-		"Ez",
-		true, //TODO: verificar se ta logado
-		"",
-	).Render(r.Context(), w)
+	return templates.
+		Layout(c, "Ez", true, "").
+		Render(r.Context(), w)
 }
 
-func (p *ProductHandler) GetProductForm(w http.ResponseWriter, r *http.Request) {
-	err := Render(templates.ProductForm(forms.New(r.PostForm), false), r, w)
-
-	if err != nil {
-		http.Error(w, "Error rendering template", http.StatusInternalServerError)
-		return
-	}
-}
-
-func (p *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) {
+func validateProductForm(r *http.Request) (*forms.Form, error) {
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Erro ao processar formulário", http.StatusBadRequest)
-		return
+		return nil, err
 	}
 
 	form := forms.New(r.PostForm)
@@ -71,56 +59,102 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 	form.MaxLength("sku", 25)
 	form.MinLength("sku", 4)
 
-	costPrice := form.IsFloat("cost_price")
-	weight := form.IsFloat("weight")
-	height := form.IsFloat("height")
-	width := form.IsFloat("width")
-	length := form.IsFloat("Length")
+	form.IsFloat("cost_price")
+	form.IsFloat("weight")
+	form.IsFloat("height")
+	form.IsFloat("width")
+	form.IsFloat("length")
 
-	currentStock := form.IsInt("current_stock")
-	minimumStock := form.IsInt("minimum_stock")
+	form.IsInt("current_stock")
+	form.IsInt("minimum_stock")
 	form.IsInt("ean")
+	form.IsInt("ncm")
+
+	return form, nil
+}
+
+func isDuplicateError(err error) bool {
+	msg := err.Error()
+	return strings.Contains(msg, "UNIQUE constraint failed") ||
+		strings.Contains(msg, "Duplicate")
+}
+
+func mapProductToForm(p *store.Product) *forms.Form {
+	form := forms.New(nil)
+
+	form.Set("ID", strconv.Itoa(int(p.ID)))
+	form.Set("name", p.Name)
+	form.Set("sku", p.SKU)
+	form.Set("uom", string(p.UOM))
+	form.Set("description", p.FullDescription)
+
+	form.Set("cost_price", strconv.FormatFloat(p.CostPrice, 'f', 2, 64))
+	form.Set("weight", strconv.FormatFloat(p.Weight, 'f', 2, 64))
+	form.Set("height", strconv.FormatFloat(p.HeightCm, 'f', 2, 64))
+	form.Set("length", strconv.FormatFloat(p.LengthCm, 'f', 2, 64))
+	form.Set("width", strconv.FormatFloat(p.WidthCm, 'f', 2, 64))
+
+	form.Set("ean", p.EAN)
+	form.Set("ncm", p.NCM)
+
+	form.Set("minimum_stock", strconv.Itoa(p.MinimumStock))
+	form.Set("current_stock", strconv.Itoa(p.CurrentStock))
+
+	return form
+}
+
+/*
+|--------------------------------------------------------------------------
+| Handlers
+|--------------------------------------------------------------------------
+*/
+
+func (p *ProductHandler) GetProductForm(w http.ResponseWriter, r *http.Request) {
+	err := Render(templates.ProductForm(forms.New(nil), false), r, w)
+	if err != nil {
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+	}
+}
+
+func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) {
+	form, err := validateProductForm(r)
+	if err != nil {
+		http.Error(w, "Erro ao processar formulário", http.StatusBadRequest)
+		return
+	}
 
 	if !form.Valid() {
-		err := Render(templates.ProductForm(form, false), r, w)
-		if err != nil {
-			http.Error(w, "Error Creating Product", http.StatusInternalServerError)
-		}
+		_ = Render(templates.ProductForm(form, false), r, w)
 		return
 	}
 
 	sess := m.GetSessionFromContext(r)
 
-	//TODO: Verificar sku duplicado
-
-	err := p.productStore.CreateProduct(&store.Product{
+	product := &store.Product{
 		TenantID:        sess.TenantID,
 		SKU:             form.Get("sku"),
 		Name:            form.Get("name"),
 		FullDescription: form.Get("description"),
-		Status:          true, //TODO: Persistir isso daqui
+		Status:          true,
 		UOM:             store.UOM(form.Get("uom")),
 		EAN:             form.Get("ean"),
 		NCM:             form.Get("ncm"),
-		CostPrice:       costPrice,
-		WidthCm:         width,
-		Weight:          weight,
-		HeightCm:        height,
-		LengthCm:        length,
-		MinimumStock:    minimumStock,
-		CurrentStock:    currentStock,
-	})
+		CostPrice:       form.IsFloat("cost_price"),
+		WidthCm:         form.IsFloat("width"),
+		Weight:          form.IsFloat("weight"),
+		HeightCm:        form.IsFloat("height"),
+		LengthCm:        form.IsFloat("length"),
+		MinimumStock:    form.IsInt("minimum_stock"),
+		CurrentStock:    form.IsInt("current_stock"),
+	}
 
-	if err != nil {
-		if strings.Contains(err.Error(), "UNIQUE constraint failed") || strings.Contains(err.Error(), "Duplicate") {
+	if err := p.productStore.CreateProduct(product); err != nil {
+		if isDuplicateError(err) {
 			form.Errors.Add("sku", "Este SKU já está em uso.")
-			err := Render(templates.ProductForm(form, false), r, w)
-
-			if err != nil {
-				http.Error(w, "Error Creating Product", http.StatusInternalServerError)
-			}
+			_ = Render(templates.ProductForm(form, false), r, w)
 			return
 		}
+
 		writeRegisterError(r, w, "Erro ao criar Produto. Tente novamente.")
 		return
 	}
@@ -131,59 +165,39 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 
 func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 	sess := m.GetSessionFromContext(r)
-	var is_update = true
 
-	idStr := chi.URLParam(r, "id")
-	id, err := strconv.ParseUint(idStr, 10, 64)
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
 	if err != nil {
 		http.Error(w, "invalid id", http.StatusBadRequest)
 		return
 	}
 
 	product, err := p.productStore.GetProduct(uint(id))
-
-	if err != nil {
+	if err != nil || product.TenantID != sess.TenantID {
 		http.Error(w, "invalid id", http.StatusBadRequest)
 		return
 	}
 
-	if product.TenantID != sess.TenantID {
-		http.Error(w, "invalid id", http.StatusBadRequest)
-		return
-	}
+	form := mapProductToForm(product)
 
-	form := forms.New(nil)
-
-	form.Set("ID", strconv.FormatUint(uint64(product.ID), 10))
-	form.Set("name", product.Name)
-	form.Set("sku", product.SKU)
-	form.Set("uom", string(product.UOM))
-	form.Set("description", product.FullDescription)
-	form.Set("cost_price", strconv.FormatFloat(product.CostPrice, 'f', 2, 64))
-	form.Set("weight", strconv.FormatFloat(product.Weight, 'f', 2, 64))
-	form.Set("height", strconv.FormatFloat(product.HeightCm, 'f', 2, 64))
-	form.Set("length", strconv.FormatFloat(product.LengthCm, 'f', 2, 64))
-	form.Set("width", strconv.FormatFloat(product.WidthCm, 'f', 2, 64))
-
-	form.Set("ean", product.EAN)
-	form.Set("minimum_stock", strconv.FormatInt(int64(product.MinimumStock), 10))
-	form.Set("current_stock", strconv.FormatInt(int64(product.CurrentStock), 10))
-
-	Render(templates.ProductForm(form, is_update), r, w)
+	_ = Render(templates.ProductForm(form, true), r, w)
 }
 
 func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
 	sess := m.GetSessionFromContext(r)
-	produtos, err := p.productStore.FindAllByUser(sess.TenantID)
 
+	produtos, err := p.productStore.FindAllByUser(sess.TenantID)
 	if err != nil {
 		http.Error(w, "Error listing Product", http.StatusInternalServerError)
+		return
 	}
 
 	err = Render(templates.ProductsPage(produtos), r, w)
-
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
-		return
 	}
+}
+
+func (p *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+	// TODO: implementar
 }
