@@ -110,7 +110,7 @@ templ ProductForm(form *forms.Form) {
 								<textarea
 									name="description"
 									class="textarea textarea-bordered w-full"
-								></textarea>
+								>{ form.Get("description") }</textarea>
 							</div>
 						</div>
 						<!-- CLASSIFICAÇÃO -->
@@ -123,12 +123,52 @@ templ ProductForm(form *forms.Form) {
 									<label class="label">
 										<span class="label-text">Unidade de Medida</span>
 									</label>
+									<!-- UNIDADE -->
 									<select name="uom" class="select select-bordered w-full">
-										<option value="UN">Unidade (UN)</option>
-										<option value="KG">Quilograma (KG)</option>
-										<option value="LT">Litro (LT)</option>
-										<option value="CX">Caixa (CX)</option>
-										<option value="MT">Metro (MT)</option>
+										<option
+											value="UN"
+											if form.Get("uom") == "UN" {
+												selected
+											}
+										>
+											Unidade (UN)
+										</option>
+										<!-- KILO -->
+										<option
+											value="KG"
+											if form.Get("uom") == "KG" {
+												selected
+											}
+										>
+											Quilograma (KG)
+										</option>
+										<!-- LITRO -->
+										<option
+											value="LT"
+											if form.Get("uom") == "LT" {
+												selected
+											}
+										>
+											Litro (LT)
+										</option>
+										<!-- CAIXA -->
+										<option
+											value="CX"
+											if form.Get("uom") == "CX" {
+												selected
+											}
+										>
+											Caixa (CX)
+										</option>
+										<!-- METRO -->
+										<option
+											value="MT"
+											if form.Get("uom") == "MT" {
+												selected
+											}
+										>
+											Metro (MT)
+										</option>
 									</select>
 								</div>
 								@components.BasicInput(components.BasicInputParams{

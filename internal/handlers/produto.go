@@ -158,6 +158,9 @@ func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 	form.Set("description", product.FullDescription)
 	form.Set("cost_price", strconv.FormatFloat(product.CostPrice, 'f', 2, 64))
 	form.Set("weight", strconv.FormatFloat(product.Weight, 'f', 2, 64))
+	form.Set("height", strconv.FormatFloat(product.HeightCm, 'f', 2, 64))
+	form.Set("length", strconv.FormatFloat(product.LengthCm, 'f', 2, 64))
+	form.Set("width", strconv.FormatFloat(product.WidthCm, 'f', 2, 64))
 
 	if is_hxRequest {
 		templates.ProductForm(form).Render(r.Context(), w)
