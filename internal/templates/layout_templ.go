@@ -175,7 +175,7 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<body hx-boost=\"true\" hx-target=\"#main-content\" hx-swap=\"innerHTML\" class=\"min-h-screen bg-gray-100 flex-col m-o\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<body hx-boost=\"true\" hx-target=\"#main-content\" hx-swap=\"innerHTML\" class=\"min-h-screen bg-gray-100 flex-col m-o\"><div id=\"toast-container\" class=\"fixed top-6 right-6 z-50 space-y-4 w-80\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

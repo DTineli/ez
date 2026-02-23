@@ -87,7 +87,7 @@ func main() {
 			r.Get("/{id}", productHandler.GetEditPage)
 
 			r.Post("/", productHandler.PostNewProduct)
-			r.Put("/{id}", productHandler.GetTablePage)
+			r.Post("/{id}", productHandler.UpdateProduct)
 			r.Delete("/{id}", productHandler.DeleteProduct)
 
 			// r.Get("/{id}", produtoHandler.Show)

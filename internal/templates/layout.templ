@@ -140,6 +140,10 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 	<html lang="pt-br" data-theme="ligth">
 		@header(title)
 		<body hx-boost="true" hx-target="#main-content" hx-swap="innerHTML" class="min-h-screen bg-gray-100 flex-col m-o">
+			<div
+				id="toast-container"
+				class="fixed top-6 right-6 z-50 space-y-4 w-80"
+			></div>
 			@nav(loggedIn, email)
 			<main id="main-content" class="w-full flex justify-center min-w-screen">
 				@contents

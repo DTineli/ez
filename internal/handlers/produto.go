@@ -163,6 +163,46 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusOK)
 }
 
+func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+	form, err := validateProductForm(r)
+
+	if err != nil {
+		http.Error(w, "Erro ao processar formulário", http.StatusBadRequest)
+		return
+	}
+
+	if !form.Valid() {
+		_ = Render(templates.ProductForm(form, true), r, w)
+		return
+	}
+
+	fields := map[string]any{
+		"name":             form.Get("name"),
+		"full_description": form.Get("description"),
+		"status":           true,
+		"uom":              store.UOM(form.Get("uom")),
+		"ean":              form.Get("ean"),
+		"ncm":              form.Get("ncm"),
+		"cost_price":       form.IsFloat("cost_price"),
+		"width_cm":         form.IsFloat("width"),
+		"weight":           form.IsFloat("weight"),
+		"height_cm":        form.IsFloat("height"),
+		"length_cm":        form.IsFloat("length"),
+		"minimum_stock":    form.IsInt("minimum_stock"),
+		"current_stock":    form.IsInt("current_stock"),
+	}
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+
+	err = p.productStore.UpdateFields(uint(id), sess.TenantID, fields)
+	if err != nil {
+		writeRegisterError(r, w, "Erro ao criar Produto. Tente novamente.")
+	}
+	form.Set("ID", strconv.Itoa(int(id)))
+	_ = Render(templates.ProductForm(form, true), r, w)
+}
+
 func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 	sess := m.GetSessionFromContext(r)
 

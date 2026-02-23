@@ -353,7 +353,7 @@ func ProductForm(form *forms.Form, isUpdate bool) templ.Component {
 			Name:          "length",
 			Label:         "Comprimento (cm)",
 			InputType:     "number",
-			Value:         form.Get("leay"),
+			Value:         form.Get("length"),
 			ErrorMessages: form.Errors.Get("length"),
 			IsRequired:    false,
 		}).Render(ctx, templ_7745c5c3_Buffer)

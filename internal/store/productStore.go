@@ -81,6 +81,14 @@ type ProductPrice struct {
 
 type ProductStore interface {
 	CreateProduct(*Product) error
+	// UpdateById(p *Product) error
+
+	UpdateFields(
+		id uint,
+		tenantID uint,
+		fields map[string]any,
+	) error
+
 	GetProduct(id uint) (*Product, error)
 
 	FindAllByUser(userID uint) ([]Product, error)
