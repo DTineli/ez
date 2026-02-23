@@ -3,6 +3,7 @@ package templates
 import (
 	"github.com/DTineli/ez/internal/store"
 	"fmt"
+	"github.com/DTineli/ez/internal/forms"
 )
 
 // ---------- LISTAGEM ----------
@@ -44,8 +45,41 @@ templ ProductsPage(products []store.Product) {
 	</div>
 }
 
-templ ProductForm() {
-	<div class="min-h-screen bg-base-200 p-10">
+type inputParams struct {
+	label         string
+	name          string
+	inputType     string
+	value         string
+	errorMessages []string
+	isRequired    bool
+}
+
+templ input(p inputParams) {
+	<div class="form-control">
+		<label class="label">
+			<span class="label-text">{ p.label }</span>
+		</label>
+		<input
+			type={ p.inputType }
+			name={ p.name }
+			value={ p.value }
+			if len(p.errorMessages) > 0 {
+				class="input input-bordered w-full border-red-600"
+			} else {
+				class="input input-bordered w-full"
+			}
+			if p.isRequired {
+				required
+			}
+		/>
+		for _, e := range p.errorMessages {
+			<span class="text-red-600">{ e }</span>
+		}
+	</div>
+}
+
+templ ProductForm(form *forms.Form) {
+	<div class="min-h-screen bg-base-200 p-10" id="form">
 		<div class="w-full max-w-7xl mx-auto">
 			<div class="card bg-base-100 shadow-2xl">
 				<div class="card-body">
@@ -64,9 +98,10 @@ templ ProductForm() {
 						/>
 					</div>
 					<form
+						class="space-y-10"
 						hx-post="/produtos"
-						hx-target="#product-response"
-						hx-swap="innerHTML"
+						hx-target="#form"
+						hx-swap="outerHTML"
 						class="space-y-10"
 					>
 						<!-- DADOS GERAIS -->
@@ -75,38 +110,30 @@ templ ProductForm() {
 								Dados Gerais
 							</h2>
 							<div class="flex flex-col  md:flex-row gap-6 justify-between">
-								<div class="form-control">
-									<label class="label">
-										<span class="label-text">Nome</span>
-									</label>
-									<input
-										type="text"
-										name="name"
-										class="input input-bordered w-full"
-										required
-									/>
-								</div>
-								<div class="form-control">
-									<label class="label">
-										<span class="label-text">SKU</span>
-									</label>
-									<input
-										type="text"
-										name="sku"
-										class="input input-bordered w-full"
-										required
-									/>
-								</div>
-								<div class="form-control">
-									<label class="label">
-										<span class="label-text">EAN</span>
-									</label>
-									<input
-										type="text"
-										name="ean"
-										class="input input-bordered w-full"
-									/>
-								</div>
+								@input(inputParams{
+									name:          "name",
+									label:         "Name",
+									inputType:     "text",
+									value:         form.Get("name"),
+									errorMessages: form.Errors.Get("name"),
+									isRequired:    true,
+								})
+								@input(inputParams{
+									name:          "sku",
+									label:         "SKU",
+									inputType:     "text",
+									value:         form.Get("sku"),
+									errorMessages: form.Errors.Get("sku"),
+									isRequired:    true,
+								})
+								@input(inputParams{
+									name:          "ean",
+									label:         "EAN",
+									inputType:     "text",
+									value:         form.Get("ean"),
+									errorMessages: form.Errors.Get("ean"),
+									isRequired:    false,
+								})
 							</div>
 							<div class="form-control ">
 								<label class="label">
@@ -123,7 +150,7 @@ templ ProductForm() {
 							<h2 class="text-xl font-semibold mb-4">
 								Classificação
 							</h2>
-							<div class="flex flex-col  md:flex-row gap-6 justify-between">
+							<div class="flex flex-col  md:flex-row gap-6 justify-start">
 								<div class="form-control">
 									<label class="label">
 										<span class="label-text">Unidade de Medida</span>
@@ -136,16 +163,14 @@ templ ProductForm() {
 										<option value="MT">Metro (MT)</option>
 									</select>
 								</div>
-								<div class="form-control">
-									<label class="label">
-										<span class="label-text">NCM</span>
-									</label>
-									<input
-										type="text"
-										name="ncm"
-										class="input input-bordered w-full"
-									/>
-								</div>
+								@input(inputParams{
+									name:          "ncm",
+									label:         "NCM",
+									inputType:     "number",
+									value:         form.Get("ncm"),
+									errorMessages: form.Errors.Get("ncm"),
+									isRequired:    false,
+								})
 							</div>
 						</div>
 						<!-- ESTOQUE E CUSTO -->
@@ -154,38 +179,30 @@ templ ProductForm() {
 								Estoque & Custos
 							</h2>
 							<div class="flex flex-col  md:flex-row gap-6 justify-between">
-								<div class="form-control">
-									<label class="label">
-										<span class="label-text">Preço de Custo</span>
-									</label>
-									<input
-										type="number"
-										step="0.01"
-										name="cost_price"
-										class="input input-bordered w-full"
-										required
-									/>
-								</div>
-								<div class="form-control">
-									<label class="label">
-										<span class="label-text">Estoque Atual</span>
-									</label>
-									<input
-										type="number"
-										name="current_stock"
-										class="input input-bordered w-full"
-									/>
-								</div>
-								<div class="form-control">
-									<label class="label">
-										<span class="label-text">Estoque Mínimo</span>
-									</label>
-									<input
-										type="number"
-										name="minimum_stock"
-										class="input input-bordered w-full"
-									/>
-								</div>
+								@input(inputParams{
+									name:          "cost_price",
+									label:         "Preço de Custo",
+									inputType:     "number",
+									value:         form.Get("cost_price"),
+									errorMessages: form.Errors.Get("cost_price"),
+									isRequired:    true,
+								})
+								@input(inputParams{
+									name:          "current_stock",
+									label:         "Estoque Atual",
+									inputType:     "number",
+									value:         form.Get("current_stock"),
+									errorMessages: form.Errors.Get("current_stock"),
+									isRequired:    false,
+								})
+								@input(inputParams{
+									name:          "minimum_stock",
+									label:         "Estoque Minimo",
+									inputType:     "number",
+									value:         form.Get("minimum_stock"),
+									errorMessages: form.Errors.Get("minimum_stock"),
+									isRequired:    false,
+								})
 							</div>
 						</div>
 						<!-- DIMENSÕES -->
@@ -194,50 +211,38 @@ templ ProductForm() {
 								Dimensões
 							</h2>
 							<div class="flex flex-col  md:flex-row gap-6 justify-between">
-								<div class="form-control">
-									<label class="label">
-										<span class="label-text">Peso (kg)</span>
-									</label>
-									<input
-										type="number"
-										step="0.001"
-										name="weight"
-										class="input input-bordered w-full"
-									/>
-								</div>
-								<div class="form-control">
-									<label class="label">
-										<span class="label-text">Altura (cm)</span>
-									</label>
-									<input
-										type="number"
-										step="0.01"
-										name="height"
-										class="input input-bordered w-full"
-									/>
-								</div>
-								<div class="form-control">
-									<label class="label">
-										<span class="label-text">Largura (cm)</span>
-									</label>
-									<input
-										type="number"
-										step="0.01"
-										name="width"
-										class="input input-bordered w-full"
-									/>
-								</div>
-								<div class="form-control">
-									<label class="label">
-										<span class="label-text">Comprimento (cm)</span>
-									</label>
-									<input
-										type="number"
-										step="0.01"
-										name="length"
-										class="input input-bordered w-full"
-									/>
-								</div>
+								@input(inputParams{
+									name:          "weight",
+									label:         "Peso (kg)",
+									inputType:     "number",
+									value:         form.Get("weight"),
+									errorMessages: form.Errors.Get("weight"),
+									isRequired:    false,
+								})
+								@input(inputParams{
+									name:          "height",
+									label:         "Altura (cm)",
+									inputType:     "number",
+									value:         form.Get("height"),
+									errorMessages: form.Errors.Get("height"),
+									isRequired:    false,
+								})
+								@input(inputParams{
+									name:          "width",
+									label:         "Largura (cm)",
+									inputType:     "number",
+									value:         form.Get("width"),
+									errorMessages: form.Errors.Get("width"),
+									isRequired:    false,
+								})
+								@input(inputParams{
+									name:          "length",
+									label:         "Comprimento (cm)",
+									inputType:     "number",
+									value:         form.Get("leay"),
+									errorMessages: form.Errors.Get("length"),
+									isRequired:    false,
+								})
 							</div>
 						</div>
 						<div class="divider"></div>
@@ -245,7 +250,6 @@ templ ProductForm() {
 							<button
 								hx-get="/produtos"
 								hx-push-url="true"
-								hx-target="#main-content"
 								hx-swap="innerHTML"
 								class="btn btn-ghost"
 							>
@@ -259,7 +263,6 @@ templ ProductForm() {
 							</button>
 						</div>
 					</form>
-					<div id="product-response" class="mt-6"></div>
 				</div>
 			</div>
 		</div>

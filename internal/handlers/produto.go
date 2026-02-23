@@ -1,14 +1,12 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
+	"github.com/DTineli/ez/internal/forms"
 	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
-	"github.com/go-playground/validator/v10"
-	"github.com/gorilla/schema"
 )
 
 type ProductHandler struct {
@@ -25,7 +23,7 @@ func (p *ProductHandler) GetProductForm(w http.ResponseWriter, r *http.Request) 
 	var is_hxRequest = r.Header.Get("HX-Request") == "true"
 
 	if is_hxRequest {
-		err := templates.ProductForm().Render(r.Context(), w)
+		err := templates.ProductForm(forms.New(r.PostForm)).Render(r.Context(), w)
 
 		if err != nil {
 			http.Error(w, "Error rendering template", http.StatusInternalServerError)
@@ -35,7 +33,7 @@ func (p *ProductHandler) GetProductForm(w http.ResponseWriter, r *http.Request) 
 	}
 
 	err := templates.Layout(
-		templates.ProductForm(),
+		templates.ProductForm(forms.New(r.PostForm)),
 		"Ez",
 		true,
 		"",
@@ -64,43 +62,52 @@ type CreateProductDTO struct {
 	Weight       float64 `schema:"weight" validate:"gte=0"`
 	Height       float64 `schema:"height" validate:"gte=0"`
 	Width        float64 `schema:"width" validate:"gte=0"`
-	Length       float64 `schema:"Length" validate:"gte=0"`
+	Length       float64 `schema:"length" validate:"gte=0"`
 }
-
-func validateFormValues(r *http.Request) map[string]string {
-	erros := make(map[string]string)
-	if r.FormValue("name") == "" {
-		erros["name"] = "Nome Obrigatorio"
-	}
-
-	return erros
-}
-
-var decoder = schema.NewDecoder()
 
 func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) {
-	validate := validator.New(validator.WithRequiredStructEnabled())
-
-	var form CreateProductDTO
-
-	err := r.ParseForm()
-
-	if err := decoder.Decode(&form, r.PostForm); err != nil {
-		fmt.Println(err)
-		http.Error(w, err.Error(), 422)
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Erro ao processar formulário", http.StatusBadRequest)
 		return
 	}
 
-	if err := validate.Struct(form); err != nil {
-		http.Error(w, err.Error(), 422)
+	form := forms.New(r.PostForm)
+
+	form.Required("name", "sku")
+
+	form.MaxLength("name", 255)
+	form.MinLength("name", 4)
+
+	form.MaxLength("uom", 2)
+	form.MinLength("uom", 2)
+
+	form.MaxLength("Description", 255)
+
+	form.MaxLength("sku", 25)
+	form.MinLength("sku", 4)
+
+	form.IsFloat("cost_price")
+	form.IsFloat("weight")
+	form.IsFloat("height")
+	form.IsFloat("width")
+	form.IsFloat("Length")
+	form.IsFloat("weight")
+
+	form.IsInt("current_stock")
+	form.IsInt("minimum_stock")
+	form.IsInt("ean")
+
+	if !form.Valid() {
+		err := templates.ProductForm(form).Render(r.Context(), w)
+
+		if err != nil {
+			http.Error(w, "Error Creating Product", http.StatusInternalServerError)
+		}
+
 		return
 	}
 
 	_ = m.GetSessionFromContext(r)
-
-	if err != nil {
-		http.Error(w, "Error Creating Product", http.StatusInternalServerError)
-	}
 
 	w.Header().Set(HXRedirect, "/produtos")
 	w.WriteHeader(http.StatusOK)

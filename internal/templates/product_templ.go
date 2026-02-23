@@ -10,6 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
+	"github.com/DTineli/ez/internal/forms"
 	"github.com/DTineli/ez/internal/store"
 )
 
@@ -47,7 +48,7 @@ func ProductsPage(products []store.Product) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(p.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 34, Col: 18}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 35, Col: 18}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -60,7 +61,7 @@ func ProductsPage(products []store.Product) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 35, Col: 19}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 36, Col: 19}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -73,7 +74,7 @@ func ProductsPage(products []store.Product) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(p.StatusToString())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 36, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 37, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -86,7 +87,7 @@ func ProductsPage(products []store.Product) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(p.CurrentStock)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 37, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 38, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -99,7 +100,7 @@ func ProductsPage(products []store.Product) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/produtos/%v", p.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 38, Col: 93}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 39, Col: 93}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -118,7 +119,16 @@ func ProductsPage(products []store.Product) templ.Component {
 	})
 }
 
-func ProductForm() templ.Component {
+type inputParams struct {
+	label         string
+	name          string
+	inputType     string
+	value         string
+	errorMessages []string
+	isRequired    bool
+}
+
+func input(p inputParams) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -139,7 +149,269 @@ func ProductForm() templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"min-h-screen bg-base-200 p-10\"><div class=\"w-full max-w-7xl mx-auto\"><div class=\"card bg-base-100 shadow-2xl\"><div class=\"card-body\"><h1 class=\"text-3xl font-bold mb-8\">Cadastro de Produto</h1><div class=\"form-control flex justify-end\"><label class=\"label\"><span class=\"label-text m-1\">Produto Ativo</span></label> <input type=\"checkbox\" name=\"status\" class=\"toggle toggle-primary\" checked></div><form hx-post=\"/produtos\" hx-target=\"#product-response\" hx-swap=\"innerHTML\" class=\"space-y-10\"><!-- DADOS GERAIS --><div><h2 class=\"text-xl font-semibold mb-4\">Dados Gerais</h2><div class=\"flex flex-col  md:flex-row gap-6 justify-between\"><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Nome</span></label> <input type=\"text\" name=\"name\" class=\"input input-bordered w-full\" required></div><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">SKU</span></label> <input type=\"text\" name=\"sku\" class=\"input input-bordered w-full\" required></div><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">EAN</span></label> <input type=\"text\" name=\"ean\" class=\"input input-bordered w-full\"></div></div><div class=\"form-control \"><label class=\"label\"><span class=\"label-text\">Descrição Completa</span></label> <textarea name=\"description\" class=\"textarea textarea-bordered w-full\"></textarea></div></div><!-- CLASSIFICAÇÃO --><div><h2 class=\"text-xl font-semibold mb-4\">Classificação</h2><div class=\"flex flex-col  md:flex-row gap-6 justify-between\"><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Unidade de Medida</span></label> <select name=\"uom\" class=\"select select-bordered w-full\"><option value=\"UN\">Unidade (UN)</option> <option value=\"KG\">Quilograma (KG)</option> <option value=\"LT\">Litro (LT)</option> <option value=\"CX\">Caixa (CX)</option> <option value=\"MT\">Metro (MT)</option></select></div><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">NCM</span></label> <input type=\"text\" name=\"ncm\" class=\"input input-bordered w-full\"></div></div></div><!-- ESTOQUE E CUSTO --><div><h2 class=\"text-xl font-semibold mb-4\">Estoque & Custos</h2><div class=\"flex flex-col  md:flex-row gap-6 justify-between\"><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Preço de Custo</span></label> <input type=\"number\" step=\"0.01\" name=\"cost_price\" class=\"input input-bordered w-full\" required></div><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Estoque Atual</span></label> <input type=\"number\" name=\"current_stock\" class=\"input input-bordered w-full\"></div><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Estoque Mínimo</span></label> <input type=\"number\" name=\"minimum_stock\" class=\"input input-bordered w-full\"></div></div></div><!-- DIMENSÕES --><div><h2 class=\"text-xl font-semibold mb-4\">Dimensões</h2><div class=\"flex flex-col  md:flex-row gap-6 justify-between\"><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Peso (kg)</span></label> <input type=\"number\" step=\"0.001\" name=\"weight\" class=\"input input-bordered w-full\"></div><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Altura (cm)</span></label> <input type=\"number\" step=\"0.01\" name=\"height\" class=\"input input-bordered w-full\"></div><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Largura (cm)</span></label> <input type=\"number\" step=\"0.01\" name=\"width\" class=\"input input-bordered w-full\"></div><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Comprimento (cm)</span></label> <input type=\"number\" step=\"0.01\" name=\"length\" class=\"input input-bordered w-full\"></div></div></div><div class=\"divider\"></div><div class=\"flex justify-end gap-4\"><button hx-get=\"/produtos\" hx-push-url=\"true\" hx-target=\"#main-content\" hx-swap=\"innerHTML\" class=\"btn btn-ghost\">Cancelar</button> <button type=\"submit\" class=\"btn btn-primary\">Salvar Produto</button></div></form><div id=\"product-response\" class=\"mt-6\"></div></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var8 string
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(p.label)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 60, Col: 37}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></label> <input type=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var9 string
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(p.inputType)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 63, Col: 21}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" name=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var10 string
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(p.name)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 64, Col: 16}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var11 string
+		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(p.value)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 65, Col: 18}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if len(p.errorMessages) > 0 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " class=\"input input-bordered w-full border-red-600\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " class=\"input input-bordered w-full\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		if p.isRequired {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " required")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		for _, e := range p.errorMessages {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"text-red-600\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(e)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 76, Col: 33}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func ProductForm(form *forms.Form) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var13 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var13 == nil {
+			templ_7745c5c3_Var13 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"min-h-screen bg-base-200 p-10\" id=\"form\"><div class=\"w-full max-w-7xl mx-auto\"><div class=\"card bg-base-100 shadow-2xl\"><div class=\"card-body\"><h1 class=\"text-3xl font-bold mb-8\">Cadastro de Produto</h1><div class=\"form-control flex justify-end\"><label class=\"label\"><span class=\"label-text m-1\">Produto Ativo</span></label> <input type=\"checkbox\" name=\"status\" class=\"toggle toggle-primary\" checked></div><form class=\"space-y-10\" hx-post=\"/produtos\" hx-target=\"#form\" hx-swap=\"outerHTML\" class=\"space-y-10\"><!-- DADOS GERAIS --><div><h2 class=\"text-xl font-semibold mb-4\">Dados Gerais</h2><div class=\"flex flex-col  md:flex-row gap-6 justify-between\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = input(inputParams{
+			name:          "name",
+			label:         "Name",
+			inputType:     "text",
+			value:         form.Get("name"),
+			errorMessages: form.Errors.Get("name"),
+			isRequired:    true,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = input(inputParams{
+			name:          "sku",
+			label:         "SKU",
+			inputType:     "text",
+			value:         form.Get("sku"),
+			errorMessages: form.Errors.Get("sku"),
+			isRequired:    true,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = input(inputParams{
+			name:          "ean",
+			label:         "EAN",
+			inputType:     "text",
+			value:         form.Get("ean"),
+			errorMessages: form.Errors.Get("ean"),
+			isRequired:    false,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><div class=\"form-control \"><label class=\"label\"><span class=\"label-text\">Descrição Completa</span></label> <textarea name=\"description\" class=\"textarea textarea-bordered w-full\"></textarea></div></div><!-- CLASSIFICAÇÃO --><div><h2 class=\"text-xl font-semibold mb-4\">Classificação</h2><div class=\"flex flex-col  md:flex-row gap-6 justify-start\"><div class=\"form-control\"><label class=\"label\"><span class=\"label-text\">Unidade de Medida</span></label> <select name=\"uom\" class=\"select select-bordered w-full\"><option value=\"UN\">Unidade (UN)</option> <option value=\"KG\">Quilograma (KG)</option> <option value=\"LT\">Litro (LT)</option> <option value=\"CX\">Caixa (CX)</option> <option value=\"MT\">Metro (MT)</option></select></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = input(inputParams{
+			name:          "ncm",
+			label:         "NCM",
+			inputType:     "number",
+			value:         form.Get("ncm"),
+			errorMessages: form.Errors.Get("ncm"),
+			isRequired:    false,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div></div><!-- ESTOQUE E CUSTO --><div><h2 class=\"text-xl font-semibold mb-4\">Estoque & Custos</h2><div class=\"flex flex-col  md:flex-row gap-6 justify-between\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = input(inputParams{
+			name:          "cost_price",
+			label:         "Preço de Custo",
+			inputType:     "number",
+			value:         form.Get("cost_price"),
+			errorMessages: form.Errors.Get("cost_price"),
+			isRequired:    true,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = input(inputParams{
+			name:          "current_stock",
+			label:         "Estoque Atual",
+			inputType:     "number",
+			value:         form.Get("current_stock"),
+			errorMessages: form.Errors.Get("current_stock"),
+			isRequired:    false,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = input(inputParams{
+			name:          "minimum_stock",
+			label:         "Estoque Minimo",
+			inputType:     "number",
+			value:         form.Get("minimum_stock"),
+			errorMessages: form.Errors.Get("minimum_stock"),
+			isRequired:    false,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div><!-- DIMENSÕES --><div><h2 class=\"text-xl font-semibold mb-4\">Dimensões</h2><div class=\"flex flex-col  md:flex-row gap-6 justify-between\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = input(inputParams{
+			name:          "weight",
+			label:         "Peso (kg)",
+			inputType:     "number",
+			value:         form.Get("weight"),
+			errorMessages: form.Errors.Get("weight"),
+			isRequired:    false,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = input(inputParams{
+			name:          "height",
+			label:         "Altura (cm)",
+			inputType:     "number",
+			value:         form.Get("height"),
+			errorMessages: form.Errors.Get("height"),
+			isRequired:    false,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = input(inputParams{
+			name:          "width",
+			label:         "Largura (cm)",
+			inputType:     "number",
+			value:         form.Get("width"),
+			errorMessages: form.Errors.Get("width"),
+			isRequired:    false,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = input(inputParams{
+			name:          "length",
+			label:         "Comprimento (cm)",
+			inputType:     "number",
+			value:         form.Get("leay"),
+			errorMessages: form.Errors.Get("length"),
+			isRequired:    false,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div></div><div class=\"divider\"></div><div class=\"flex justify-end gap-4\"><button hx-get=\"/produtos\" hx-push-url=\"true\" hx-swap=\"innerHTML\" class=\"btn btn-ghost\">Cancelar</button> <button type=\"submit\" class=\"btn btn-primary\">Salvar Produto</button></div></form></div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
