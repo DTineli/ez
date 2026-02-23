@@ -46,7 +46,15 @@ templ ProductsPage(products []store.Product) {
 	</div>
 }
 
-templ ProductForm(form *forms.Form) {
+templ ProductForm(form *forms.Form, isUpdate bool) {
+	{{
+		var action string
+		if isUpdate {
+			action = fmt.Sprintf("/produtos/%s", form.Get("ID"))
+		} else {
+			action = "/produtos"
+		}
+	}}
 	<div class="min-h-screen bg-base-200 p-10" id="form">
 		<div class="w-full max-w-7xl mx-auto">
 			<div class="card bg-base-100 shadow-2xl">
@@ -66,8 +74,7 @@ templ ProductForm(form *forms.Form) {
 						/>
 					</div>
 					<form
-						class="space-y-10"
-						hx-post="/produtos"
+						hx-post={ action }
 						hx-target="#form"
 						hx-swap="outerHTML"
 						class="space-y-10"

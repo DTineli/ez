@@ -9,6 +9,7 @@ import (
 	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
+	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -22,25 +23,22 @@ func NewProductHandler(db store.ProductStore) *ProductHandler {
 	}
 }
 
-func (p *ProductHandler) GetProductForm(w http.ResponseWriter, r *http.Request) {
+func Render(templ templ.Component, r *http.Request, w http.ResponseWriter) error {
 	var is_hxRequest = r.Header.Get("HX-Request") == "true"
-
 	if is_hxRequest {
-		err := templates.ProductForm(forms.New(r.PostForm)).Render(r.Context(), w)
-
-		if err != nil {
-			http.Error(w, "Error rendering template", http.StatusInternalServerError)
-			return
-		}
-		return
+		return templ.Render(r.Context(), w)
 	}
 
-	err := templates.Layout(
-		templates.ProductForm(forms.New(r.PostForm)),
+	return templates.Layout(
+		templ,
 		"Ez",
-		true,
+		true, //TODO: verificar se ta logado
 		"",
 	).Render(r.Context(), w)
+}
+
+func (p *ProductHandler) GetProductForm(w http.ResponseWriter, r *http.Request) {
+	err := Render(templates.ProductForm(forms.New(r.PostForm), false), r, w)
 
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
@@ -84,12 +82,10 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 	form.IsInt("ean")
 
 	if !form.Valid() {
-		err := templates.ProductForm(form).Render(r.Context(), w)
-
+		err := Render(templates.ProductForm(form, false), r, w)
 		if err != nil {
 			http.Error(w, "Error Creating Product", http.StatusInternalServerError)
 		}
-
 		return
 	}
 
@@ -102,7 +98,7 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 		SKU:             form.Get("sku"),
 		Name:            form.Get("name"),
 		FullDescription: form.Get("description"),
-		Status:          true,
+		Status:          true, //TODO: Persistir isso daqui
 		UOM:             store.UOM(form.Get("uom")),
 		EAN:             form.Get("ean"),
 		NCM:             form.Get("ncm"),
@@ -117,10 +113,15 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") || strings.Contains(err.Error(), "Duplicate") {
-			writeRegisterError(r, w, "Este SKU já está em uso.")
+			form.Errors.Add("sku", "Este SKU já está em uso.")
+			err := Render(templates.ProductForm(form, false), r, w)
+
+			if err != nil {
+				http.Error(w, "Error Creating Product", http.StatusInternalServerError)
+			}
 			return
 		}
-		writeRegisterError(r, w, "Erro ao criar conta. Tente novamente.")
+		writeRegisterError(r, w, "Erro ao criar Produto. Tente novamente.")
 		return
 	}
 
@@ -129,8 +130,8 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 }
 
 func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
-	var is_hxRequest = r.Header.Get("HX-Request") == "true"
 	sess := m.GetSessionFromContext(r)
+	var is_update = true
 
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseUint(idStr, 10, 64)
@@ -152,6 +153,8 @@ func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	form := forms.New(nil)
+
+	form.Set("ID", strconv.FormatUint(uint64(product.ID), 10))
 	form.Set("name", product.Name)
 	form.Set("sku", product.SKU)
 	form.Set("uom", string(product.UOM))
@@ -162,45 +165,22 @@ func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 	form.Set("length", strconv.FormatFloat(product.LengthCm, 'f', 2, 64))
 	form.Set("width", strconv.FormatFloat(product.WidthCm, 'f', 2, 64))
 
-	if is_hxRequest {
-		templates.ProductForm(form).Render(r.Context(), w)
-		return
-	}
+	form.Set("ean", product.EAN)
+	form.Set("minimum_stock", strconv.FormatInt(int64(product.MinimumStock), 10))
+	form.Set("current_stock", strconv.FormatInt(int64(product.CurrentStock), 10))
 
-	err = templates.Layout(
-		templates.ProductForm(form),
-		"Ez",
-		true,
-		"",
-	).Render(r.Context(), w)
+	Render(templates.ProductForm(form, is_update), r, w)
 }
 
 func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
 	sess := m.GetSessionFromContext(r)
-	var is_hxRequest = r.Header.Get("HX-Request") == "true"
-
 	produtos, err := p.productStore.FindAllByUser(sess.TenantID)
 
 	if err != nil {
 		http.Error(w, "Error listing Product", http.StatusInternalServerError)
 	}
 
-	if is_hxRequest {
-		err := templates.ProductsPage(produtos).Render(r.Context(), w)
-
-		if err != nil {
-			http.Error(w, "Error rendering template", http.StatusInternalServerError)
-			return
-		}
-		return
-	}
-
-	err = templates.Layout(
-		templates.ProductsPage(produtos),
-		"Ez",
-		true,
-		"",
-	).Render(r.Context(), w)
+	err = Render(templates.ProductsPage(produtos), r, w)
 
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
