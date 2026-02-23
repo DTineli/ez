@@ -37,7 +37,7 @@ templ ProductsPage(products []store.Product) {
 							<td>{ p.Name }</td>
 							<td>{ p.StatusToString() }</td>
 							<td>{ p.CurrentStock }</td>
-							<td><button class="btn " hx-push-url="true" hx-get={ fmt.Sprintf("/produtos/%v", p.ID) }>Editar</button></td>
+							<td><a class="btn " hx-push-url="true" href={ fmt.Sprintf("/produtos/%v", p.ID) }>Editar</a></td>
 						</tr>
 					}
 				</tbody>

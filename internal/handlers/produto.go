@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/DTineli/ez/internal/forms"
 	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
+	"github.com/go-chi/chi/v5"
 )
 
 type ProductHandler struct {
@@ -49,22 +52,6 @@ func (p *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 
 }
 
-type CreateProductDTO struct {
-	Name         string  `schema:"name" validate:"required,min=3"`
-	SKU          string  `schema:"sku" validate:"required, min=4"`
-	EAN          string  `schema:"ean" validate:"min=13, max=13"`
-	Description  string  `schema:"description" validate:"min 5"`
-	UOM          string  `schema:"uom" validate:"required"`
-	NCM          string  `schema:"ncm"`
-	CostPrice    float64 `schema:"cost_price" validate:"required, gte=0"`
-	Stock        int     `schema:"current_stock" validate:"gte=0"`
-	MinimumStock int     `schema:"minimum_stock" validate:"get=0"`
-	Weight       float64 `schema:"weight" validate:"gte=0"`
-	Height       float64 `schema:"height" validate:"gte=0"`
-	Width        float64 `schema:"width" validate:"gte=0"`
-	Length       float64 `schema:"length" validate:"gte=0"`
-}
-
 func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Erro ao processar formulário", http.StatusBadRequest)
@@ -81,20 +68,19 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 	form.MaxLength("uom", 2)
 	form.MinLength("uom", 2)
 
-	form.MaxLength("Description", 255)
+	form.MaxLength("description", 255)
 
 	form.MaxLength("sku", 25)
 	form.MinLength("sku", 4)
 
-	form.IsFloat("cost_price")
-	form.IsFloat("weight")
-	form.IsFloat("height")
-	form.IsFloat("width")
-	form.IsFloat("Length")
-	form.IsFloat("weight")
+	costPrice := form.IsFloat("cost_price")
+	weight := form.IsFloat("weight")
+	height := form.IsFloat("height")
+	width := form.IsFloat("width")
+	length := form.IsFloat("Length")
 
-	form.IsInt("current_stock")
-	form.IsInt("minimum_stock")
+	currentStock := form.IsInt("current_stock")
+	minimumStock := form.IsInt("minimum_stock")
 	form.IsInt("ean")
 
 	if !form.Valid() {
@@ -107,10 +93,83 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	_ = m.GetSessionFromContext(r)
+	sess := m.GetSessionFromContext(r)
+
+	//TODO: Verificar sku duplicado
+
+	err := p.productStore.CreateProduct(&store.Product{
+		TenantID:        sess.TenantID,
+		SKU:             form.Get("sku"),
+		Name:            form.Get("name"),
+		FullDescription: form.Get("description"),
+		Status:          true,
+		UOM:             store.UOM(form.Get("uom")),
+		EAN:             form.Get("ean"),
+		NCM:             form.Get("ncm"),
+		CostPrice:       costPrice,
+		WidthCm:         width,
+		Weight:          weight,
+		HeightCm:        height,
+		LengthCm:        length,
+		MinimumStock:    minimumStock,
+		CurrentStock:    currentStock,
+	})
+
+	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") || strings.Contains(err.Error(), "Duplicate") {
+			writeRegisterError(r, w, "Este SKU já está em uso.")
+			return
+		}
+		writeRegisterError(r, w, "Erro ao criar conta. Tente novamente.")
+		return
+	}
 
 	w.Header().Set(HXRedirect, "/produtos")
 	w.WriteHeader(http.StatusOK)
+}
+
+func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
+	var is_hxRequest = r.Header.Get("HX-Request") == "true"
+	sess := m.GetSessionFromContext(r)
+
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	product, err := p.productStore.GetProduct(uint(id))
+
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	if product.TenantID != sess.TenantID {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	form := forms.New(nil)
+	form.Set("name", product.Name)
+	form.Set("sku", product.SKU)
+	form.Set("uom", string(product.UOM))
+	form.Set("description", product.FullDescription)
+	form.Set("cost_price", strconv.FormatFloat(product.CostPrice, 'f', 2, 64))
+	form.Set("weight", strconv.FormatFloat(product.Weight, 'f', 2, 64))
+
+	if is_hxRequest {
+		templates.ProductForm(form).Render(r.Context(), w)
+		return
+	}
+
+	err = templates.Layout(
+		templates.ProductForm(form),
+		"Ez",
+		true,
+		"",
+	).Render(r.Context(), w)
 }
 
 func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {

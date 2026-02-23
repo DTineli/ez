@@ -14,6 +14,10 @@ type Form struct {
 }
 
 func New(data url.Values) *Form {
+	if data == nil {
+		data = url.Values{}
+	}
+
 	return &Form{
 		data,
 		errors(map[string][]string{}),
@@ -45,28 +49,35 @@ func (f *Form) MinLength(field string, length int) {
 	}
 }
 
-func (f *Form) IsFloat(field string) {
+func (f *Form) IsFloat(field string) float64 {
 	value := f.Get(field)
 
 	if value == "" {
-		return
+		return 0
 	}
 
-	if _, err := strconv.ParseFloat(value, 64); err != nil {
+	val, err := strconv.ParseFloat(value, 64)
+	if err != nil {
 		f.Errors[field] = append(f.Errors[field], "Deve ser um número válido")
+		return 0
 	}
+
+	return val
 }
 
-func (f *Form) IsInt(field string) {
+func (f *Form) IsInt(field string) int {
 	value := f.Get(field)
 
 	if value == "" {
-		return
+		return 0
 	}
 
-	if _, err := strconv.Atoi(value); err != nil {
+	val, err := strconv.Atoi(value)
+	if err != nil {
 		f.Errors[field] = append(f.Errors[field], "Deve ser um número inteiro válido")
 	}
+
+	return val
 }
 
 func (f *Form) Valid() bool {
