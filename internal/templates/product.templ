@@ -4,6 +4,7 @@ import (
 	"github.com/DTineli/ez/internal/store"
 	"fmt"
 	"github.com/DTineli/ez/internal/forms"
+	"github.com/DTineli/ez/internal/templates/components"
 )
 
 // ---------- LISTAGEM ----------
@@ -45,39 +46,6 @@ templ ProductsPage(products []store.Product) {
 	</div>
 }
 
-type inputParams struct {
-	label         string
-	name          string
-	inputType     string
-	value         string
-	errorMessages []string
-	isRequired    bool
-}
-
-templ input(p inputParams) {
-	<div class="form-control">
-		<label class="label">
-			<span class="label-text">{ p.label }</span>
-		</label>
-		<input
-			type={ p.inputType }
-			name={ p.name }
-			value={ p.value }
-			if len(p.errorMessages) > 0 {
-				class="input input-bordered w-full border-red-600"
-			} else {
-				class="input input-bordered w-full"
-			}
-			if p.isRequired {
-				required
-			}
-		/>
-		for _, e := range p.errorMessages {
-			<span class="text-red-600">{ e }</span>
-		}
-	</div>
-}
-
 templ ProductForm(form *forms.Form) {
 	<div class="min-h-screen bg-base-200 p-10" id="form">
 		<div class="w-full max-w-7xl mx-auto">
@@ -110,29 +78,29 @@ templ ProductForm(form *forms.Form) {
 								Dados Gerais
 							</h2>
 							<div class="flex flex-col  md:flex-row gap-6 justify-between">
-								@input(inputParams{
-									name:          "name",
-									label:         "Name",
-									inputType:     "text",
-									value:         form.Get("name"),
-									errorMessages: form.Errors.Get("name"),
-									isRequired:    true,
+								@components.BasicInput(components.BasicInputParams{
+									Name:          "name",
+									Label:         "Name",
+									InputType:     "text",
+									Value:         form.Get("name"),
+									ErrorMessages: form.Errors.Get("name"),
+									IsRequired:    true,
 								})
-								@input(inputParams{
-									name:          "sku",
-									label:         "SKU",
-									inputType:     "text",
-									value:         form.Get("sku"),
-									errorMessages: form.Errors.Get("sku"),
-									isRequired:    true,
+								@components.BasicInput(components.BasicInputParams{
+									Name:          "sku",
+									Label:         "SKU",
+									InputType:     "text",
+									Value:         form.Get("sku"),
+									ErrorMessages: form.Errors.Get("sku"),
+									IsRequired:    true,
 								})
-								@input(inputParams{
-									name:          "ean",
-									label:         "EAN",
-									inputType:     "text",
-									value:         form.Get("ean"),
-									errorMessages: form.Errors.Get("ean"),
-									isRequired:    false,
+								@components.BasicInput(components.BasicInputParams{
+									Name:          "ean",
+									Label:         "EAN",
+									InputType:     "text",
+									Value:         form.Get("ean"),
+									ErrorMessages: form.Errors.Get("ean"),
+									IsRequired:    false,
 								})
 							</div>
 							<div class="form-control ">
@@ -163,13 +131,13 @@ templ ProductForm(form *forms.Form) {
 										<option value="MT">Metro (MT)</option>
 									</select>
 								</div>
-								@input(inputParams{
-									name:          "ncm",
-									label:         "NCM",
-									inputType:     "number",
-									value:         form.Get("ncm"),
-									errorMessages: form.Errors.Get("ncm"),
-									isRequired:    false,
+								@components.BasicInput(components.BasicInputParams{
+									Name:          "ncm",
+									Label:         "NCM",
+									InputType:     "number",
+									Value:         form.Get("ncm"),
+									ErrorMessages: form.Errors.Get("ncm"),
+									IsRequired:    false,
 								})
 							</div>
 						</div>
@@ -179,29 +147,29 @@ templ ProductForm(form *forms.Form) {
 								Estoque & Custos
 							</h2>
 							<div class="flex flex-col  md:flex-row gap-6 justify-between">
-								@input(inputParams{
-									name:          "cost_price",
-									label:         "Preço de Custo",
-									inputType:     "number",
-									value:         form.Get("cost_price"),
-									errorMessages: form.Errors.Get("cost_price"),
-									isRequired:    true,
+								@components.BasicInput(components.BasicInputParams{
+									Name:          "cost_price",
+									Label:         "Preço de Custo",
+									InputType:     "number",
+									Value:         form.Get("cost_price"),
+									ErrorMessages: form.Errors.Get("cost_price"),
+									IsRequired:    true,
 								})
-								@input(inputParams{
-									name:          "current_stock",
-									label:         "Estoque Atual",
-									inputType:     "number",
-									value:         form.Get("current_stock"),
-									errorMessages: form.Errors.Get("current_stock"),
-									isRequired:    false,
+								@components.BasicInput(components.BasicInputParams{
+									Name:          "current_stock",
+									Label:         "Estoque Atual",
+									InputType:     "number",
+									Value:         form.Get("current_stock"),
+									ErrorMessages: form.Errors.Get("current_stock"),
+									IsRequired:    false,
 								})
-								@input(inputParams{
-									name:          "minimum_stock",
-									label:         "Estoque Minimo",
-									inputType:     "number",
-									value:         form.Get("minimum_stock"),
-									errorMessages: form.Errors.Get("minimum_stock"),
-									isRequired:    false,
+								@components.BasicInput(components.BasicInputParams{
+									Name:          "minimum_stock",
+									Label:         "Estoque Minimo",
+									InputType:     "number",
+									Value:         form.Get("minimum_stock"),
+									ErrorMessages: form.Errors.Get("minimum_stock"),
+									IsRequired:    false,
 								})
 							</div>
 						</div>
@@ -211,37 +179,37 @@ templ ProductForm(form *forms.Form) {
 								Dimensões
 							</h2>
 							<div class="flex flex-col  md:flex-row gap-6 justify-between">
-								@input(inputParams{
-									name:          "weight",
-									label:         "Peso (kg)",
-									inputType:     "number",
-									value:         form.Get("weight"),
-									errorMessages: form.Errors.Get("weight"),
-									isRequired:    false,
+								@components.BasicInput(components.BasicInputParams{
+									Name:          "weight",
+									Label:         "Peso (kg)",
+									InputType:     "number",
+									Value:         form.Get("weight"),
+									ErrorMessages: form.Errors.Get("weight"),
+									IsRequired:    false,
 								})
-								@input(inputParams{
-									name:          "height",
-									label:         "Altura (cm)",
-									inputType:     "number",
-									value:         form.Get("height"),
-									errorMessages: form.Errors.Get("height"),
-									isRequired:    false,
+								@components.BasicInput(components.BasicInputParams{
+									Name:          "height",
+									Label:         "Altura (cm)",
+									InputType:     "number",
+									Value:         form.Get("height"),
+									ErrorMessages: form.Errors.Get("height"),
+									IsRequired:    false,
 								})
-								@input(inputParams{
-									name:          "width",
-									label:         "Largura (cm)",
-									inputType:     "number",
-									value:         form.Get("width"),
-									errorMessages: form.Errors.Get("width"),
-									isRequired:    false,
+								@components.BasicInput(components.BasicInputParams{
+									Name:          "width",
+									Label:         "Largura (cm)",
+									InputType:     "number",
+									Value:         form.Get("width"),
+									ErrorMessages: form.Errors.Get("width"),
+									IsRequired:    false,
 								})
-								@input(inputParams{
-									name:          "length",
-									label:         "Comprimento (cm)",
-									inputType:     "number",
-									value:         form.Get("leay"),
-									errorMessages: form.Errors.Get("length"),
-									isRequired:    false,
+								@components.BasicInput(components.BasicInputParams{
+									Name:          "length",
+									Label:         "Comprimento (cm)",
+									InputType:     "number",
+									Value:         form.Get("leay"),
+									ErrorMessages: form.Errors.Get("length"),
+									IsRequired:    false,
 								})
 							</div>
 						</div>
