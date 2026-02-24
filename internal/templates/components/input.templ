@@ -7,6 +7,7 @@ type BasicInputParams struct {
 	Value         string
 	ErrorMessages []string
 	IsRequired    bool
+	Disabled      bool
 }
 
 templ BasicInput(p BasicInputParams) {
@@ -15,6 +16,9 @@ templ BasicInput(p BasicInputParams) {
 			<span class="label-text">{ p.Label }</span>
 		</label>
 		<input
+			if p.Disabled {
+				disabled
+			}
 			type={ p.InputType }
 			name={ p.Name }
 			value={ p.Value }

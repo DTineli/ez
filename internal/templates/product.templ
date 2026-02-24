@@ -122,6 +122,7 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 									Value:         form.Get("sku"),
 									ErrorMessages: form.Errors.Get("sku"),
 									IsRequired:    true,
+									Disabled:      isUpdate,
 								})
 								@components.BasicInput(components.BasicInputParams{
 									Name:          "ean",

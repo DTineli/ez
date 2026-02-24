@@ -214,6 +214,7 @@ func ProductForm(form *forms.Form, isUpdate bool) templ.Component {
 			Value:         form.Get("sku"),
 			ErrorMessages: form.Errors.Get("sku"),
 			IsRequired:    true,
+			Disabled:      isUpdate,
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -235,7 +236,7 @@ func ProductForm(form *forms.Form, isUpdate bool) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(form.Get("description"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 141, Col: 34}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 142, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -253,7 +254,7 @@ func ProductForm(form *forms.Form, isUpdate bool) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(u.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 155, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 156, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -276,7 +277,7 @@ func ProductForm(form *forms.Form, isUpdate bool) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(u.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 160, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 161, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
