@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -37,6 +38,16 @@ func Render(c templ.Component, r *http.Request, w http.ResponseWriter) error {
 	return templates.
 		Layout(c, "Ez", true, "").
 		Render(r.Context(), w)
+}
+
+func ShowToast(w http.ResponseWriter, message string, toastType string) {
+	w.Header().Set("HX-Trigger", fmt.Sprintf(`{
+	"showToast": {
+		"type": "%v",
+		"message": "%v"
+	}
+}`, toastType, message))
+	w.WriteHeader(http.StatusOK)
 }
 
 func validateProductForm(r *http.Request) (*forms.Form, error) {
@@ -124,6 +135,7 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if !form.Valid() {
+		ShowToast(w, "Erros de validação", "error")
 		_ = Render(templates.ProductForm(form, false), r, w)
 		return
 	}
@@ -150,22 +162,27 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 
 	if err := p.productStore.CreateProduct(product); err != nil {
 		if isDuplicateError(err) {
+			ShowToast(w, "Erros de validação", "error")
 			form.Errors.Add("sku", "Este SKU já está em uso.")
 			_ = Render(templates.ProductForm(form, false), r, w)
 			return
 		}
-
-		writeRegisterError(r, w, "Erro ao criar Produto. Tente novamente.")
+		ShowToast(w, "Erro ao cadastar produto", "error")
+		_ = Render(templates.ProductForm(form, false), r, w)
 		return
 	}
 
-	w.Header().Set(HXRedirect, "/produtos")
-	w.WriteHeader(http.StatusOK)
+	ShowToast(w, "Produto Cadastrado", "success")
+	form.Set("ID", strconv.Itoa(int(product.ID)))
+	_ = Render(templates.ProductForm(form, true), r, w)
 }
 
 func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	sess := m.GetSessionFromContext(r)
 	form, err := validateProductForm(r)
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	form.Set("ID", strconv.Itoa(int(id)))
 
 	if err != nil {
 		http.Error(w, "Erro ao processar formulário", http.StatusBadRequest)
@@ -173,6 +190,8 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !form.Valid() {
+		ShowToast(w, "Erro ao salvar produto", "error")
+
 		_ = Render(templates.ProductForm(form, true), r, w)
 		return
 	}
@@ -193,13 +212,13 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		"current_stock":    form.IsInt("current_stock"),
 	}
 
-	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
-
 	err = p.productStore.UpdateFields(uint(id), sess.TenantID, fields)
 	if err != nil {
-		writeRegisterError(r, w, "Erro ao criar Produto. Tente novamente.")
+		ShowToast(w, "Erro ao salvar produto", "error")
+		_ = Render(templates.ProductForm(form, true), r, w)
 	}
-	form.Set("ID", strconv.Itoa(int(id)))
+
+	ShowToast(w, "Alteracoes Salvas", "success")
 	_ = Render(templates.ProductForm(form, true), r, w)
 }
 

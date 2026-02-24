@@ -91,7 +91,11 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 			<div class="card bg-base-100 shadow-2xl">
 				<div class="card-body space-y-10">
 					<h1 class="text-3xl font-bold">
-						{ if isUpdate { "Editar Produto" } else { "Cadastro de Produto" } }
+						if isUpdate {
+							Editar Produto
+						} else {
+							Cadastro de Produto
+						}
 					</h1>
 					<form
 						hx-post={ action }

@@ -199,7 +199,7 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</body><script>\ndocument.body.addEventListener(\"showToast\", function (event) {\n\tconst { type, message } = event.detail;\n\n\tconst container = document.getElementById(\"toast-container\");\n\n\tconst toast = document.createElement(\"div\");\n\ttoast.className =\n\t\t\"px-4 py-3 rounded-xl shadow-lg text-white transition-all duration-300 opacity-0 translate-y-2 \" +\n\t\t(type === \"success\"\n\t\t\t? \"bg-green-600\"\n\t\t\t: \"bg-red-600\");\n\n\ttoast.textContent = message;\n\n\tcontainer.appendChild(toast);\n\n\t// anima entrada\n\trequestAnimationFrame(() => {\n\t\ttoast.classList.remove(\"opacity-0\", \"translate-y-2\");\n\t});\n\n\t// anima saída\n\tsetTimeout(() => {\n\t\ttoast.classList.add(\"opacity-0\", \"translate-y-2\");\n\t\tsetTimeout(() => toast.remove(), 300);\n\t}, 3000);\n});\n</script></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
