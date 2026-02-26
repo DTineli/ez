@@ -121,10 +121,7 @@ func mapProductToForm(p *store.Product) *forms.Form {
 */
 
 func (p *ProductHandler) GetProductForm(w http.ResponseWriter, r *http.Request) {
-	err := Render(templates.ProductForm(forms.New(nil), false), r, w)
-	if err != nil {
-		http.Error(w, "Error rendering template", http.StatusInternalServerError)
-	}
+	Render(templates.ProductForm(forms.New(nil), false), r, w)
 }
 
 func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) {
