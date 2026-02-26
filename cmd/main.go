@@ -86,6 +86,8 @@ func main() {
 			r.Get("/novo", productHandler.GetProductForm)
 			r.Get("/{id}", productHandler.GetEditPage)
 
+			r.Get("/pricetable", productHandler.GetTablePage)
+
 			r.Post("/", productHandler.PostNewProduct)
 			r.Post("/{id}", productHandler.UpdateProduct)
 			r.Delete("/{id}", productHandler.DeleteProduct)

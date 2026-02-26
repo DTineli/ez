@@ -79,6 +79,15 @@ type ProductPrice struct {
 	PriceTable   PriceTable `gorm:"foreignKey:PriceTableID" json:"price_table"`
 }
 
+type PriceTableStore interface {
+	CreatePriceTable(*PriceTable) error
+	FindAllByTenant(id uint) ([]PriceTable, error)
+
+	GetOneWithProducts(id uint) (*PriceTable, error)
+
+	// AddProduct(uint, float64) error
+}
+
 type ProductStore interface {
 	CreateProduct(*Product) error
 	// UpdateById(p *Product) error
