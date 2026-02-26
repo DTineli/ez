@@ -15,12 +15,14 @@ import (
 )
 
 type ProductHandler struct {
-	productStore store.ProductStore
+	productStore    store.ProductStore
+	priceTableStore store.PriceTableStore
 }
 
-func NewProductHandler(db store.ProductStore) *ProductHandler {
+func NewProductHandler(productDB store.ProductStore, priceTableDB store.PriceTableStore) *ProductHandler {
 	return &ProductHandler{
-		productStore: db,
+		productStore:    productDB,
+		priceTableStore: priceTableDB,
 	}
 }
 

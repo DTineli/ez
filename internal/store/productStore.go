@@ -1,11 +1,5 @@
 package store
 
-import (
-	"time"
-
-	"gorm.io/gorm"
-)
-
 func (p Product) StatusToString() string {
 	if p.Status {
 		return "Ativo"
@@ -57,26 +51,32 @@ type Product struct {
 }
 
 type PriceTable struct {
-	ID     uint   `gorm:"primaryKey" json:"id"`
-	Name   string `gorm:"type:varchar(100);not null;index" json:"name"`
-	Status bool   `gorm:"default:true" json:"active"`
+	ID         uint    `gorm:"primaryKey" json:"id"`
+	Name       string  `gorm:"type:varchar(100);not null;uniqueIndex:idx_tenant_name,priority:2" json:"name"`
+	Percentage float64 `gorm:"type:decimal(10,2)"`
+	Status     bool    `gorm:"default:true" json:"active"`
 
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
-
-	// Relationships
-	Prices []ProductPrice `gorm:"foreignKey:PriceTableID" json:"prices,omitempty"`
+	TenantID uint           `gorm:"not null;uniqueIndex:idx_tenant_name,priority:1" json:"tenant_id"`
+	Prices   []ProductPrice `gorm:"foreignKey:PriceTableID" json:"prices,omitempty"`
 }
 
 type ProductPrice struct {
 	ID    uint
 	Price float64
 
-	ProductID    uint       `gorm:"not null;index:idx_product_pricetable,unique" json:"product_id"`
-	PriceTableID uint       `gorm:"not null;index:idx_product_pricetable,unique" json:"price_table_id"`
+	ProductID    uint       `gorm:"not null;uniqueIndex:idx_product_pricetable,unique" json:"product_id"`
+	PriceTableID uint       `gorm:"not null;uniqueIndex:idx_product_pricetable,unique" json:"price_table_id"`
 	Product      Product    `gorm:"foreignKey:ProductID" json:"product"`
 	PriceTable   PriceTable `gorm:"foreignKey:PriceTableID" json:"price_table"`
+}
+
+type PriceTableStore interface {
+	CreatePriceTable(*PriceTable) error
+	FindAllByTenant(id uint) ([]PriceTable, error)
+
+	// GetOneWithProducts(id uint) (*PriceTable, error)
+
+	// AddProduct(uint, float64) error
 }
 
 type ProductStore interface {
