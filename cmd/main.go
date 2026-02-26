@@ -71,7 +71,10 @@ func main() {
 		r.Post("/logout", loginHandler.PostLogout)
 	})
 
-	productHandler := handlers.NewProductHandler(dbstore.NewProductStore(db))
+	productHandler := handlers.NewProductHandler(
+		dbstore.NewProductStore(db),
+		dbstore.NewPriceTableDB(db),
+	)
 
 	// autenticado
 	r.Group(func(r chi.Router) {
@@ -87,6 +90,7 @@ func main() {
 			r.Get("/{id}", productHandler.GetEditPage)
 
 			r.Get("/pricetable", productHandler.GetTablePage)
+			r.Post("/pricetable", productHandler.CreatePriceTable)
 
 			r.Post("/", productHandler.PostNewProduct)
 			r.Post("/{id}", productHandler.UpdateProduct)

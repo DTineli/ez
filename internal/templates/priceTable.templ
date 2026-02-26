@@ -1,8 +1,52 @@
-
 package templates
 
+templ PriceTableForm() {
+	<div class="card">
+		<form
+			hx-post="/produtos/pricetable"
+			hx-target="#main-content"
+			hx-swap="outerHTML"
+		>
+			<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-mb border p-4">
+				<legend class="fieldset-legend">Nova Tabela</legend>
+				<div class="join">
+					<input name="name" type="text" class="input join-item" required placeholder="Tabela prazo"/>
+					<label class="input join-item">
+						<input
+							name="percentage"
+							type="number"
+							min="1"
+							class="validator join-item"
+							placeholder="10"
+						/>
+						%
+					</label>
+					<button type="submit" class="btn join-item">Criar</button>
+				</div>
+			</fieldset>
+		</form>
+	</div>
+}
+
 templ PriceTablePage() {
-	<div>
-		TABELA DE PRECO
+	<div class="container flex flex-col gap-4">
+		@PriceTableForm()
+		<div class="overflow-x-auto">
+			<table class="table">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Name</th>
+						<th>Job</th>
+						<th>Favorite Color</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>MEO DEOS</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
 }
