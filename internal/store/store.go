@@ -20,16 +20,6 @@ type Tenant struct {
 	Users    []User
 }
 
-type Product struct {
-	ID       uint    `gorm:"primaryKey" json:"id"`
-	SKU      string  `json:"sku"`
-	Name     string  `json:"name"`
-	Price    float64 `json:"price"`
-	Stock    int     `json:"stock"`
-	Tenant   Tenant
-	TenantID uint `json:"owner_id"`
-}
-
 type Session struct {
 	UserID     uint `json:"user_id"`
 	UserName   string
@@ -55,11 +45,4 @@ type UserStore interface {
 type SessionStore interface {
 	CreateSession(*http.Request, http.ResponseWriter, Session) error
 	GetSessionInfo(*http.Request) (*Session, error)
-}
-
-type ProductStore interface {
-	CreateProduct(*Product) error
-	GetProduct(id uint) (*Product, error)
-
-	FindAllByUser(userID uint) ([]Product, error)
 }

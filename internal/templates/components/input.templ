@@ -1,0 +1,38 @@
+package components
+
+type BasicInputParams struct {
+	Label         string
+	Name          string
+	InputType     string
+	Value         string
+	ErrorMessages []string
+	IsRequired    bool
+	Disabled      bool
+}
+
+templ BasicInput(p BasicInputParams) {
+	<div class="form-control">
+		<label class="label">
+			<span class="label-text">{ p.Label }</span>
+		</label>
+		<input
+			if p.Disabled {
+				disabled
+			}
+			type={ p.InputType }
+			name={ p.Name }
+			value={ p.Value }
+			if len(p.ErrorMessages) > 0 {
+				class="input input-bordered w-full border-red-600"
+			} else {
+				class="input input-bordered w-full"
+			}
+			if p.IsRequired {
+				required
+			}
+		/>
+		for _, e := range p.ErrorMessages {
+			<span class="text-red-600">{ e }</span>
+		}
+	</div>
+}
