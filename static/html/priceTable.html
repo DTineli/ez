@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/style.min.css" />
+    <title></title>
+</head>
+
+<body>
+    <div class="drawer lg:drawer-open">
+        <input id="my-drawer-4" type="checkbox" class="drawer-toggle" />
+        <div class="drawer-content">
+            <!-- Navbar -->
+            <nav class="navbar w-full bg-base-300">
+                <label for="my-drawer-4" aria-label="open sidebar" class="btn btn-square btn-ghost">
+                    <!-- Sidebar toggle icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round"
+                        stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor"
+                        class="my-1.5 inline-block size-4">
+                        <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z">
+                        </path>
+                        <path d="M9 4v16"></path>
+                        <path d="M14 10l2 2l-2 2"></path>
+                    </svg>
+                </label>
+                <div class="px-4">Navbar Title</div>
+            </nav>
+            <!-- Page content here -->
+            <div class="p-4">Page Content</div>
+        </div>
+
+        <div class="drawer-side is-drawer-close:overflow-visible">
+            <label for="my-drawer-4" aria-label="close sidebar" class="drawer-overlay"></label>
+            <div class="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
+                <!-- Sidebar content here -->
+                <ul class="menu w-full grow">
+                    <!-- List item -->
+                    <li>
+                        <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
+                            <!-- Home icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round"
+                                stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor"
+                                class="my-1.5 inline-block size-4">
+                                <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
+                                <path
+                                    d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z">
+                                </path>
+                            </svg>
+                            <span class="is-drawer-close:hidden">Homepage</span>
+                        </button>
+                    </li>
+
+                    <!-- List item -->
+                    <li>
+                        <button class="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Settings">
+                            <!-- Settings icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-linejoin="round"
+                                stroke-linecap="round" stroke-width="2" fill="none" stroke="currentColor"
+                                class="my-1.5 inline-block size-4">
+                                <path d="M20 7h-9"></path>
+                                <path d="M14 17H5"></path>
+                                <circle cx="17" cy="17" r="3"></circle>
+                                <circle cx="7" cy="7" r="3"></circle>
+                            </svg>
+                            <span class="is-drawer-close:hidden">Settings</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="min-h-screen bg-base-200 p-8">
+        <div class="max-w-7xl mx-auto">
+
+            <!-- Card Principal -->
+            <div class="bg-base-100 shadow-xl rounded-2xl p-8 space-y-8">
+
+                <!-- Título -->
+                <h1 class="text-3xl font-bold">
+                    Cadastro de Tabela de Preço
+                </h1>
+
+                <!-- Dados da tabela -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Nome -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-semibold">Nome da Tabela</span>
+                        </label>
+                        <input type="text" class="input input-bordered w-full" placeholder="Ex: Tabela Atacado 2026" />
+                    </div>
+
+                    <!-- Margem -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-semibold">Margem de Lucro (%)</span>
+                        </label>
+                        <input type="number" class="input input-bordered w-full" placeholder="20" />
+                    </div>
+
+                </div>
+
+                <!-- Descrição -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-semibold">Descrição</span>
+                    </label>
+                    <textarea class="textarea textarea-bordered h-24"></textarea>
+                </div>
+
+                <!-- Seção Produtos -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+
+                    <!-- Produtos na tabela -->
+                    <div class="bg-base-200 rounded-xl p-4 h-96 flex flex-col">
+                        <h2 class="font-bold text-lg mb-4">
+                            Produtos na Tabela
+                        </h2>
+
+                        <div class="overflow-y-auto space-y-2">
+                            <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-base-300 cursor-pointer">
+                                <input type="checkbox" class="checkbox checkbox-primary" />
+                                <span>Camiseta Básica - R$ 25,00</span>
+                            </label>
+
+                            <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-base-300 cursor-pointer">
+                                <input type="checkbox" class="checkbox checkbox-primary" />
+                                <span>Calça Jeans - R$ 80,00</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Botões mover -->
+                    <div class="flex flex-col items-center gap-4">
+                        <button class="btn btn-outline w-16">
+                            >>
+                        </button>
+                        <button class="btn btn-outline w-16">
+                            << </button>
+                    </div>
+
+                    <!-- Produtos disponíveis -->
+                    <div class="bg-base-200 rounded-xl p-4 h-96 flex flex-col">
+                        <h2 class="font-bold text-lg mb-4">
+                            Produtos Disponíveis
+                        </h2>
+
+                        <div class="overflow-y-auto space-y-2">
+                            <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-base-300 cursor-pointer">
+                                <input type="checkbox" class="checkbox checkbox-primary" />
+                                <span>Jaqueta de Couro - R$ 150,00</span>
+                            </label>
+
+                            <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-base-300 cursor-pointer">
+                                <input type="checkbox" class="checkbox checkbox-primary" />
+                                <span>Tênis de Corrida - R$ 200,00</span>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Botões finais -->
+                <div class="flex justify-end gap-4 pt-6 border-t">
+                    <button class="btn btn-ghost">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-primary">
+                        Salvar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

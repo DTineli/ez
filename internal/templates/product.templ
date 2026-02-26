@@ -14,50 +14,50 @@ import (
 // ==========================
 //
 templ ProductsPage(products []store.Product) {
-	<div id="main-content" class="bg-base-200 m-5 rounded-2xl shadow p-10 w-full">
-		<div class="flex items-center justify-between mb-10">
-			<div></div>
-			<h2 class="text-xl font-semibold">Produtos</h2>
-			<button
-				hx-get="/produtos/novo"
-				hx-push-url="true"
-				class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-xl transition"
-			>
-				Novo
-			</button>
-		</div>
-		<div class="overflow-x-auto">
-			<table class="table table-zebra">
-				<thead>
+	<div class="flex items-center justify-between mb-10">
+		<div></div>
+		<h2 class="text-xl font-semibold">Produtos</h2>
+		<button
+			hx-get="/produtos/novo"
+			hx-target="#main-content"
+			hx-push-url="true"
+			class="btn bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-xl transition"
+		>
+			Novo
+		</button>
+	</div>
+	<div class="overflow-x-auto">
+		<table class="table table-zebra">
+			<thead>
+				<tr>
+					<th>SKU</th>
+					<th>Nome</th>
+					<th>Status</th>
+					<th>Estoque</th>
+					<th>Ações</th>
+				</tr>
+			</thead>
+			<tbody>
+				for _, p := range products {
 					<tr>
-						<th>SKU</th>
-						<th>Nome</th>
-						<th>Status</th>
-						<th>Estoque</th>
-						<th>Ações</th>
+						<td>{ p.SKU }</td>
+						<td>{ p.Name }</td>
+						<td>{ p.StatusToString() }</td>
+						<td>{ p.CurrentStock }</td>
+						<td>
+							<a
+								class="btn btn-sm"
+								hx-push-url="true"
+								hx-target="#main-content"
+								href={ fmt.Sprintf("/produtos/%v", p.ID) }
+							>
+								Editar
+							</a>
+						</td>
 					</tr>
-				</thead>
-				<tbody>
-					for _, p := range products {
-						<tr>
-							<td>{ p.SKU }</td>
-							<td>{ p.Name }</td>
-							<td>{ p.StatusToString() }</td>
-							<td>{ p.CurrentStock }</td>
-							<td>
-								<a
-									class="btn btn-sm"
-									hx-push-url="true"
-									href={ fmt.Sprintf("/produtos/%v", p.ID) }
-								>
-									Editar
-								</a>
-							</td>
-						</tr>
-					}
-				</tbody>
-			</table>
-		</div>
+				}
+			</tbody>
+		</table>
 	</div>
 }
 

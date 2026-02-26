@@ -17,7 +17,7 @@ templ BasicInput(p BasicInputParams) {
 		</label>
 		<input
 			if p.Disabled {
-				disabled
+				readonly
 			}
 			type={ p.InputType }
 			name={ p.Name }
