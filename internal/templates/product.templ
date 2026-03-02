@@ -18,7 +18,7 @@ templ ProductsPage(products []store.Product) {
 		<div></div>
 		<h2 class="text-xl font-semibold">Produtos</h2>
 		<button
-			hx-get="/produtos/novo"
+			hx-get="/admin/produtos/novo"
 			hx-target="#main-content"
 			hx-push-url="true"
 			class="btn bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-xl transition"
@@ -49,7 +49,7 @@ templ ProductsPage(products []store.Product) {
 								class="btn btn-sm"
 								hx-push-url="true"
 								hx-target="#main-content"
-								href={ fmt.Sprintf("/produtos/%v", p.ID) }
+								href={ fmt.Sprintf("/admin/produtos/%v", p.ID) }
 							>
 								Editar
 							</a>
@@ -70,9 +70,9 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 	{{
 		var action string
 		if isUpdate {
-			action = fmt.Sprintf("/produtos/%s", form.Get("ID"))
+			action = fmt.Sprintf("/admin/produtos/%s", form.Get("ID"))
 		} else {
-			action = "/produtos"
+			action = "/admin/produtos"
 		}
 
 		uoms := []struct {
@@ -228,7 +228,7 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 						<div class="divider"></div>
 						<div class="flex justify-end gap-4">
 							<button
-								hx-get="/produtos"
+								hx-get="/admin/produtos"
 								hx-push-url="true"
 								class="btn btn-ghost"
 							>
