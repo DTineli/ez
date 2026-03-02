@@ -79,6 +79,12 @@ type PriceTableStore interface {
 	// AddProduct(uint, float64) error
 }
 
+type ProductFilters struct {
+	Page int
+	SKU  string
+	Name string
+}
+
 type ProductStore interface {
 	CreateProduct(*Product) error
 	// UpdateById(p *Product) error
@@ -90,6 +96,8 @@ type ProductStore interface {
 	) error
 
 	GetProduct(id uint) (*Product, error)
+
+	FindAllByUserWithFilters(id uint, filters ProductFilters) ([]Product, error)
 
 	FindAllByUser(userID uint) ([]Product, error)
 }

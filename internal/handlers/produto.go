@@ -126,6 +126,22 @@ func (p *ProductHandler) GetProductForm(w http.ResponseWriter, r *http.Request) 
 	Render(templates.ProductForm(forms.New(nil), false), r, w)
 }
 
+func (p ProductHandler) FilterProducts(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+	r.ParseForm()
+
+	sku := r.FormValue("sku")
+	name := r.FormValue("name")
+
+	products, _ := p.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
+
+		SKU:  sku,
+		Name: name,
+	})
+
+	Render(templates.ProductTableBody(products), r, w)
+}
+
 func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) {
 	form, err := validateProductForm(r)
 	if err != nil {
@@ -244,7 +260,12 @@ func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
 	sess := m.GetSessionFromContext(r)
 
-	produtos, err := p.productStore.FindAllByUser(sess.TenantID)
+	produtos, err := p.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
+		Page: 1,
+		SKU:  "",
+		Name: "",
+	})
+
 	if err != nil {
 		http.Error(w, "Error listing Product", http.StatusInternalServerError)
 		return

@@ -71,6 +71,31 @@ func (p *ProductStore) UpdateById(product *store.Product) error {
 	return result.Error
 }
 
+func (p ProductStore) FindAllByUserWithFilters(id uint, filters store.ProductFilters) ([]store.Product, error) {
+	var products []store.Product
+	if filters.SKU != "" {
+		err := p.db.Where("tenant_id = ? AND sku = ?", id, filters.SKU).Find(&products).Error
+		if err != nil {
+			return nil, err
+		}
+		return products, nil
+	}
+
+	if filters.Name != "" {
+		err := p.db.Where("tenant_id = ? AND name like %?%", id, filters.Name).Find(&products).Error
+		if err != nil {
+			return nil, err
+		}
+		return products, nil
+	}
+
+	err := p.db.Where("tenant_id = ?", id).Find(&products).Error
+	if err != nil {
+		return nil, err
+	}
+	return products, nil
+}
+
 func (p *ProductStore) UpdateFields(
 	id uint,
 	tenantID uint,

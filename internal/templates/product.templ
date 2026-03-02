@@ -8,12 +8,73 @@ import (
 	"github.com/DTineli/ez/internal/templates/components"
 )
 
+templ Filter() {
+	<div class="flex items-center">
+		<form
+			class="flex justify-center mx-auto"
+			hx-post="/admin/produtos/find"
+			hx-target="#product-data"
+		>
+			<div>
+				<label class="label">
+					<span class="label-text">Nome: </span>
+				</label>
+				<input
+					class="input input-bordered w-full"
+					type="text"
+					name="name"
+				/>
+			</div>
+			<div>
+				<label class="label">
+					<span class="label-text">SKU: </span>
+				</label>
+				<input
+					class="input input-bordered w-full"
+					type="text"
+					name="sku"
+				/>
+			</div>
+			<div class="divider"></div>
+			<div class="flex justify-end gap-4">
+				<button type="submit" class="btn btn-primary">
+					Pesquisar
+				</button>
+			</div>
+		</form>
+	</div>
+}
+
+templ ProductTableBody(products []store.Product) {
+	<tbody id="product-data">
+		for _, p := range products {
+			<tr>
+				<td>{ p.SKU }</td>
+				<td>{ p.Name }</td>
+				<td>{ p.StatusToString() }</td>
+				<td>{ p.CurrentStock }</td>
+				<td>
+					<a
+						class="btn btn-sm"
+						hx-push-url="true"
+						hx-target="#main-content"
+						href={ fmt.Sprintf("/admin/produtos/%v", p.ID) }
+					>
+						Editar
+					</a>
+				</td>
+			</tr>
+		}
+	</tbody>
+}
+
 //
 // ==========================
 // LISTAGEM DE PRODUTOS
 // ==========================
 //
 templ ProductsPage(products []store.Product) {
+	@Filter()
 	<div class="flex items-center justify-between mb-10">
 		<div></div>
 		<h2 class="text-xl font-semibold">Produtos</h2>
@@ -37,26 +98,7 @@ templ ProductsPage(products []store.Product) {
 					<th>Ações</th>
 				</tr>
 			</thead>
-			<tbody>
-				for _, p := range products {
-					<tr>
-						<td>{ p.SKU }</td>
-						<td>{ p.Name }</td>
-						<td>{ p.StatusToString() }</td>
-						<td>{ p.CurrentStock }</td>
-						<td>
-							<a
-								class="btn btn-sm"
-								hx-push-url="true"
-								hx-target="#main-content"
-								href={ fmt.Sprintf("/admin/produtos/%v", p.ID) }
-							>
-								Editar
-							</a>
-						</td>
-					</tr>
-				}
-			</tbody>
+			@ProductTableBody(products)
 		</table>
 	</div>
 }
