@@ -1,26 +1,51 @@
 package templates
 
-templ PriceTableForm() {
-	<div class="card">
+import "github.com/DTineli/ez/internal/store"
+
+templ PriceTableForm(errors map[string]string) {
+	<div id="price-table-form" class="card">
 		<form
 			hx-post="/produtos/pricetable"
-			hx-target="#main-content"
-			hx-swap="outerHTML"
+			hx-target="#table-body"
+			hx-swap="beforebegin"
+			class="flex justify-center mx-auto"
+			hx-on::after-request="if(event.detail.successful) this.reset()"
 		>
 			<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-mb border p-4">
 				<legend class="fieldset-legend">Nova Tabela</legend>
 				<div class="join">
-					<input name="name" type="text" class="input join-item" required placeholder="Tabela prazo"/>
+					<input
+						name="name"
+						type="text"
+						if errors["name"] == "" {
+							class="input join-item"
+						} else {
+							class="input join-item border-red-600"
+						}
+						required
+						placeholder="Tabela prazo"
+					/>
+					if errors["name"] != "" {
+						<span class="text-red-600">{ errors["name"] }</span>
+					}
 					<label class="input join-item">
 						<input
 							name="percentage"
 							type="number"
 							min="1"
-							class="validator join-item"
 							placeholder="10"
+							required
+							if errors["percentage"] == "" {
+								class="validator join-item"
+							} else {
+								class="input join-item border-red-600"
+							}
 						/>
 						%
 					</label>
+					if errors["percentage"] != "" {
+						<span class="text-red-600">{ errors["percentage"] }</span>
+					}
 					<button type="submit" class="btn join-item">Criar</button>
 				</div>
 			</fieldset>
@@ -28,23 +53,39 @@ templ PriceTableForm() {
 	</div>
 }
 
-templ PriceTablePage() {
-	<div class="container flex flex-col gap-4">
-		@PriceTableForm()
+templ TableRow(table store.PriceTable) {
+	<tr class="hover:bg-base-300">
+		<td>{ table.ID }</td>
+		<td>{ table.Name }</td>
+		<td>{ table.Percentage }</td>
+		<td>{ table.Status }</td>
+		<td>
+			<div class="flex justify-center gap-2">
+				<button type="button" class="btn">Editar</button>
+				<button type="button" class="btn">Excluir</button>
+			</div>
+		</td>
+	</tr>
+}
+
+templ PriceTablePage(tables []store.PriceTable) {
+	<div class="container flex flex-col mx-auto gap-4">
+		@PriceTableForm(map[string]string{})
 		<div class="overflow-x-auto">
-			<table class="table">
+			<table class="table text-center">
 				<thead>
 					<tr>
-						<th></th>
+						<th>ID</th>
 						<th>Name</th>
-						<th>Job</th>
-						<th>Favorite Color</th>
+						<th>Porcentagem</th>
+						<th>Status</th>
+						<th>açoes</th>
 					</tr>
 				</thead>
-				<tbody>
-					<tr>
-						<td>MEO DEOS</td>
-					</tr>
+				<tbody id="table-body">
+					for _, table := range tables {
+						@TableRow(table)
+					}
 				</tbody>
 			</table>
 		</div>

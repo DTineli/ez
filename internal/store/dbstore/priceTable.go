@@ -20,5 +20,12 @@ func (p PriceTableDB) CreatePriceTable(table *store.PriceTable) error {
 }
 
 func (p PriceTableDB) FindAllByTenant(id uint) ([]store.PriceTable, error) {
-	return nil, nil
+	var priceTables []store.PriceTable
+
+	err := p.db.Where("tenant_id = ?", id).Find(&priceTables).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return priceTables, nil
 }

@@ -12,9 +12,9 @@ templ header(title string) {
 	</head>
 }
 
-templ linkTo(label, path string) {
+templ linkTo(label, p string) {
 	<a
-		hx-get={ path }
+		hx-get={ "/admin" + p }
 		hx-target="#main-content"
 		hx-push-url="true"
 		hx-swap="innerHTML"

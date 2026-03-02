@@ -40,7 +40,7 @@ func ProductsPage(products []store.Product) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex items-center justify-between mb-10\"><div></div><h2 class=\"text-xl font-semibold\">Produtos</h2><button hx-get=\"/produtos/novo\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"btn bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-xl transition\">Novo</button></div><div class=\"overflow-x-auto\"><table class=\"table table-zebra\"><thead><tr><th>SKU</th><th>Nome</th><th>Status</th><th>Estoque</th><th>Ações</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex items-center justify-between mb-10\"><div></div><h2 class=\"text-xl font-semibold\">Produtos</h2><button hx-get=\"/admin/produtos/novo\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"btn bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-xl transition\">Novo</button></div><div class=\"overflow-x-auto\"><table class=\"table table-zebra\"><thead><tr><th>SKU</th><th>Nome</th><th>Status</th><th>Estoque</th><th>Ações</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -102,9 +102,9 @@ func ProductsPage(products []store.Product) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 templ.SafeURL
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/produtos/%v", p.ID))
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/admin/produtos/%v", p.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 52, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 52, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -149,9 +149,9 @@ func ProductForm(form *forms.Form, isUpdate bool) templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		var action string
 		if isUpdate {
-			action = fmt.Sprintf("/produtos/%s", form.Get("ID"))
+			action = fmt.Sprintf("/admin/produtos/%s", form.Get("ID"))
 		} else {
-			action = "/produtos"
+			action = "/admin/produtos"
 		}
 
 		uoms := []struct {
@@ -372,7 +372,7 @@ func ProductForm(form *forms.Form, isUpdate bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div><div class=\"divider\"></div><div class=\"flex justify-end gap-4\"><button hx-get=\"/produtos\" hx-push-url=\"true\" class=\"btn btn-ghost\">Cancelar</button> <button type=\"submit\" class=\"btn btn-primary\">Salvar Produto</button></div></form></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div><div class=\"divider\"></div><div class=\"flex justify-end gap-4\"><button hx-get=\"/admin/produtos\" hx-push-url=\"true\" class=\"btn btn-ghost\">Cancelar</button> <button type=\"submit\" class=\"btn btn-primary\">Salvar Produto</button></div></form></div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

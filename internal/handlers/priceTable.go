@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
@@ -18,61 +19,84 @@ type priceTableDTO struct {
 	Percentage float64
 }
 
-func formToPriceTable(r *http.Request) (*priceTableDTO, error) {
+func formToPriceTable(r *http.Request) (*priceTableDTO, map[string]string) {
+	errs := make(map[string]string)
+
 	if err := r.ParseForm(); err != nil {
-		return nil, err // erro técnico
+		errs["tec"] = err.Error() // erro técnico
+		return nil, errs
 	}
 
 	name := r.FormValue("name")
 	if name == "" {
-		return nil, fmt.Errorf("%w: Nome vazio", ErrInvalidForm)
+		errs["name"] = fmt.Errorf("%w: nome vazio", ErrInvalidForm).Error()
 	}
 
 	percentageStr := r.FormValue("percentage")
 	percentage, err := strconv.ParseFloat(percentageStr, 64)
 	if err != nil {
-		return nil, fmt.Errorf("%w: percentage inválido", ErrInvalidForm)
+		errs["percentage"] = fmt.Errorf("%w: percentage inválido", ErrInvalidForm).Error()
 	}
 
 	if percentage < 0 {
-		return nil, fmt.Errorf("%w: percentage negativo", ErrInvalidForm)
+		errs["percentage"] = fmt.Errorf("%w: percentage negativo", ErrInvalidForm).Error()
 	}
 
 	return &priceTableDTO{
 		Name:       name,
 		Percentage: percentage,
-	}, nil
+	}, errs
+
 }
 
 func (p *ProductHandler) GetTablePage(w http.ResponseWriter, r *http.Request) {
-	Render(templates.PriceTablePage(), r, w)
+	sess := m.GetSessionFromContext(r)
+
+	tables, err := p.priceTableStore.FindAllByTenant(sess.TenantID)
+	if err != nil {
+		ShowToast(w, "Erro ao recuperar dados", "error")
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	Render(templates.PriceTablePage(tables), r, w)
 }
 
 func (p *ProductHandler) CreatePriceTable(w http.ResponseWriter, r *http.Request) {
 	sess := m.GetSessionFromContext(r)
 
-	dto, err := formToPriceTable(r)
+	dto, errorMap := formToPriceTable(r)
 
-	if err != nil {
-		if errors.Is(err, ErrInvalidForm) {
-			// erro de validação → volta para o form
-			Render(templates.PriceTablePage(), r, w)
-			return
-		}
+	if len(errorMap) > 0 {
+		w.Header().Set("HX-Retarget", "#price-table-form")
+		w.Header().Set("HX-Reswap", "outerHTML")
 		// erro técnico → 500
-		http.Error(w, "internal error", http.StatusInternalServerError)
+		ShowToast(w, "Erro ao salvar", "error")
+		Render(templates.PriceTableForm(errorMap), r, w)
 		return
 	}
 
-	if err = p.priceTableStore.CreatePriceTable(&store.PriceTable{
+	table := store.PriceTable{
 		Name:       dto.Name,
 		Percentage: dto.Percentage,
+		TenantID:   sess.TenantID,
+	}
+	if err := p.priceTableStore.CreatePriceTable(&table); err != nil {
+		w.Header().Set("HX-Retarget", "#price-table-form")
+		w.Header().Set("HX-Reswap", "outerHTML")
 
-		TenantID: sess.TenantID,
-	}); err != nil {
-		Render(templates.PriceTablePage(), r, w)
+		ShowToast(w, "Erro ao salvar", "error")
+		msg := err.Error()
+		if strings.Contains(msg, "UNIQUE constraint failed") ||
+			strings.Contains(msg, "Duplicate") {
+		}
+
+		Render(templates.PriceTableForm(map[string]string{
+			"name": "Nome ja existe",
+		}), r, w)
 		return
 	}
 
-	Render(templates.PriceTablePage(), r, w)
+	ShowToast(w, "Tabela Cadastrada", "success")
+	templates.TableRow(table).Render(r.Context(), w)
 }

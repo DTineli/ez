@@ -62,6 +62,15 @@ func main() {
 
 	r.Group(func(r chi.Router) {
 		r.Use(m.TextHTMLMiddleware)
+		r.Route("/client", func(r chi.Router) {
+			r.Get("/", func(w http.ResponseWriter, req *http.Request) {
+				w.Write([]byte("<h1>Vai Corinthians</h1>"))
+			})
+		})
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(m.TextHTMLMiddleware)
 
 		r.Get("/login", loginHandler.GetLoginPage)
 		r.Post("/login", loginHandler.PostLogin)
@@ -82,21 +91,24 @@ func main() {
 			m.TextHTMLMiddleware,
 			m.SessionAuthMiddleware(sessionStore),
 		)
-		r.Get("/", handlers.NewHomeHandler(sessionStore).ServeHTTP)
 
-		r.Route("/produtos", func(r chi.Router) {
-			r.Get("/", productHandler.GetProductPage)
-			r.Get("/novo", productHandler.GetProductForm)
-			r.Get("/{id}", productHandler.GetEditPage)
+		r.Route("/admin", func(r chi.Router) {
+			r.Get("/", handlers.NewHomeHandler(sessionStore).ServeHTTP)
 
-			r.Get("/pricetable", productHandler.GetTablePage)
-			r.Post("/pricetable", productHandler.CreatePriceTable)
+			r.Route("/produtos", func(r chi.Router) {
+				r.Get("/", productHandler.GetProductPage)
+				r.Get("/novo", productHandler.GetProductForm)
+				r.Get("/{id}", productHandler.GetEditPage)
 
-			r.Post("/", productHandler.PostNewProduct)
-			r.Post("/{id}", productHandler.UpdateProduct)
-			r.Delete("/{id}", productHandler.DeleteProduct)
+				r.Get("/pricetable", productHandler.GetTablePage)
+				r.Post("/pricetable", productHandler.CreatePriceTable)
 
-			// r.Get("/{id}", produtoHandler.Show)
+				r.Post("/", productHandler.PostNewProduct)
+				r.Post("/{id}", productHandler.UpdateProduct)
+				r.Delete("/{id}", productHandler.DeleteProduct)
+
+				// r.Get("/{id}", produtoHandler.Show)
+			})
 		})
 	})
 
