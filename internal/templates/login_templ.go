@@ -71,7 +71,15 @@ func LoginPage() templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"min-h-screen flex items-center justify-center bg-black text-gray-100\"><div class=\"w-full max-w-md bg-zinc-900 p-8 rounded-2xl shadow-lg\"><h1 class=\"text-2xl font-semibold mb-6 text-center\">Entrar</h1><div id=\"login-messages\" class=\"min-h-[1rem]\"></div><form class=\"flex flex-col space-y-4\" hx-post=\"/login\" hx-target=\"#login-messages\" hx-swap=\"innerHTML\"><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Email</label> <input type=\"email\" name=\"email\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Senha</label> <input type=\"password\" name=\"password\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><button type=\"submit\" class=\"mt-4 bg-white text-black font-medium py-2 rounded-lg hover:bg-gray-200 transition\">Entrar</button></form></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<html lang=\"pt-br\" data-theme=\"light\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = header("Sistema - Login Page").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"min-h-screen flex items-center justify-center bg-black text-gray-100\"><div class=\"w-full max-w-md bg-zinc-900 p-8 rounded-2xl shadow-lg\"><h1 class=\"text-2xl font-semibold mb-6 text-center\">Entrar</h1><div id=\"login-messages\" class=\"min-h-[1rem]\"></div><form class=\"flex flex-col space-y-4\" hx-post=\"/login\" hx-target=\"#login-messages\" hx-swap=\"innerHTML\"><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Email</label> <input type=\"email\" name=\"email\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Senha</label> <input type=\"password\" name=\"password\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><a href=\"/register\" class=\"link\">Criar conta</a> <button type=\"submit\" class=\"mt-4 bg-white text-black font-medium py-2 rounded-lg hover:bg-gray-200 transition\">Entrar</button></form></div></div></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

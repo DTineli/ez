@@ -44,7 +44,8 @@ func (h *LoginHandler) GetLoginPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := templates.Layout(templates.LoginPage(), "Login", false, "").Render(r.Context(), w)
+	// err := Render(templates.LoginPage(), r, w)
+	err := templates.LoginPage().Render(r.Context(), w)
 
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
