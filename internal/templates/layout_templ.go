@@ -179,7 +179,7 @@ func upbar() templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"flex flex-row justify-between navbar bg-base-100 shadow-sm\"><a class=\"btn btn-ghost text-xl\" hx-get=\"/\" hx-target=\"#main-content\" hx-swap=\"innerHTML\">Sistema</a><div><button type=\"button\" hx-post=\"/logout\" class=\"btn\">Sair</button> <input type=\"checkbox\" value=\"dark\" class=\"toggle theme-controller\"></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"flex flex-row justify-between navbar bg-base-100 shadow-sm\"><a class=\"btn btn-ghost text-xl\" hx-get=\"/admin\" hx-target=\"#main-content\" hx-swap=\"innerHTML\">Sistema</a><div><button type=\"button\" hx-post=\"/logout\" class=\"btn\">Sair</button> <input type=\"checkbox\" value=\"dark\" class=\"toggle theme-controller\"></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
