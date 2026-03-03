@@ -44,8 +44,8 @@ templ sideBar() {
 			<details>
 				<summary>Pedidos</summary>
 				<ul>
-					<li><a href="/pedidos/novo">Novo</a></li>
-					<li><a href="/pedidos">Histórico</a></li>
+					<li><a href="#">Novo</a></li>
+					<li><a href="#">Histórico</a></li>
 				</ul>
 			</details>
 		</li>
@@ -60,7 +60,10 @@ templ upbar() {
 			hx-target="#main-content"
 			hx-swap="innerHTML"
 		>Sistema</a>
-		<input type="checkbox" value="dark" class="toggle theme-controller"/>
+		<div>
+			<button type="button" hx-post="/logout" class="btn">Sair</button>
+			<input type="checkbox" value="dark" class="toggle theme-controller"/>
+		</div>
 	</div>
 }
 
