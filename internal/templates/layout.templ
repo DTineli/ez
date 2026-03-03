@@ -6,7 +6,7 @@ templ header(title string) {
 		<meta charset="UTF-8"/>
 		<script src="/static/script/htmx.min.js"></script>
 		<script src="/static/script/response-targets.js"></script>
-		<link rel="stylesheet" href="/static/css/style.min.css"/>
+		<link rel="stylesheet" href="/static/css/style.css"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<script src="https://unpkg.com/alpinejs" defer></script>
 	</head>
@@ -44,8 +44,8 @@ templ sideBar() {
 			<details>
 				<summary>Pedidos</summary>
 				<ul>
-					<li><a href="/pedidos/novo">Novo</a></li>
-					<li><a href="/pedidos">Histórico</a></li>
+					<li><a href="#">Novo</a></li>
+					<li><a href="#">Histórico</a></li>
 				</ul>
 			</details>
 		</li>
@@ -56,11 +56,14 @@ templ upbar() {
 	<div class="flex flex-row justify-between navbar bg-base-100 shadow-sm">
 		<a
 			class="btn btn-ghost text-xl"
-			hx-get="/"
+			hx-get="/admin"
 			hx-target="#main-content"
 			hx-swap="innerHTML"
 		>Sistema</a>
-		<input type="checkbox" value="dark" class="toggle theme-controller"/>
+		<div>
+			<button type="button" hx-post="/logout" class="btn">Sair</button>
+			<input type="checkbox" value="dark" class="toggle theme-controller"/>
+		</div>
 	</div>
 }
 
