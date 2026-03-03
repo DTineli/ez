@@ -42,7 +42,7 @@ func header(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><meta charset=\"UTF-8\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"/static/script/response-targets.js\"></script><link rel=\"stylesheet\" href=\"/static/css/style.min.css\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><script src=\"https://unpkg.com/alpinejs\" defer></script></head>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><meta charset=\"UTF-8\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"/static/script/response-targets.js\"></script><link rel=\"stylesheet\" href=\"/static/css/style.css\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><script src=\"https://unpkg.com/alpinejs\" defer></script></head>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -150,7 +150,7 @@ func sideBar() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</li></ul></details></li><li><details><summary>Pedidos</summary><ul><li><a href=\"/pedidos/novo\">Novo</a></li><li><a href=\"/pedidos\">Histórico</a></li></ul></details></li></ul>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</li></ul></details></li><li><details><summary>Pedidos</summary><ul><li><a href=\"#\">Novo</a></li><li><a href=\"#\">Histórico</a></li></ul></details></li></ul>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -179,7 +179,7 @@ func upbar() templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"flex flex-row justify-between navbar bg-base-100 shadow-sm\"><a class=\"btn btn-ghost text-xl\" hx-get=\"/\" hx-target=\"#main-content\" hx-swap=\"innerHTML\">Sistema</a> <input type=\"checkbox\" value=\"dark\" class=\"toggle theme-controller\"></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"flex flex-row justify-between navbar bg-base-100 shadow-sm\"><a class=\"btn btn-ghost text-xl\" hx-get=\"/admin\" hx-target=\"#main-content\" hx-swap=\"innerHTML\">Sistema</a><div><button type=\"button\" hx-post=\"/logout\" class=\"btn\">Sair</button> <input type=\"checkbox\" value=\"dark\" class=\"toggle theme-controller\"></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

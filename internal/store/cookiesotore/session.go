@@ -39,6 +39,12 @@ func (s *SessionStore) CreateSession(r *http.Request, w http.ResponseWriter, ses
 	return nil
 }
 
+func (s *SessionStore) DeleteSession(r *http.Request, w http.ResponseWriter) error {
+	sess, _ := s.store.Get(r, "session-name")
+	sess.Options.MaxAge = -1
+	return sess.Save(r, w)
+}
+
 func (s *SessionStore) GetSessionInfo(r *http.Request) (*store.Session, error) {
 	sess, err := s.store.Get(r, "session-name")
 	if err != nil {

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -44,7 +45,8 @@ func (h *LoginHandler) GetLoginPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := templates.Layout(templates.LoginPage(), "Login", false, "").Render(r.Context(), w)
+	// err := Render(templates.LoginPage(), r, w)
+	err := templates.LoginPage().Render(r.Context(), w)
 
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
@@ -107,19 +109,19 @@ func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set(HXRedirect, "/")
+	w.Header().Set(HXRedirect, "/admin/")
 	w.WriteHeader(http.StatusOK)
 }
 
 func (h *LoginHandler) PostLogout(w http.ResponseWriter, r *http.Request) {
-	http.SetCookie(w, &http.Cookie{
-		Name:     h.cookieName,
-		Value:    "",
-		Path:     "/",
-		HttpOnly: true,
-		MaxAge:   -1,
-	})
-	w.Header().Set(HXRedirect, "/")
+
+	err := h.sessionStore.DeleteSession(r, w)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	w.Header().Set(HXRedirect, "/login")
 	w.WriteHeader(http.StatusOK)
 }
 

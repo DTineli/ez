@@ -72,6 +72,8 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(m.TextHTMLMiddleware)
 
+		r.Get("/", loginHandler.GetLoginPage)
+
 		r.Get("/login", loginHandler.GetLoginPage)
 		r.Post("/login", loginHandler.PostLogin)
 		r.Get("/register", registerHandler.GetRegisterPage)

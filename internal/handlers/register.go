@@ -26,17 +26,8 @@ func NewRegisterHandlerWithService() *RegisterHandler {
 }
 
 func (h *RegisterHandler) GetRegisterPage(w http.ResponseWriter, r *http.Request) {
-	var is_hxRequest = r.Header.Get("HX-Request") == "true"
-	if is_hxRequest {
-		err := templates.RegisterPage().Render(r.Context(), w)
-		if err != nil {
-			http.Error(w, "Error rendering template", http.StatusInternalServerError)
-			return
-		}
-		return
-	}
+	err := templates.RegisterPage().Render(r.Context(), w)
 
-	err := templates.Layout(templates.RegisterPage(), "Criar conta", false, "").Render(r.Context(), w)
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
@@ -115,7 +106,7 @@ func (h *RegisterHandler) PostRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := fmt.Sprintf("http://%s.%s", slug, r.Host)
+	url := fmt.Sprintf("http://%s/admin", r.Host)
 
 	w.Header().Set(HXRedirect, url)
 	w.WriteHeader(http.StatusOK)

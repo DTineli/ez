@@ -44,5 +44,6 @@ type UserStore interface {
 
 type SessionStore interface {
 	CreateSession(*http.Request, http.ResponseWriter, Session) error
+	DeleteSession(*http.Request, http.ResponseWriter) error
 	GetSessionInfo(*http.Request) (*Session, error)
 }
