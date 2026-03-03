@@ -109,7 +109,7 @@ func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set(HXRedirect, "/admin")
+	w.Header().Set(HXRedirect, "/admin/")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -121,7 +121,7 @@ func (h *LoginHandler) PostLogout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set(HXRedirect, "/")
+	w.Header().Set(HXRedirect, "/login")
 	w.WriteHeader(http.StatusOK)
 }
 
