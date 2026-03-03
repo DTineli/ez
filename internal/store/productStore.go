@@ -8,6 +8,21 @@ func (p Product) StatusToString() string {
 	return "Inativo"
 }
 
+type GetProductPageParams struct {
+	Page       int
+	PerPage    int
+	TotalPages int
+
+	Total int
+
+	Products []Product
+}
+
+type FindResults struct {
+	Count   int64
+	Results []Product
+}
+
 type UOM string
 
 const (
@@ -80,15 +95,15 @@ type PriceTableStore interface {
 }
 
 type ProductFilters struct {
-	Page int
-	SKU  string
-	Name string
+	Page    int
+	PerPage int
+	SKU     string
+	Name    string
 }
 
 type ProductStore interface {
 	CreateProduct(*Product) error
 	// UpdateById(p *Product) error
-
 	UpdateFields(
 		id uint,
 		tenantID uint,
@@ -96,8 +111,6 @@ type ProductStore interface {
 	) error
 
 	GetProduct(id uint) (*Product, error)
-
-	FindAllByUserWithFilters(id uint, filters ProductFilters) ([]Product, error)
-
+	FindAllByUserWithFilters(id uint, filters ProductFilters) (*FindResults, error)
 	FindAllByUser(userID uint) ([]Product, error)
 }

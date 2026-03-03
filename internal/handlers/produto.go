@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -126,22 +127,6 @@ func (p *ProductHandler) GetProductForm(w http.ResponseWriter, r *http.Request) 
 	Render(templates.ProductForm(forms.New(nil), false), r, w)
 }
 
-func (p ProductHandler) FilterProducts(w http.ResponseWriter, r *http.Request) {
-	sess := m.GetSessionFromContext(r)
-	r.ParseForm()
-
-	sku := r.FormValue("sku")
-	name := r.FormValue("name")
-
-	products, _ := p.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
-
-		SKU:  sku,
-		Name: name,
-	})
-
-	Render(templates.ProductTableBody(products), r, w)
-}
-
 func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) {
 	form, err := validateProductForm(r)
 	if err != nil {
@@ -257,21 +242,57 @@ func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 	_ = Render(templates.ProductForm(form, true), r, w)
 }
 
-func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
+func (p ProductHandler) FilterProducts(w http.ResponseWriter, r *http.Request) {
 	sess := m.GetSessionFromContext(r)
+	r.ParseForm()
 
-	produtos, err := p.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
-		Page: 1,
-		SKU:  "",
-		Name: "",
+	sku := r.FormValue("sku")
+	name := r.FormValue("name")
+
+	products, err := p.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
+		SKU:     sku,
+		Name:    name,
+		Page:    1,
+		PerPage: 20,
 	})
 
 	if err != nil {
+		ShowToast(w, "Falha ao buscar produtos", "error")
+	}
+
+	Render(templates.ProductTableBody(products.Results), r, w)
+}
+
+func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	page := 1
+	perPage := 10
+	if strPage := r.URL.Query().Get("page"); strPage != "" {
+		if p, err := strconv.Atoi(strPage); err == nil && p > 0 {
+			page = p
+		}
+	}
+
+	results, err := p.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
+		Page:    page,
+		PerPage: perPage,
+		SKU:     r.URL.Query().Get("sku"),
+		Name:    r.URL.Query().Get("name"),
+	})
+
+	if err != nil {
+		fmt.Println(err)
 		http.Error(w, "Error listing Product", http.StatusInternalServerError)
 		return
 	}
 
-	err = Render(templates.ProductsPage(produtos), r, w)
+	err = Render(templates.ProductsPage(store.GetProductPageParams{
+		Products:   results.Results,
+		Page:       page,
+		PerPage:    perPage,
+		TotalPages: int(math.Floor(float64(results.Count) / float64(perPage))),
+	}), r, w)
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 	}
