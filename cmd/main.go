@@ -100,7 +100,6 @@ func main() {
 			r.Route("/produtos", func(r chi.Router) {
 				r.Get("/", productHandler.GetProductPage)
 				r.Get("/novo", productHandler.GetProductForm)
-				r.Post("/find", productHandler.FilterProducts)
 				r.Get("/{id}", productHandler.GetEditPage)
 
 				r.Get("/pricetable", productHandler.GetTablePage)
@@ -109,9 +108,12 @@ func main() {
 				r.Post("/", productHandler.PostNewProduct)
 				r.Post("/{id}", productHandler.UpdateProduct)
 				r.Delete("/{id}", productHandler.DeleteProduct)
-
-				// r.Get("/{id}", produtoHandler.Show)
 			})
+		})
+
+		r.Route("/contacts", func(r chi.Router) {
+			r.Get("/", productHandler.GetTablePage)
+
 		})
 	})
 
