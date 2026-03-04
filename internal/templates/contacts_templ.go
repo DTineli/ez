@@ -91,11 +91,12 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
-			Name:       "name",
-			Label:      "Razão Social / Nome",
-			InputType:  "text",
-			Value:      form.Get("name"),
-			IsRequired: true,
+			Name:          "name",
+			Label:         "Razão Social / Nome",
+			ErrorMessages: form.Errors.Get("name"),
+			InputType:     "text",
+			Value:         form.Get("name"),
+			IsRequired:    true,
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -105,10 +106,11 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
-			Name:      "trade_name",
-			Label:     "Nome Fantasia",
-			InputType: "text",
-			Value:     form.Get("trade_name"),
+			Name:          "trade_name",
+			Label:         "Nome Fantasia",
+			ErrorMessages: form.Errors.Get("trade_name"),
+			InputType:     "text",
+			Value:         form.Get("trade_name"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -125,7 +127,7 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(u.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 80, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 82, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -148,7 +150,7 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(u.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 85, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 87, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -164,10 +166,11 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
-			Name:      "price_table_id",
-			Label:     "Tabela Preço (ID)",
-			InputType: "number",
-			Value:     form.Get("price_table_id"),
+			Name:          "price_table_id",
+			Label:         "Tabela Preço (ID)",
+			InputType:     "number",
+			ErrorMessages: form.Errors.Get("price_table_id"),
+			Value:         form.Get("price_table_id"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -184,7 +187,7 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(u.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 111, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 114, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -207,7 +210,7 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(u.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 116, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 119, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -223,11 +226,12 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
-			Name:       "document",
-			Label:      "CPF / CNPJ",
-			InputType:  "text",
-			Value:      form.Get("document"),
-			IsRequired: true,
+			Name:          "document",
+			Label:         "CPF / CNPJ",
+			InputType:     "text",
+			ErrorMessages: form.Errors.Get("document"),
+			Value:         form.Get("document"),
+			IsRequired:    true,
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -237,10 +241,11 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
-			Name:      "ie",
-			Label:     "IE",
-			InputType: "text",
-			Value:     form.Get("ie"),
+			Name:          "ie",
+			Label:         "IE",
+			ErrorMessages: form.Errors.Get("ie"),
+			InputType:     "text",
+			Value:         form.Get("ie"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -250,10 +255,11 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
-			Name:      "email",
-			Label:     "Email",
-			InputType: "email",
-			Value:     form.Get("email"),
+			Name:          "email",
+			Label:         "Email",
+			InputType:     "email",
+			ErrorMessages: form.Errors.Get("email"),
+			Value:         form.Get("email"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -263,12 +269,13 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
-			Name:        "phone",
-			Label:       "Telefone",
-			InputType:   "text",
-			Value:       form.Get("phone"),
-			Mask:        "(99) 9 9999-9999",
-			Placeholder: "(99) 9 9999-9999",
+			Name:          "phone",
+			Label:         "Telefone",
+			InputType:     "text",
+			Value:         form.Get("phone"),
+			ErrorMessages: form.Errors.Get("phone"),
+			Mask:          "(99) 9 9999-9999",
+			Placeholder:   "(99) 9 9999-9999",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -278,10 +285,11 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
-			Name:      "zipcode",
-			Label:     "CEP",
-			InputType: "text",
-			Value:     form.Get("zipcode"),
+			Name:          "zipcode",
+			Label:         "CEP",
+			ErrorMessages: form.Errors.Get("zipcode"),
+			InputType:     "text",
+			Value:         form.Get("zipcode"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -317,19 +325,6 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
-			Name:      "complement",
-			Label:     "Compl.",
-			InputType: "text",
-			Value:     form.Get("complement"),
-		}).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div><div class=\"basis-[30%] grow\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
 			Name:      "neighborhood",
 			Label:     "Bairro",
 			InputType: "text",
@@ -338,7 +333,7 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div class=\"basis-[30%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div><div class=\"basis-[30%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -351,7 +346,7 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div><div class=\"basis-[30%] \">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div class=\"basis-[30%] \">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -364,7 +359,7 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></div></div><div class=\"divider my-2\"></div><div class=\"flex justify-end gap-3\"><button hx-get=\"/admin/contacts\" hx-push-url=\"true\" class=\"btn btn-ghost btn-sm\">Cancelar</button> <button type=\"submit\" class=\"btn btn-primary btn-sm\">Salvar</button></div></form></div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div></div></div><div class=\"divider my-2\"></div><div class=\"flex justify-end gap-3\"><button hx-get=\"/admin/contacts\" hx-push-url=\"true\" class=\"btn btn-ghost btn-sm\">Cancelar</button> <button type=\"submit\" class=\"btn btn-primary btn-sm\">Salvar</button></div></form></div></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

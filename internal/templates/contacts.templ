@@ -55,19 +55,21 @@ templ ContactForm(form *forms.Form, isUpdate bool) {
 							<div class="flex flex-wrap gap-4">
 								<div class="basis-[48%] grow">
 									@components.BasicInput(components.BasicInputParams{
-										Name:       "name",
-										Label:      "Razão Social / Nome",
-										InputType:  "text",
-										Value:      form.Get("name"),
-										IsRequired: true,
+										Name:          "name",
+										Label:         "Razão Social / Nome",
+										ErrorMessages: form.Errors.Get("name"),
+										InputType:     "text",
+										Value:         form.Get("name"),
+										IsRequired:    true,
 									})
 								</div>
 								<div class="basis-[30%] grow">
 									@components.BasicInput(components.BasicInputParams{
-										Name:      "trade_name",
-										Label:     "Nome Fantasia",
-										InputType: "text",
-										Value:     form.Get("trade_name"),
+										Name:          "trade_name",
+										Label:         "Nome Fantasia",
+										ErrorMessages: form.Errors.Get("trade_name"),
+										InputType:     "text",
+										Value:         form.Get("trade_name"),
 									})
 								</div>
 								<div class="basis-[18%] grow">
@@ -90,10 +92,11 @@ templ ContactForm(form *forms.Form, isUpdate bool) {
 							</div>
 							<div class="flex flex-wrap">
 								@components.BasicInput(components.BasicInputParams{
-									Name:      "price_table_id",
-									Label:     "Tabela Preço (ID)",
-									InputType: "number",
-									Value:     form.Get("price_table_id"),
+									Name:          "price_table_id",
+									Label:         "Tabela Preço (ID)",
+									InputType:     "number",
+									ErrorMessages: form.Errors.Get("price_table_id"),
+									Value:         form.Get("price_table_id"),
 								})
 							</div>
 						</div>
@@ -120,19 +123,21 @@ templ ContactForm(form *forms.Form, isUpdate bool) {
 								</div>
 								<div class="basis-[40%] grow">
 									@components.BasicInput(components.BasicInputParams{
-										Name:       "document",
-										Label:      "CPF / CNPJ",
-										InputType:  "text",
-										Value:      form.Get("document"),
-										IsRequired: true,
+										Name:          "document",
+										Label:         "CPF / CNPJ",
+										InputType:     "text",
+										ErrorMessages: form.Errors.Get("document"),
+										Value:         form.Get("document"),
+										IsRequired:    true,
 									})
 								</div>
 								<div class="basis-[30%] grow">
 									@components.BasicInput(components.BasicInputParams{
-										Name:      "ie",
-										Label:     "IE",
-										InputType: "text",
-										Value:     form.Get("ie"),
+										Name:          "ie",
+										Label:         "IE",
+										ErrorMessages: form.Errors.Get("ie"),
+										InputType:     "text",
+										Value:         form.Get("ie"),
 									})
 								</div>
 							</div>
@@ -143,20 +148,22 @@ templ ContactForm(form *forms.Form, isUpdate bool) {
 							<div class="flex flex-wrap gap-4">
 								<div class="basis-[48%] grow">
 									@components.BasicInput(components.BasicInputParams{
-										Name:      "email",
-										Label:     "Email",
-										InputType: "email",
-										Value:     form.Get("email"),
+										Name:          "email",
+										Label:         "Email",
+										InputType:     "email",
+										ErrorMessages: form.Errors.Get("email"),
+										Value:         form.Get("email"),
 									})
 								</div>
 								<div class="basis-[30%] grow">
 									@components.BasicInput(components.BasicInputParams{
-										Name:        "phone",
-										Label:       "Telefone",
-										InputType:   "text",
-										Value:       form.Get("phone"),
-										Mask:        "(99) 9 9999-9999",
-										Placeholder: "(99) 9 9999-9999",
+										Name:          "phone",
+										Label:         "Telefone",
+										InputType:     "text",
+										Value:         form.Get("phone"),
+										ErrorMessages: form.Errors.Get("phone"),
+										Mask:          "(99) 9 9999-9999",
+										Placeholder:   "(99) 9 9999-9999",
 									})
 								</div>
 							</div>
@@ -167,10 +174,11 @@ templ ContactForm(form *forms.Form, isUpdate bool) {
 							<div class="flex flex-wrap gap-4">
 								<div class="basis-[20%] grow">
 									@components.BasicInput(components.BasicInputParams{
-										Name:      "zipcode",
-										Label:     "CEP",
-										InputType: "text",
-										Value:     form.Get("zipcode"),
+										Name:          "zipcode",
+										Label:         "CEP",
+										ErrorMessages: form.Errors.Get("zipcode"),
+										InputType:     "text",
+										Value:         form.Get("zipcode"),
 									})
 								</div>
 								<div class="basis-[48%] grow">
@@ -187,14 +195,6 @@ templ ContactForm(form *forms.Form, isUpdate bool) {
 										Label:     "Nº",
 										InputType: "text",
 										Value:     form.Get("number"),
-									})
-								</div>
-								<div class="basis-[30%] grow">
-									@components.BasicInput(components.BasicInputParams{
-										Name:      "complement",
-										Label:     "Compl.",
-										InputType: "text",
-										Value:     form.Get("complement"),
 									})
 								</div>
 								<div class="basis-[30%] grow">
