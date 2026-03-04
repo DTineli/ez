@@ -1,18 +1,27 @@
 package store
 
 type ContactType string
+type DocumentType string
 
 const (
-	Customer ContactType = "customer" // Unidade
-	Supplier ContactType = "supplier" // Quilograma
+	Customer ContactType = "customer"
+	Supplier ContactType = "supplier"
+)
+
+const (
+	PFisica   DocumentType = "p_fisica"
+	PJuridica DocumentType = "p_juridica"
 )
 
 type Contact struct {
 	ID          uint        `gorm:"primaryKey" json:"id"`
 	Name        string      `json:"name"`
-	FantasyName string      `json:"fantasy_name"`
-	Document    string      `gorm:"type:varchar(50);not null;index:idx_tenant_document,unique,priority:2" json:"document"`
+	TradeName   string      `json:"trade_name"`
 	ContactType ContactType `json:"contact_type"`
+
+	DocumentType string `gorm:"type:varchar(12);default:'p_juridica'" json:"document_type"`
+	Document     string `gorm:"type:varchar(50);not null;index:idx_tenant_document,unique,priority:2" json:"document"`
+	IE           string `gorm:"type:varchar(20)" json:"ie"`
 
 	Email string `json:"email"`
 	Phone string `json:"phone"`
@@ -27,8 +36,7 @@ type Contact struct {
 	ZipCode      string `gorm:"type:varchar(20)" json:"zipcode"`
 
 	PriceTableID uint `gorm:"uniqueIndex:idx_contact_pricetable,unique" json:"price_table"`
-
-	TenantID uint `gorm:"not null;index:idx_tenant_document,priority:1" json:"tenant_id"`
+	TenantID     uint `gorm:"not null;index:idx_tenant_document,priority:1" json:"tenant_id"`
 }
 
 type ContactStore interface {

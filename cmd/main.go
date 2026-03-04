@@ -82,9 +82,14 @@ func main() {
 		r.Post("/logout", loginHandler.PostLogout)
 	})
 
+	//Creating handlers
 	productHandler := handlers.NewProductHandler(
 		dbstore.NewProductStore(db),
 		dbstore.NewPriceTableDB(db),
+	)
+
+	contactHandler := handlers.NewContactHandler(
+		dbstore.NewContactStore(db),
 	)
 
 	// autenticado
@@ -109,11 +114,11 @@ func main() {
 				r.Post("/{id}", productHandler.UpdateProduct)
 				r.Delete("/{id}", productHandler.DeleteProduct)
 			})
-		})
 
-		r.Route("/contacts", func(r chi.Router) {
-			r.Get("/", productHandler.GetTablePage)
-
+			r.Route("/contacts", func(r chi.Router) {
+				r.Get("/", contactHandler.GetContactsPage)
+				r.Get("/novo", contactHandler.GetContactsForm)
+			})
 		})
 	})
 
