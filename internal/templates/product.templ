@@ -8,15 +8,139 @@ import (
 	"github.com/DTineli/ez/internal/templates/components"
 )
 
+templ Filter() {
+	<div class="bg-base-200 p-6 rounded-xl shadow-md ">
+		<form
+			id="filter-form"
+			class="flex flex-col md:flex-row items-end justify-center gap-4"
+			hx-get="/admin/produtos/"
+			hx-target="#main-content"
+			hx-swap="innerHTML"
+			hx-push-url="true"
+		>
+			<div>
+				<label class="label">
+					<span class="label-text">Nome: </span>
+				</label>
+				<input
+					class="input input-bordered w-full"
+					type="text"
+					name="name"
+					id="name-input"
+					hx-preserve="true"
+				/>
+			</div>
+			<div>
+				<label class="label">
+					<span class="label-text">SKU: </span>
+				</label>
+				<input
+					class="input input-bordered w-full"
+					type="text"
+					name="sku"
+					id="sku-input"
+					hx-preserve="true"
+				/>
+			</div>
+			<div class="flex ">
+				<button type="submit" class="btn btn-primary">
+					Pesquisar
+				</button>
+			</div>
+		</form>
+	</div>
+}
+
+templ Pagination(current, total int) {
+	<div class="flex justify-center items-center gap-2 mt-6">
+		<!-- botão anterior -->
+		<button
+			class="btn btn-sm"
+			if current <= 1 {
+				disabled="true"
+			}
+			hx-get={ fmt.Sprintf("/admin/produtos?page=%d", current-1) }
+			hx-target="#main-content"
+			hx-include="#filter-form"
+			hx-vals={ fmt.Sprintf("page: %d", current-1) }
+			hx-swap="innerHTML"
+		>
+			« Anterior
+		</button>
+		<!-- páginas -->
+		for i := 1; i <= total; i++ {
+			// mostra a primeira, última, e 2 páginas antes/depois da atual
+			if i == 1 || i == total || (i >= current-2 && i <= current+2) {
+				<button
+					if i == current {
+						class="btn btn-sm btn-active"
+					} else {
+						class="btn btn-sm"
+					}
+					hx-get={ fmt.Sprintf("/admin/produtos/?page=%d", i) }
+					hx-target="#main-content"
+					hx-include="#filter-form"
+					hx-vals={ fmt.Sprintf("page: %d", i) }
+					hx-push-url="true"
+					hx-swap="innerHTML"
+				>
+					{ i }
+				</button>
+			} else if i == current-3 || i == current+3 {
+				<span class="px-2">…</span>
+			}
+		}
+		<!-- botão próximo -->
+		<button
+			class="btn btn-sm"
+			if current >= total {
+				disabled="true"
+			}
+			hx-get={ fmt.Sprintf("/admin/produtos?page=%d", current+1) }
+			hx-push-url="true"
+			hx-target="#main-content"
+			hx-include="#filter-form"
+			hx-vals={ fmt.Sprintf("page: %d", current+1) }
+			hx-swap="innerHTML"
+		>
+			Próximo »
+		</button>
+	</div>
+}
+
+templ ProductTableBody(products []store.Product) {
+	<tbody id="product-data">
+		for _, p := range products {
+			<tr>
+				<td>{ p.SKU }</td>
+				<td>{ p.Name }</td>
+				<td>{ p.StatusToString() }</td>
+				<td>{ p.CurrentStock }</td>
+				<td>
+					<a
+						class="btn btn-sm"
+						hx-push-url="true"
+						hx-target="#main-content"
+						href={ fmt.Sprintf("/admin/produtos/%v", p.ID) }
+					>
+						Editar
+					</a>
+				</td>
+			</tr>
+		}
+	</tbody>
+}
+
 //
 // ==========================
 // LISTAGEM DE PRODUTOS
 // ==========================
 //
-templ ProductsPage(products []store.Product) {
+templ ProductsPage(params store.GetProductPageParams) {
+	<h2 class="text-center text-xl font-semibold mb-6">Produtos</h2>
 	<div class="flex items-center justify-between mb-10">
 		<div></div>
-		<h2 class="text-xl font-semibold">Produtos</h2>
+		@Filter()
 		<button
 			hx-get="/admin/produtos/novo"
 			hx-target="#main-content"
@@ -27,7 +151,7 @@ templ ProductsPage(products []store.Product) {
 		</button>
 	</div>
 	<div class="overflow-x-auto">
-		<table class="table table-zebra">
+		<table class="table table-zebra mt-6">
 			<thead>
 				<tr>
 					<th>SKU</th>
@@ -37,27 +161,9 @@ templ ProductsPage(products []store.Product) {
 					<th>Ações</th>
 				</tr>
 			</thead>
-			<tbody>
-				for _, p := range products {
-					<tr>
-						<td>{ p.SKU }</td>
-						<td>{ p.Name }</td>
-						<td>{ p.StatusToString() }</td>
-						<td>{ p.CurrentStock }</td>
-						<td>
-							<a
-								class="btn btn-sm"
-								hx-push-url="true"
-								hx-target="#main-content"
-								href={ fmt.Sprintf("/admin/produtos/%v", p.ID) }
-							>
-								Editar
-							</a>
-						</td>
-					</tr>
-				}
-			</tbody>
+			@ProductTableBody(params.Products)
 		</table>
+		@Pagination(params.Page, params.TotalPages)
 	</div>
 }
 

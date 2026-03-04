@@ -100,6 +100,7 @@ func main() {
 			r.Route("/produtos", func(r chi.Router) {
 				r.Get("/", productHandler.GetProductPage)
 				r.Get("/novo", productHandler.GetProductForm)
+				r.Post("/find", productHandler.FilterProducts)
 				r.Get("/{id}", productHandler.GetEditPage)
 
 				r.Get("/pricetable", productHandler.GetTablePage)

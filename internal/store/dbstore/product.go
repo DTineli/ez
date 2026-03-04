@@ -71,6 +71,36 @@ func (p *ProductStore) UpdateById(product *store.Product) error {
 	return result.Error
 }
 
+func (p ProductStore) FindAllByUserWithFilters(id uint, filters store.ProductFilters) (*store.FindResults, error) {
+	var products []store.Product
+	query := p.db.Model(&store.Product{}).Where("tenant_id = ?", id)
+
+	if filters.SKU != "" {
+		query = query.Where("sku = ?", filters.SKU)
+	}
+
+	if filters.Name != "" {
+		query = query.Where("name LIKE ?", "%"+filters.Name+"%")
+	}
+
+	var count int64
+	if err := query.Count(&count).Error; err != nil {
+		return nil, err
+	}
+
+	// Paginação + Ordenação
+	query = query.Order("id DESC").Offset((filters.Page - 1) * filters.PerPage).Limit(filters.PerPage)
+
+	if err := query.Find(&products).Error; err != nil {
+		return nil, err
+	}
+
+	return &store.FindResults{
+		Count:   count,
+		Results: products,
+	}, nil
+}
+
 func (p *ProductStore) UpdateFields(
 	id uint,
 	tenantID uint,

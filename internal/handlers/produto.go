@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -244,13 +245,33 @@ func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
 	sess := m.GetSessionFromContext(r)
 
-	produtos, err := p.productStore.FindAllByUser(sess.TenantID)
+	page := 1
+	perPage := 10
+	if strPage := r.URL.Query().Get("page"); strPage != "" {
+		if p, err := strconv.Atoi(strPage); err == nil && p > 0 {
+			page = p
+		}
+	}
+
+	results, err := p.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
+		Page:    page,
+		PerPage: perPage,
+		SKU:     r.URL.Query().Get("sku"),
+		Name:    r.URL.Query().Get("name"),
+	})
+
 	if err != nil {
+		fmt.Println(err)
 		http.Error(w, "Error listing Product", http.StatusInternalServerError)
 		return
 	}
 
-	err = Render(templates.ProductsPage(produtos), r, w)
+	err = Render(templates.ProductsPage(store.GetProductPageParams{
+		Products:   results.Results,
+		Page:       page,
+		PerPage:    perPage,
+		TotalPages: int(math.Floor(float64(results.Count) / float64(perPage))),
+	}), r, w)
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 	}

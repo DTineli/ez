@@ -5,7 +5,7 @@ import "github.com/DTineli/ez/internal/store"
 templ PriceTableForm(errors map[string]string) {
 	<div id="price-table-form" class="card">
 		<form
-			hx-post="/produtos/pricetable"
+			hx-post="/admin/produtos/pricetable"
 			hx-target="#table-body"
 			hx-swap="beforebegin"
 			class="flex justify-center mx-auto"
