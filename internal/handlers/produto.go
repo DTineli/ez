@@ -242,27 +242,6 @@ func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 	_ = Render(templates.ProductForm(form, true), r, w)
 }
 
-func (p ProductHandler) FilterProducts(w http.ResponseWriter, r *http.Request) {
-	sess := m.GetSessionFromContext(r)
-	r.ParseForm()
-
-	sku := r.FormValue("sku")
-	name := r.FormValue("name")
-
-	products, err := p.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
-		SKU:     sku,
-		Name:    name,
-		Page:    1,
-		PerPage: 20,
-	})
-
-	if err != nil {
-		ShowToast(w, "Falha ao buscar produtos", "error")
-	}
-
-	Render(templates.ProductTableBody(products.Results), r, w)
-}
-
 func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
 	sess := m.GetSessionFromContext(r)
 

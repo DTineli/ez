@@ -31,7 +31,7 @@ func PriceTableForm(errors map[string]string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"price-table-form\" class=\"card\"><form hx-post=\"/produtos/pricetable\" hx-target=\"#table-body\" hx-swap=\"beforebegin\" class=\"flex justify-center mx-auto\" hx-on::after-request=\"if(event.detail.successful) this.reset()\"><fieldset class=\"fieldset bg-base-200 border-base-300 rounded-box w-mb border p-4\"><legend class=\"fieldset-legend\">Nova Tabela</legend><div class=\"join\"><input name=\"name\" type=\"text\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"price-table-form\" class=\"card\"><form hx-post=\"/admin/produtos/pricetable\" hx-target=\"#table-body\" hx-swap=\"beforebegin\" class=\"flex justify-center mx-auto\" hx-on::after-request=\"if(event.detail.successful) this.reset()\"><fieldset class=\"fieldset bg-base-200 border-base-300 rounded-box w-mb border p-4\"><legend class=\"fieldset-legend\">Nova Tabela</legend><div class=\"join\"><input name=\"name\" type=\"text\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
