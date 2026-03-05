@@ -3,8 +3,10 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/DTineli/ez/internal/forms"
+	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 )
@@ -53,6 +55,8 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println(form.Get("phone"))
+
 	if !form.Valid() {
 		ShowToast(w, "Erros de validação", "error")
 		fmt.Println(form.Errors)
@@ -60,8 +64,37 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ShowToast(w, "Produto Cadastrado", "success")
-	// form.Set("ID", strconv.Itoa(int(product.ID)))
+	sess := m.GetSessionFromContext(r)
+
+	contact := &store.Contact{
+		TenantID:    sess.TenantID,
+		Name:        form.Get("name"),
+		TradeName:   form.Get("trade_name"),
+		ContactType: store.ContactType(form.Get("contact_type")),
+
+		DocumentType: form.Get("document_type"),
+		Document:     form.Get("document"),
+		IE:           form.Get("ie"),
+
+		Phone: form.Get("phone"),
+		Email: form.Get("Email"),
+
+		ZipCode:      form.Get("zipcode"),
+		Street:       form.Get("street"),
+		Number:       form.Get("number"),
+		Neighborhood: form.Get("neighborhood"),
+		City:         form.Get("city"),
+		UF:           form.Get("uf"),
+	}
+
+	if err := c.store.CreateContact(contact); err != nil {
+		ShowToast(w, "Erro ao cadastar contato", "error")
+		_ = Render(templates.ContactForm(form, false), r, w)
+		return
+	}
+
+	ShowToast(w, "Contato Cadastrado", "success")
+	form.Set("ID", strconv.Itoa(int(contact.ID)))
 	_ = Render(templates.ProductForm(form, true), r, w)
 }
 
