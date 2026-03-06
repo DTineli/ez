@@ -51,4 +51,5 @@ type Contact struct {
 type ContactStore interface {
 	CreateContact(*Contact) error
 	FindAll(uint, ContactFilters) (*FindResults[Contact], error)
+	GetOne(uint) (*Contact, error)
 }

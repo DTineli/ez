@@ -10,6 +10,7 @@ import (
 	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
+	"github.com/go-chi/chi/v5"
 )
 
 type ContactHandler struct {
@@ -20,6 +21,34 @@ func NewContactHandler(db store.ContactStore) *ContactHandler {
 	return &ContactHandler{
 		store: db,
 	}
+}
+
+func mapContactToForm(c *store.Contact) *forms.Form {
+	form := forms.New(nil)
+
+	form.Set("id", strconv.Itoa(int(c.ID)))
+	form.Set("name", c.Name)
+	form.Set("trade_name", c.TradeName)
+	form.Set("contact_type", string(c.ContactType))
+
+	form.Set("document_type", c.DocumentType)
+	form.Set("document", c.Document)
+	form.Set("ie", c.IE)
+
+	form.Set("email", c.Email)
+	form.Set("phone", c.Phone)
+
+	form.Set("zipcode", c.ZipCode)
+	form.Set("street", c.Street)
+	form.Set("number", c.Number)
+	form.Set("complement", c.Complement)
+	form.Set("neighborhood", c.Neighborhood)
+	form.Set("city", c.City)
+	form.Set("uf", c.UF)
+
+	form.Set("price_table_id", strconv.Itoa(int(c.PriceTableID)))
+
+	return form
 }
 
 func validateContactForm(r *http.Request) (*forms.Form, error) {
@@ -100,6 +129,25 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 
 func (c ContactHandler) GetContactsForm(w http.ResponseWriter, r *http.Request) {
 	Render(templates.ContactForm(forms.New(nil), false), r, w)
+}
+
+func (c ContactHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+	contact, err := c.store.GetOne(uint(id))
+	if err != nil || contact.TenantID != sess.TenantID {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	form := mapContactToForm(contact)
+
+	Render(templates.ContactForm(form, true), r, w)
 }
 
 func GetPagination(r *http.Request) store.Pagination {

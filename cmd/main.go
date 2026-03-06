@@ -118,6 +118,7 @@ func main() {
 			r.Route("/contacts", func(r chi.Router) {
 				r.Post("/", contactHandler.PostNewContact)
 
+				r.Get("/{id}", contactHandler.GetEditPage)
 				r.Get("/", contactHandler.GetContactsPage)
 				r.Get("/novo", contactHandler.GetContactsForm)
 			})

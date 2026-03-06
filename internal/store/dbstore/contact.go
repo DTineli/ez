@@ -22,6 +22,12 @@ func (c *ContactStore) CreateContact(contact *store.Contact) error {
 	return c.db.Create(contact).Error
 }
 
+func (c *ContactStore) GetOne(id uint) (*store.Contact, error) {
+	var contact = &store.Contact{}
+	err := c.db.Where("id = ?", id).Find(&contact).Error
+	return contact, err
+}
+
 func (c *ContactStore) FindAll(tenantID uint, filters store.ContactFilters) (*store.FindResults[store.Contact], error) {
 	var contacts []store.Contact
 	query := c.db.Model(&store.Contact{}).Where("tenant_id = ?", tenantID)
