@@ -192,3 +192,52 @@ func (c ContactHandler) GetContactsPage(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 	}
 }
+
+func (h *ContactHandler) Update(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	form, err := validateContactForm(r)
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	form.Set("id", strconv.Itoa(int(id)))
+
+	if err != nil {
+		http.Error(w, "Erro ao processar formulário", http.StatusBadRequest)
+		return
+	}
+
+	if !form.Valid() {
+		ShowToast(w, "Erro ao salvar contato", "error")
+		_ = Render(templates.ContactForm(form, true), r, w)
+		return
+	}
+
+	fields := map[string]any{
+		"name":           form.Get("name"),
+		"trade_name":     form.Get("trade_name"),
+		"contact_type":   form.Get("contact_type"),
+		"document_type":  form.Get("document_type"),
+		"document":       form.Get("document"),
+		"ie":             form.Get("ie"),
+		"email":          form.Get("email"),
+		"phone":          form.Get("phone"),
+		"zip_code":       form.Get("zipcode"),
+		"street":         form.Get("street"),
+		"number":         form.Get("number"),
+		"complement":     form.Get("complement"),
+		"neighborhood":   form.Get("neighborhood"),
+		"city":           form.Get("city"),
+		"uf":             form.Get("uf"),
+		"price_table_id": form.IsInt("price_table_id"),
+	}
+
+	err = h.store.UpdateById(uint(id), sess.TenantID, fields)
+	if err != nil {
+		ShowToast(w, "Erro ao salvar contato", "error")
+		_ = Render(templates.ContactForm(form, true), r, w)
+		return
+	}
+
+	ShowToast(w, "Alterações salvas", "success")
+	_ = Render(templates.ContactForm(form, true), r, w)
+}

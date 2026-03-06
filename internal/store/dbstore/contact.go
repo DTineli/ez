@@ -1,6 +1,7 @@
 package dbstore
 
 import (
+	"errors"
 	"reflect"
 	"strings"
 
@@ -26,6 +27,26 @@ func (c *ContactStore) GetOne(id uint) (*store.Contact, error) {
 	var contact = &store.Contact{}
 	err := c.db.Where("id = ?", id).Find(&contact).Error
 	return contact, err
+}
+
+func (c *ContactStore) UpdateById(id uint, tenantID uint, fields map[string]any) error {
+	if len(fields) == 0 {
+		return errors.New("no fields to update")
+	}
+
+	delete(fields, "id")
+	delete(fields, "tenant_id")
+
+	result := c.db.
+		Model(&store.Contact{}).
+		Where("id = ? AND tenant_id = ?", id, tenantID).
+		Updates(fields)
+
+	if result.RowsAffected == 0 {
+		return errors.New("contact not found")
+	}
+
+	return result.Error
 }
 
 func (c *ContactStore) FindAll(tenantID uint, filters store.ContactFilters) (*store.FindResults[store.Contact], error) {
