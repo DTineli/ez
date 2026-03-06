@@ -4,6 +4,22 @@ import (
 	"net/http"
 )
 
+type Pagination struct {
+	Page       int
+	PerPage    int
+	TotalPages int
+}
+
+type FindResults[T any] struct {
+	Count   int64
+	Results []T
+}
+
+type ListResults[T any] struct {
+	Pagination
+	Results FindResults[T]
+}
+
 type User struct {
 	ID       uint   `gorm:"primaryKey" json:"id"`
 	Name     string `json:"name"`

@@ -2,6 +2,7 @@ package forms
 
 import (
 	"fmt"
+	"net/mail"
 	"net/url"
 	"strconv"
 	"strings"
@@ -29,6 +30,19 @@ func (f *Form) Required(fields ...string) {
 		if strings.TrimSpace(f.Get(field)) == "" {
 			f.Errors[field] = append(f.Errors[field], "Esse valor não pode ser vazio.")
 		}
+	}
+}
+
+func (f *Form) IsEmail(field string) {
+	email := strings.TrimSpace(f.Get(field))
+
+	if email == "" {
+		return
+	}
+
+	_, err := mail.ParseAddress(email)
+	if err != nil {
+		f.Errors[field] = append(f.Errors[field], fmt.Sprintf("%v deve ser um email valido", field))
 	}
 }
 

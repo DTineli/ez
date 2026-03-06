@@ -24,6 +24,7 @@
     --spacing: 0.25rem;
     --container-xs: 20rem;
     --container-md: 28rem;
+    --container-5xl: 64rem;
     --container-6xl: 72rem;
     --container-7xl: 80rem;
     --text-xs: 0.75rem;
@@ -1948,9 +1949,6 @@
       }
     }
   }
-  .m-4 {
-    margin: calc(var(--spacing) * 4);
-  }
   .filter {
     @layer daisyui.l1.l2.l3 {
       display: flex;
@@ -2004,6 +2002,9 @@
   }
   .my-1\.5 {
     margin-block: calc(var(--spacing) * 1.5);
+  }
+  .my-2 {
+    margin-block: calc(var(--spacing) * 2);
   }
   .label {
     @layer daisyui.l1.l2.l3 {
@@ -2287,6 +2288,9 @@
   .w-full {
     width: 100%;
   }
+  .max-w-5xl {
+    max-width: var(--container-5xl);
+  }
   .max-w-6xl {
     max-width: var(--container-6xl);
   }
@@ -2307,6 +2311,24 @@
   }
   .grow {
     flex-grow: 1;
+  }
+  .basis-\[10\%\] {
+    flex-basis: 10%;
+  }
+  .basis-\[18\%\] {
+    flex-basis: 18%;
+  }
+  .basis-\[20\%\] {
+    flex-basis: 20%;
+  }
+  .basis-\[30\%\] {
+    flex-basis: 30%;
+  }
+  .basis-\[40\%\] {
+    flex-basis: 40%;
+  }
+  .basis-\[48\%\] {
+    flex-basis: 48%;
   }
   .border-collapse {
     border-collapse: collapse;
@@ -2407,11 +2429,25 @@
       margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
     }
   }
+  .space-y-3 {
+    :where(& > :not(:last-child)) {
+      --tw-space-y-reverse: 0;
+      margin-block-start: calc(calc(var(--spacing) * 3) * var(--tw-space-y-reverse));
+      margin-block-end: calc(calc(var(--spacing) * 3) * calc(1 - var(--tw-space-y-reverse)));
+    }
+  }
   .space-y-4 {
     :where(& > :not(:last-child)) {
       --tw-space-y-reverse: 0;
       margin-block-start: calc(calc(var(--spacing) * 4) * var(--tw-space-y-reverse));
       margin-block-end: calc(calc(var(--spacing) * 4) * calc(1 - var(--tw-space-y-reverse)));
+    }
+  }
+  .space-y-6 {
+    :where(& > :not(:last-child)) {
+      --tw-space-y-reverse: 0;
+      margin-block-start: calc(calc(var(--spacing) * 6) * var(--tw-space-y-reverse));
+      margin-block-end: calc(calc(var(--spacing) * 6) * calc(1 - var(--tw-space-y-reverse)));
     }
   }
   .space-y-8 {
@@ -2555,11 +2591,24 @@
   .p-10 {
     padding: calc(var(--spacing) * 10);
   }
+  .select-sm {
+    @layer daisyui.l1.l2 {
+      --size: calc(var(--size-field, 0.25rem) * 8);
+      font-size: 0.75rem;
+      option {
+        padding-inline: calc(0.25rem * 2.5);
+        padding-block: calc(0.25rem * 1);
+      }
+    }
+  }
   .px-2 {
     padding-inline: calc(var(--spacing) * 2);
   }
   .px-4 {
     padding-inline: calc(var(--spacing) * 4);
+  }
+  .py-1 {
+    padding-block: calc(var(--spacing) * 1);
   }
   .py-2 {
     padding-block: calc(var(--spacing) * 2);

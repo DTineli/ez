@@ -3,15 +3,17 @@ package components
 type BasicInputParams struct {
 	Label         string
 	Name          string
+	Placeholder   string
 	InputType     string
 	Value         string
 	ErrorMessages []string
 	IsRequired    bool
 	Disabled      bool
+	Mask          string
 }
 
 templ BasicInput(p BasicInputParams) {
-	<div class="form-control">
+	<div class="form-control" x-data>
 		<label class="label">
 			<span class="label-text">{ p.Label }</span>
 		</label>
@@ -19,6 +21,10 @@ templ BasicInput(p BasicInputParams) {
 			if p.Disabled {
 				readonly
 			}
+			if p.Mask != "" {
+				x-mask={ p.Mask }
+			}
+			placeholder={ p.Placeholder }
 			type={ p.InputType }
 			name={ p.Name }
 			value={ p.Value }
