@@ -162,19 +162,11 @@ func sideBar() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = linkTo("Clientes", "/contacts/customers").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = linkTo("Listar", "/contacts/").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</li><li>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = linkTo("Fornecedores", "/contacts/suppliers").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</li></ul></details></li></ul>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</li></ul></details></li></ul>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -203,7 +195,7 @@ func upbar() templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"flex flex-row justify-between navbar bg-base-100 shadow-sm\"><a class=\"btn btn-ghost text-xl\" hx-get=\"/admin\" hx-target=\"#main-content\" hx-swap=\"innerHTML\">Sistema</a><div><button type=\"button\" hx-post=\"/logout\" class=\"btn\">Sair</button> <input type=\"checkbox\" value=\"dark\" class=\"toggle theme-controller\"></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"flex flex-row justify-between navbar bg-base-100 shadow-sm\"><a class=\"btn btn-ghost text-xl\" hx-get=\"/admin\" hx-target=\"#main-content\" hx-swap=\"innerHTML\">Sistema</a><div><button type=\"button\" hx-post=\"/logout\" class=\"btn\">Sair</button> <input type=\"checkbox\" value=\"dark\" class=\"toggle theme-controller\"></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -232,7 +224,7 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<html lang=\"pt-br\" data-theme=\"light\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<html lang=\"pt-br\" data-theme=\"light\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -240,7 +232,7 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<body class=\"min-h-screen\" hx-boost=\"true\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<body class=\"min-h-screen\" hx-boost=\"true\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -248,7 +240,7 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"flex min-h-screen\"><aside class=\"w-64 bg-base-100 shadow-md\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"flex min-h-screen\"><aside class=\"w-64 bg-base-100 shadow-md\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -256,7 +248,7 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</aside><div class=\"flex flex-col flex-1\"><main class=\"flex-1 flex justify-center p-6\"><div id=\"main-content\" class=\"w-full max-w-6xl\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</aside><div class=\"flex flex-col flex-1\"><main class=\"flex-1 flex justify-center p-6\"><div id=\"main-content\" class=\"w-full max-w-6xl\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -264,7 +256,7 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></main></div></div><div id=\"toast-container\" class=\"fixed top-6 right-6 z-50 space-y-4 w-80\"></div></body><script>\n\t\t\tdocument.body.addEventListener(\"showToast\", function (event) {\n\t\t\t\tconst { type, message } = event.detail;\n\t\t\t\tconst container = document.getElementById(\"toast-container\");\n\t\t\t\tconst toast = document.createElement(\"div\");\n\n\t\t\t\ttoast.className = \"px-4 py-3 rounded-xl shadow-lg text-white transition-all duration-300 opacity-0 translate-y-2 \" +\n\t\t\t\t\t(type === \"success\"\n\t\t\t\t\t? \"bg-green-600\"\n\t\t\t\t\t: \"bg-red-600\");\n\n\t\t\t\ttoast.textContent = message;\n\t\t\t\tcontainer.appendChild(toast);\n\n\t\t\t\t//anima entrada\n\t\t\t\trequestAnimationFrame(() => {\n\t\t\t\t\ttoast.classList.remove(\"opacity-0\", \"translate-y-2\");\n\t\t\t\t});\n\n\t\t\t\t// anima saída\n\t\t\t\tsetTimeout(() => {\n\t\t\t\t\ttoast.classList.add(\"opacity-0\", \"translate-y-2\");\n\t\t\t\t\tsetTimeout(() => toast.remove(), 300);\n\t\t\t\t}, 3000);\n\t\t\t});\n\t\t</script></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></main></div></div><div id=\"toast-container\" class=\"fixed top-6 right-6 z-50 space-y-4 w-80\"></div></body><script>\n\t\t\tdocument.body.addEventListener(\"showToast\", function (event) {\n\t\t\t\tconst { type, message } = event.detail;\n\t\t\t\tconst container = document.getElementById(\"toast-container\");\n\t\t\t\tconst toast = document.createElement(\"div\");\n\n\t\t\t\ttoast.className = \"px-4 py-3 rounded-xl shadow-lg text-white transition-all duration-300 opacity-0 translate-y-2 \" +\n\t\t\t\t\t(type === \"success\"\n\t\t\t\t\t? \"bg-green-600\"\n\t\t\t\t\t: \"bg-red-600\");\n\n\t\t\t\ttoast.textContent = message;\n\t\t\t\tcontainer.appendChild(toast);\n\n\t\t\t\t//anima entrada\n\t\t\t\trequestAnimationFrame(() => {\n\t\t\t\t\ttoast.classList.remove(\"opacity-0\", \"translate-y-2\");\n\t\t\t\t});\n\n\t\t\t\t// anima saída\n\t\t\t\tsetTimeout(() => {\n\t\t\t\t\ttoast.classList.add(\"opacity-0\", \"translate-y-2\");\n\t\t\t\t\tsetTimeout(() => toast.remove(), 300);\n\t\t\t\t}, 3000);\n\t\t\t});\n\t\t</script></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

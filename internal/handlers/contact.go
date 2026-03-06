@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 
@@ -40,7 +41,6 @@ func validateContactForm(r *http.Request) (*forms.Form, error) {
 
 	form.IsInt("document")
 	form.IsInt("ie")
-	form.IsInt("phone")
 	form.IsInt("zipcode")
 
 	form.IsEmail("email")
@@ -98,10 +98,49 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 	_ = Render(templates.ProductForm(form, true), r, w)
 }
 
-func (c ContactHandler) GetContactsPage(w http.ResponseWriter, r *http.Request) {
-
-}
-
 func (c ContactHandler) GetContactsForm(w http.ResponseWriter, r *http.Request) {
 	Render(templates.ContactForm(forms.New(nil), false), r, w)
+}
+
+func GetPagination(r *http.Request) store.Pagination {
+	page := 1
+	perPage := 10
+	if strPage := r.URL.Query().Get("page"); strPage != "" {
+		if p, err := strconv.Atoi(strPage); err == nil && p > 0 {
+			page = p
+		}
+	}
+
+	return store.Pagination{Page: page, PerPage: perPage}
+}
+
+func (c ContactHandler) GetContactsPage(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	pagination := GetPagination(r)
+
+	results, err := c.store.FindAll(sess.TenantID, store.ContactFilters{
+		Pagination: pagination,
+
+		Name:        r.URL.Query().Get("name"),
+		TradeName:   r.URL.Query().Get("trade_name"),
+		Document:    r.URL.Query().Get("document"),
+		ContactType: r.URL.Query().Get("contact_type"),
+	})
+
+	pagination.TotalPages = int(math.Floor(float64(results.Count) / float64(pagination.PerPage)))
+
+	if err != nil {
+		http.Error(w, "Error listing contacts", http.StatusInternalServerError)
+		return
+	}
+
+	err = Render(templates.ContactPage(store.ListResults[store.Contact]{
+		Pagination: pagination,
+		Results:    *results,
+	}), r, w)
+
+	if err != nil {
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+	}
 }

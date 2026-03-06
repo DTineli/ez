@@ -18,11 +18,6 @@ type GetProductPageParams struct {
 	Products []Product
 }
 
-type FindResults struct {
-	Count   int64
-	Results []Product
-}
-
 type UOM string
 
 const (
@@ -111,6 +106,6 @@ type ProductStore interface {
 	) error
 
 	GetProduct(id uint) (*Product, error)
-	FindAllByUserWithFilters(id uint, filters ProductFilters) (*FindResults, error)
+	FindAllByUserWithFilters(id uint, filters ProductFilters) (*FindResults[Product], error)
 	FindAllByUser(userID uint) ([]Product, error)
 }

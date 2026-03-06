@@ -5,7 +5,192 @@ import (
 
 	"github.com/DTineli/ez/internal/forms"
 	"github.com/DTineli/ez/internal/templates/components"
+	"github.com/DTineli/ez/internal/store"
 )
+
+templ ContactFilter() {
+	<div class="bg-base-200 p-6 rounded-xl shadow-md ">
+		<form
+			id="filter-form"
+			class="flex flex-col md:flex-row items-end justify-center gap-4"
+			hx-get="/admin/contacts/"
+			hx-target="#main-content"
+			hx-swap="innerHTML"
+			hx-push-url="true"
+		>
+			<div>
+				<label class="label">
+					<span class="label-text">Nome Fantasia: </span>
+				</label>
+				<input
+					id="trade-name-input"
+					class="input input-bordered w-full"
+					type="text"
+					name="trade_name"
+					hx-preserve="true"
+				/>
+			</div>
+			<div>
+				<label class="label">
+					<span class="label-text">Razão Social: </span>
+				</label>
+				<input
+					class="input input-bordered w-full"
+					type="text"
+					name="name"
+					id="name-input"
+					hx-preserve="true"
+				/>
+			</div>
+			<div>
+				<label class="label">
+					<span class="label-text">Documento: </span>
+				</label>
+				<input
+					class="input input-bordered w-full"
+					type="text"
+					name="document"
+					id="document-input"
+					hx-preserve="true"
+				/>
+			</div>
+			<div>
+				<label class="label">
+					<span class="label-text">Tipo</span>
+				</label>
+				<select
+					name="contact_type"
+					id="contact_type-input"
+					hx-preserve="true"
+				>
+					<option value="customer" selected>Cliente</option>
+					<option value="supplier">Fornecedor</option>
+				</select>
+			</div>
+			<div class="flex">
+				<button type="submit" class="btn btn-primary">
+					Pesquisar
+				</button>
+			</div>
+		</form>
+	</div>
+}
+
+templ ContactPagination(current, total int) {
+	<div class="flex justify-center items-center gap-2 mt-6">
+		<!-- botão anterior -->
+		<button
+			class="btn btn-sm"
+			if current <= 1 {
+				disabled="true"
+			}
+			hx-get={ fmt.Sprintf("/admin/contacts?page=%d", current-1) }
+			hx-target="#main-content"
+			hx-include="#filter-form"
+			hx-vals={ fmt.Sprintf("page: %d", current-1) }
+			hx-swap="innerHTML"
+		>
+			« Anterior
+		</button>
+		<!-- páginas -->
+		for i := 1; i <= total; i++ {
+			// mostra a primeira, última, e 2 páginas antes/depois da atual
+			if i == 1 || i == total || (i >= current-2 && i <= current+2) {
+				<button
+					if i == current {
+						class="btn btn-sm btn-active"
+					} else {
+						class="btn btn-sm"
+					}
+					hx-get={ fmt.Sprintf("/admin/contacts/?page=%d", i) }
+					hx-target="#main-content"
+					hx-include="#filter-form"
+					hx-vals={ fmt.Sprintf("page: %d", i) }
+					hx-push-url="true"
+					hx-swap="innerHTML"
+				>
+					{ i }
+				</button>
+			} else if i == current-3 || i == current+3 {
+				<span class="px-2">…</span>
+			}
+		}
+		<!-- botão próximo -->
+		<button
+			class="btn btn-sm"
+			if current >= total {
+				disabled="true"
+			}
+			hx-get={ fmt.Sprintf("/admin/contacts?page=%d", current+1) }
+			hx-push-url="true"
+			hx-target="#main-content"
+			hx-include="#filter-form"
+			hx-vals={ fmt.Sprintf("page: %d", current+1) }
+			hx-swap="innerHTML"
+		>
+			Próximo »
+		</button>
+	</div>
+}
+
+templ ContactTableBody(contacts []store.Contact) {
+	<tbody id="product-data">
+		for _, p := range contacts {
+			<tr>
+				<td>{ p.TradeName }</td>
+				<td>{ p.Name }</td>
+				<td>{ p.ContactType }</td>
+				<td>{ p.Document }</td>
+				<td>
+					<a
+						class="btn btn-sm"
+						hx-push-url="true"
+						hx-target="#main-content"
+						href={ fmt.Sprintf("/admin/contacts/%v", p.ID) }
+					>
+						Editar
+					</a>
+				</td>
+			</tr>
+		}
+	</tbody>
+}
+
+//
+// ==========================
+//			LISTAGEM
+// ==========================
+//
+templ ContactPage(params store.ListResults[store.Contact]) {
+	<h2 class="text-center text-xl font-semibold mb-6">Produtos</h2>
+	<div class="flex items-center justify-between mb-10">
+		<div></div>
+		@ContactFilter()
+		<button
+			hx-get="/admin/contacts/novo"
+			hx-target="#main-content"
+			hx-push-url="true"
+			class="btn bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-xl transition"
+		>
+			Novo
+		</button>
+	</div>
+	<div class="overflow-x-auto">
+		<table class="table table-zebra mt-6">
+			<thead>
+				<tr>
+					<th>Nome Fantasia</th>
+					<th>Nome</th>
+					<th>Tipo De Contato</th>
+					<th>Documento</th>
+					<th>Ações</th>
+				</tr>
+			</thead>
+			@ContactTableBody(params.Results.Results)
+		</table>
+		@ContactPagination(params.Page, params.TotalPages)
+	</div>
+}
 
 templ ContactForm(form *forms.Form, isUpdate bool) {
 	{{
@@ -155,7 +340,7 @@ templ ContactForm(form *forms.Form, isUpdate bool) {
 										Value:         form.Get("email"),
 									})
 								</div>
-								<div class="basis-[30%] grow">
+								<div class="basis-[30%] grow" x-date="{ phone: ''">
 									@components.BasicInput(components.BasicInputParams{
 										Name:          "phone",
 										Label:         "Telefone",

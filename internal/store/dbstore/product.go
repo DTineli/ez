@@ -71,7 +71,7 @@ func (p *ProductStore) UpdateById(product *store.Product) error {
 	return result.Error
 }
 
-func (p ProductStore) FindAllByUserWithFilters(id uint, filters store.ProductFilters) (*store.FindResults, error) {
+func (p ProductStore) FindAllByUserWithFilters(id uint, filters store.ProductFilters) (*store.FindResults[store.Product], error) {
 	var products []store.Product
 	query := p.db.Model(&store.Product{}).Where("tenant_id = ?", id)
 
@@ -95,7 +95,7 @@ func (p ProductStore) FindAllByUserWithFilters(id uint, filters store.ProductFil
 		return nil, err
 	}
 
-	return &store.FindResults{
+	return &store.FindResults[store.Product]{
 		Count:   count,
 		Results: products,
 	}, nil
