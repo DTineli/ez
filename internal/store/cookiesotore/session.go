@@ -9,19 +9,26 @@ import (
 	"github.com/gorilla/sessions"
 )
 
+const (
+	AdminSessionName  = "ez_admin_session"
+	ClientSessionName = "ez_client_session"
+)
+
 type SessionStore struct {
+	name  string
 	store *sessions.CookieStore
 }
 
-func NewSessionStore(session_key string) *SessionStore {
+func NewSessionStore(session_name, session_key string) *SessionStore {
 	return &SessionStore{
+		name:  session_name,
 		store: sessions.NewCookieStore([]byte(session_key)),
 	}
 
 }
 
 func (s *SessionStore) CreateSession(r *http.Request, w http.ResponseWriter, sessValues store.Session) error {
-	sess, _ := s.store.Get(r, "session-name")
+	sess, _ := s.store.Get(r, s.name)
 
 	sess.Values["user_id"] = sessValues.UserID
 	sess.Values["user_name"] = sessValues.UserName
@@ -40,13 +47,13 @@ func (s *SessionStore) CreateSession(r *http.Request, w http.ResponseWriter, ses
 }
 
 func (s *SessionStore) DeleteSession(r *http.Request, w http.ResponseWriter) error {
-	sess, _ := s.store.Get(r, "session-name")
+	sess, _ := s.store.Get(r, s.name)
 	sess.Options.MaxAge = -1
 	return sess.Save(r, w)
 }
 
 func (s *SessionStore) GetSessionInfo(r *http.Request) (*store.Session, error) {
-	sess, err := s.store.Get(r, "session-name")
+	sess, err := s.store.Get(r, s.name)
 	if err != nil {
 		return nil, err
 	}
@@ -88,5 +95,3 @@ func (s *SessionStore) GetSessionInfo(r *http.Request) (*store.Session, error) {
 		TenantSlug: tenantSlug,
 	}, nil
 }
-
-func (s SessionStore) GetUserFromSession(sessionID string) (*store.User, error) { return nil, nil }

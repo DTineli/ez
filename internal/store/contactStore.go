@@ -53,4 +53,5 @@ type ContactStore interface {
 	FindAll(uint, ContactFilters) (*FindResults[Contact], error)
 	GetOne(uint) (*Contact, error)
 	UpdateById(id, tenantID uint, fields map[string]any) error
+	GetOneByPhone(phone string) (*Contact, error)
 }

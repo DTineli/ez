@@ -21,12 +21,14 @@ type ListResults[T any] struct {
 }
 
 type User struct {
-	ID       uint   `gorm:"primaryKey" json:"id"`
-	Name     string `json:"name"`
-	Email    string `gorm:"uniqueIndex" json:"email"`
-	Password string `json:"-"`
-	TenantID uint   `json:"tenant_id"`
-	Tenant   Tenant
+	ID         uint       `gorm:"primaryKey" json:"id"`
+	UserAccess AccessType `gorm:"varchar(20)"`
+	Name       string     `json:"name"`
+	Email      string     `gorm:"uniqueIndex" json:"email"`
+	Phone      string     `gorm:"uniqueIndex:idx_tenant_phone"`
+	Password   string     `json:"-"`
+	TenantID   uint       `gorm:"uniqueIndex:idx_tenant_phone"`
+	Tenant     Tenant
 }
 
 type Tenant struct {
@@ -36,12 +38,26 @@ type Tenant struct {
 	Users    []User
 }
 
+type AccessType string
+
+const (
+	AccessAdmin    AccessType = "admin"
+	AccessCustomer AccessType = "customer"
+)
+
 type Session struct {
-	UserID     uint `json:"user_id"`
-	UserName   string
-	UserEmail  string
-	TenantID   uint   `json:"tenant_id"`
-	TenantSlug string `json:"tenant_slug"`
+	UserAccessType AccessType
+	UserID         uint `json:"user_id"`
+	UserName       string
+	UserEmail      string
+	TenantID       uint   `json:"tenant_id"`
+	TenantSlug     string `json:"tenant_slug"`
+}
+
+type SessionStore interface {
+	CreateSession(*http.Request, http.ResponseWriter, Session) error
+	DeleteSession(*http.Request, http.ResponseWriter) error
+	GetSessionInfo(*http.Request) (*Session, error)
 }
 
 type TenantStore interface {
@@ -56,10 +72,4 @@ type UserStore interface {
 	GetUser(email string) (*User, error)
 
 	// GetUserById(id uint) (*User, error)
-}
-
-type SessionStore interface {
-	CreateSession(*http.Request, http.ResponseWriter, Session) error
-	DeleteSession(*http.Request, http.ResponseWriter) error
-	GetSessionInfo(*http.Request) (*Session, error)
 }

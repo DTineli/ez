@@ -12,8 +12,10 @@ import (
 
 type LoginHandler struct {
 	userStore    store.UserStore
-	sessionStore store.SessionStore
+	contactStore store.ContactStore
 	tenantStore  store.TenantStore
+
+	sessionStore store.SessionStore
 	cookieName   string
 }
 
@@ -54,7 +56,82 @@ func (h *LoginHandler) GetLoginPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
+func (h *LoginHandler) PostLoginHandler(accessType store.AccessType) http.HandlerFunc {
+	switch accessType {
+	case store.AccessAdmin:
+		return h.adminLogin
+
+	case store.AccessCustomer:
+		return h.customerLogin
+
+	default:
+		return func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "invalid access type", http.StatusInternalServerError)
+		}
+	}
+}
+
+func (h *LoginHandler) customerLogin(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		writeLoginError(r, w, "Dados inválidos.")
+		return
+	}
+
+	phone_number := strings.TrimSpace(r.FormValue("phone_number"))
+	password := r.FormValue("password")
+
+	if phone_number == "" {
+		writeLoginError(r, w, "Fone é obrigatório.")
+		return
+	}
+	if password == "" {
+		writeLoginError(r, w, "Senha é obrigatória.")
+		return
+	}
+
+	//TODO: getUserWithTenant
+	user, err := h.contactStore.GetOneByPhone(phone_number)
+	if err != nil || user == nil {
+		writeLoginError(r, w, "Falha no Login")
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		writeLoginError(r, w, "Email ou senha incorretos.")
+		return
+	}
+
+	tenant, err := h.tenantStore.GetTenantByID(user.TenantID)
+	if err != nil {
+		writeLoginError(r, w, "Erro ao criar sessão. Tente novamente.")
+		return
+	}
+
+	// TODO: Se ele ta no slug errado troca ou da erro ?
+	if tenant.Slug != strings.Split(r.Host, ".")[0] {
+		writeLoginError(r, w, "slug diferente")
+		return
+	}
+
+	err = h.sessionStore.CreateSession(r, w, store.Session{
+		UserAccessType: store.AccessAdmin,
+		UserID:         user.ID,
+		UserEmail:      user.Email,
+		TenantID:       tenant.ID,
+		TenantSlug:     tenant.Slug,
+	})
+
+	if err != nil {
+		writeLoginError(r, w, "Erro ao criar sessão. Tente novamente.")
+		return
+	}
+
+	w.Header().Set(HXRedirect, "/admin/")
+	w.WriteHeader(http.StatusOK)
+
+}
+
+func (h *LoginHandler) adminLogin(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		writeLoginError(r, w, "Dados inválidos.")
 		return
@@ -92,16 +169,16 @@ func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: Se ele ta no slug errado troca ou da erro ?
 	if tenant.Slug != strings.Split(r.Host, ".")[0] {
-		// w.Header().Set(HXRedirect, fmt.Sprintf("http://%s.localhost:4000", tenant.Slug))
 		writeLoginError(r, w, "slug diferente")
 		return
 	}
 
 	err = h.sessionStore.CreateSession(r, w, store.Session{
-		UserID:     user.ID,
-		UserEmail:  user.Email,
-		TenantID:   tenant.ID,
-		TenantSlug: tenant.Slug,
+		UserAccessType: store.AccessAdmin,
+		UserID:         user.ID,
+		UserEmail:      user.Email,
+		TenantID:       tenant.ID,
+		TenantSlug:     tenant.Slug,
 	})
 
 	if err != nil {
