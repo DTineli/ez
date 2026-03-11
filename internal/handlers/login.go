@@ -90,7 +90,7 @@ func (h *LoginHandler) customerLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//TODO: getUserWithTenant
-	user, err := h.contactStore.GetOneByPhone(phone_number)
+	user, err := h.userStore.GetUser("")
 	if err != nil || user == nil {
 		writeLoginError(r, w, "Falha no Login")
 		return
