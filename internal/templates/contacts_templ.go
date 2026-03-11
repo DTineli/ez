@@ -404,7 +404,7 @@ func InviteLink(link string) templ.Component {
 			templ_7745c5c3_Var17 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div id=\"contact-link\" x-data class=\"flex items-center gap-2\"><label class=\"input\"><input type=\"text\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div id=\"contact-link\" x-data=\"{copied:false}\" class=\"flex items-center gap-2\"><label class=\"input\"><input type=\"text\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -417,7 +417,7 @@ func InviteLink(link string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" id=\"link\" x-ref=\"link\" readonly placeholder=\"URL\"> <button type=\"button\" @click=\"navigator.clipboard.writeText($refs.link.value)\">copiar</button></label> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" id=\"link\" x-ref=\"link\" readonly placeholder=\"URL\"> <button type=\"button\" @click=\"\n\t\t\t\tnavigator.clipboard.writeText($refs.link.value);\n\t\t\t\tcopied = true;\n\t\t\t\tsetTimeout(() => copied = false, 2000)\n\t\t\t\t\">copiar</button></label> <span x-show=\"copied\" x-transition class=\"text-green-600 text-sm\">Copiado!</span> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -508,7 +508,7 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(action)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 258, Col: 22}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 269, Col: 22}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
@@ -555,7 +555,7 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(u.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 293, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 304, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -578,7 +578,7 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(u.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 298, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 309, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {
@@ -615,7 +615,7 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(u.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 325, Col: 27}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 336, Col: 27}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
@@ -638,7 +638,7 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			var templ_7745c5c3_Var24 string
 			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(u.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 330, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 341, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 			if templ_7745c5c3_Err != nil {

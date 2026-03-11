@@ -2685,6 +2685,9 @@
   .text-gray-100 {
     color: var(--color-gray-100);
   }
+  .text-green-600 {
+    color: var(--color-green-600);
+  }
   .text-red-200 {
     color: var(--color-red-200);
   }
