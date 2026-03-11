@@ -35,6 +35,8 @@ type Contact struct {
 	Email string `json:"email"`
 	Phone string `json:"phone"`
 
+	InviteLink string
+
 	// Endereço completo
 	ZipCode      string `gorm:"type:varchar(20)" json:"zipcode"`
 	Street       string `gorm:"type:varchar(100)" json:"street"`

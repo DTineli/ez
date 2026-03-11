@@ -500,7 +500,7 @@ func ContactForm(form *forms.Form, isUpdate bool) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = InviteLink(form.Get("id"), "").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = InviteLink(form.Get("id"), form.Get("invite_link")).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -259,7 +259,7 @@ templ ContactForm(form *forms.Form, isUpdate bool) {
 						if isUpdate {
 							<div class="flex">
 								<p>Editar Contato</p>
-								@InviteLink(form.Get("id"), "")
+								@InviteLink(form.Get("id"), form.Get("invite_link"))
 							</div>
 						} else {
 							Cadastro de Contato

@@ -54,6 +54,8 @@ func mapContactToForm(c *store.Contact) *forms.Form {
 	form.Set("city", c.City)
 	form.Set("uf", c.UF)
 
+	form.Set("invite_link", c.InviteLink)
+
 	form.Set("price_table_id", strconv.Itoa(int(c.PriceTableID)))
 
 	return form
@@ -108,12 +110,21 @@ func (c *ContactHandler) CreateLink(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := c.inviteStore.Create(link); err != nil {
-		fmt.Println(err)
+		ShowToast(w, "Erro ao gerar Link", "error")
 		http.Error(w, "Erro ao processar formulário", http.StatusBadRequest)
 		return
 	}
 
 	url := fmt.Sprintf("https://%v/client/register?token=%v", r.Host, link.ID.String())
+
+	err = c.contactStore.UpdateById(uint(contact.ID), sess.TenantID, map[string]any{
+		"invite_link": url,
+	})
+
+	if err != nil {
+		ShowToast(w, "Erro ao salvar contato", "error")
+		return
+	}
 
 	Render(templates.InviteLink(string(id), url), r, w)
 }
