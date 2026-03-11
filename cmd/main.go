@@ -70,7 +70,10 @@ func main() {
 	)
 
 	contactHandler := handlers.NewContactHandler(
-		dbstore.NewContactStore(db),
+		handlers.NewContactHandlerParams{
+			Contact: dbstore.NewContactStore(db),
+			Invite:  dbstore.NewInvireStore(db),
+		},
 	)
 
 	r.Route("/client", func(r chi.Router) {
@@ -126,6 +129,8 @@ func main() {
 
 			r.Route("/contacts", func(r chi.Router) {
 				r.Post("/", contactHandler.PostNewContact)
+				r.Post("/{id}/create-link", contactHandler.CreateLink)
+
 				r.Post("/{id}", contactHandler.Update)
 
 				r.Get("/{id}", contactHandler.GetEditPage)

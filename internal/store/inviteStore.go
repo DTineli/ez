@@ -23,7 +23,7 @@ func (i *Invite) BeforeCreate(tx *gorm.DB) error {
 }
 
 type InviteStore interface {
-	Find(filters any) ([]Invite, error)
-	FindByID(id uuid.UUID) (Invite, error)
 	Create(*Invite) error
+	// Find(filters any) ([]Invite, error)
+	// FindByID(id uuid.UUID) (Invite, error)
 }

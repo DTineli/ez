@@ -192,8 +192,8 @@ templ ContactPage(params store.ListResults[store.Contact]) {
 	</div>
 }
 
-templ InviteLink(link string) {
-	<div id="contact-link" x-data="{copied:false}" class="flex items-center gap-2">
+templ InviteLink(id, link string) {
+	<div id="invite-link" x-data="{copied:false}" class="flex items-center gap-2">
 		<label class="input">
 			<input type="text" value={ link } id="link" x-ref="link" readonly placeholder="URL"/>
 			<button
@@ -215,7 +215,7 @@ templ InviteLink(link string) {
 		if link == "" {
 			<button
 				type="button"
-				hx-post="/admin/createLink"
+				hx-post={ fmt.Sprintf("/admin/contacts/%v/create-link", id) }
 				hx-target="#invite-link"
 				hx-swap="innerHTML"
 				class="btn btn-primary btn-sm"
@@ -259,7 +259,7 @@ templ ContactForm(form *forms.Form, isUpdate bool) {
 						if isUpdate {
 							<div class="flex">
 								<p>Editar Contato</p>
-								@InviteLink("")
+								@InviteLink(form.Get("id"), "")
 							</div>
 						} else {
 							Cadastro de Contato
