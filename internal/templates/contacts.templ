@@ -192,6 +192,29 @@ templ ContactPage(params store.ListResults[store.Contact]) {
 	</div>
 }
 
+templ InviteLink(link string) {
+	<div id="contact-link" x-data class="flex items-center gap-2">
+		<label class="input">
+			<input type="text" value={ link } id="link" x-ref="link" readonly placeholder="URL"/>
+			<button
+				type="button"
+				@click="navigator.clipboard.writeText($refs.link.value)"
+			>copiar</button>
+		</label>
+		if link == "" {
+			<button
+				type="button"
+				hx-post="/admin/createLink"
+				hx-target="#invite-link"
+				hx-swap="innerHTML"
+				class="btn btn-primary btn-sm"
+			>
+				Gerar Link
+			</button>
+		}
+	</div>
+}
+
 templ ContactForm(form *forms.Form, isUpdate bool) {
 	{{
 		var action string
@@ -223,7 +246,10 @@ templ ContactForm(form *forms.Form, isUpdate bool) {
 				<div class="card-body space-y-6">
 					<h1 class="text-2xl font-bold">
 						if isUpdate {
-							Editar Contato
+							<div class="flex">
+								<p>Editar Contato</p>
+								@InviteLink("")
+							</div>
 						} else {
 							Cadastro de Contato
 						}
