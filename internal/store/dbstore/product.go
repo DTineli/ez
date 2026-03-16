@@ -24,10 +24,7 @@ func (p *ProductStore) CreateProduct(user *store.Product) error {
 func (p *ProductStore) GetProduct(id uint) (*store.Product, error) {
 	var product store.Product
 	err := p.db.Where("id = ?", id).First(&product).Error
-	if err != nil {
-		return nil, err
-	}
-	return &product, nil
+	return &product, err
 }
 
 func (p *ProductStore) FindAllByUser(userID uint) ([]store.Product, error) {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
+	"github.com/google/uuid"
 )
 
 const HXRedirect = "HX-Redirect"
@@ -15,14 +16,50 @@ const MIN_LEN_PASSWD = 4
 type RegisterHandler struct {
 	userStore   store.UserStore
 	tenantStore store.TenantStore
+	inviteStore store.InviteStore
 }
 
-func NewRegisterHandler(userStore store.UserStore, tenantStore store.TenantStore) *RegisterHandler {
-	return &RegisterHandler{userStore: userStore, tenantStore: tenantStore}
+func RenderErrorPage(w http.ResponseWriter, message string) {
+	w.Write([]byte("<h1>" + message + "</h1>"))
+}
+
+func NewRegisterHandler(
+	userStore store.UserStore,
+	tenantStore store.TenantStore,
+	invite store.InviteStore,
+) *RegisterHandler {
+	return &RegisterHandler{
+		userStore:   userStore,
+		tenantStore: tenantStore,
+		inviteStore: invite,
+	}
 }
 
 func NewRegisterHandlerWithService() *RegisterHandler {
 	return &RegisterHandler{userStore: nil}
+}
+
+func (h *RegisterHandler) GetRegisterClientPage(w http.ResponseWriter, r *http.Request) {
+	token := r.URL.Query().Get("token")
+	if token == "" {
+		RenderErrorPage(w, "Token de convite Invalido")
+		return
+	}
+
+	parsedToken, err := uuid.Parse(token)
+	if err != nil {
+		RenderErrorPage(w, "Token de convite Invalido - no parse")
+		return
+	}
+
+	invite, err := h.inviteStore.FindByID(parsedToken)
+	if invite == nil {
+		RenderErrorPage(w, "Token de convite Invalido no find")
+		return
+	}
+
+	w.Write([]byte("<p>" + invite.Document + "</p>"))
+	return
 }
 
 func (h *RegisterHandler) GetRegisterPage(w http.ResponseWriter, r *http.Request) {

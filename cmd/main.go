@@ -51,8 +51,13 @@ func main() {
 	fileServer := http.FileServer(http.Dir("./static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
 
+	invite := dbstore.NewInvireStore(db)
 	tenantStore := dbstore.NewTenantStore(db)
-	registerHandler := handlers.NewRegisterHandler(userStore, tenantStore)
+	registerHandler := handlers.NewRegisterHandler(
+		userStore,
+		tenantStore,
+		invite,
+	)
 
 	loginHandler := handlers.NewLoginHandler(
 		handlers.LoginHandlerParams{
@@ -72,7 +77,7 @@ func main() {
 	contactHandler := handlers.NewContactHandler(
 		handlers.NewContactHandlerParams{
 			Contact: dbstore.NewContactStore(db),
-			Invite:  dbstore.NewInvireStore(db),
+			Invite:  invite,
 		},
 	)
 
@@ -81,7 +86,8 @@ func main() {
 
 		r.Get("/login", loginHandler.GetLoginPage)
 		r.Post("/login", loginHandler.PostLoginHandler(store.AccessCustomer))
-		r.Get("/register", registerHandler.GetRegisterPage)
+
+		r.Get("/register", registerHandler.GetRegisterClientPage)
 		r.Post("/register", registerHandler.PostRegister)
 
 		r.Group(func(r chi.Router) {
