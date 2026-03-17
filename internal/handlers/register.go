@@ -58,7 +58,7 @@ func (h *RegisterHandler) GetRegisterClientPage(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	w.Write([]byte("<p>" + invite.Document + "</p>"))
+	templates.ClientRegisterPage(invite).Render(r.Context(), w)
 	return
 }
 
