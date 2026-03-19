@@ -62,6 +62,38 @@ func (h *RegisterHandler) GetRegisterClientPage(w http.ResponseWriter, r *http.R
 	return
 }
 
+func (h *RegisterHandler) PostRegisterClient(w http.ResponseWriter, r *http.Request) {
+	password := strings.TrimSpace(r.FormValue("password"))
+	password_confirmation := strings.TrimSpace(r.FormValue("password_confirmation"))
+
+	if password != password_confirmation {
+		writeRegisterError(r, w, "Senhas precisam ser iguais")
+		return
+	}
+
+	if len(password) < MIN_LEN_PASSWD {
+		writeRegisterError(r, w, fmt.Sprintf("Senha deve ter no mínimo %v caracteres.", MIN_LEN_PASSWD))
+		return
+	}
+
+	err := h.userStore.CreateUser(store.User{
+		Name:     invite.Name,
+		Email:    email,
+		TenantID: tenantID,
+		Password: password,
+	})
+
+	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") || strings.Contains(err.Error(), "Duplicate") {
+			writeRegisterError(r, w, "Este email já está em uso.")
+			return
+		}
+		writeRegisterError(r, w, "Erro ao criar conta. Tente novamente.")
+		return
+	}
+
+}
+
 func (h *RegisterHandler) GetRegisterPage(w http.ResponseWriter, r *http.Request) {
 	err := templates.RegisterPage().Render(r.Context(), w)
 

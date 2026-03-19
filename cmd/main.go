@@ -88,13 +88,11 @@ func main() {
 		r.Post("/login", loginHandler.PostLoginHandler(store.AccessCustomer))
 
 		r.Get("/register", registerHandler.GetRegisterClientPage)
-		r.Post("/register", registerHandler.PostRegister)
+		r.Post("/register", registerHandler.PostRegisterClient)
 
 		r.Group(func(r chi.Router) {
 			r.Use(m.SessionAuthMiddleware(sessionStore))
-
 			r.Post("/logout", loginHandler.PostLogout)
-
 			r.Get("/", func(w http.ResponseWriter, req *http.Request) {
 				w.Write([]byte("<h1>Vai Corinthians</h1>"))
 			})

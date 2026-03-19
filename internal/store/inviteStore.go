@@ -6,8 +6,9 @@ import (
 )
 
 type Invite struct {
-	ID       uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	Document string    `gorm:"not null;unique"`
+	ID uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+
+	Document string `gorm:"not null;unique"`
 	Phone    string
 
 	OriginTenant uint
