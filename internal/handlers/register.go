@@ -76,21 +76,21 @@ func (h *RegisterHandler) PostRegisterClient(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err := h.userStore.CreateUser(store.User{
-		Name:     invite.Name,
-		Email:    email,
-		TenantID: tenantID,
-		Password: password,
-	})
+	// err := h.userStore.CreateUser(store.User{
+	// 	Name:     invite.Name,
+	// 	Email:    email,
+	// 	TenantID: invite.OriginTenant,
+	// 	Password: password,
+	// })
 
-	if err != nil {
-		if strings.Contains(err.Error(), "UNIQUE constraint failed") || strings.Contains(err.Error(), "Duplicate") {
-			writeRegisterError(r, w, "Este email já está em uso.")
-			return
-		}
-		writeRegisterError(r, w, "Erro ao criar conta. Tente novamente.")
-		return
-	}
+	// if err != nil {
+	// 	if strings.Contains(err.Error(), "UNIQUE constraint failed") || strings.Contains(err.Error(), "Duplicate") {
+	// 		writeRegisterError(r, w, "Este email já está em uso.")
+	// 		return
+	// 	}
+	// 	writeRegisterError(r, w, "Erro ao criar conta. Tente novamente.")
+	// 	return
+	// }
 
 }
 
