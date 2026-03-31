@@ -286,6 +286,7 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 									Label:     "Preço de Custo",
 									InputType: "number",
 									Value:     form.Get("cost_price"),
+									Step:      "0.01",
 								})
 								@components.BasicInput(components.BasicInputParams{
 									Name:      "current_stock",
@@ -309,24 +310,28 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 									Name:      "weight",
 									Label:     "Peso (kg)",
 									InputType: "number",
+									Step:      "0.01",
 									Value:     form.Get("weight"),
 								})
 								@components.BasicInput(components.BasicInputParams{
 									Name:      "height",
 									Label:     "Altura (cm)",
 									InputType: "number",
+									Step:      "0.01",
 									Value:     form.Get("height"),
 								})
 								@components.BasicInput(components.BasicInputParams{
 									Name:      "width",
 									Label:     "Largura (cm)",
 									InputType: "number",
+									Step:      "0.01",
 									Value:     form.Get("width"),
 								})
 								@components.BasicInput(components.BasicInputParams{
 									Name:      "length",
 									Label:     "Comprimento (cm)",
 									InputType: "number",
+									Step:      "0.01",
 									Value:     form.Get("length"),
 								})
 							</div>

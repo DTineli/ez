@@ -10,6 +10,7 @@ type BasicInputParams struct {
 	IsRequired    bool
 	Disabled      bool
 	Mask          string
+	Step          string
 }
 
 templ BasicInput(p BasicInputParams) {
@@ -26,6 +27,9 @@ templ BasicInput(p BasicInputParams) {
 			}
 			placeholder={ p.Placeholder }
 			type={ p.InputType }
+			if p.Step != "" {
+				step={ p.Step }
+			}
 			name={ p.Name }
 			value={ p.Value }
 			if len(p.ErrorMessages) > 0 {
