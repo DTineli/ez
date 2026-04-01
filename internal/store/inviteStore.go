@@ -14,8 +14,8 @@ type Invite struct {
 	OriginTenant uint
 	Tenant       Tenant `gorm:"foreignKey:OriginTenant"`
 
-	UserID *uint
-	User   *User `gorm:"foreignKey:UserID"`
+	ContactID *uint
+	Contact   *Contact `gorm:"foreignKey:ContactID"`
 }
 
 func (i *Invite) BeforeCreate(tx *gorm.DB) error {

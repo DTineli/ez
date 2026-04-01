@@ -103,9 +103,11 @@ func (c *ContactHandler) CreateLink(w http.ResponseWriter, r *http.Request) {
 	}
 
 	link := &store.Invite{
-		ID:           uuid.New(),
-		Document:     contact.Document,
-		Phone:        contact.Phone,
+		ID:       uuid.New(),
+		Document: contact.Document,
+		Phone:    contact.Phone,
+
+		ContactID:    &contact.ID,
 		OriginTenant: sess.TenantID,
 	}
 
