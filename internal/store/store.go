@@ -20,30 +20,12 @@ type ListResults[T any] struct {
 	Results FindResults[T]
 }
 
-type User struct {
-	ID         uint       `gorm:"primaryKey" json:"id"`
-	UserAccess AccessType `gorm:"varchar(20)"`
-	Name       string     `json:"name"`
-	Email      string     `gorm:"uniqueIndex" json:"email"`
-	Phone      string     `gorm:"uniqueIndex:idx_tenant_phone"`
-	Password   string     `json:"-"`
-	TenantID   uint       `gorm:"uniqueIndex:idx_tenant_phone"`
-	Tenant     Tenant
-}
-
 type Tenant struct {
 	ID       uint
 	Slug     string `gorm:"uniqueIndex" json:"slug"`
 	Document string `json:"document"`
 	Users    []User
 }
-
-type AccessType string
-
-const (
-	AccessAdmin    AccessType = "admin"
-	AccessCustomer AccessType = "customer"
-)
 
 type Session struct {
 	UserAccessType AccessType
@@ -65,11 +47,4 @@ type TenantStore interface {
 
 	GetTenantByID(id uint) (*Tenant, error)
 	// GetTenantBySlug(slug string) (*Tenant, error)
-}
-
-type UserStore interface {
-	CreateUser(User) error
-	GetUser(email string) (*User, error)
-
-	// GetUserById(id uint) (*User, error)
 }
