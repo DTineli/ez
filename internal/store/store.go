@@ -20,15 +20,6 @@ type ListResults[T any] struct {
 	Results FindResults[T]
 }
 
-type User struct {
-	ID       uint   `gorm:"primaryKey" json:"id"`
-	Name     string `json:"name"`
-	Email    string `gorm:"uniqueIndex" json:"email"`
-	Password string `json:"-"`
-	TenantID uint   `json:"tenant_id"`
-	Tenant   Tenant
-}
-
 type Tenant struct {
 	ID       uint
 	Slug     string `gorm:"uniqueIndex" json:"slug"`
@@ -36,30 +27,37 @@ type Tenant struct {
 	Users    []User
 }
 
+type ContactInfo struct {
+	ID         uint
+	PriceTable uint
+}
+
+const (
+	AdminSessionName  = "ez_admin_session"
+	ClientSessionName = "ez_client_session"
+)
+
 type Session struct {
-	UserID     uint `json:"user_id"`
-	UserName   string
-	UserEmail  string
-	TenantID   uint   `json:"tenant_id"`
-	TenantSlug string `json:"tenant_slug"`
-}
+	Name           string
+	UserAccessType AccessType
+	UserID         uint `json:"user_id"`
+	UserName       string
+	UserEmail      string
+	TenantID       uint   `json:"tenant_id"`
+	TenantSlug     string `json:"tenant_slug"`
 
-type TenantStore interface {
-	CreateTenant(Tenant) (uint, error)
-
-	GetTenantByID(id uint) (*Tenant, error)
-	// GetTenantBySlug(slug string) (*Tenant, error)
-}
-
-type UserStore interface {
-	CreateUser(User) error
-	GetUser(email string) (*User, error)
-
-	// GetUserById(id uint) (*User, error)
+	ContactInfo *ContactInfo
 }
 
 type SessionStore interface {
 	CreateSession(*http.Request, http.ResponseWriter, Session) error
 	DeleteSession(*http.Request, http.ResponseWriter) error
 	GetSessionInfo(*http.Request) (*Session, error)
+}
+
+type TenantStore interface {
+	CreateTenant(Tenant) (uint, error)
+
+	GetTenantByID(id uint) (*Tenant, error)
+	GetTenantBySlug(slug string) (*Tenant, error)
 }

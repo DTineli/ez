@@ -38,6 +38,7 @@ func MustOpen(dbName string) *gorm.DB {
 		&store.PriceTable{},
 
 		&store.Contact{},
+		&store.Invite{},
 	)
 
 	if err != nil {

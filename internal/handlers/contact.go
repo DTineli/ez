@@ -11,15 +11,23 @@ import (
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 type ContactHandler struct {
-	store store.ContactStore
+	contactStore store.ContactStore
+	inviteStore  store.InviteStore
 }
 
-func NewContactHandler(db store.ContactStore) *ContactHandler {
+type NewContactHandlerParams struct {
+	Contact store.ContactStore
+	Invite  store.InviteStore
+}
+
+func NewContactHandler(params NewContactHandlerParams) *ContactHandler {
 	return &ContactHandler{
-		store: db,
+		contactStore: params.Contact,
+		inviteStore:  params.Invite,
 	}
 }
 
@@ -45,6 +53,8 @@ func mapContactToForm(c *store.Contact) *forms.Form {
 	form.Set("neighborhood", c.Neighborhood)
 	form.Set("city", c.City)
 	form.Set("uf", c.UF)
+
+	form.Set("invite_link", c.InviteLink)
 
 	form.Set("price_table_id", strconv.Itoa(int(c.PriceTableID)))
 
@@ -77,14 +87,56 @@ func validateContactForm(r *http.Request) (*forms.Form, error) {
 	return form, nil
 }
 
+func (c *ContactHandler) CreateLink(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	contact, err := c.contactStore.GetOne(uint(id))
+	if err != nil || contact.TenantID != sess.TenantID {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	link := &store.Invite{
+		ID:       uuid.New(),
+		Document: contact.Document,
+		Phone:    contact.Phone,
+
+		ContactID:    contact.ID,
+		OriginTenant: sess.TenantID,
+	}
+
+	if err := c.inviteStore.Create(link); err != nil {
+		ShowToast(w, "Erro ao gerar Link", "error")
+		http.Error(w, "Erro ao processar formulário", http.StatusBadRequest)
+		return
+	}
+
+	url := fmt.Sprintf("https://%v/client/register?token=%v", r.Host, link.ID.String())
+
+	err = c.contactStore.UpdateById(uint(contact.ID), sess.TenantID, map[string]any{
+		"invite_link": url,
+	})
+
+	if err != nil {
+		ShowToast(w, "Erro ao salvar contato", "error")
+		return
+	}
+
+	Render(templates.InviteLink(string(id), url), r, w)
+}
+
 func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 	form, err := validateContactForm(r)
 	if err != nil {
 		http.Error(w, "Erro ao processar formulário", http.StatusBadRequest)
 		return
 	}
-
-	fmt.Println(form.Get("phone"))
 
 	if !form.Valid() {
 		ShowToast(w, "Erros de validação", "error")
@@ -116,7 +168,7 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 		UF:           form.Get("uf"),
 	}
 
-	if err := c.store.CreateContact(contact); err != nil {
+	if err := c.contactStore.CreateContact(contact); err != nil {
 		ShowToast(w, "Erro ao cadastar contato", "error")
 		_ = Render(templates.ContactForm(form, false), r, w)
 		return
@@ -139,7 +191,7 @@ func (c ContactHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid id", http.StatusBadRequest)
 		return
 	}
-	contact, err := c.store.GetOne(uint(id))
+	contact, err := c.contactStore.GetOne(uint(id))
 	if err != nil || contact.TenantID != sess.TenantID {
 		http.Error(w, "invalid id", http.StatusBadRequest)
 		return
@@ -167,7 +219,7 @@ func (c ContactHandler) GetContactsPage(w http.ResponseWriter, r *http.Request) 
 
 	pagination := GetPagination(r)
 
-	results, err := c.store.FindAll(sess.TenantID, store.ContactFilters{
+	results, err := c.contactStore.FindAll(sess.TenantID, store.ContactFilters{
 		Pagination: pagination,
 
 		Name:        r.URL.Query().Get("name"),
@@ -231,7 +283,7 @@ func (h *ContactHandler) Update(w http.ResponseWriter, r *http.Request) {
 		"price_table_id": form.IsInt("price_table_id"),
 	}
 
-	err = h.store.UpdateById(uint(id), sess.TenantID, fields)
+	err = h.contactStore.UpdateById(uint(id), sess.TenantID, fields)
 	if err != nil {
 		ShowToast(w, "Erro ao salvar contato", "error")
 		_ = Render(templates.ContactForm(form, true), r, w)

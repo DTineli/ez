@@ -568,6 +568,7 @@ func ProductForm(form *forms.Form, isUpdate bool) templ.Component {
 			Label:     "Preço de Custo",
 			InputType: "number",
 			Value:     form.Get("cost_price"),
+			Step:      "0.01",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -598,6 +599,7 @@ func ProductForm(form *forms.Form, isUpdate bool) templ.Component {
 			Name:      "weight",
 			Label:     "Peso (kg)",
 			InputType: "number",
+			Step:      "0.01",
 			Value:     form.Get("weight"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -607,6 +609,7 @@ func ProductForm(form *forms.Form, isUpdate bool) templ.Component {
 			Name:      "height",
 			Label:     "Altura (cm)",
 			InputType: "number",
+			Step:      "0.01",
 			Value:     form.Get("height"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -616,6 +619,7 @@ func ProductForm(form *forms.Form, isUpdate bool) templ.Component {
 			Name:      "width",
 			Label:     "Largura (cm)",
 			InputType: "number",
+			Step:      "0.01",
 			Value:     form.Get("width"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -625,6 +629,7 @@ func ProductForm(form *forms.Form, isUpdate bool) templ.Component {
 			Name:      "length",
 			Label:     "Comprimento (cm)",
 			InputType: "number",
+			Step:      "0.01",
 			Value:     form.Get("length"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

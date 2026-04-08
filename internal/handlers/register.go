@@ -3,26 +3,192 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
+	"github.com/google/uuid"
 )
 
 const HXRedirect = "HX-Redirect"
 const MIN_LEN_PASSWD = 4
 
 type RegisterHandler struct {
-	userStore   store.UserStore
-	tenantStore store.TenantStore
+	userStore    store.UserStore
+	tenantStore  store.TenantStore
+	inviteStore  store.InviteStore
+	contactStore store.ContactStore
 }
 
-func NewRegisterHandler(userStore store.UserStore, tenantStore store.TenantStore) *RegisterHandler {
-	return &RegisterHandler{userStore: userStore, tenantStore: tenantStore}
+func RenderErrorPage(w http.ResponseWriter, message string) {
+	w.Write([]byte("<h1>" + message + "</h1>"))
+}
+
+func NewRegisterHandler(
+	userStore store.UserStore,
+	tenantStore store.TenantStore,
+	invite store.InviteStore,
+	contact store.ContactStore,
+) *RegisterHandler {
+	return &RegisterHandler{
+		userStore:    userStore,
+		tenantStore:  tenantStore,
+		inviteStore:  invite,
+		contactStore: contact,
+	}
 }
 
 func NewRegisterHandlerWithService() *RegisterHandler {
 	return &RegisterHandler{userStore: nil}
+}
+
+func (h *RegisterHandler) GetRegisterClientPage(w http.ResponseWriter, r *http.Request) {
+	token := r.URL.Query().Get("token")
+	if token == "" {
+		RenderErrorPage(w, "Token de convite Invalido")
+		return
+	}
+
+	parsedToken, err := uuid.Parse(token)
+	if err != nil {
+		RenderErrorPage(w, "Token de convite Invalido - no parse")
+		return
+	}
+
+	invite, err := h.inviteStore.FindByID(parsedToken)
+	if invite == nil {
+		RenderErrorPage(w, "Token de convite Invalido no find")
+		return
+	}
+
+	templates.ClientRegisterPage(invite).Render(r.Context(), w)
+	return
+}
+
+type ClientRegisterInput struct {
+	Name      string
+	Email     string
+	Password  string
+	Phone     string
+	Document  string
+	ContactID uint
+	TenantID  uint
+}
+
+func parseClientInput(r *http.Request) (*ClientRegisterInput, error) {
+	password := strings.TrimSpace(r.FormValue("password"))
+	confirm := strings.TrimSpace(r.FormValue("password_confirmation"))
+
+	if password != confirm {
+		return nil, fmt.Errorf("Senhas precisam ser iguais")
+	}
+
+	if len(password) < MIN_LEN_PASSWD {
+		return nil, fmt.Errorf("Senha deve ter no mínimo %d caracteres", MIN_LEN_PASSWD)
+	}
+
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" {
+		return nil, fmt.Errorf("Nome é obrigatório")
+	}
+
+	email := strings.TrimSpace(r.FormValue("email"))
+	if email == "" {
+		return nil, fmt.Errorf("Email é obrigatório")
+	}
+
+	contactID, err := strconv.Atoi(r.FormValue("contact_id"))
+	if err != nil || contactID <= 0 {
+		return nil, fmt.Errorf("Contato inválido")
+	}
+
+	tenantID, err := strconv.Atoi(r.FormValue("tenant_id"))
+	if err != nil || tenantID <= 0 {
+		return nil, fmt.Errorf("Tenant inválido")
+	}
+
+	return &ClientRegisterInput{
+		Name:      name,
+		Email:     email,
+		Password:  password,
+		Phone:     r.FormValue("phone"),
+		Document:  r.FormValue("document"),
+		ContactID: uint(contactID),
+		TenantID:  uint(tenantID),
+	}, nil
+}
+
+func (h *RegisterHandler) createClientUser(input *ClientRegisterInput) (uint, error) {
+	user := store.User{
+		Name:       input.Name,
+		Email:      input.Email,
+		Password:   input.Password,
+		Phone:      input.Phone,
+		Document:   input.Document,
+		UserAccess: store.AccessCustomer,
+		TenantID:   input.TenantID,
+	}
+
+	if err := h.userStore.CreateUser(user); err != nil {
+		return 0, err
+	}
+
+	return user.ID, nil
+}
+
+func (h *RegisterHandler) linkContact(contactID, tenantID, userID uint) error {
+	return h.contactStore.UpdateById(
+		contactID,
+		tenantID,
+		map[string]any{
+			"user_id": userID,
+		},
+	)
+}
+func mapDBError(err error) string {
+	msg := err.Error()
+
+	switch {
+	case strings.Contains(msg, "email"):
+		return "Este email já está em uso."
+	case strings.Contains(msg, "phone"):
+		return "Este telefone já está em uso."
+	default:
+		return "Erro ao criar conta. Tente novamente."
+	}
+}
+
+func redirect(w http.ResponseWriter, r *http.Request, path string) {
+	url := fmt.Sprintf("http://%s%s", r.Host, path)
+	w.Header().Set(HXRedirect, url)
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *RegisterHandler) PostRegisterClient(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		writeRegisterError(r, w, "Dados inválidos.")
+		return
+	}
+
+	input, err := parseClientInput(r)
+	if err != nil {
+		writeRegisterError(r, w, err.Error())
+		return
+	}
+
+	userID, err := h.createClientUser(input)
+	if err != nil {
+		writeRegisterError(r, w, mapDBError(err))
+		return
+	}
+
+	if err := h.linkContact(input.ContactID, input.TenantID, userID); err != nil {
+		writeRegisterError(r, w, "Erro ao vincular contato.")
+		return
+	}
+
+	redirect(w, r, "/client/produtos")
 }
 
 func (h *RegisterHandler) GetRegisterPage(w http.ResponseWriter, r *http.Request) {

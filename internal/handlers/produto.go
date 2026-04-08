@@ -68,7 +68,7 @@ func validateProductForm(r *http.Request) (*forms.Form, error) {
 	form.MaxLength("uom", 2)
 	form.MinLength("uom", 2)
 
-	form.MaxLength("description", 255)
+	form.MaxLength("description", 15000)
 
 	form.MaxLength("sku", 25)
 	form.MinLength("sku", 4)

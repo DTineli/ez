@@ -12,8 +12,10 @@ import (
 
 type LoginHandler struct {
 	userStore    store.UserStore
-	sessionStore store.SessionStore
+	contactStore store.ContactStore
 	tenantStore  store.TenantStore
+
+	sessionStore store.SessionStore
 	cookieName   string
 }
 
@@ -33,20 +35,9 @@ func NewLoginHandler(params LoginHandlerParams) *LoginHandler {
 	}
 }
 
-func (h *LoginHandler) GetLoginPage(w http.ResponseWriter, r *http.Request) {
-	var is_hxRequest = r.Header.Get("HX-Request") == "true"
-
-	if is_hxRequest {
-		err := templates.LoginPage().Render(r.Context(), w)
-		if err != nil {
-			http.Error(w, "Error rendering template", http.StatusInternalServerError)
-			return
-		}
-		return
-	}
-
-	// err := Render(templates.LoginPage(), r, w)
-	err := templates.LoginPage().Render(r.Context(), w)
+func (h *LoginHandler) GetClientLoginPage(w http.ResponseWriter, r *http.Request) {
+	var isClient = true
+	err := templates.LoginPage(isClient).Render(r.Context(), w)
 
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
@@ -54,7 +45,103 @@ func (h *LoginHandler) GetLoginPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
+func (h *LoginHandler) GetAdminLoginPage(w http.ResponseWriter, r *http.Request) {
+	var isClient = false
+	err := templates.LoginPage(isClient).Render(r.Context(), w)
+
+	if err != nil {
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (h *LoginHandler) PostLoginHandler(accessType store.AccessType) http.HandlerFunc {
+	switch accessType {
+	case store.AccessAdmin:
+		return h.adminLogin
+
+	case store.AccessCustomer:
+		return h.customerLogin
+
+	default:
+		return func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "invalid access type", http.StatusInternalServerError)
+		}
+	}
+}
+
+func (h *LoginHandler) customerLogin(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		writeLoginError(r, w, "Dados inválidos.")
+		return
+	}
+
+	phone_number := strings.TrimSpace(r.FormValue("phone_number"))
+	password := r.FormValue("password")
+
+	if phone_number == "" {
+		writeLoginError(r, w, "Fone é obrigatório.")
+		return
+	}
+	if password == "" {
+		writeLoginError(r, w, "Senha é obrigatória.")
+		return
+	}
+
+	//TODO: getUserWithTenant
+	user, err := h.userStore.GetUserByPhone(phone_number)
+	if err != nil || user == nil {
+		writeLoginError(r, w, "Falha no Login")
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		writeLoginError(r, w, "Falha no Login")
+		return
+	}
+
+	page_slug := strings.Split(r.Host, ".")[0]
+	tenant, err := h.tenantStore.GetTenantBySlug(page_slug)
+
+	if err != nil {
+		fmt.Errorf(err.Error())
+		writeLoginError(r, w, "Erro ao criar sessão. Tente novamente.")
+		return
+	}
+
+	var contactId uint
+	var contactPriceTable uint
+
+	for _, c := range user.Contacts {
+		if c.TenantID == tenant.ID {
+			contactId = c.ID
+			contactPriceTable = c.PriceTableID
+		}
+	}
+
+	err = h.sessionStore.CreateSession(r, w, store.Session{
+		Name:           store.ClientSessionName,
+		UserAccessType: store.AccessCustomer,
+		UserID:         user.ID,
+		UserEmail:      user.Email,
+		TenantID:       tenant.ID,
+		TenantSlug:     tenant.Slug,
+		ContactInfo: &store.ContactInfo{
+			ID:         contactId,
+			PriceTable: contactPriceTable,
+		},
+	})
+
+	if err != nil {
+		writeLoginError(r, w, "Erro ao criar sessão. Tente novamente.")
+		return
+	}
+
+	w.Header().Set(HXRedirect, "/client/produtos")
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *LoginHandler) adminLogin(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		writeLoginError(r, w, "Dados inválidos.")
 		return
@@ -92,16 +179,17 @@ func (h *LoginHandler) PostLogin(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: Se ele ta no slug errado troca ou da erro ?
 	if tenant.Slug != strings.Split(r.Host, ".")[0] {
-		// w.Header().Set(HXRedirect, fmt.Sprintf("http://%s.localhost:4000", tenant.Slug))
 		writeLoginError(r, w, "slug diferente")
 		return
 	}
 
 	err = h.sessionStore.CreateSession(r, w, store.Session{
-		UserID:     user.ID,
-		UserEmail:  user.Email,
-		TenantID:   tenant.ID,
-		TenantSlug: tenant.Slug,
+		Name:           store.AdminSessionName,
+		UserAccessType: store.AccessAdmin,
+		UserID:         user.ID,
+		UserEmail:      user.Email,
+		TenantID:       tenant.ID,
+		TenantSlug:     tenant.Slug,
 	})
 
 	if err != nil {

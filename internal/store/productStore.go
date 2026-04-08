@@ -32,7 +32,7 @@ type Product struct {
 	ID              uint   `gorm:"primaryKey" json:"id"`
 	SKU             string `gorm:"type:varchar(50);not null;index:idx_tenant_sku,unique,priority:2" json:"sku"`
 	Name            string `json:"name"`
-	FullDescription string `gorm:"type:text" json:"full_description"`
+	FullDescription string `gorm:"type:mediumtext" json:"full_description"`
 	Status          bool   `json:"status"`
 
 	//TODO: FOTOS ??

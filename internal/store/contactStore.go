@@ -35,6 +35,8 @@ type Contact struct {
 	Email string `json:"email"`
 	Phone string `json:"phone"`
 
+	InviteLink string
+
 	// Endereço completo
 	ZipCode      string `gorm:"type:varchar(20)" json:"zipcode"`
 	Street       string `gorm:"type:varchar(100)" json:"street"`
@@ -45,7 +47,10 @@ type Contact struct {
 	UF           string `gorm:"type:varchar(2)" json:"uf"` // Estado sigla
 
 	PriceTableID uint `gorm:"type:int" json:"price_table"`
-	TenantID     uint `gorm:"not null;index:idx_tenant_document,priority:1" json:"tenant_id"`
+
+	UserID   *uint
+	User     *User
+	TenantID uint `gorm:"not null;index:idx_tenant_document,priority:1" json:"tenant_id"`
 }
 
 type ContactStore interface {
@@ -53,4 +58,5 @@ type ContactStore interface {
 	FindAll(uint, ContactFilters) (*FindResults[Contact], error)
 	GetOne(uint) (*Contact, error)
 	UpdateById(id, tenantID uint, fields map[string]any) error
+	// GetOneByPhone(phone string) (*Contact, error)
 }

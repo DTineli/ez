@@ -14,6 +14,7 @@ import (
 	"github.com/DTineli/ez/internal/config"
 	"github.com/DTineli/ez/internal/handlers"
 	m "github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/store/cookiesotore"
 	"github.com/DTineli/ez/internal/store/dbstore"
 
@@ -38,18 +39,33 @@ func main() {
 	cfg := config.MustLoadConfig()
 
 	r.Use(middleware.Logger)
-	// r.Use(m.CheckTenantMiddleware)
 
 	db := database.MustOpen(cfg.DatabaseName)
 	userStore := dbstore.NewUserStore(db)
 
-	sessionStore := cookiesotore.NewSessionStore("VERYSECRETKEY")
+	sessionStore := cookiesotore.NewSessionStore(
+		store.AdminSessionName,
+		"VERYSECRETKEY", // TODO: Colocar no env
+	)
+
+	clientSessionStore := cookiesotore.NewSessionStore(
+		store.ClientSessionName,
+		"VERYSECRETKEY", // TODO: Colocar no env
+	)
 
 	fileServer := http.FileServer(http.Dir("./static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
 
+	invite := dbstore.NewInvireStore(db)
 	tenantStore := dbstore.NewTenantStore(db)
-	registerHandler := handlers.NewRegisterHandler(userStore, tenantStore)
+	contactStore := dbstore.NewContactStore(db)
+
+	registerHandler := handlers.NewRegisterHandler(
+		userStore,
+		tenantStore,
+		invite,
+		contactStore,
+	)
 
 	loginHandler := handlers.NewLoginHandler(
 		handlers.LoginHandlerParams{
@@ -60,28 +76,6 @@ func main() {
 		},
 	)
 
-	r.Group(func(r chi.Router) {
-		r.Use(m.TextHTMLMiddleware)
-		r.Route("/client", func(r chi.Router) {
-			r.Get("/", func(w http.ResponseWriter, req *http.Request) {
-				w.Write([]byte("<h1>Vai Corinthians</h1>"))
-			})
-		})
-	})
-
-	r.Group(func(r chi.Router) {
-		r.Use(m.TextHTMLMiddleware)
-
-		r.Get("/", loginHandler.GetLoginPage)
-
-		r.Get("/login", loginHandler.GetLoginPage)
-		r.Post("/login", loginHandler.PostLogin)
-		r.Get("/register", registerHandler.GetRegisterPage)
-		r.Post("/register", registerHandler.PostRegister)
-
-		r.Post("/logout", loginHandler.PostLogout)
-	})
-
 	//Creating handlers
 	productHandler := handlers.NewProductHandler(
 		dbstore.NewProductStore(db),
@@ -89,17 +83,48 @@ func main() {
 	)
 
 	contactHandler := handlers.NewContactHandler(
-		dbstore.NewContactStore(db),
+		handlers.NewContactHandlerParams{
+			Contact: contactStore,
+			Invite:  invite,
+		},
 	)
 
-	// autenticado
-	r.Group(func(r chi.Router) {
-		r.Use(
-			m.TextHTMLMiddleware,
-			m.SessionAuthMiddleware(sessionStore),
-		)
+	r.Route("/client", func(r chi.Router) {
+		r.Use(m.TextHTMLMiddleware)
 
-		r.Route("/admin", func(r chi.Router) {
+		r.Get("/login", loginHandler.GetClientLoginPage)
+		r.Post("/login", loginHandler.PostLoginHandler(store.AccessCustomer))
+
+		r.Get("/register", registerHandler.GetRegisterClientPage)
+		r.Post("/register", registerHandler.PostRegisterClient)
+
+		r.Group(func(r chi.Router) {
+			r.Use(m.SessionAuthMiddleware(clientSessionStore))
+
+			r.Post("/logout", loginHandler.PostLogout)
+			r.Get("/", func(w http.ResponseWriter, req *http.Request) {
+				w.Write([]byte("<h1>Vai Corinthians</h1>"))
+			})
+		})
+	})
+
+	r.Route("/admin", func(r chi.Router) {
+		r.Use(m.TextHTMLMiddleware)
+
+		r.Get("/", loginHandler.GetAdminLoginPage)
+
+		r.Get("/login", loginHandler.GetAdminLoginPage)
+		r.Post("/login", loginHandler.PostLoginHandler(store.AccessAdmin))
+		r.Get("/register", registerHandler.GetRegisterPage)
+		r.Post("/register", registerHandler.PostRegister)
+
+		r.Post("/logout", loginHandler.PostLogout)
+
+		r.Group(func(r chi.Router) {
+			r.Use(
+				m.SessionAuthMiddleware(sessionStore),
+			)
+
 			r.Get("/", handlers.NewHomeHandler(sessionStore).ServeHTTP)
 
 			r.Route("/produtos", func(r chi.Router) {
@@ -117,6 +142,8 @@ func main() {
 
 			r.Route("/contacts", func(r chi.Router) {
 				r.Post("/", contactHandler.PostNewContact)
+				r.Post("/{id}/create-link", contactHandler.CreateLink)
+
 				r.Post("/{id}", contactHandler.Update)
 
 				r.Get("/{id}", contactHandler.GetEditPage)
