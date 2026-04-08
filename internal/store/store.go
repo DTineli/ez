@@ -27,13 +27,26 @@ type Tenant struct {
 	Users    []User
 }
 
+type ContactInfo struct {
+	ID         uint
+	PriceTable uint
+}
+
+const (
+	AdminSessionName  = "ez_admin_session"
+	ClientSessionName = "ez_client_session"
+)
+
 type Session struct {
+	Name           string
 	UserAccessType AccessType
 	UserID         uint `json:"user_id"`
 	UserName       string
 	UserEmail      string
 	TenantID       uint   `json:"tenant_id"`
 	TenantSlug     string `json:"tenant_slug"`
+
+	ContactInfo *ContactInfo
 }
 
 type SessionStore interface {
@@ -46,5 +59,5 @@ type TenantStore interface {
 	CreateTenant(Tenant) (uint, error)
 
 	GetTenantByID(id uint) (*Tenant, error)
-	// GetTenantBySlug(slug string) (*Tenant, error)
+	GetTenantBySlug(slug string) (*Tenant, error)
 }

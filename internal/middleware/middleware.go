@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"github.com/DTineli/ez/internal/store"
 )
@@ -11,13 +12,36 @@ func GetSessionFromContext(r *http.Request) *store.Session {
 	return r.Context().Value(SessionInfoKey).(*store.Session)
 }
 
-func SessionAuthMiddleware(store store.SessionStore) func(http.Handler) http.Handler {
+func parseUrl(url string) store.AccessType {
+	if strings.HasPrefix(url, "/admin") {
+		return store.AccessAdmin
+	}
+
+	return store.AccessCustomer
+}
+
+func redirectTo(w http.ResponseWriter, r *http.Request, ambiente store.AccessType) {
+	if ambiente == store.AccessCustomer {
+		http.Redirect(w, r, "/client/login", http.StatusFound)
+	} else {
+		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	}
+}
+
+func SessionAuthMiddleware(sessionStore store.SessionStore) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			sess, err := store.GetSessionInfo(r)
+			sess, err := sessionStore.GetSessionInfo(r)
+
+			ambiente := parseUrl(r.URL.Path)
 
 			if err != nil {
-				http.Redirect(w, r, "/login", http.StatusFound)
+				redirectTo(w, r, ambiente)
+				return
+			}
+
+			if ambiente != sess.UserAccessType {
+				redirectTo(w, r, ambiente)
 				return
 			}
 

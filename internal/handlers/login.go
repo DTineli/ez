@@ -89,35 +89,47 @@ func (h *LoginHandler) customerLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//TODO: getUserWithTenant
-	user, err := h.userStore.GetUser("")
+	user, err := h.userStore.GetUserByPhone(phone_number)
 	if err != nil || user == nil {
 		writeLoginError(r, w, "Falha no Login")
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		writeLoginError(r, w, "Email ou senha incorretos.")
+		writeLoginError(r, w, "Falha no Login")
 		return
 	}
 
-	tenant, err := h.tenantStore.GetTenantByID(user.TenantID)
+	page_slug := strings.Split(r.Host, ".")[0]
+	tenant, err := h.tenantStore.GetTenantBySlug(page_slug)
+
 	if err != nil {
+		fmt.Errorf(err.Error())
 		writeLoginError(r, w, "Erro ao criar sessão. Tente novamente.")
 		return
 	}
 
-	// TODO: Se ele ta no slug errado troca ou da erro ?
-	if tenant.Slug != strings.Split(r.Host, ".")[0] {
-		writeLoginError(r, w, "slug diferente")
-		return
+	var contactId uint
+	var contactPriceTable uint
+
+	for _, c := range user.Contacts {
+		if c.TenantID == tenant.ID {
+			contactId = c.ID
+			contactPriceTable = c.PriceTableID
+		}
 	}
 
 	err = h.sessionStore.CreateSession(r, w, store.Session{
-		UserAccessType: store.AccessAdmin,
+		Name:           store.ClientSessionName,
+		UserAccessType: store.AccessCustomer,
 		UserID:         user.ID,
 		UserEmail:      user.Email,
 		TenantID:       tenant.ID,
 		TenantSlug:     tenant.Slug,
+		ContactInfo: &store.ContactInfo{
+			ID:         contactId,
+			PriceTable: contactPriceTable,
+		},
 	})
 
 	if err != nil {
@@ -125,9 +137,8 @@ func (h *LoginHandler) customerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set(HXRedirect, "/admin/")
+	w.Header().Set(HXRedirect, "/client/produtos")
 	w.WriteHeader(http.StatusOK)
-
 }
 
 func (h *LoginHandler) adminLogin(w http.ResponseWriter, r *http.Request) {
@@ -173,6 +184,7 @@ func (h *LoginHandler) adminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.sessionStore.CreateSession(r, w, store.Session{
+		Name:           store.AdminSessionName,
 		UserAccessType: store.AccessAdmin,
 		UserID:         user.ID,
 		UserEmail:      user.Email,

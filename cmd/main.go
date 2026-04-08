@@ -44,7 +44,12 @@ func main() {
 	userStore := dbstore.NewUserStore(db)
 
 	sessionStore := cookiesotore.NewSessionStore(
-		cookiesotore.AdminSessionName,
+		store.AdminSessionName,
+		"VERYSECRETKEY", // TODO: Colocar no env
+	)
+
+	clientSessionStore := cookiesotore.NewSessionStore(
+		store.ClientSessionName,
 		"VERYSECRETKEY", // TODO: Colocar no env
 	)
 
@@ -94,7 +99,8 @@ func main() {
 		r.Post("/register", registerHandler.PostRegisterClient)
 
 		r.Group(func(r chi.Router) {
-			r.Use(m.SessionAuthMiddleware(sessionStore))
+			r.Use(m.SessionAuthMiddleware(clientSessionStore))
+
 			r.Post("/logout", loginHandler.PostLogout)
 			r.Get("/", func(w http.ResponseWriter, req *http.Request) {
 				w.Write([]byte("<h1>Vai Corinthians</h1>"))

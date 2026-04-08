@@ -28,5 +28,7 @@ type UserStore interface {
 	CreateUser(User) error
 	GetUser(email string) (*User, error)
 
+	GetUserByPhone(phone string) (*User, error)
+
 	// GetUserById(id uint) (*User, error)
 }

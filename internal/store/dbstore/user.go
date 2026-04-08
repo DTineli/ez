@@ -33,6 +33,14 @@ func (u *UserStore) CreateUser(dto store.User) error {
 	// }
 	return u.db.Create(&dto).Error
 }
+func (u *UserStore) GetUserByPhone(phone string) (*store.User, error) {
+	var user store.User
+	err := u.db.Where("phone = ? AND user_access = ?", phone, "customer").First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
 
 func (u *UserStore) GetUser(email string) (*store.User, error) {
 	var user store.User

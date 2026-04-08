@@ -27,3 +27,10 @@ func (t TenantStore) GetTenantByID(id uint) (*store.Tenant, error) {
 
 	return &tenant, queryresut.Error
 }
+
+func (t TenantStore) GetTenantBySlug(slug string) (*store.Tenant, error) {
+	var tenant store.Tenant
+	queryresut := t.db.Where("slug = ?", slug).First(&tenant)
+
+	return &tenant, queryresut.Error
+}
