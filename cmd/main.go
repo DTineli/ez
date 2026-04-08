@@ -87,7 +87,7 @@ func main() {
 	r.Route("/client", func(r chi.Router) {
 		r.Use(m.TextHTMLMiddleware)
 
-		r.Get("/login", loginHandler.GetLoginPage)
+		r.Get("/login", loginHandler.GetClientLoginPage)
 		r.Post("/login", loginHandler.PostLoginHandler(store.AccessCustomer))
 
 		r.Get("/register", registerHandler.GetRegisterClientPage)
@@ -105,9 +105,9 @@ func main() {
 	r.Route("/admin", func(r chi.Router) {
 		r.Use(m.TextHTMLMiddleware)
 
-		r.Get("/", loginHandler.GetLoginPage)
+		r.Get("/", loginHandler.GetAdminLoginPage)
 
-		r.Get("/login", loginHandler.GetLoginPage)
+		r.Get("/login", loginHandler.GetAdminLoginPage)
 		r.Post("/login", loginHandler.PostLoginHandler(store.AccessAdmin))
 		r.Get("/register", registerHandler.GetRegisterPage)
 		r.Post("/register", registerHandler.PostRegister)

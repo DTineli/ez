@@ -50,7 +50,7 @@ func LoginErrors(message string) templ.Component {
 	})
 }
 
-func LoginPage() templ.Component {
+func LoginPage(client bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -79,7 +79,52 @@ func LoginPage() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"min-h-screen flex items-center justify-center bg-black text-gray-100\"><div class=\"w-full max-w-md bg-zinc-900 p-8 rounded-2xl shadow-lg\"><h1 class=\"text-2xl font-semibold mb-6 text-center\">Entrar</h1><div id=\"login-messages\" class=\"min-h-[1rem]\"></div><form class=\"flex flex-col space-y-4\" hx-post=\"/admin/login\" hx-target=\"#login-messages\" hx-swap=\"innerHTML\"><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Email</label> <input type=\"email\" name=\"email\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Senha</label> <input type=\"password\" name=\"password\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><a href=\"/register\" class=\"link\">Criar conta</a> <button type=\"submit\" class=\"mt-4 bg-white text-black font-medium py-2 rounded-lg hover:bg-gray-200 transition\">Entrar</button></form></div></div></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"min-h-screen flex items-center justify-center bg-black text-gray-100\"><div class=\"w-full max-w-md bg-zinc-900 p-8 rounded-2xl shadow-lg\"><h1 class=\"text-2xl font-semibold mb-6 text-center\">Entrar</h1><div id=\"login-messages\" class=\"min-h-[1rem]\"></div><form class=\"flex flex-col space-y-4\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if client {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " hx-post=\"/client/login\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " hx-post=\"/admin/login\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " hx-target=\"#login-messages\" hx-swap=\"innerHTML\"><div class=\"flex flex-col\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if client {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<label class=\"text-sm mb-1\">Numero de telefone</label> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<label class=\"text-sm mb-1\">Email</label> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<input type=\"text\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if client {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " name=\"phone_number\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, " name=\"email\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Senha</label> <input type=\"password\" name=\"password\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><button type=\"submit\" class=\"mt-4 bg-white text-black font-medium py-2 rounded-lg hover:bg-gray-200 transition\">Entrar</button></form></div></div></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

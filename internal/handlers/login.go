@@ -35,20 +35,19 @@ func NewLoginHandler(params LoginHandlerParams) *LoginHandler {
 	}
 }
 
-func (h *LoginHandler) GetLoginPage(w http.ResponseWriter, r *http.Request) {
-	var is_hxRequest = r.Header.Get("HX-Request") == "true"
+func (h *LoginHandler) GetClientLoginPage(w http.ResponseWriter, r *http.Request) {
+	var isClient = true
+	err := templates.LoginPage(isClient).Render(r.Context(), w)
 
-	if is_hxRequest {
-		err := templates.LoginPage().Render(r.Context(), w)
-		if err != nil {
-			http.Error(w, "Error rendering template", http.StatusInternalServerError)
-			return
-		}
+	if err != nil {
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
+}
 
-	// err := Render(templates.LoginPage(), r, w)
-	err := templates.LoginPage().Render(r.Context(), w)
+func (h *LoginHandler) GetAdminLoginPage(w http.ResponseWriter, r *http.Request) {
+	var isClient = false
+	err := templates.LoginPage(isClient).Render(r.Context(), w)
 
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
