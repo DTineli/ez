@@ -107,7 +107,7 @@ func (c *ContactHandler) CreateLink(w http.ResponseWriter, r *http.Request) {
 		Document: contact.Document,
 		Phone:    contact.Phone,
 
-		ContactID:    &contact.ID,
+		ContactID:    contact.ID,
 		OriginTenant: sess.TenantID,
 	}
 

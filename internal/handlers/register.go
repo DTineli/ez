@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/DTineli/ez/internal/store"
@@ -14,9 +15,10 @@ const HXRedirect = "HX-Redirect"
 const MIN_LEN_PASSWD = 4
 
 type RegisterHandler struct {
-	userStore   store.UserStore
-	tenantStore store.TenantStore
-	inviteStore store.InviteStore
+	userStore    store.UserStore
+	tenantStore  store.TenantStore
+	inviteStore  store.InviteStore
+	contactStore store.ContactStore
 }
 
 func RenderErrorPage(w http.ResponseWriter, message string) {
@@ -27,11 +29,13 @@ func NewRegisterHandler(
 	userStore store.UserStore,
 	tenantStore store.TenantStore,
 	invite store.InviteStore,
+	contact store.ContactStore,
 ) *RegisterHandler {
 	return &RegisterHandler{
-		userStore:   userStore,
-		tenantStore: tenantStore,
-		inviteStore: invite,
+		userStore:    userStore,
+		tenantStore:  tenantStore,
+		inviteStore:  invite,
+		contactStore: contact,
 	}
 }
 
@@ -76,22 +80,64 @@ func (h *RegisterHandler) PostRegisterClient(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// err := h.userStore.CreateUser(store.User{
-	// 	Name:     invite.Name,
-	// 	Email:    email,
-	// 	TenantID: invite.OriginTenant,
-	// 	Password: password,
-	// })
+	email := r.FormValue("email")
+	if email == "" {
+		writeRegisterError(r, w, "Email é obrigatorio")
+		return
+	}
 
-	// if err != nil {
-	// 	if strings.Contains(err.Error(), "UNIQUE constraint failed") || strings.Contains(err.Error(), "Duplicate") {
-	// 		writeRegisterError(r, w, "Este email já está em uso.")
-	// 		return
-	// 	}
-	// 	writeRegisterError(r, w, "Erro ao criar conta. Tente novamente.")
-	// 	return
-	// }
+	name := r.FormValue("name")
+	if name == "" {
+		writeRegisterError(r, w, "Nome é obrigatorio")
+		return
+	}
 
+	user := store.User{
+		Name: name,
+
+		UserAccess: store.AccessCustomer,
+		Phone:      r.FormValue("phone"),
+		Document:   r.FormValue("document"),
+		Email:      email,
+		Password:   password,
+	}
+
+	err := h.userStore.CreateUser(user)
+	if err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") || strings.Contains(err.Error(), "Duplicate") {
+			if strings.Contains(err.Error(), "email") {
+				writeRegisterError(r, w, "Este email já está em uso.")
+			}
+
+			if strings.Contains(err.Error(), "phone") {
+				writeRegisterError(r, w, err.Error()) // "Este telefone já está em uso.")
+			}
+
+			return
+		}
+		writeRegisterError(r, w, "Erro ao criar conta. Tente novamente.")
+		return
+	}
+
+	contactID, _ := strconv.Atoi(r.FormValue("contact_id"))
+	tenantID, _ := strconv.Atoi(r.FormValue("tenant_id"))
+
+	err = h.contactStore.UpdateById(
+		uint(contactID),
+		uint(tenantID),
+		map[string]any{
+			"user_id": user.ID,
+		},
+	)
+	if err != nil {
+		writeRegisterError(r, w, err.Error()) //)"Erro ao vincular contato.")
+		return
+	}
+
+	url := fmt.Sprintf("http://%s/client/produtos", r.Host)
+
+	w.Header().Set(HXRedirect, url)
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *RegisterHandler) GetRegisterPage(w http.ResponseWriter, r *http.Request) {

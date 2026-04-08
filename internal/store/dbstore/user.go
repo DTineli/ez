@@ -21,13 +21,17 @@ func (u *UserStore) CreateUser(dto store.User) error {
 	if err != nil {
 		return err
 	}
-	user := store.User{
-		Name:     dto.Name,
-		Email:    dto.Email,
-		TenantID: dto.TenantID,
-		Password: string(hashed),
-	}
-	return u.db.Create(&user).Error
+
+	dto.Password = string(hashed)
+	// user := store.User{
+	// 	Name:       dto.Name,
+	// 	Email:      dto.Email,
+	// 	Document:   dto.Document,
+	// 	UserAccess: dto.UserAccess,
+	// 	TenantID:   dto.TenantID,
+	// 	Password:   string(hashed),
+	// }
+	return u.db.Create(&dto).Error
 }
 
 func (u *UserStore) GetUser(email string) (*store.User, error) {

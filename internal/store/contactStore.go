@@ -47,7 +47,10 @@ type Contact struct {
 	UF           string `gorm:"type:varchar(2)" json:"uf"` // Estado sigla
 
 	PriceTableID uint `gorm:"type:int" json:"price_table"`
-	TenantID     uint `gorm:"not null;index:idx_tenant_document,priority:1" json:"tenant_id"`
+
+	UserID   *uint
+	User     *User
+	TenantID uint `gorm:"not null;index:idx_tenant_document,priority:1" json:"tenant_id"`
 }
 
 type ContactStore interface {

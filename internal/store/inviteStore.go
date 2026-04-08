@@ -14,7 +14,7 @@ type Invite struct {
 	OriginTenant uint
 	Tenant       Tenant `gorm:"foreignKey:OriginTenant"`
 
-	ContactID *uint
+	ContactID uint
 	Contact   *Contact `gorm:"foreignKey:ContactID"`
 }
 

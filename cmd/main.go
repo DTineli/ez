@@ -53,10 +53,13 @@ func main() {
 
 	invite := dbstore.NewInvireStore(db)
 	tenantStore := dbstore.NewTenantStore(db)
+	contactStore := dbstore.NewContactStore(db)
+
 	registerHandler := handlers.NewRegisterHandler(
 		userStore,
 		tenantStore,
 		invite,
+		contactStore,
 	)
 
 	loginHandler := handlers.NewLoginHandler(
@@ -76,7 +79,7 @@ func main() {
 
 	contactHandler := handlers.NewContactHandler(
 		handlers.NewContactHandlerParams{
-			Contact: dbstore.NewContactStore(db),
+			Contact: contactStore,
 			Invite:  invite,
 		},
 	)
