@@ -8,6 +8,13 @@ func (p Product) StatusToString() string {
 	return "Inativo"
 }
 
+type CardData struct {
+	ID         uint
+	Name       string
+	Price      float64
+	Photo_Link string
+}
+
 type GetProductPageParams struct {
 	Page       int
 	PerPage    int

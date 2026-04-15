@@ -1,0 +1,89 @@
+package templates
+
+import "github.com/DTineli/ez/internal/store"
+
+templ ClientProductsPage(products []store.CardData) {
+	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+		for _, p := range products {
+			@ProductCard(p)
+		}
+	</div>
+}
+
+templ ProductCard(info store.CardData) {
+	<div
+		class="bg-surface-container-lowest rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition"
+		x-data="{ qty: 1 }"
+	>
+		<!-- IMAGE -->
+		<div class="relative aspect-[4/3] bg-surface-container-low overflow-hidden">
+			<img
+				class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+				src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDZpHurgLpsT6Jud1k_znHFcY7kc2Px50kZZchPS3ZYpoFES6oyyByqqCNlI8sc7GHcWgPYLjR6boJvv3qlfho7WlajxcCgaZBx7qJ_SHJf6vP2Vj1rGPFmtnRWhoVVk8WYY7dt6xvpzp5uUT_rY5fcwQs6pYwHy3-sgPST9_hp7ZmlVzQuHZkiIPVkAVGZMFb9sWdRnX97N8DFzn4qVDOQz6_oaut32uXfI6L7BGCT7CckjLxnDGGakS4LhnkrAPf-Sdhip1455Zu"
+			/>
+			<div class="absolute top-3 left-3">
+				<span class="bg-green-600 text-white px-3 py-1 rounded text-[10px] font-bold uppercase">
+					In stock
+				</span>
+			</div>
+		</div>
+		<!-- CONTENT -->
+		<div class="p-5 flex flex-col gap-3">
+			<!-- TITLE -->
+			<div>
+				<p class="text-[10px] uppercase tracking-widest text-gray-400">
+					Electronics
+				</p>
+				<h3 class="text-lg font-bold text-primary">
+					{ info.Name }
+				</h3>
+			</div>
+			<!-- PRICE -->
+			<div class="flex items-center justify-between">
+				<div>
+					<p class="text-xs text-gray-400">Preço</p>
+					<p class="text-2xl font-extrabold text-primary">
+						R$ { info.Price }
+					</p>
+				</div>
+			</div>
+			<!-- QUANTITY + BUY -->
+			<div class="flex gap-2 mt-2 items-center">
+				<!-- QUANTIDADE -->
+				<div class="flex items-center border rounded-lg overflow-hidden">
+					<button
+						type="button"
+						class="px-3 py-2 hover:bg-gray-100"
+						@click="qty = Math.max(1, qty - 1)"
+					>
+						-
+					</button>
+					<input
+						type="number"
+						min="1"
+						class="w-14 text-center outline-none"
+						x-model="qty"
+					/>
+					<button
+						type="button"
+						class="px-3 py-2 hover:bg-gray-100"
+						@click="qty++"
+					>
+						+
+					</button>
+				</div>
+				<!-- BOTÃO COMPRAR -->
+				<button
+					type="button"
+					class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition flex items-center justify-center gap-2"
+					@click="console.log('Comprar:', { id: '{ info.Name }', qty })"
+				>
+					<span class="material-symbols-outlined text-sm">
+						shopping_cart
+					</span>
+					Comprar
+				</button>
+			</div>
+		</div>
+	</div>
+}

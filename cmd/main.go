@@ -77,8 +77,9 @@ func main() {
 	)
 
 	//Creating handlers
+	pStore := dbstore.NewProductStore(db)
 	productHandler := handlers.NewProductHandler(
-		dbstore.NewProductStore(db),
+		pStore,
 		dbstore.NewPriceTableDB(db),
 	)
 
@@ -88,6 +89,8 @@ func main() {
 			Invite:  invite,
 		},
 	)
+
+	clientHandler := handlers.NewClientHandler(pStore)
 
 	r.Route("/client", func(r chi.Router) {
 		r.Use(m.TextHTMLMiddleware)
@@ -102,9 +105,7 @@ func main() {
 			r.Use(m.SessionAuthMiddleware(clientSessionStore))
 
 			r.Post("/logout", loginHandler.PostLogout)
-			r.Get("/", func(w http.ResponseWriter, req *http.Request) {
-				w.Write([]byte("<h1>Vai Corinthians</h1>"))
-			})
+			r.Get("/items", clientHandler.GetItemsPage)
 		})
 	})
 
@@ -145,7 +146,6 @@ func main() {
 				r.Post("/{id}/create-link", contactHandler.CreateLink)
 
 				r.Post("/{id}", contactHandler.Update)
-
 				r.Get("/{id}", contactHandler.GetEditPage)
 
 				r.Get("/", contactHandler.GetContactsPage)
