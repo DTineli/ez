@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/DTineli/ez/internal/store"
 	m "github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/go-chi/chi/v5"
 )
@@ -64,9 +64,10 @@ func (h *AdminOrderHandler) GetNewOrderPage(w http.ResponseWriter, r *http.Reque
 	sess := m.GetSessionFromContext(r)
 
 	contacts, err := h.contactStore.FindAll(sess.TenantID, store.ContactFilters{
-		Pagination:  store.Pagination{Page: 1, PerPage: 1000},
+		Pagination:  store.Pagination{Page: 1, PerPage: 1000}, // TODO: No futuro vai dar ruim
 		ContactType: string(store.Customer),
 	})
+
 	if err != nil {
 		http.Error(w, "Erro ao buscar contatos", http.StatusInternalServerError)
 		return

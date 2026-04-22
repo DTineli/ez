@@ -40,8 +40,10 @@ templ sideBar() {
 			@navLink("Listar", "/contacts/")
 		</div>
 		<div class="divider my-1"></div>
-		<div>
-			@navLink("Pedidos", "/pedidos/")
+		<div class="mb-2">
+			<p class="px-3 text-xs font-semibold uppercase tracking-wider text-base-content/40 mb-1">Pedidos</p>
+			@navLink("Novo", "/pedidos/novo")
+			@navLink("Listar", "/pedidos/")
 		</div>
 	</nav>
 }

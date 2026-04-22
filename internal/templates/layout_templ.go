@@ -154,11 +154,15 @@ func sideBar() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div class=\"divider my-1\"></div><div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div class=\"divider my-1\"></div><div class=\"mb-2\"><p class=\"px-3 text-xs font-semibold uppercase tracking-wider text-base-content/40 mb-1\">Pedidos</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = navLink("Pedidos", "/pedidos/").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = navLink("Novo", "/pedidos/novo").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = navLink("Listar", "/pedidos/").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
