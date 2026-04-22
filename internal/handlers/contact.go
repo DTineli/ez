@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/DTineli/ez/internal/forms"
 	m "github.com/DTineli/ez/internal/middleware"
@@ -67,6 +68,10 @@ func validateContactForm(r *http.Request) (*forms.Form, error) {
 	}
 
 	form := forms.New(r.PostForm)
+
+	form.Set("document", strings.NewReplacer(".", "", "/", "", "-", "").Replace(form.Get("document")))
+	form.Set("phone", strings.NewReplacer("(", "", ")", "", " ", "", "-", "").Replace(form.Get("phone")))
+
 	form.Required(
 		"name",
 		"trade_name",
@@ -158,7 +163,7 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 		IE:           form.Get("ie"),
 
 		Phone: form.Get("phone"),
-		Email: form.Get("Email"),
+		Email: form.Get("email"),
 
 		ZipCode:      form.Get("zipcode"),
 		Street:       form.Get("street"),

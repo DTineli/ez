@@ -94,7 +94,7 @@ func main() {
 	cartStore := dbstore.NewCartStore(db)
 	orderStore := dbstore.NewOrderStore(db)
 	clientHandler := handlers.NewClientHandler(pStore, cartStore, orderStore, clientSessionStore)
-	adminOrderHandler := handlers.NewAdminOrderHandler(orderStore)
+	adminOrderHandler := handlers.NewAdminOrderHandler(orderStore, contactStore, pStore)
 
 	r.Route("/client", func(r chi.Router) {
 		r.Use(m.TextHTMLMiddleware)
@@ -161,6 +161,9 @@ func main() {
 
 			r.Route("/pedidos", func(r chi.Router) {
 				r.Get("/", adminOrderHandler.GetOrdersPage)
+				r.Get("/novo", adminOrderHandler.GetNewOrderPage)
+				r.Post("/", adminOrderHandler.PostNewOrder)
+				r.Get("/{id}", adminOrderHandler.GetOrderPage)
 			})
 		})
 	})
