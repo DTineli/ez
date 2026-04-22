@@ -25,7 +25,7 @@ type User struct {
 }
 
 type UserStore interface {
-	CreateUser(User) error
+	CreateUser(*User) error
 	GetUser(email string) (*User, error)
 
 	GetUserByPhone(phone string) (*User, error)

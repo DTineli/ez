@@ -9,45 +9,49 @@ import (
 )
 
 templ Filter() {
-	<div class="bg-base-200 p-6 rounded-xl shadow-md ">
-		<form
-			id="filter-form"
-			class="flex flex-col md:flex-row items-end justify-center gap-4"
-			hx-get="/admin/produtos/"
-			hx-target="#main-content"
-			hx-swap="innerHTML"
-			hx-push-url="true"
-		>
-			<div>
-				<label class="label">
-					<span class="label-text">Nome: </span>
-				</label>
-				<input
-					class="input input-bordered w-full"
-					type="text"
-					name="name"
-					id="name-input"
-					hx-preserve="true"
-				/>
-			</div>
-			<div>
-				<label class="label">
-					<span class="label-text">SKU: </span>
-				</label>
-				<input
-					class="input input-bordered w-full"
-					type="text"
-					name="sku"
-					id="sku-input"
-					hx-preserve="true"
-				/>
-			</div>
-			<div class="flex ">
-				<button type="submit" class="btn btn-primary">
-					Pesquisar
-				</button>
-			</div>
-		</form>
+	<div class="card bg-base-100 shadow-sm border border-base-300">
+		<div class="card-body py-4">
+			<form
+				id="filter-form"
+				class="flex flex-wrap items-end gap-3"
+				hx-get="/admin/produtos/"
+				hx-target="#main-content"
+				hx-swap="innerHTML"
+				hx-push-url="true"
+			>
+				<div class="flex-1 min-w-[160px]">
+					<label class="label py-1">
+						<span class="label-text text-sm font-medium">Nome</span>
+					</label>
+					<input
+						class="input input-bordered input-sm w-full"
+						type="text"
+						name="name"
+						id="name-input"
+						hx-preserve="true"
+						placeholder="Buscar por nome..."
+					/>
+				</div>
+				<div class="w-36">
+					<label class="label py-1">
+						<span class="label-text text-sm font-medium">SKU</span>
+					</label>
+					<input
+						class="input input-bordered input-sm w-full"
+						type="text"
+						name="sku"
+						id="sku-input"
+						hx-preserve="true"
+						placeholder="Ex: PROD-01"
+					/>
+				</div>
+				<div class="pb-0.5">
+					<button type="submit" class="btn btn-primary btn-sm">
+						Buscar
+					</button>
+				</div>
+			</form>
+		</div>
 	</div>
 }
 
@@ -110,15 +114,28 @@ templ Pagination(current, total int) {
 
 templ ProductTableBody(products []store.Product) {
 	<tbody id="product-data">
-		for _, p := range products {
+		if len(products) == 0 {
 			<tr>
-				<td>{ p.SKU }</td>
-				<td>{ p.Name }</td>
-				<td>{ p.StatusToString() }</td>
+				<td colspan="5" class="text-center text-base-content/50 py-8">
+					Nenhum produto encontrado.
+				</td>
+			</tr>
+		}
+		for _, p := range products {
+			<tr class="hover">
+				<td class="font-mono text-sm text-base-content/60">{ p.SKU }</td>
+				<td class="font-medium">{ p.Name }</td>
+				<td>
+					if p.Status {
+						<span class="badge badge-success badge-sm">Ativo</span>
+					} else {
+						<span class="badge badge-ghost badge-sm">Inativo</span>
+					}
+				</td>
 				<td>{ p.CurrentStock }</td>
 				<td>
 					<a
-						class="btn btn-sm"
+						class="btn btn-ghost btn-xs"
 						hx-push-url="true"
 						hx-target="#main-content"
 						href={ fmt.Sprintf("/admin/produtos/%v", p.ID) }
@@ -137,32 +154,40 @@ templ ProductTableBody(products []store.Product) {
 // ==========================
 //
 templ ProductsPage(params store.GetProductPageParams) {
-	<h2 class="text-center text-xl font-semibold mb-6">Produtos</h2>
-	<div class="flex items-center justify-between mb-10">
-		<div></div>
+	<div class="space-y-6">
+		<div class="flex items-center justify-between">
+			<div>
+				<h1 class="text-2xl font-bold">Produtos</h1>
+				<p class="text-base-content/60 text-sm mt-0.5">Gerencie o catálogo de produtos do tenant.</p>
+			</div>
+			<button
+				hx-get="/admin/produtos/novo"
+				hx-target="#main-content"
+				hx-push-url="true"
+				class="btn btn-primary btn-sm"
+			>
+				+ Novo Produto
+			</button>
+		</div>
 		@Filter()
-		<button
-			hx-get="/admin/produtos/novo"
-			hx-target="#main-content"
-			hx-push-url="true"
-			class="btn bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-xl transition"
-		>
-			Novo
-		</button>
-	</div>
-	<div class="overflow-x-auto">
-		<table class="table table-zebra mt-6">
-			<thead>
-				<tr>
-					<th>SKU</th>
-					<th>Nome</th>
-					<th>Status</th>
-					<th>Estoque</th>
-					<th>Ações</th>
-				</tr>
-			</thead>
-			@ProductTableBody(params.Products)
-		</table>
+		<div class="card bg-base-100 shadow-sm border border-base-300">
+			<div class="card-body p-0">
+				<div class="overflow-x-auto">
+					<table class="table table-zebra">
+						<thead>
+							<tr>
+								<th>SKU</th>
+								<th>Nome</th>
+								<th>Status</th>
+								<th>Estoque</th>
+								<th class="text-center">Ações</th>
+							</tr>
+						</thead>
+						@ProductTableBody(params.Products)
+					</table>
+				</div>
+			</div>
+		</div>
 		@Pagination(params.Page, params.TotalPages)
 	</div>
 }
@@ -192,27 +217,46 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 			{"MT", "Metro (MT)"},
 		}
 	}}
-	<div class="min-h-screen bg-base-200 p-10" id="form">
-		<div class="w-full max-w-7xl mx-auto">
-			<div class="card bg-base-100 shadow-2xl">
-				<div class="card-body space-y-10">
-					<h1 class="text-3xl font-bold">
-						if isUpdate {
-							Editar Produto
-						} else {
-							Cadastro de Produto
-						}
-					</h1>
-					<form
-						hx-post={ action }
-						hx-target="#form"
-						hx-swap="outerHTML"
-						class="space-y-10"
-					>
-						<!-- ================= DADOS GERAIS ================= -->
-						<div>
-							<h2 class="text-xl font-semibold mb-4">Dados Gerais</h2>
-							<div class="flex flex-col md:flex-row gap-6">
+	<div id="form" class="space-y-6">
+		<div class="flex items-center justify-between">
+			<div>
+				<h1 class="text-2xl font-bold">
+					if isUpdate {
+						Editar Produto
+					} else {
+						Novo Produto
+					}
+				</h1>
+				<p class="text-base-content/60 text-sm mt-0.5">
+					if isUpdate {
+						Atualize os dados do produto abaixo.
+					} else {
+						Preencha os dados para cadastrar um novo produto.
+					}
+				</p>
+			</div>
+			<button
+				hx-get="/admin/produtos"
+				hx-target="#main-content"
+				hx-push-url="true"
+				class="btn btn-ghost btn-sm"
+			>
+				← Voltar
+			</button>
+		</div>
+		<div class="card bg-base-100 shadow-sm border border-base-300">
+			<div class="card-body">
+				<form
+					hx-post={ action }
+					hx-target="#form"
+					hx-swap="outerHTML"
+					class="space-y-6"
+				>
+					<!-- DADOS GERAIS -->
+					<div>
+						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Dados Gerais</h2>
+						<div class="flex flex-wrap gap-4">
+							<div class="basis-[45%] grow">
 								@components.BasicInput(components.BasicInputParams{
 									Name:          "name",
 									Label:         "Nome",
@@ -221,6 +265,8 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 									ErrorMessages: form.Errors.Get("name"),
 									IsRequired:    true,
 								})
+							</div>
+							<div class="basis-[20%] grow">
 								@components.BasicInput(components.BasicInputParams{
 									Name:          "sku",
 									Label:         "SKU",
@@ -230,70 +276,87 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 									IsRequired:    true,
 									Disabled:      isUpdate,
 								})
+							</div>
+							<div class="basis-[20%] grow">
 								@components.BasicInput(components.BasicInputParams{
 									Name:          "ean",
 									Label:         "EAN",
 									InputType:     "text",
 									Value:         form.Get("ean"),
 									ErrorMessages: form.Errors.Get("ean"),
+									Mask:          "9999999999999",
+									Placeholder:   "0000000000000",
 								})
 							</div>
-							<div class="form-control mt-4">
-								<label class="label">
-									<span class="label-text">Descrição</span>
+						</div>
+						<div class="form-control mt-4">
+							<label class="label py-1">
+								<span class="label-text text-sm">Descrição</span>
+							</label>
+							<textarea
+								name="description"
+								rows="3"
+								class="textarea textarea-bordered w-full text-sm"
+							>{ form.Get("description") }</textarea>
+						</div>
+					</div>
+					<div class="divider my-1"></div>
+					<!-- CLASSIFICAÇÃO -->
+					<div>
+						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Classificação</h2>
+						<div class="flex flex-wrap gap-4">
+							<div class="basis-[30%] grow">
+								<label class="label py-1">
+									<span class="label-text text-sm">Unidade de Medida</span>
 								</label>
-								<textarea
-									name="description"
-									class="textarea textarea-bordered w-full"
-								>{ form.Get("description") }</textarea>
+								<select name="uom" class="select select-bordered select-sm w-full">
+									for _, u := range uoms {
+										<option
+											value={ u.Value }
+											if form.Get("uom") == u.Value {
+												selected
+											}
+										>
+											{ u.Label }
+										</option>
+									}
+								</select>
 							</div>
-						</div>
-						<!-- ================= CLASSIFICAÇÃO ================= -->
-						<div>
-							<h2 class="text-xl font-semibold mb-4">Classificação</h2>
-							<div class="flex flex-col md:flex-row gap-6">
-								<div class="form-control w-60">
-									<label class="label">
-										<span class="label-text">Unidade</span>
-									</label>
-									<select name="uom" class="select select-bordered">
-										for _, u := range uoms {
-											<option
-												value={ u.Value }
-												if form.Get("uom") == u.Value {
-													selected
-												}
-											>
-												{ u.Label }
-											</option>
-										}
-									</select>
-								</div>
+							<div class="basis-[20%] grow">
 								@components.BasicInput(components.BasicInputParams{
-									Name:      "ncm",
-									Label:     "NCM",
-									InputType: "number",
-									Value:     form.Get("ncm"),
+									Name:        "ncm",
+									Label:       "NCM",
+									InputType:   "text",
+									Value:       form.Get("ncm"),
+									Mask:        "9999.99.99",
+									Placeholder: "0000.00.00",
 								})
 							</div>
 						</div>
-						<!-- ================= ESTOQUE ================= -->
-						<div>
-							<h2 class="text-xl font-semibold mb-4">Estoque & Custos</h2>
-							<div class="flex flex-col md:flex-row gap-6">
+					</div>
+					<div class="divider my-1"></div>
+					<!-- ESTOQUE & CUSTOS -->
+					<div>
+						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Estoque & Custos</h2>
+						<div class="flex flex-wrap gap-4">
+							<div class="basis-[25%] grow">
 								@components.BasicInput(components.BasicInputParams{
 									Name:      "cost_price",
-									Label:     "Preço de Custo",
+									Label:     "Preço de Custo (R$)",
 									InputType: "number",
 									Value:     form.Get("cost_price"),
 									Step:      "0.01",
 								})
+							</div>
+							<div class="basis-[25%] grow">
 								@components.BasicInput(components.BasicInputParams{
 									Name:      "current_stock",
 									Label:     "Estoque Atual",
 									InputType: "number",
 									Value:     form.Get("current_stock"),
 								})
+							</div>
+							<div class="basis-[25%] grow">
 								@components.BasicInput(components.BasicInputParams{
 									Name:      "minimum_stock",
 									Label:     "Estoque Mínimo",
@@ -302,10 +365,13 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 								})
 							</div>
 						</div>
-						<!-- ================= DIMENSÕES ================= -->
-						<div>
-							<h2 class="text-xl font-semibold mb-4">Dimensões</h2>
-							<div class="flex flex-col md:flex-row gap-6">
+					</div>
+					<div class="divider my-1"></div>
+					<!-- DIMENSÕES -->
+					<div>
+						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Dimensões</h2>
+						<div class="flex flex-wrap gap-4">
+							<div class="basis-[18%] grow">
 								@components.BasicInput(components.BasicInputParams{
 									Name:      "weight",
 									Label:     "Peso (kg)",
@@ -313,6 +379,8 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 									Step:      "0.01",
 									Value:     form.Get("weight"),
 								})
+							</div>
+							<div class="basis-[18%] grow">
 								@components.BasicInput(components.BasicInputParams{
 									Name:      "height",
 									Label:     "Altura (cm)",
@@ -320,6 +388,8 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 									Step:      "0.01",
 									Value:     form.Get("height"),
 								})
+							</div>
+							<div class="basis-[18%] grow">
 								@components.BasicInput(components.BasicInputParams{
 									Name:      "width",
 									Label:     "Largura (cm)",
@@ -327,6 +397,8 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 									Step:      "0.01",
 									Value:     form.Get("width"),
 								})
+							</div>
+							<div class="basis-[18%] grow">
 								@components.BasicInput(components.BasicInputParams{
 									Name:      "length",
 									Label:     "Comprimento (cm)",
@@ -336,21 +408,26 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 								})
 							</div>
 						</div>
-						<div class="divider"></div>
-						<div class="flex justify-end gap-4">
-							<button
-								hx-get="/admin/produtos"
-								hx-push-url="true"
-								class="btn btn-ghost"
-							>
-								Cancelar
-							</button>
-							<button type="submit" class="btn btn-primary">
-								Salvar Produto
-							</button>
-						</div>
-					</form>
-				</div>
+					</div>
+					<div class="divider my-1"></div>
+					<div class="flex justify-end gap-3">
+						<button
+							hx-get="/admin/produtos"
+							hx-target="#main-content"
+							hx-push-url="true"
+							class="btn btn-ghost btn-sm"
+						>
+							Cancelar
+						</button>
+						<button type="submit" class="btn btn-primary btn-sm">
+							if isUpdate {
+								Salvar Alterações
+							} else {
+								Cadastrar Produto
+							}
+						</button>
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>

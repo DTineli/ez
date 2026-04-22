@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -9,6 +10,7 @@ import (
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 const HXRedirect = "HX-Redirect"
@@ -19,6 +21,7 @@ type RegisterHandler struct {
 	tenantStore  store.TenantStore
 	inviteStore  store.InviteStore
 	contactStore store.ContactStore
+	sessionStore store.SessionStore
 }
 
 func RenderErrorPage(w http.ResponseWriter, message string) {
@@ -30,12 +33,14 @@ func NewRegisterHandler(
 	tenantStore store.TenantStore,
 	invite store.InviteStore,
 	contact store.ContactStore,
+	sessionStore store.SessionStore,
 ) *RegisterHandler {
 	return &RegisterHandler{
 		userStore:    userStore,
 		tenantStore:  tenantStore,
 		inviteStore:  invite,
 		contactStore: contact,
+		sessionStore: sessionStore,
 	}
 }
 
@@ -119,24 +124,6 @@ func parseClientInput(r *http.Request) (*ClientRegisterInput, error) {
 	}, nil
 }
 
-func (h *RegisterHandler) createClientUser(input *ClientRegisterInput) (uint, error) {
-	user := store.User{
-		Name:       input.Name,
-		Email:      input.Email,
-		Password:   input.Password,
-		Phone:      input.Phone,
-		Document:   input.Document,
-		UserAccess: store.AccessCustomer,
-		TenantID:   input.TenantID,
-	}
-
-	if err := h.userStore.CreateUser(user); err != nil {
-		return 0, err
-	}
-
-	return user.ID, nil
-}
-
 func (h *RegisterHandler) linkContact(contactID, tenantID, userID uint) error {
 	return h.contactStore.UpdateById(
 		contactID,
@@ -171,24 +158,79 @@ func (h *RegisterHandler) PostRegisterClient(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	parsedToken, err := uuid.Parse(r.FormValue("invite_token"))
+	if err != nil {
+		writeRegisterError(r, w, "Token de convite inválido.")
+		return
+	}
+
 	input, err := parseClientInput(r)
 	if err != nil {
 		writeRegisterError(r, w, err.Error())
 		return
 	}
 
-	userID, err := h.createClientUser(input)
-	if err != nil {
-		writeRegisterError(r, w, mapDBError(err))
+	contact, err := h.contactStore.GetOne(input.ContactID)
+	if err != nil || contact == nil {
+		writeRegisterError(r, w, "Contato não encontrado.")
 		return
 	}
 
-	if err := h.linkContact(input.ContactID, input.TenantID, userID); err != nil {
+	// Busca usuário existente pelo telefone (cliente já cadastrado em outro tenant)
+	user, err := h.userStore.GetUserByPhone(input.Phone)
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			writeRegisterError(r, w, "Erro ao verificar usuário.")
+			return
+		}
+		// Usuário novo: criar
+		user = &store.User{
+			Name:       input.Name,
+			Email:      input.Email,
+			Password:   input.Password,
+			Phone:      input.Phone,
+			Document:   input.Document,
+			UserAccess: store.AccessCustomer,
+			TenantID:   input.TenantID,
+		}
+		if err := h.userStore.CreateUser(user); err != nil {
+			writeRegisterError(r, w, mapDBError(err))
+			return
+		}
+	}
+
+	if err := h.linkContact(input.ContactID, input.TenantID, user.ID); err != nil {
 		writeRegisterError(r, w, "Erro ao vincular contato.")
 		return
 	}
 
-	redirect(w, r, "/client/produtos")
+	tenant, err := h.tenantStore.GetTenantByID(input.TenantID)
+	if err != nil {
+		writeRegisterError(r, w, "Erro ao criar sessão.")
+		return
+	}
+
+	_ = h.inviteStore.DeleteByID(parsedToken)
+
+	if err := h.sessionStore.CreateSession(r, w, store.Session{
+		Name:           store.ClientSessionName,
+		UserAccessType: store.AccessCustomer,
+		UserID:         user.ID,
+		UserName:       user.Name,
+		UserEmail:      user.Email,
+		TenantID:       tenant.ID,
+		TenantSlug:     tenant.Slug,
+		ContactInfo: &store.ContactInfo{
+			ID:         contact.ID,
+			PriceTable: contact.PriceTableID,
+		},
+	}); err != nil {
+		writeRegisterError(r, w, "Erro ao criar sessão.")
+		return
+	}
+
+	w.Header().Set(HXRedirect, "/client/items")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (h *RegisterHandler) GetRegisterPage(w http.ResponseWriter, r *http.Request) {
@@ -256,7 +298,7 @@ func (h *RegisterHandler) PostRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.userStore.CreateUser(store.User{
+	err = h.userStore.CreateUser(&store.User{
 		Name:     name,
 		Email:    email,
 		TenantID: tenantID,

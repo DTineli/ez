@@ -22,6 +22,7 @@ templ ClientRegisterPage(invite *store.Invite) {
 						hx-target="#register-messages"
 						hx-swap="innerHTML"
 					>
+						<input type="text" name="invite_token" value={ invite.ID.String() } hidden/>
 						<input
 							type="text"
 							name="contact_id"

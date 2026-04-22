@@ -82,6 +82,7 @@ func validateProductForm(r *http.Request) (*forms.Form, error) {
 	form.IsInt("current_stock")
 	form.IsInt("minimum_stock")
 	form.IsInt("ean")
+	form.Set("ncm", strings.ReplaceAll(form.Get("ncm"), ".", ""))
 	form.IsInt("ncm")
 
 	return form, nil
@@ -109,7 +110,11 @@ func mapProductToForm(p *store.Product) *forms.Form {
 	form.Set("width", strconv.FormatFloat(p.WidthCm, 'f', 2, 64))
 
 	form.Set("ean", p.EAN)
-	form.Set("ncm", p.NCM)
+	ncm := p.NCM
+	if len(ncm) == 8 {
+		ncm = ncm[:4] + "." + ncm[4:6] + "." + ncm[6:]
+	}
+	form.Set("ncm", ncm)
 
 	form.Set("minimum_stock", strconv.Itoa(p.MinimumStock))
 	form.Set("current_stock", strconv.Itoa(p.CurrentStock))

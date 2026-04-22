@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/DTineli/ez/internal/forms"
 	m "github.com/DTineli/ez/internal/middleware"
@@ -15,19 +16,22 @@ import (
 )
 
 type ContactHandler struct {
-	contactStore store.ContactStore
-	inviteStore  store.InviteStore
+	contactStore    store.ContactStore
+	inviteStore     store.InviteStore
+	priceTableStore store.PriceTableStore
 }
 
 type NewContactHandlerParams struct {
-	Contact store.ContactStore
-	Invite  store.InviteStore
+	Contact    store.ContactStore
+	Invite     store.InviteStore
+	PriceTable store.PriceTableStore
 }
 
 func NewContactHandler(params NewContactHandlerParams) *ContactHandler {
 	return &ContactHandler{
-		contactStore: params.Contact,
-		inviteStore:  params.Invite,
+		contactStore:    params.Contact,
+		inviteStore:     params.Invite,
+		priceTableStore: params.PriceTable,
 	}
 }
 
@@ -67,12 +71,17 @@ func validateContactForm(r *http.Request) (*forms.Form, error) {
 	}
 
 	form := forms.New(r.PostForm)
+
+	form.Set("document", strings.NewReplacer(".", "", "/", "", "-", "").Replace(form.Get("document")))
+	form.Set("phone", strings.NewReplacer("(", "", ")", "", " ", "", "-", "").Replace(form.Get("phone")))
+
 	form.Required(
 		"name",
 		"trade_name",
 		"phone",
 		"contact_type",
 		"document_type",
+		"price_table_id",
 	)
 
 	form.MaxLength("name", 255)
@@ -81,6 +90,7 @@ func validateContactForm(r *http.Request) (*forms.Form, error) {
 	form.IsInt("document")
 	form.IsInt("ie")
 	form.IsInt("zipcode")
+	form.IsInt("price_table_id")
 
 	form.IsEmail("email")
 
@@ -131,6 +141,14 @@ func (c *ContactHandler) CreateLink(w http.ResponseWriter, r *http.Request) {
 	Render(templates.InviteLink(string(id), url), r, w)
 }
 
+func (c ContactHandler) fetchPriceTables(w http.ResponseWriter, tenantID uint) []store.PriceTable {
+	tables, err := c.priceTableStore.FindAllByTenant(tenantID)
+	if err != nil {
+		return nil
+	}
+	return tables
+}
+
 func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 	form, err := validateContactForm(r)
 	if err != nil {
@@ -138,14 +156,15 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sess := m.GetSessionFromContext(r)
+	priceTables := c.fetchPriceTables(w, sess.TenantID)
+
 	if !form.Valid() {
 		ShowToast(w, "Erros de validação", "error")
 		fmt.Println(form.Errors)
-		_ = Render(templates.ContactForm(form, false), r, w)
+		_ = Render(templates.ContactForm(form, false, priceTables), r, w)
 		return
 	}
-
-	sess := m.GetSessionFromContext(r)
 
 	contact := &store.Contact{
 		TenantID:    sess.TenantID,
@@ -158,7 +177,7 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 		IE:           form.Get("ie"),
 
 		Phone: form.Get("phone"),
-		Email: form.Get("Email"),
+		Email: form.Get("email"),
 
 		ZipCode:      form.Get("zipcode"),
 		Street:       form.Get("street"),
@@ -166,11 +185,13 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 		Neighborhood: form.Get("neighborhood"),
 		City:         form.Get("city"),
 		UF:           form.Get("uf"),
+
+		PriceTableID: uint(form.IsInt("price_table_id")),
 	}
 
 	if err := c.contactStore.CreateContact(contact); err != nil {
 		ShowToast(w, "Erro ao cadastar contato", "error")
-		_ = Render(templates.ContactForm(form, false), r, w)
+		_ = Render(templates.ContactForm(form, false, priceTables), r, w)
 		return
 	}
 
@@ -180,7 +201,9 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c ContactHandler) GetContactsForm(w http.ResponseWriter, r *http.Request) {
-	Render(templates.ContactForm(forms.New(nil), false), r, w)
+	sess := m.GetSessionFromContext(r)
+	priceTables := c.fetchPriceTables(w, sess.TenantID)
+	Render(templates.ContactForm(forms.New(nil), false, priceTables), r, w)
 }
 
 func (c ContactHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
@@ -197,9 +220,10 @@ func (c ContactHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	priceTables := c.fetchPriceTables(w, sess.TenantID)
 	form := mapContactToForm(contact)
 
-	Render(templates.ContactForm(form, true), r, w)
+	Render(templates.ContactForm(form, true, priceTables), r, w)
 }
 
 func GetPagination(r *http.Request) store.Pagination {
@@ -253,6 +277,8 @@ func (h *ContactHandler) Update(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
 	form.Set("id", strconv.Itoa(int(id)))
 
+	priceTables := h.fetchPriceTables(w, sess.TenantID)
+
 	if err != nil {
 		http.Error(w, "Erro ao processar formulário", http.StatusBadRequest)
 		return
@@ -260,7 +286,7 @@ func (h *ContactHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	if !form.Valid() {
 		ShowToast(w, "Erro ao salvar contato", "error")
-		_ = Render(templates.ContactForm(form, true), r, w)
+		_ = Render(templates.ContactForm(form, true, priceTables), r, w)
 		return
 	}
 
@@ -286,10 +312,10 @@ func (h *ContactHandler) Update(w http.ResponseWriter, r *http.Request) {
 	err = h.contactStore.UpdateById(uint(id), sess.TenantID, fields)
 	if err != nil {
 		ShowToast(w, "Erro ao salvar contato", "error")
-		_ = Render(templates.ContactForm(form, true), r, w)
+		_ = Render(templates.ContactForm(form, true, priceTables), r, w)
 		return
 	}
 
 	ShowToast(w, "Alterações salvas", "success")
-	_ = Render(templates.ContactForm(form, true), r, w)
+	_ = Render(templates.ContactForm(form, true, priceTables), r, w)
 }

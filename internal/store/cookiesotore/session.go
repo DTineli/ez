@@ -31,6 +31,7 @@ func (s *SessionStore) CreateSession(r *http.Request, w http.ResponseWriter, ses
 	sess.Values["tenant_id"] = sessValues.TenantID
 	sess.Values["tenant_slug"] = sessValues.TenantSlug
 	sess.Values["user_access"] = string(sessValues.UserAccessType)
+	sess.Values["cart_id"] = sessValues.CartID
 
 	if sessValues.UserAccessType == store.AccessCustomer {
 		sess.Values["client_price_table"] = sessValues.ContactInfo.PriceTable
@@ -93,6 +94,15 @@ func (s *SessionStore) GetSessionInfo(r *http.Request) (*store.Session, error) {
 		return nil, errors.New("invalid user in session")
 	}
 
+	var cartID uint
+	if v, exists := sess.Values["cart_id"]; exists {
+		parsed, ok := v.(uint)
+		if !ok {
+			return nil, errors.New("invalid cart_id in session")
+		}
+		cartID = parsed
+	}
+
 	var priceTableID uint
 	var contactID uint
 
@@ -115,10 +125,21 @@ func (s *SessionStore) GetSessionInfo(r *http.Request) (*store.Session, error) {
 		UserEmail:      userEmail,
 		TenantID:       tenantID,
 		TenantSlug:     tenantSlug,
+		CartID:         cartID,
 
 		ContactInfo: &store.ContactInfo{
 			PriceTable: priceTableID,
 			ID:         contactID,
 		},
 	}, nil
+}
+
+func (s *SessionStore) SetCartID(r *http.Request, w http.ResponseWriter, cartID uint) error {
+	sess, err := s.store.Get(r, s.name)
+	if err != nil {
+		return err
+	}
+
+	sess.Values["cart_id"] = cartID
+	return sess.Save(r, w)
 }

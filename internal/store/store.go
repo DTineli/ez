@@ -45,6 +45,7 @@ type Session struct {
 	UserEmail      string
 	TenantID       uint   `json:"tenant_id"`
 	TenantSlug     string `json:"tenant_slug"`
+	CartID         uint   `json:"cart_id"`
 
 	ContactInfo *ContactInfo
 }
@@ -53,6 +54,7 @@ type SessionStore interface {
 	CreateSession(*http.Request, http.ResponseWriter, Session) error
 	DeleteSession(*http.Request, http.ResponseWriter) error
 	GetSessionInfo(*http.Request) (*Session, error)
+	SetCartID(*http.Request, http.ResponseWriter, uint) error
 }
 
 type TenantStore interface {

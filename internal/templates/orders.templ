@@ -1,0 +1,410 @@
+package templates
+
+import (
+	"encoding/json"
+	"fmt"
+	"time"
+
+	"github.com/DTineli/ez/internal/store"
+)
+
+templ AdminOrdersPage(orders []store.AdminOrderListItem) {
+	<div class="space-y-6">
+		<div class="flex items-center justify-between">
+			<div>
+				<h1 class="text-2xl font-bold">Pedidos</h1>
+				<p class="text-base-content/60 text-sm mt-0.5">Histórico de pedidos confirmados do tenant.</p>
+			</div>
+			<button
+				hx-get="/admin/pedidos/novo"
+				hx-target="#main-content"
+				hx-push-url="true"
+				class="btn btn-primary btn-sm"
+			>
+				+ Novo Pedido
+			</button>
+		</div>
+		<div class="card bg-base-100 shadow-sm border border-base-300">
+			<div class="card-body p-0">
+				<div class="overflow-x-auto">
+					<table class="table table-zebra">
+						<thead>
+							<tr>
+								<th>Nº</th>
+								<th>Contato</th>
+								<th>Status</th>
+								<th>Total</th>
+								<th>Data</th>
+								<th class="text-center">Ações</th>
+							</tr>
+						</thead>
+						<tbody>
+							if len(orders) == 0 {
+								<tr>
+									<td colspan="6" class="text-center text-base-content/50 py-8">
+										Nenhum pedido confirmado ainda.
+									</td>
+								</tr>
+							}
+							for _, o := range orders {
+								<tr class="hover">
+									<td class="font-mono text-sm text-base-content/60">{ fmt.Sprintf("#%d", o.ID) }</td>
+									<td class="font-medium">{ o.ContactName }</td>
+									<td>
+										if o.Status == store.OrderStatusConfirmed {
+											<span class="badge badge-success badge-sm">Confirmado</span>
+										} else {
+											<span class="badge badge-ghost badge-sm">{ string(o.Status) }</span>
+										}
+									</td>
+									<td class="font-semibold">R$ { fmt.Sprintf("%.2f", o.TotalAmount) }</td>
+									<td class="text-base-content/60 text-sm">{ o.CreatedAt.Format("02/01/2006 15:04") }</td>
+									<td class="text-center">
+										<a
+											class="btn btn-ghost btn-xs"
+											hx-get={ fmt.Sprintf("/admin/pedidos/%d", o.ID) }
+											hx-target="#main-content"
+											hx-push-url="true"
+										>
+											Ver
+										</a>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ AdminOrderDetailPage(order *store.OrderDetail) {
+	<div class="max-w-4xl mx-auto space-y-6">
+		<div class="flex items-center justify-between">
+			<h2 class="text-xl font-semibold">Pedido #{ fmt.Sprintf("%d", order.ID) }</h2>
+			<a
+				class="btn btn-ghost btn-sm"
+				hx-get="/admin/pedidos/"
+				hx-target="#main-content"
+				hx-push-url="true"
+			>
+				← Voltar
+			</a>
+		</div>
+		<div class="card bg-base-100 shadow-md">
+			<div class="card-body">
+				<h3 class="card-title text-base">Informações</h3>
+				<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+					<div>
+						<p class="text-base-content/60">Contato</p>
+						<p class="font-medium">{ order.ContactName }</p>
+					</div>
+					<div>
+						<p class="text-base-content/60">Status</p>
+						<p class="font-medium">{ string(order.Status) }</p>
+					</div>
+					<div>
+						<p class="text-base-content/60">Total</p>
+						<p class="font-medium">R$ { fmt.Sprintf("%.2f", order.TotalAmount) }</p>
+					</div>
+					<div>
+						<p class="text-base-content/60">Criado em</p>
+						<p class="font-medium">{ order.CreatedAt.Format(time.DateTime) }</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="card bg-base-100 shadow-md">
+			<div class="card-body">
+				<h3 class="card-title text-base">Itens</h3>
+				<div class="overflow-x-auto">
+					<table class="table table-zebra">
+						<thead>
+							<tr>
+								<th>Produto</th>
+								<th class="text-right">Qtd</th>
+								<th class="text-right">Preço Unit.</th>
+								<th class="text-right">Subtotal</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, item := range order.Items {
+								<tr>
+									<td>{ item.Name }</td>
+									<td class="text-right">{ fmt.Sprintf("%d", item.Quantity) }</td>
+									<td class="text-right">R$ { fmt.Sprintf("%.2f", item.UnitPrice) }</td>
+									<td class="text-right">R$ { fmt.Sprintf("%.2f", item.Subtotal) }</td>
+								</tr>
+							}
+						</tbody>
+						<tfoot>
+							<tr>
+								<td colspan="3" class="text-right font-semibold">Total</td>
+								<td class="text-right font-bold">R$ { fmt.Sprintf("%.2f", order.TotalAmount) }</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ ProductSearchResults(products []store.Product) {
+	if len(products) == 0 {
+		<p class="px-4 py-3 text-sm text-base-content/50">Nenhum produto encontrado.</p>
+	}
+	for _, p := range products {
+		<button
+			type="button"
+			class="flex w-full items-center justify-between px-4 py-2.5 hover:bg-base-200 border-b border-base-200 last:border-0 text-left"
+			data-product-id={ fmt.Sprintf("%d", p.ID) }
+			data-product-name={ p.Name }
+			data-product-sku={ p.SKU }
+			data-product-price={ fmt.Sprintf("%f", p.CostPrice) }
+		>
+			<div>
+				<p class="text-sm font-medium">{ p.Name }</p>
+				<p class="text-xs text-base-content/50">SKU: { p.SKU }</p>
+			</div>
+			<span class="text-xs font-semibold text-base-content/60">R$ { fmt.Sprintf("%.2f", p.CostPrice) }</span>
+		</button>
+	}
+}
+
+templ AdminNewOrderPage(contacts []store.Contact) {
+	{{
+		type contactOption struct {
+			ID        uint   `json:"id"`
+			Name      string `json:"name"`
+			TradeName string `json:"trade_name"`
+			Document  string `json:"document"`
+		}
+		contactOpts := make([]contactOption, len(contacts))
+		for i, c := range contacts {
+			contactOpts[i] = contactOption{ID: c.ID, Name: c.Name, TradeName: c.TradeName, Document: c.Document}
+		}
+		contactJSON, _ := json.Marshal(contactOpts)
+
+		xData := `{
+			contactList: ` + string(contactJSON) + `,
+			items: [], total: 0,
+			contactSearch: '', selectedContactId: 0, selectedContactLabel: '', showContactDropdown: false,
+			filteredContacts() {
+				if (!this.contactSearch) return this.contactList.slice(0, 10);
+				return this.contactList.filter(c =>
+					c.name.toLowerCase().includes(this.contactSearch.toLowerCase()) ||
+					c.trade_name.toLowerCase().includes(this.contactSearch.toLowerCase()) ||
+					c.document.includes(this.contactSearch.replace(/\D/g, ''))
+				).slice(0, 10);
+			},
+			selectContact(c) {
+				this.selectedContactId = c.id;
+				this.selectedContactLabel = (c.trade_name || c.name) + ' — ' + c.document;
+				this.contactSearch = c.trade_name || c.name;
+				this.showContactDropdown = false;
+			},
+			addFromSearch(p) {
+				const idx = this.items.findIndex(i => i.product_id == p.id);
+				if (idx >= 0) { this.items[idx].quantity++; this.calcSubtotal(idx); return; }
+				this.items.push({product_id: p.id, name: p.name, sku: p.sku, quantity: 1, unit_price: p.price, subtotal: p.price});
+				this.calcTotal();
+			},
+			removeItem(i) { this.items.splice(i, 1); this.calcTotal() },
+			calcSubtotal(i) { this.items[i].subtotal = this.items[i].quantity * this.items[i].unit_price; this.calcTotal() },
+			calcTotal() { this.total = this.items.reduce((s, it) => s + it.subtotal, 0) },
+			init() {
+				const results = document.getElementById('product-search-results');
+				results.addEventListener('click', e => {
+					const btn = e.target.closest('[data-product-id]');
+					if (!btn) return;
+					this.addFromSearch({
+						id: parseInt(btn.dataset.productId),
+						name: btn.dataset.productName,
+						sku: btn.dataset.productSku,
+						price: parseFloat(btn.dataset.productPrice)
+					});
+					results.innerHTML = '';
+					const input = results.previousElementSibling;
+					if (input) input.value = '';
+				});
+			}
+		}`
+	}}
+	<div class="max-w-4xl mx-auto" x-data={ xData }>
+		<div class="flex items-center justify-between mb-6">
+			<h2 class="text-xl font-semibold">Novo Pedido</h2>
+			<a
+				class="btn btn-ghost btn-sm"
+				hx-get="/admin/pedidos/"
+				hx-target="#main-content"
+				hx-push-url="true"
+			>
+				← Voltar
+			</a>
+		</div>
+		<form
+			hx-post="/admin/pedidos"
+			hx-target="#main-content"
+			class="space-y-6"
+		>
+			<div class="card bg-base-100 shadow-sm border border-base-300 overflow-visible">
+				<div class="card-body space-y-3 overflow-visible">
+					<h3 class="text-sm font-semibold uppercase tracking-wider text-base-content/40">Cliente</h3>
+					<div class="relative" x-on:click.outside="showContactDropdown = false">
+						<label class="label py-1">
+							<span class="label-text text-sm font-medium">Buscar por nome ou CNPJ/CPF <span class="text-error">*</span></span>
+						</label>
+						<input
+							type="text"
+							x-model="contactSearch"
+							@focus="showContactDropdown = true"
+							@input="showContactDropdown = true; selectedContactId = 0"
+							placeholder="Digite nome fantasia, razão social ou documento..."
+							class="input input-bordered input-sm w-full"
+							autocomplete="off"
+						/>
+						<input type="hidden" name="contact_id" :value="selectedContactId"/>
+						<div
+							x-show="showContactDropdown"
+							x-transition:enter="transition ease-out duration-100"
+							x-transition:enter-start="opacity-0 -translate-y-1"
+							x-transition:enter-end="opacity-100 translate-y-0"
+							class="absolute z-20 w-full bg-base-100 border border-base-300 rounded-lg shadow-lg mt-1 max-h-56 overflow-y-auto"
+						>
+							<template x-if="filteredContacts().length === 0">
+								<p class="px-4 py-3 text-sm text-base-content/50">Nenhum contato encontrado.</p>
+							</template>
+							<template x-for="c in filteredContacts()" :key="c.id">
+								<div
+									@click="selectContact(c)"
+									class="flex items-center justify-between px-4 py-2.5 hover:bg-base-200 cursor-pointer border-b border-base-200 last:border-0"
+								>
+									<div>
+										<p class="text-sm font-medium" x-text="c.trade_name || c.name"></p>
+										<p class="text-xs text-base-content/50" x-text="c.name" x-show="c.trade_name && c.trade_name !== c.name"></p>
+									</div>
+									<span class="text-xs font-mono text-base-content/40" x-text="c.document"></span>
+								</div>
+							</template>
+						</div>
+					</div>
+					<div x-show="selectedContactId > 0" class="flex items-center gap-2 text-sm text-success">
+						<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+						<span x-text="selectedContactLabel"></span>
+					</div>
+				</div>
+			</div>
+			<div class="card bg-base-100 shadow-sm border border-base-300 overflow-visible">
+				<div class="card-body space-y-4 overflow-visible">
+					<h3 class="text-sm font-semibold uppercase tracking-wider text-base-content/40">Produtos</h3>
+					<div class="relative">
+						<input
+							type="text"
+							name="q"
+							placeholder="Buscar por nome ou SKU..."
+							autocomplete="off"
+							class="input input-bordered input-sm w-full"
+							hx-get="/admin/pedidos/produtos"
+							hx-trigger="input changed delay:300ms"
+							hx-target="#product-search-results"
+						/>
+						<div
+							id="product-search-results"
+							class="absolute z-20 w-full bg-base-100 border border-base-300 rounded-lg shadow-lg mt-1 max-h-56 overflow-y-auto empty:hidden"
+						></div>
+					</div>
+				</div>
+			</div>
+			<div class="card bg-base-100 shadow-sm border border-base-300">
+				<div class="card-body space-y-4">
+					<h3 class="text-sm font-semibold uppercase tracking-wider text-base-content/40">Itens</h3>
+					<div class="overflow-x-auto">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>Produto</th>
+									<th class="w-24">Qtd</th>
+									<th class="w-32">Preço Unit. (R$)</th>
+									<th class="w-32 text-right">Subtotal</th>
+									<th class="w-10"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<template x-for="(item, i) in items" :key="i">
+									<tr>
+										<td>
+											<input type="hidden" :name="'product_id[]'" :value="item.product_id"/>
+											<p class="text-sm font-medium" x-text="item.name"></p>
+											<p class="text-xs text-base-content/50" x-text="'SKU: ' + item.sku"></p>
+										</td>
+										<td>
+											<input
+												type="number"
+												:name="'quantity[]'"
+												x-model.number="item.quantity"
+												@input="calcSubtotal(i)"
+												min="1"
+												class="input input-bordered input-sm w-20"
+											/>
+										</td>
+										<td>
+											<input
+												type="number"
+												:name="'unit_price[]'"
+												x-model.number="item.unit_price"
+												@input="calcSubtotal(i)"
+												min="0"
+												step="0.01"
+												class="input input-bordered input-sm w-28"
+											/>
+										</td>
+										<td class="text-right font-semibold" x-text="'R$ ' + item.subtotal.toFixed(2)"></td>
+										<td>
+											<button
+												type="button"
+												class="btn btn-ghost btn-xs text-error"
+												@click="removeItem(i)"
+											>✕</button>
+										</td>
+									</tr>
+								</template>
+								<tr x-show="items.length === 0">
+									<td colspan="5" class="text-center text-base-content/50 py-6 text-sm">
+										Use a busca acima para adicionar produtos.
+									</td>
+								</tr>
+							</tbody>
+							<tfoot x-show="items.length > 0">
+								<tr>
+									<td colspan="3" class="text-right font-semibold">Total</td>
+									<td class="text-right font-bold" x-text="'R$ ' + total.toFixed(2)"></td>
+									<td></td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="flex justify-end gap-3">
+				<button
+					type="button"
+					class="btn btn-ghost"
+					hx-get="/admin/pedidos/"
+					hx-target="#main-content"
+					hx-push-url="true"
+				>
+					Cancelar
+				</button>
+				<button
+					type="submit"
+					class="btn btn-primary"
+					:disabled="items.length === 0"
+				>
+					Confirmar Pedido
+				</button>
+			</div>
+		</form>
+	</div>
+}

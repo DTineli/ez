@@ -8,6 +8,13 @@ func (p Product) StatusToString() string {
 	return "Inativo"
 }
 
+type CardData struct {
+	ID         uint
+	Name       string
+	Price      float64
+	Photo_Link string
+}
+
 type GetProductPageParams struct {
 	Page       int
 	PerPage    int
@@ -83,10 +90,9 @@ type ProductPrice struct {
 type PriceTableStore interface {
 	CreatePriceTable(*PriceTable) error
 	FindAllByTenant(id uint) ([]PriceTable, error)
-
-	// GetOneWithProducts(id uint) (*PriceTable, error)
-
-	// AddProduct(uint, float64) error
+	GetOne(id uint, tenantID uint) (*PriceTable, error)
+	HasContacts(priceTableID, tenantID uint) (bool, error)
+	Delete(id, tenantID uint) error
 }
 
 type ProductFilters struct {
@@ -94,6 +100,7 @@ type ProductFilters struct {
 	PerPage int
 	SKU     string
 	Name    string
+	Search  string // OR entre name LIKE e sku LIKE
 }
 
 type ProductStore interface {

@@ -25,3 +25,7 @@ func (i *InviteStore) FindByID(id uuid.UUID) (*store.Invite, error) {
 	err := i.db.Where("id = ?", id).First(&invite).Error
 	return &invite, err
 }
+
+func (i *InviteStore) DeleteByID(id uuid.UUID) error {
+	return i.db.Delete(&store.Invite{}, "id = ?", id).Error
+}

@@ -1,93 +1,144 @@
 package templates
 
-import "github.com/DTineli/ez/internal/store"
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/DTineli/ez/internal/store"
+)
 
 templ PriceTableForm(errors map[string]string) {
-	<div id="price-table-form" class="card">
-		<form
-			hx-post="/admin/produtos/pricetable"
-			hx-target="#table-body"
-			hx-swap="beforebegin"
-			class="flex justify-center mx-auto"
-			hx-on::after-request="if(event.detail.successful) this.reset()"
-		>
-			<fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-mb border p-4">
-				<legend class="fieldset-legend">Nova Tabela</legend>
-				<div class="join">
-					<input
-						name="name"
-						type="text"
-						if errors["name"] == "" {
-							class="input join-item"
-						} else {
-							class="input join-item border-red-600"
-						}
-						required
-						placeholder="Tabela prazo"
-					/>
-					if errors["name"] != "" {
-						<span class="text-red-600">{ errors["name"] }</span>
-					}
-					<label class="input join-item">
+	<div id="price-table-form">
+		<div class="card bg-base-100 shadow-sm border border-base-300">
+			<div class="card-body">
+				<h2 class="card-title text-base">Nova Tabela de Preço</h2>
+				<form
+					hx-post="/admin/produtos/pricetable"
+					hx-target="#table-body"
+					hx-swap="beforebegin"
+					hx-on::after-request="if(event.detail.successful) this.reset()"
+					class="flex flex-wrap items-end gap-4"
+				>
+					<div class="flex-1 min-w-[180px]">
+						<label class="label py-1">
+							<span class="label-text text-sm font-medium">Nome <span class="text-error">*</span></span>
+						</label>
 						<input
-							name="percentage"
-							type="number"
-							min="1"
-							placeholder="10"
+							name="name"
+							type="text"
+							placeholder="Ex: Tabela Prazo 30d"
 							required
-							if errors["percentage"] == "" {
-								class="validator join-item"
-							} else {
-								class="input join-item border-red-600"
+							class={
+								"input input-bordered input-sm w-full",
+								templ.KV("border-error", errors["name"] != ""),
 							}
 						/>
-						%
-					</label>
-					if errors["percentage"] != "" {
-						<span class="text-red-600">{ errors["percentage"] }</span>
-					}
-					<button type="submit" class="btn join-item">Criar</button>
-				</div>
-			</fieldset>
-		</form>
+						if errors["name"] != "" {
+							<p class="text-error text-xs mt-1">{ errors["name"] }</p>
+						}
+					</div>
+					<div class="w-36">
+						<label class="label py-1">
+							<span class="label-text text-sm font-medium">Margem (%) <span class="text-error">*</span></span>
+						</label>
+						<label class={
+							"input input-bordered input-sm flex items-center gap-1",
+							templ.KV("border-error", errors["percentage"] != ""),
+						}>
+							<input
+								name="percentage"
+								type="number"
+								min="0"
+								step="0.01"
+								placeholder="10"
+								required
+								class="w-full"
+							/>
+							<span class="text-base-content/50 text-sm">%</span>
+						</label>
+						if errors["percentage"] != "" {
+							<p class="text-error text-xs mt-1">{ errors["percentage"] }</p>
+						}
+					</div>
+					<div class="pb-0.5">
+						<button type="submit" class="btn btn-primary btn-sm">
+							Criar Tabela
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
 	</div>
 }
 
 templ TableRow(table store.PriceTable) {
-	<tr class="hover:bg-base-300">
-		<td>{ table.ID }</td>
-		<td>{ table.Name }</td>
-		<td>{ table.Percentage }</td>
-		<td>{ table.Status }</td>
+	<tr class="hover" id={ fmt.Sprintf("pricetable-row-%d", table.ID) }>
+		<td class="text-sm text-base-content/50 font-mono">{ strconv.Itoa(int(table.ID)) }</td>
+		<td class="font-medium">{ table.Name }</td>
+		<td>{ fmt.Sprintf("%.2f", table.Percentage) }%</td>
+		<td>
+			if table.Status {
+				<span class="badge badge-success badge-sm">Ativo</span>
+			} else {
+				<span class="badge badge-ghost badge-sm">Inativo</span>
+			}
+		</td>
 		<td>
 			<div class="flex justify-center gap-2">
-				<button type="button" class="btn">Editar</button>
-				<button type="button" class="btn">Excluir</button>
+				<button type="button" class="btn btn-ghost btn-xs">Editar</button>
+				<button
+					type="button"
+					hx-delete={ fmt.Sprintf("/admin/produtos/pricetable/%d", table.ID) }
+					hx-target={ fmt.Sprintf("#pricetable-row-%d", table.ID) }
+					hx-swap="delete"
+					hx-confirm={ fmt.Sprintf("Excluir a tabela \"%s\"? Esta ação não pode ser desfeita.", table.Name) }
+					class="btn btn-ghost btn-xs text-error"
+				>
+					Excluir
+				</button>
 			</div>
 		</td>
 	</tr>
 }
 
 templ PriceTablePage(tables []store.PriceTable) {
-	<div class="container flex flex-col mx-auto gap-4">
+	<div class="space-y-6">
+		<div class="flex items-center justify-between">
+			<div>
+				<h1 class="text-2xl font-bold">Tabelas de Preço</h1>
+				<p class="text-base-content/60 text-sm mt-0.5">Gerencie as tabelas de margem aplicadas aos produtos.</p>
+			</div>
+			<span class="badge badge-outline">{ strconv.Itoa(len(tables)) } tabela(s)</span>
+		</div>
 		@PriceTableForm(map[string]string{})
-		<div class="overflow-x-auto">
-			<table class="table text-center">
-				<thead>
-					<tr>
-						<th>ID</th>
-						<th>Name</th>
-						<th>Porcentagem</th>
-						<th>Status</th>
-						<th>açoes</th>
-					</tr>
-				</thead>
-				<tbody id="table-body">
-					for _, table := range tables {
-						@TableRow(table)
-					}
-				</tbody>
-			</table>
+		<div class="card bg-base-100 shadow-sm border border-base-300">
+			<div class="card-body p-0">
+				<div class="overflow-x-auto">
+					<table class="table table-zebra">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Nome</th>
+								<th>Margem</th>
+								<th>Status</th>
+								<th class="text-center">Ações</th>
+							</tr>
+						</thead>
+						<tbody id="table-body">
+							if len(tables) == 0 {
+								<tr>
+									<td colspan="5" class="text-center text-base-content/50 py-8">
+										Nenhuma tabela cadastrada ainda.
+									</td>
+								</tr>
+							}
+							for _, table := range tables {
+								@TableRow(table)
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 	</div>
 }

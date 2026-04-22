@@ -65,6 +65,7 @@ func main() {
 		tenantStore,
 		invite,
 		contactStore,
+		clientSessionStore,
 	)
 
 	loginHandler := handlers.NewLoginHandler(
@@ -77,17 +78,25 @@ func main() {
 	)
 
 	//Creating handlers
+	pStore := dbstore.NewProductStore(db)
+	priceTableStore := dbstore.NewPriceTableDB(db)
 	productHandler := handlers.NewProductHandler(
-		dbstore.NewProductStore(db),
-		dbstore.NewPriceTableDB(db),
+		pStore,
+		priceTableStore,
 	)
 
 	contactHandler := handlers.NewContactHandler(
 		handlers.NewContactHandlerParams{
-			Contact: contactStore,
-			Invite:  invite,
+			Contact:    contactStore,
+			Invite:     invite,
+			PriceTable: priceTableStore,
 		},
 	)
+
+	cartStore := dbstore.NewCartStore(db)
+	orderStore := dbstore.NewOrderStore(db)
+	clientHandler := handlers.NewClientHandler(pStore, cartStore, orderStore, clientSessionStore, priceTableStore)
+	adminOrderHandler := handlers.NewAdminOrderHandler(orderStore, contactStore, pStore)
 
 	r.Route("/client", func(r chi.Router) {
 		r.Use(m.TextHTMLMiddleware)
@@ -102,9 +111,12 @@ func main() {
 			r.Use(m.SessionAuthMiddleware(clientSessionStore))
 
 			r.Post("/logout", loginHandler.PostLogout)
-			r.Get("/", func(w http.ResponseWriter, req *http.Request) {
-				w.Write([]byte("<h1>Vai Corinthians</h1>"))
-			})
+			r.Get("/items", clientHandler.GetItemsPage)
+			r.Get("/confirmacao", clientHandler.GetCheckoutPage)
+			r.Post("/cart/items", clientHandler.PostAddToCart)
+			r.Delete("/cart/items/{productID}", clientHandler.DeleteCartItem)
+			r.Patch("/cart/items/{productID}", clientHandler.PatchCartItemQty)
+			r.Post("/confirmacao", clientHandler.PostConfirmOrder)
 		})
 	})
 
@@ -134,6 +146,7 @@ func main() {
 
 				r.Get("/pricetable", productHandler.GetTablePage)
 				r.Post("/pricetable", productHandler.CreatePriceTable)
+				r.Delete("/pricetable/{id}", productHandler.DeletePriceTable)
 
 				r.Post("/", productHandler.PostNewProduct)
 				r.Post("/{id}", productHandler.UpdateProduct)
@@ -145,11 +158,18 @@ func main() {
 				r.Post("/{id}/create-link", contactHandler.CreateLink)
 
 				r.Post("/{id}", contactHandler.Update)
-
 				r.Get("/{id}", contactHandler.GetEditPage)
 
 				r.Get("/", contactHandler.GetContactsPage)
 				r.Get("/novo", contactHandler.GetContactsForm)
+			})
+
+			r.Route("/pedidos", func(r chi.Router) {
+				r.Get("/", adminOrderHandler.GetOrdersPage)
+				r.Get("/novo", adminOrderHandler.GetNewOrderPage)
+				r.Get("/produtos", adminOrderHandler.SearchProductsForOrder)
+				r.Post("/", adminOrderHandler.PostNewOrder)
+				r.Get("/{id}", adminOrderHandler.GetOrderPage)
 			})
 		})
 	})
