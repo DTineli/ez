@@ -6,6 +6,7 @@ type Config struct {
 	Port              string `envconfig:"PORT" default:":4000"`
 	DatabaseName      string `envconfig:"DATABASE_NAME" default:"ez.db"`
 	SessionCookieName string `envconfig:"SESSION_COOKIE_NAME" default:"session"`
+	SessionSecret     string `envconfig:"SESSION_SECRET" default:"VERYSECRETKEY"`
 }
 
 func loadConfig() (*Config, error) {
