@@ -1,0 +1,44 @@
+package templates
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/DTineli/ez/internal/store"
+)
+
+templ AdminOrdersPage(orders []store.AdminOrderListItem) {
+	<h2 class="text-center text-xl font-semibold mb-6">Pedidos</h2>
+
+	if len(orders) == 0 {
+		<div class="alert">
+			<span>Nenhum pedido confirmado ainda.</span>
+		</div>
+		return
+	}
+
+	<div class="overflow-x-auto">
+		<table class="table table-zebra mt-6">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Contato</th>
+					<th>Status</th>
+					<th>Total</th>
+					<th>Criado em</th>
+				</tr>
+			</thead>
+			<tbody>
+				for _, o := range orders {
+					<tr>
+						<td>{ o.ID }</td>
+						<td>{ o.ContactName }</td>
+						<td>{ string(o.Status) }</td>
+						<td>R$ { fmt.Sprintf("%.2f", o.TotalAmount) }</td>
+						<td>{ o.CreatedAt.Format(time.DateTime) }</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+}

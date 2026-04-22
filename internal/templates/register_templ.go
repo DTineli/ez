@@ -81,59 +81,72 @@ func ClientRegisterPage(invite *store.Invite) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<body><main class=\"min-h-screen flex items-center justify-center bg-black text-gray-100\"><div class=\"w-full max-w-md bg-zinc-900 p-8 rounded-2xl shadow-lg\"><h1 class=\"text-2xl font-semibold mb-6 text-center\">Criar conta</h1><div id=\"register-messages\" class=\"min-h-[1rem]\"></div><form class=\"flex flex-col space-y-4\" hx-post=\"/client/register\" hx-target=\"#register-messages\" hx-swap=\"innerHTML\"><input type=\"text\" name=\"contact_id\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<body><main class=\"min-h-screen flex items-center justify-center bg-black text-gray-100\"><div class=\"w-full max-w-md bg-zinc-900 p-8 rounded-2xl shadow-lg\"><h1 class=\"text-2xl font-semibold mb-6 text-center\">Criar conta</h1><div id=\"register-messages\" class=\"min-h-[1rem]\"></div><form class=\"flex flex-col space-y-4\" hx-post=\"/client/register\" hx-target=\"#register-messages\" hx-swap=\"innerHTML\"><input type=\"text\" name=\"invite_token\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(invite.ContactID)
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(invite.ID.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 28, Col: 31}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 25, Col: 71}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" hidden> <input type=\"text\" name=\"tenant_id\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" hidden> <input type=\"text\" name=\"contact_id\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(invite.OriginTenant)
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(invite.ContactID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 34, Col: 34}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 29, Col: 31}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" hidden><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Nome</label> <input type=\"text\" name=\"name\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\"></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Email</label> <input type=\"text\" name=\"email\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\"></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Telefone</label> <input type=\"tel\" name=\"phone\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\" hidden> <input type=\"text\" name=\"tenant_id\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(invite.Phone)
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(invite.OriginTenant)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 58, Col: 28}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 35, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\"></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Documento</label> <input type=\"text\" name=\"document\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" hidden><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Nome</label> <input type=\"text\" name=\"name\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\"></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Email</label> <input type=\"text\" name=\"email\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\"></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Telefone</label> <input type=\"tel\" name=\"phone\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(invite.Document)
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(invite.Phone)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 67, Col: 31}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 59, Col: 28}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\"></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Senha</label> <input type=\"password\" name=\"password\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Confimar Senha</label> <input type=\"password\" name=\"password_confirmation\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><a class=\"link\" href=\"/client/login\">cancelar</a> <button type=\"submit\" class=\"mt-4 bg-white text-black font-medium py-2 rounded-lg hover:bg-gray-200 transition\">Registrar</button></form></div></main></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\"></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Documento</label> <input type=\"text\" name=\"document\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var8 string
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(invite.Document)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/register.templ`, Line: 68, Col: 31}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\"></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Senha</label> <input type=\"password\" name=\"password\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Confimar Senha</label> <input type=\"password\" name=\"password_confirmation\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><a class=\"link\" href=\"/client/login\">cancelar</a> <button type=\"submit\" class=\"mt-4 bg-white text-black font-medium py-2 rounded-lg hover:bg-gray-200 transition\">Registrar</button></form></div></main></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -157,12 +170,12 @@ func RegisterPage() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var8 == nil {
-			templ_7745c5c3_Var8 = templ.NopComponent
+		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var9 == nil {
+			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<html lang=\"pt-br\" data-theme=\"light\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<html lang=\"pt-br\" data-theme=\"light\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -170,7 +183,7 @@ func RegisterPage() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"min-h-screen flex items-center justify-center bg-black text-gray-100\"><div class=\"w-full max-w-md bg-zinc-900 p-8 rounded-2xl shadow-lg\"><h1 class=\"text-2xl font-semibold mb-6 text-center\">Criar conta</h1><div id=\"register-messages\" class=\"min-h-[1rem]\"></div><form class=\"flex flex-col space-y-4\" hx-post=\"/register\" hx-target=\"#register-messages\" hx-swap=\"innerHTML\"><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Nome</label> <input type=\"text\" name=\"name\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Slug</label> <input type=\"text\" name=\"slug\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Email</label> <input type=\"email\" name=\"email\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Senha</label> <input type=\"password\" name=\"password\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Confimar Senha</label> <input type=\"password\" name=\"password_confirmation\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><a class=\"link\" href=\"/login\">cancelar</a> <button type=\"submit\" class=\"mt-4 bg-white text-black font-medium py-2 rounded-lg hover:bg-gray-200 transition\">Registrar</button></form></div></div></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"min-h-screen flex items-center justify-center bg-black text-gray-100\"><div class=\"w-full max-w-md bg-zinc-900 p-8 rounded-2xl shadow-lg\"><h1 class=\"text-2xl font-semibold mb-6 text-center\">Criar conta</h1><div id=\"register-messages\" class=\"min-h-[1rem]\"></div><form class=\"flex flex-col space-y-4\" hx-post=\"/register\" hx-target=\"#register-messages\" hx-swap=\"innerHTML\"><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Nome</label> <input type=\"text\" name=\"name\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Slug</label> <input type=\"text\" name=\"slug\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Email</label> <input type=\"email\" name=\"email\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Senha</label> <input type=\"password\" name=\"password\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Confimar Senha</label> <input type=\"password\" name=\"password_confirmation\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><a class=\"link\" href=\"/login\">cancelar</a> <button type=\"submit\" class=\"mt-4 bg-white text-black font-medium py-2 rounded-lg hover:bg-gray-200 transition\">Registrar</button></form></div></div></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

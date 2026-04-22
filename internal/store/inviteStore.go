@@ -27,4 +27,5 @@ type InviteStore interface {
 	Create(*Invite) error
 	// Find(filters any) ([]Invite, error)
 	FindByID(id uuid.UUID) (*Invite, error)
+	DeleteByID(id uuid.UUID) error
 }

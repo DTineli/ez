@@ -16,26 +16,18 @@ func NewUserStore(db *gorm.DB) *UserStore {
 	}
 }
 
-func (u *UserStore) CreateUser(dto store.User) error {
+func (u *UserStore) CreateUser(dto *store.User) error {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(dto.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
 	dto.Password = string(hashed)
-	// user := store.User{
-	// 	Name:       dto.Name,
-	// 	Email:      dto.Email,
-	// 	Document:   dto.Document,
-	// 	UserAccess: dto.UserAccess,
-	// 	TenantID:   dto.TenantID,
-	// 	Password:   string(hashed),
-	// }
-	return u.db.Create(&dto).Error
+	return u.db.Create(dto).Error
 }
 func (u *UserStore) GetUserByPhone(phone string) (*store.User, error) {
 	var user store.User
-	err := u.db.Where("phone = ? AND user_access = ?", phone, "customer").First(&user).Error
+	err := u.db.Preload("Contacts").Where("phone = ? AND user_access = ?", phone, "customer").First(&user).Error
 	if err != nil {
 		return nil, err
 	}

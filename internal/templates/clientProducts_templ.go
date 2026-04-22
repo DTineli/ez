@@ -8,9 +8,13 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/DTineli/ez/internal/store"
+import (
+	"fmt"
 
-func ClientProductsPage(products []store.CardData) templ.Component {
+	"github.com/DTineli/ez/internal/store"
+)
+
+func ClientProductsPage(products []store.CardData, nextPage int) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -31,19 +35,67 @@ func ClientProductsPage(products []store.CardData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"mb-5 flex items-end justify-between gap-3\"><div><h2 class=\"font-['Manrope'] text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100\">Produtos</h2><p class=\"text-sm text-slate-500 dark:text-slate-400\">Escolha os itens e adicione no carrinho.</p></div></div><div class=\"grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		templ_7745c5c3_Err = ClientProductsChunk(products, nextPage).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func ClientProductsChunk(products []store.CardData, nextPage int) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var2 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var2 == nil {
+			templ_7745c5c3_Var2 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
 		for _, p := range products {
 			templ_7745c5c3_Err = ProductCard(p).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if nextPage > 0 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"col-span-full flex items-center justify-center py-3 text-sm text-slate-500 dark:text-slate-400\" hx-get=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/client/items?page=%d", nextPage))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientProducts.templ`, Line: 29, Col: 58}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" hx-trigger=\"revealed\" hx-swap=\"outerHTML\">Carregando mais produtos...</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		return nil
 	})
@@ -65,38 +117,51 @@ func ProductCard(info store.CardData) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var2 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var2 == nil {
-			templ_7745c5c3_Var2 = templ.NopComponent
+		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var4 == nil {
+			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"bg-surface-container-lowest rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition\" x-data=\"{ qty: 1 }\"><!-- IMAGE --><div class=\"relative aspect-[4/3] bg-surface-container-low overflow-hidden\"><img class=\"w-full h-full object-cover transition-transform duration-500 hover:scale-105\" src=\"https://lh3.googleusercontent.com/aida-public/AB6AXuCDZpHurgLpsT6Jud1k_znHFcY7kc2Px50kZZchPS3ZYpoFES6oyyByqqCNlI8sc7GHcWgPYLjR6boJvv3qlfho7WlajxcCgaZBx7qJ_SHJf6vP2Vj1rGPFmtnRWhoVVk8WYY7dt6xvpzp5uUT_rY5fcwQs6pYwHy3-sgPST9_hp7ZmlVzQuHZkiIPVkAVGZMFb9sWdRnX97N8DFzn4qVDOQz6_oaut32uXfI6L7BGCT7CckjLxnDGGakS4LhnkrAPf-Sdhip1455Zu\"><div class=\"absolute top-3 left-3\"><span class=\"bg-green-600 text-white px-3 py-1 rounded text-[10px] font-bold uppercase\">In stock</span></div></div><!-- CONTENT --><div class=\"p-5 flex flex-col gap-3\"><!-- TITLE --><div><p class=\"text-[10px] uppercase tracking-widest text-gray-400\">Electronics</p><h3 class=\"text-lg font-bold text-primary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"overflow-hidden rounded-2xl border border-slate-200/70 bg-white/95 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700/70 dark:bg-slate-900/95\" x-data=\"{ qty: 1 }\"><!-- IMAGE --><div class=\"relative aspect-[16/10] overflow-hidden bg-surface-container-low\"><img class=\"w-full h-full object-cover transition-transform duration-500 hover:scale-105\" src=\"https://lh3.googleusercontent.com/aida-public/AB6AXuCDZpHurgLpsT6Jud1k_znHFcY7kc2Px50kZZchPS3ZYpoFES6oyyByqqCNlI8sc7GHcWgPYLjR6boJvv3qlfho7WlajxcCgaZBx7qJ_SHJf6vP2Vj1rGPFmtnRWhoVVk8WYY7dt6xvpzp5uUT_rY5fcwQs6pYwHy3-sgPST9_hp7ZmlVzQuHZkiIPVkAVGZMFb9sWdRnX97N8DFzn4qVDOQz6_oaut32uXfI6L7BGCT7CckjLxnDGGakS4LhnkrAPf-Sdhip1455Zu\"><div class=\"absolute left-3 top-3\"><span class=\"rounded-full bg-emerald-600 px-3 py-1 text-[10px] font-bold uppercase text-white\">In stock</span></div></div><!-- CONTENT --><div class=\"flex flex-col gap-3 p-4 sm:p-5\"><!-- TITLE --><div><p class=\"text-[10px] uppercase tracking-widest text-gray-400\">Electronics</p><h3 class=\"line-clamp-2 min-h-12 text-lg font-bold text-primary\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var3 string
-		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(info.Name)
+		var templ_7745c5c3_Var5 string
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(info.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientProducts.templ`, Line: 38, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientProducts.templ`, Line: 63, Col: 16}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h3></div><!-- PRICE --><div class=\"flex items-center justify-between\"><div><p class=\"text-xs text-gray-400\">Preço</p><p class=\"text-2xl font-extrabold text-primary\">R$ ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(info.Price)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientProducts.templ`, Line: 46, Col: 21}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</h3></div><!-- PRICE --><div class=\"flex items-center justify-between\"><div><p class=\"text-xs text-slate-500\">Preço</p><p class=\"text-2xl font-extrabold text-primary\">R$ ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</p></div></div><!-- QUANTITY + BUY --><div class=\"flex gap-2 mt-2 items-center\"><!-- QUANTIDADE --><div class=\"flex items-center border rounded-lg overflow-hidden\"><button type=\"button\" class=\"px-3 py-2 hover:bg-gray-100\" @click=\"qty = Math.max(1, qty - 1)\">-</button> <input type=\"number\" min=\"1\" class=\"w-14 text-center outline-none\" x-model=\"qty\"> <button type=\"button\" class=\"px-3 py-2 hover:bg-gray-100\" @click=\"qty++\">+</button></div><!-- BOTÃO COMPRAR --><button type=\"button\" class=\"flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition flex items-center justify-center gap-2\" @click=\"console.log('Comprar:', { id: '{ info.Name }', qty })\"><span class=\"material-symbols-outlined text-sm\">shopping_cart</span> Comprar</button></div></div></div>")
+		var templ_7745c5c3_Var6 string
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(info.Price)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientProducts.templ`, Line: 71, Col: 21}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</p></div></div><!-- QUANTITY + BUY --><div class=\"mt-2 flex items-center gap-2\"><!-- QUANTIDADE --><div class=\"flex items-center overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700\"><button type=\"button\" class=\"px-3 py-2 text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800\" @click=\"qty = Math.max(1, qty - 1)\">-</button> <input type=\"number\" min=\"1\" class=\"w-12 bg-transparent text-center outline-none sm:w-14\" x-model=\"qty\"> <button type=\"button\" class=\"px-3 py-2 text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800\" @click=\"qty++\">+</button></div><!-- BOTÃO COMPRAR --><form class=\"flex-1\" hx-post=\"/client/cart/items\" hx-swap=\"none\"><input type=\"hidden\" name=\"product_id\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", info.ID))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientProducts.templ`, Line: 106, Col: 78}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"> <input type=\"hidden\" name=\"qty\" x-bind:value=\"qty\"> <button type=\"submit\" class=\"flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-2 font-bold text-white transition hover:bg-blue-700\"><span class=\"material-symbols-outlined text-sm\">shopping_cart</span> Comprar</button></form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

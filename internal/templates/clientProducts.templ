@@ -1,59 +1,84 @@
 package templates
 
-import "github.com/DTineli/ez/internal/store"
+import (
+	"fmt"
 
-templ ClientProductsPage(products []store.CardData) {
-	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-		for _, p := range products {
-			@ProductCard(p)
-		}
+	"github.com/DTineli/ez/internal/store"
+)
+
+templ ClientProductsPage(products []store.CardData, nextPage int) {
+	<div class="mb-5 flex items-end justify-between gap-3">
+		<div>
+			<h2 class="font-['Manrope'] text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Produtos</h2>
+			<p class="text-sm text-slate-500 dark:text-slate-400">Escolha os itens e adicione no carrinho.</p>
+		</div>
 	</div>
+	<div class="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+		@ClientProductsChunk(products, nextPage)
+	</div>
+}
+
+templ ClientProductsChunk(products []store.CardData, nextPage int) {
+	for _, p := range products {
+		@ProductCard(p)
+	}
+
+	if nextPage > 0 {
+		<div
+			class="col-span-full flex items-center justify-center py-3 text-sm text-slate-500 dark:text-slate-400"
+			hx-get={ fmt.Sprintf("/client/items?page=%d", nextPage) }
+			hx-trigger="revealed"
+			hx-swap="outerHTML"
+		>
+			Carregando mais produtos...
+		</div>
+	}
 }
 
 templ ProductCard(info store.CardData) {
 	<div
-		class="bg-surface-container-lowest rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition"
+		class="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/95 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700/70 dark:bg-slate-900/95"
 		x-data="{ qty: 1 }"
 	>
 		<!-- IMAGE -->
-		<div class="relative aspect-[4/3] bg-surface-container-low overflow-hidden">
+		<div class="relative aspect-[16/10] overflow-hidden bg-surface-container-low">
 			<img
 				class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
 				src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDZpHurgLpsT6Jud1k_znHFcY7kc2Px50kZZchPS3ZYpoFES6oyyByqqCNlI8sc7GHcWgPYLjR6boJvv3qlfho7WlajxcCgaZBx7qJ_SHJf6vP2Vj1rGPFmtnRWhoVVk8WYY7dt6xvpzp5uUT_rY5fcwQs6pYwHy3-sgPST9_hp7ZmlVzQuHZkiIPVkAVGZMFb9sWdRnX97N8DFzn4qVDOQz6_oaut32uXfI6L7BGCT7CckjLxnDGGakS4LhnkrAPf-Sdhip1455Zu"
 			/>
-			<div class="absolute top-3 left-3">
-				<span class="bg-green-600 text-white px-3 py-1 rounded text-[10px] font-bold uppercase">
+			<div class="absolute left-3 top-3">
+				<span class="rounded-full bg-emerald-600 px-3 py-1 text-[10px] font-bold uppercase text-white">
 					In stock
 				</span>
 			</div>
 		</div>
 		<!-- CONTENT -->
-		<div class="p-5 flex flex-col gap-3">
+		<div class="flex flex-col gap-3 p-4 sm:p-5">
 			<!-- TITLE -->
 			<div>
 				<p class="text-[10px] uppercase tracking-widest text-gray-400">
 					Electronics
 				</p>
-				<h3 class="text-lg font-bold text-primary">
+				<h3 class="line-clamp-2 min-h-12 text-lg font-bold text-primary">
 					{ info.Name }
 				</h3>
 			</div>
 			<!-- PRICE -->
 			<div class="flex items-center justify-between">
 				<div>
-					<p class="text-xs text-gray-400">Preço</p>
+					<p class="text-xs text-slate-500">Preço</p>
 					<p class="text-2xl font-extrabold text-primary">
 						R$ { info.Price }
 					</p>
 				</div>
 			</div>
 			<!-- QUANTITY + BUY -->
-			<div class="flex gap-2 mt-2 items-center">
+			<div class="mt-2 flex items-center gap-2">
 				<!-- QUANTIDADE -->
-				<div class="flex items-center border rounded-lg overflow-hidden">
+				<div class="flex items-center overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
 					<button
 						type="button"
-						class="px-3 py-2 hover:bg-gray-100"
+						class="px-3 py-2 text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
 						@click="qty = Math.max(1, qty - 1)"
 					>
 						-
@@ -61,28 +86,35 @@ templ ProductCard(info store.CardData) {
 					<input
 						type="number"
 						min="1"
-						class="w-14 text-center outline-none"
+						class="w-12 bg-transparent text-center outline-none sm:w-14"
 						x-model="qty"
 					/>
 					<button
 						type="button"
-						class="px-3 py-2 hover:bg-gray-100"
+						class="px-3 py-2 text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
 						@click="qty++"
 					>
 						+
 					</button>
 				</div>
 				<!-- BOTÃO COMPRAR -->
-				<button
-					type="button"
-					class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-lg transition flex items-center justify-center gap-2"
-					@click="console.log('Comprar:', { id: '{ info.Name }', qty })"
+				<form
+					class="flex-1"
+					hx-post="/client/cart/items"
+					hx-swap="none"
 				>
-					<span class="material-symbols-outlined text-sm">
-						shopping_cart
-					</span>
-					Comprar
-				</button>
+					<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", info.ID) }/>
+					<input type="hidden" name="qty" x-bind:value="qty"/>
+					<button
+						type="submit"
+						class="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-2 font-bold text-white transition hover:bg-blue-700"
+					>
+						<span class="material-symbols-outlined text-sm">
+							shopping_cart
+						</span>
+						Comprar
+					</button>
+				</form>
 			</div>
 		</div>
 	</div>

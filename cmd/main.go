@@ -65,6 +65,7 @@ func main() {
 		tenantStore,
 		invite,
 		contactStore,
+		clientSessionStore,
 	)
 
 	loginHandler := handlers.NewLoginHandler(
@@ -90,7 +91,10 @@ func main() {
 		},
 	)
 
-	clientHandler := handlers.NewClientHandler(pStore)
+	cartStore := dbstore.NewCartStore(db)
+	orderStore := dbstore.NewOrderStore(db)
+	clientHandler := handlers.NewClientHandler(pStore, cartStore, orderStore, clientSessionStore)
+	adminOrderHandler := handlers.NewAdminOrderHandler(orderStore)
 
 	r.Route("/client", func(r chi.Router) {
 		r.Use(m.TextHTMLMiddleware)
@@ -106,6 +110,9 @@ func main() {
 
 			r.Post("/logout", loginHandler.PostLogout)
 			r.Get("/items", clientHandler.GetItemsPage)
+			r.Get("/confirmacao", clientHandler.GetCheckoutPage)
+			r.Post("/cart/items", clientHandler.PostAddToCart)
+			r.Post("/confirmacao", clientHandler.PostConfirmOrder)
 		})
 	})
 
@@ -150,6 +157,10 @@ func main() {
 
 				r.Get("/", contactHandler.GetContactsPage)
 				r.Get("/novo", contactHandler.GetContactsForm)
+			})
+
+			r.Route("/pedidos", func(r chi.Router) {
+				r.Get("/", adminOrderHandler.GetOrdersPage)
 			})
 		})
 	})

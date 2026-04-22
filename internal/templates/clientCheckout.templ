@@ -1,0 +1,58 @@
+package templates
+
+import (
+	"fmt"
+
+	"github.com/DTineli/ez/internal/store"
+)
+
+templ ClientCheckoutPage(items []store.CartCheckoutItem, totalAmount float64) {
+	<section class="mx-auto w-full max-w-3xl">
+		<div class="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/95 p-6 shadow-sm dark:border-slate-700/70 dark:bg-slate-900/95">
+			<p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Carrinho</p>
+			<h2 class="mt-2 font-['Manrope'] text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">
+				Confirmacao de pedido
+			</h2>
+			<p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
+				Revise os itens adicionados e finalize o pedido.
+			</p>
+			if len(items) == 0 {
+				<div class="mt-6 rounded-xl border border-dashed border-slate-300/80 bg-slate-50/70 p-5 text-sm text-slate-600 dark:border-slate-600/80 dark:bg-slate-800/70 dark:text-slate-300">
+					Seu carrinho esta vazio.
+				</div>
+			} else {
+				<div class="mt-6 space-y-3">
+					for _, item := range items {
+						<div class="flex items-center justify-between rounded-xl border border-slate-200/80 bg-slate-50/80 px-4 py-3 dark:border-slate-700/80 dark:bg-slate-800/70">
+							<div>
+								<p class="font-semibold text-slate-900 dark:text-slate-100">{ item.Name }</p>
+								<p class="text-xs text-slate-500 dark:text-slate-400">
+									Qtd: { item.Quantity } x R$ { fmt.Sprintf("%.2f", item.UnitPrice) }
+								</p>
+							</div>
+							<p class="text-sm font-bold text-slate-900 dark:text-slate-100">
+								R$ { fmt.Sprintf("%.2f", item.Subtotal) }
+							</p>
+						</div>
+					}
+				</div>
+
+				<div class="mt-6 flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-700">
+					<p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Total</p>
+					<p class="text-xl font-extrabold text-slate-900 dark:text-slate-100">
+						R$ { fmt.Sprintf("%.2f", totalAmount) }
+					</p>
+				</div>
+
+				<button
+					type="button"
+					hx-post="/client/confirmacao"
+					hx-swap="none"
+					class="mt-5 w-full rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white transition hover:bg-emerald-700"
+				>
+					Confirmar
+				</button>
+			}
+		</div>
+	</section>
+}
