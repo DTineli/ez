@@ -72,12 +72,16 @@ func (p ProductStore) FindAllByUserWithFilters(id uint, filters store.ProductFil
 	var products []store.Product
 	query := p.db.Model(&store.Product{}).Where("tenant_id = ?", id)
 
-	if filters.SKU != "" {
-		query = query.Where("sku = ?", filters.SKU)
-	}
-
-	if filters.Name != "" {
-		query = query.Where("name LIKE ?", "%"+filters.Name+"%")
+	if filters.Search != "" {
+		like := "%" + filters.Search + "%"
+		query = query.Where("name LIKE ? OR sku LIKE ?", like, like)
+	} else {
+		if filters.SKU != "" {
+			query = query.Where("sku = ?", filters.SKU)
+		}
+		if filters.Name != "" {
+			query = query.Where("name LIKE ?", "%"+filters.Name+"%")
+		}
 	}
 
 	var count int64

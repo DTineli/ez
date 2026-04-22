@@ -2,120 +2,104 @@ package templates
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/DTineli/ez/internal/store"
 )
 
-templ ClientProductsPage(products []store.CardData, nextPage int) {
-	<div class="mb-5 flex items-end justify-between gap-3">
-		<div>
-			<h2 class="font-['Manrope'] text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100">Produtos</h2>
-			<p class="text-sm text-slate-500 dark:text-slate-400">Escolha os itens e adicione no carrinho.</p>
-		</div>
+templ ClientProductsPage(products []store.CardData, nextPage int, query string) {
+	<div class="mb-4">
+		<h2 class="font-['Manrope'] text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100">Produtos</h2>
+		<p class="text-sm text-slate-400 dark:text-slate-500">Ajuste a quantidade e adicione ao carrinho.</p>
 	</div>
-	<div class="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
-		@ClientProductsChunk(products, nextPage)
+	<!-- BUSCA -->
+	<div class="mb-4">
+		<input
+			type="search"
+			name="q"
+			value={ query }
+			placeholder="Buscar por nome ou SKU..."
+			autocomplete="off"
+			class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm outline-none placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+			hx-get="/client/items"
+			hx-trigger="input changed delay:350ms, search"
+			hx-target="#products-grid"
+			hx-swap="innerHTML"
+		/>
+	</div>
+	<!-- GRID -->
+	<div id="products-grid" class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+		@ClientProductsChunk(products, nextPage, query)
 	</div>
 }
 
-templ ClientProductsChunk(products []store.CardData, nextPage int) {
+templ ClientProductsChunk(products []store.CardData, nextPage int, query string) {
+	if len(products) == 0 {
+		<div class="col-span-full py-12 text-center text-sm text-slate-400">
+			Nenhum produto encontrado.
+		</div>
+	}
 	for _, p := range products {
 		@ProductCard(p)
 	}
-
 	if nextPage > 0 {
+		{{
+			nextURL := fmt.Sprintf("/client/items?page=%d", nextPage)
+			if query != "" {
+				nextURL += "&q=" + url.QueryEscape(query)
+			}
+		}}
 		<div
-			class="col-span-full flex items-center justify-center py-3 text-sm text-slate-500 dark:text-slate-400"
-			hx-get={ fmt.Sprintf("/client/items?page=%d", nextPage) }
+			class="col-span-full flex items-center justify-center py-4 text-sm text-slate-400"
+			hx-get={ nextURL }
 			hx-trigger="revealed"
 			hx-swap="outerHTML"
 		>
-			Carregando mais produtos...
+			Carregando...
 		</div>
 	}
 }
 
 templ ProductCard(info store.CardData) {
 	<div
-		class="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/95 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-700/70 dark:bg-slate-900/95"
+		class="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
 		x-data="{ qty: 1 }"
 	>
-		<!-- IMAGE -->
-		<div class="relative aspect-[16/10] overflow-hidden bg-surface-container-low">
-			<img
-				class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-				src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDZpHurgLpsT6Jud1k_znHFcY7kc2Px50kZZchPS3ZYpoFES6oyyByqqCNlI8sc7GHcWgPYLjR6boJvv3qlfho7WlajxcCgaZBx7qJ_SHJf6vP2Vj1rGPFmtnRWhoVVk8WYY7dt6xvpzp5uUT_rY5fcwQs6pYwHy3-sgPST9_hp7ZmlVzQuHZkiIPVkAVGZMFb9sWdRnX97N8DFzn4qVDOQz6_oaut32uXfI6L7BGCT7CckjLxnDGGakS4LhnkrAPf-Sdhip1455Zu"
-			/>
-			<div class="absolute left-3 top-3">
-				<span class="rounded-full bg-emerald-600 px-3 py-1 text-[10px] font-bold uppercase text-white">
-					In stock
-				</span>
-			</div>
+		<!-- NOME + PREÇO -->
+		<div class="min-w-0 flex-1">
+			<p class="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+				{ info.Name }
+			</p>
+			<p class="mt-0.5 text-base font-extrabold text-emerald-600 dark:text-emerald-400">
+				R$ { fmt.Sprintf("%.2f", info.Price) }
+			</p>
 		</div>
-		<!-- CONTENT -->
-		<div class="flex flex-col gap-3 p-4 sm:p-5">
-			<!-- TITLE -->
-			<div>
-				<p class="text-[10px] uppercase tracking-widest text-gray-400">
-					Electronics
-				</p>
-				<h3 class="line-clamp-2 min-h-12 text-lg font-bold text-primary">
-					{ info.Name }
-				</h3>
+		<!-- AÇÃO -->
+		<form
+			hx-post="/client/cart/items"
+			hx-swap="none"
+			class="flex shrink-0 items-center gap-2"
+		>
+			<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", info.ID) }/>
+			<input type="hidden" name="qty" x-bind:value="qty"/>
+			<!-- STEPPER -->
+			<div class="flex items-center rounded-lg border border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
+				<button type="button" class="px-2.5 py-2 text-base leading-none" @click="qty = Math.max(1, qty - 1)">−</button>
+				<input
+					type="number"
+					min="1"
+					x-model="qty"
+					class="w-8 bg-transparent text-center text-sm font-bold outline-none"
+				/>
+				<button type="button" class="px-2.5 py-2 text-base leading-none" @click="qty++">+</button>
 			</div>
-			<!-- PRICE -->
-			<div class="flex items-center justify-between">
-				<div>
-					<p class="text-xs text-slate-500">Preço</p>
-					<p class="text-2xl font-extrabold text-primary">
-						R$ { info.Price }
-					</p>
-				</div>
-			</div>
-			<!-- QUANTITY + BUY -->
-			<div class="mt-2 flex items-center gap-2">
-				<!-- QUANTIDADE -->
-				<div class="flex items-center overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
-					<button
-						type="button"
-						class="px-3 py-2 text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-						@click="qty = Math.max(1, qty - 1)"
-					>
-						-
-					</button>
-					<input
-						type="number"
-						min="1"
-						class="w-12 bg-transparent text-center outline-none sm:w-14"
-						x-model="qty"
-					/>
-					<button
-						type="button"
-						class="px-3 py-2 text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-						@click="qty++"
-					>
-						+
-					</button>
-				</div>
-				<!-- BOTÃO COMPRAR -->
-				<form
-					class="flex-1"
-					hx-post="/client/cart/items"
-					hx-swap="none"
-				>
-					<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", info.ID) }/>
-					<input type="hidden" name="qty" x-bind:value="qty"/>
-					<button
-						type="submit"
-						class="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-2 font-bold text-white transition hover:bg-blue-700"
-					>
-						<span class="material-symbols-outlined text-sm">
-							shopping_cart
-						</span>
-						Comprar
-					</button>
-				</form>
-			</div>
-		</div>
+			<!-- BOTÃO -->
+			<button
+				type="submit"
+				class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition active:scale-95 hover:bg-emerald-700"
+			>
+				+
+			</button>
+		</form>
 	</div>
 }

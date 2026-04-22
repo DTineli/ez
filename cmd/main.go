@@ -167,6 +167,7 @@ func main() {
 			r.Route("/pedidos", func(r chi.Router) {
 				r.Get("/", adminOrderHandler.GetOrdersPage)
 				r.Get("/novo", adminOrderHandler.GetNewOrderPage)
+				r.Get("/produtos", adminOrderHandler.SearchProductsForOrder)
 				r.Post("/", adminOrderHandler.PostNewOrder)
 				r.Get("/{id}", adminOrderHandler.GetOrderPage)
 			})

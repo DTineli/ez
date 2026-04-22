@@ -151,40 +151,48 @@ templ AdminOrderDetailPage(order *store.OrderDetail) {
 	</div>
 }
 
-templ AdminNewOrderPage(contacts []store.Contact, products []store.Product) {
+templ ProductSearchResults(products []store.Product) {
+	if len(products) == 0 {
+		<p class="px-4 py-3 text-sm text-base-content/50">Nenhum produto encontrado.</p>
+	}
+	for _, p := range products {
+		<button
+			type="button"
+			class="flex w-full items-center justify-between px-4 py-2.5 hover:bg-base-200 border-b border-base-200 last:border-0 text-left"
+			data-product-id={ fmt.Sprintf("%d", p.ID) }
+			data-product-name={ p.Name }
+			data-product-sku={ p.SKU }
+			data-product-price={ fmt.Sprintf("%f", p.CostPrice) }
+		>
+			<div>
+				<p class="text-sm font-medium">{ p.Name }</p>
+				<p class="text-xs text-base-content/50">SKU: { p.SKU }</p>
+			</div>
+			<span class="text-xs font-semibold text-base-content/60">R$ { fmt.Sprintf("%.2f", p.CostPrice) }</span>
+		</button>
+	}
+}
+
+templ AdminNewOrderPage(contacts []store.Contact) {
 	{{
-		type productOption struct {
-			ID    uint    `json:"id"`
-			Name  string  `json:"name"`
-			Price float64 `json:"price"`
-		}
 		type contactOption struct {
 			ID        uint   `json:"id"`
 			Name      string `json:"name"`
 			TradeName string `json:"trade_name"`
 			Document  string `json:"document"`
 		}
-
-		opts := make([]productOption, len(products))
-		for i, p := range products {
-			opts[i] = productOption{ID: p.ID, Name: p.Name, Price: p.CostPrice}
-		}
 		contactOpts := make([]contactOption, len(contacts))
 		for i, c := range contacts {
 			contactOpts[i] = contactOption{ID: c.ID, Name: c.Name, TradeName: c.TradeName, Document: c.Document}
 		}
-
-		prodJSON, _ := json.Marshal(opts)
 		contactJSON, _ := json.Marshal(contactOpts)
 
 		xData := `{
-			productList: ` + string(prodJSON) + `,
 			contactList: ` + string(contactJSON) + `,
 			items: [], total: 0,
-			contactSearch: '', selectedContactId: 0, selectedContactLabel: '', showDropdown: false,
+			contactSearch: '', selectedContactId: 0, selectedContactLabel: '', showContactDropdown: false,
 			filteredContacts() {
-				const q = this.contactSearch.toLowerCase().replace(/\D/g, '') || this.contactSearch.toLowerCase();
-				if (!q) return this.contactList.slice(0, 10);
+				if (!this.contactSearch) return this.contactList.slice(0, 10);
 				return this.contactList.filter(c =>
 					c.name.toLowerCase().includes(this.contactSearch.toLowerCase()) ||
 					c.trade_name.toLowerCase().includes(this.contactSearch.toLowerCase()) ||
@@ -195,13 +203,33 @@ templ AdminNewOrderPage(contacts []store.Contact, products []store.Product) {
 				this.selectedContactId = c.id;
 				this.selectedContactLabel = (c.trade_name || c.name) + ' — ' + c.document;
 				this.contactSearch = c.trade_name || c.name;
-				this.showDropdown = false;
+				this.showContactDropdown = false;
 			},
-			addItem() { this.items.push({ product_id: '', quantity: 1, unit_price: 0, subtotal: 0 }) },
+			addFromSearch(p) {
+				const idx = this.items.findIndex(i => i.product_id == p.id);
+				if (idx >= 0) { this.items[idx].quantity++; this.calcSubtotal(idx); return; }
+				this.items.push({product_id: p.id, name: p.name, sku: p.sku, quantity: 1, unit_price: p.price, subtotal: p.price});
+				this.calcTotal();
+			},
 			removeItem(i) { this.items.splice(i, 1); this.calcTotal() },
-			onSelectProduct(i) { const p = this.productList.find(p => p.id == this.items[i].product_id); if (p) this.items[i].unit_price = p.price; this.calcSubtotal(i) },
 			calcSubtotal(i) { this.items[i].subtotal = this.items[i].quantity * this.items[i].unit_price; this.calcTotal() },
-			calcTotal() { this.total = this.items.reduce((s, it) => s + it.subtotal, 0) }
+			calcTotal() { this.total = this.items.reduce((s, it) => s + it.subtotal, 0) },
+			init() {
+				const results = document.getElementById('product-search-results');
+				results.addEventListener('click', e => {
+					const btn = e.target.closest('[data-product-id]');
+					if (!btn) return;
+					this.addFromSearch({
+						id: parseInt(btn.dataset.productId),
+						name: btn.dataset.productName,
+						sku: btn.dataset.productSku,
+						price: parseFloat(btn.dataset.productPrice)
+					});
+					results.innerHTML = '';
+					const input = results.previousElementSibling;
+					if (input) input.value = '';
+				});
+			}
 		}`
 	}}
 	<div class="max-w-4xl mx-auto" x-data={ xData }>
@@ -224,22 +252,22 @@ templ AdminNewOrderPage(contacts []store.Contact, products []store.Product) {
 			<div class="card bg-base-100 shadow-sm border border-base-300 overflow-visible">
 				<div class="card-body space-y-3 overflow-visible">
 					<h3 class="text-sm font-semibold uppercase tracking-wider text-base-content/40">Cliente</h3>
-					<div class="relative" x-on:click.outside="showDropdown = false">
+					<div class="relative" x-on:click.outside="showContactDropdown = false">
 						<label class="label py-1">
 							<span class="label-text text-sm font-medium">Buscar por nome ou CNPJ/CPF <span class="text-error">*</span></span>
 						</label>
 						<input
 							type="text"
 							x-model="contactSearch"
-							@focus="showDropdown = true"
-							@input="showDropdown = true; selectedContactId = 0"
+							@focus="showContactDropdown = true"
+							@input="showContactDropdown = true; selectedContactId = 0"
 							placeholder="Digite nome fantasia, razão social ou documento..."
 							class="input input-bordered input-sm w-full"
 							autocomplete="off"
 						/>
 						<input type="hidden" name="contact_id" :value="selectedContactId"/>
 						<div
-							x-show="showDropdown"
+							x-show="showContactDropdown"
 							x-transition:enter="transition ease-out duration-100"
 							x-transition:enter-start="opacity-0 -translate-y-1"
 							x-transition:enter-end="opacity-100 translate-y-0"
@@ -268,18 +296,30 @@ templ AdminNewOrderPage(contacts []store.Contact, products []store.Product) {
 					</div>
 				</div>
 			</div>
+			<div class="card bg-base-100 shadow-sm border border-base-300 overflow-visible">
+				<div class="card-body space-y-4 overflow-visible">
+					<h3 class="text-sm font-semibold uppercase tracking-wider text-base-content/40">Produtos</h3>
+					<div class="relative">
+						<input
+							type="text"
+							name="q"
+							placeholder="Buscar por nome ou SKU..."
+							autocomplete="off"
+							class="input input-bordered input-sm w-full"
+							hx-get="/admin/pedidos/produtos"
+							hx-trigger="input changed delay:300ms"
+							hx-target="#product-search-results"
+						/>
+						<div
+							id="product-search-results"
+							class="absolute z-20 w-full bg-base-100 border border-base-300 rounded-lg shadow-lg mt-1 max-h-56 overflow-y-auto empty:hidden"
+						></div>
+					</div>
+				</div>
+			</div>
 			<div class="card bg-base-100 shadow-sm border border-base-300">
 				<div class="card-body space-y-4">
-					<div class="flex items-center justify-between">
-						<h3 class="text-sm font-semibold uppercase tracking-wider text-base-content/40">Itens</h3>
-						<button
-							type="button"
-							class="btn btn-sm btn-outline"
-							@click="addItem()"
-						>
-							+ Adicionar item
-						</button>
-					</div>
+					<h3 class="text-sm font-semibold uppercase tracking-wider text-base-content/40">Itens</h3>
 					<div class="overflow-x-auto">
 						<table class="table">
 							<thead>
@@ -295,18 +335,9 @@ templ AdminNewOrderPage(contacts []store.Contact, products []store.Product) {
 								<template x-for="(item, i) in items" :key="i">
 									<tr>
 										<td>
-											<select
-												:name="'product_id[]'"
-												x-model="item.product_id"
-												@change="onSelectProduct(i)"
-												class="select select-bordered select-sm w-full"
-												required
-											>
-												<option value="">Selecione…</option>
-												<template x-for="p in productList" :key="p.id">
-													<option :value="p.id" x-text="p.name"></option>
-												</template>
-											</select>
+											<input type="hidden" :name="'product_id[]'" :value="item.product_id"/>
+											<p class="text-sm font-medium" x-text="item.name"></p>
+											<p class="text-xs text-base-content/50" x-text="'SKU: ' + item.sku"></p>
 										</td>
 										<td>
 											<input
@@ -315,8 +346,7 @@ templ AdminNewOrderPage(contacts []store.Contact, products []store.Product) {
 												x-model.number="item.quantity"
 												@input="calcSubtotal(i)"
 												min="1"
-												class="input input-bordered input-sm w-full"
-												required
+												class="input input-bordered input-sm w-20"
 											/>
 										</td>
 										<td>
@@ -327,23 +357,22 @@ templ AdminNewOrderPage(contacts []store.Contact, products []store.Product) {
 												@input="calcSubtotal(i)"
 												min="0"
 												step="0.01"
-												class="input input-bordered input-sm w-full"
-												required
+												class="input input-bordered input-sm w-28"
 											/>
 										</td>
-										<td class="text-right" x-text="'R$ ' + item.subtotal.toFixed(2)"></td>
+										<td class="text-right font-semibold" x-text="'R$ ' + item.subtotal.toFixed(2)"></td>
 										<td>
 											<button
 												type="button"
-												class="btn btn-ghost btn-sm text-error"
+												class="btn btn-ghost btn-xs text-error"
 												@click="removeItem(i)"
 											>✕</button>
 										</td>
 									</tr>
 								</template>
 								<tr x-show="items.length === 0">
-									<td colspan="5" class="text-center text-base-content/50 py-4">
-										Nenhum item adicionado
+									<td colspan="5" class="text-center text-base-content/50 py-6 text-sm">
+										Use a busca acima para adicionar produtos.
 									</td>
 								</tr>
 							</tbody>

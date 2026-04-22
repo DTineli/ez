@@ -67,12 +67,15 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	query := r.URL.Query().Get("q")
+
 	products, err := c.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
 		Page:    page,
 		PerPage: perPage,
+		Search:  query,
 	})
 	if err != nil {
-		ShowToast(w, "Erro ao buscar pedidos", "error")
+		ShowToast(w, "Erro ao buscar produtos", "error")
 		return
 	}
 
@@ -83,14 +86,12 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var cards []store.CardData
-
 	for _, p := range products.Results {
 		price := p.CostPrice * (1 + priceTable.Percentage/100)
 		cards = append(cards, store.CardData{
-			ID:         p.ID,
-			Name:       p.Name,
-			Price:      price,
-			Photo_Link: "",
+			ID:    p.ID,
+			Name:  p.Name,
+			Price: price,
 		})
 	}
 
@@ -100,8 +101,9 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 		nextPage = page + 1
 	}
 
-	if isHX && page > 1 {
-		_ = templates.ClientProductsChunk(cards, nextPage).Render(r.Context(), w)
+	// HTMX: scroll infinito (page > 1) → só o chunk; busca (page == 1) → conteúdo do grid
+	if isHX {
+		_ = templates.ClientProductsChunk(cards, nextPage, query).Render(r.Context(), w)
 		return
 	}
 
@@ -112,7 +114,7 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	RenderClientWithLayout(templates.ClientProductsPage(cards, nextPage), w, r, cartCount, "produtos")
+	RenderClientWithLayout(templates.ClientProductsPage(cards, nextPage, query), w, r, cartCount, "produtos")
 }
 
 func (c *ClientHandler) GetCheckoutPage(w http.ResponseWriter, r *http.Request) {

@@ -237,7 +237,7 @@ func Layout_Client(content templ.Component, cartCount int64, activeTab string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<body class=\"min-h-dvh bg-gradient-to-b from-slate-50 via-white to-slate-100 text-on-surface font-body antialiased dark:from-slate-900 dark:via-slate-950 dark:to-slate-900\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<body class=\"min-h-dvh bg-slate-50 text-on-surface font-body antialiased dark:bg-slate-950\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

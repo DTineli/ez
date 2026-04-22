@@ -180,7 +180,7 @@ templ Layout_Client(content templ.Component, cartCount int64, activeTab string) 
 	<!DOCTYPE html>
 	<html lang="pt-br">
 		@client_header("ez - client")
-		<body class="min-h-dvh bg-gradient-to-b from-slate-50 via-white to-slate-100 text-on-surface font-body antialiased dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
+		<body class="min-h-dvh bg-slate-50 text-on-surface font-body antialiased dark:bg-slate-950">
 			@client_topBar("Sistema", cartCount)
 			<main class="mx-auto w-full max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pt-8">
 				@content

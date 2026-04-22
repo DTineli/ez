@@ -323,7 +323,7 @@ func AdminOrderDetailPage(order *store.OrderDetail) templ.Component {
 	})
 }
 
-func AdminNewOrderPage(contacts []store.Contact, products []store.Product) templ.Component {
+func ProductSearchResults(products []store.Product) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -344,38 +344,152 @@ func AdminNewOrderPage(contacts []store.Contact, products []store.Product) templ
 			templ_7745c5c3_Var19 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		type productOption struct {
-			ID    uint    `json:"id"`
-			Name  string  `json:"name"`
-			Price float64 `json:"price"`
+		if len(products) == 0 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<p class=\"px-4 py-3 text-sm text-base-content/50\">Nenhum produto encontrado.</p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
+		for _, p := range products {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<button type=\"button\" class=\"flex w-full items-center justify-between px-4 py-2.5 hover:bg-base-200 border-b border-base-200 last:border-0 text-left\" data-product-id=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var20 string
+			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", p.ID))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 162, Col: 44}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" data-product-name=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var21 string
+			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 163, Col: 29}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" data-product-sku=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var22 string
+			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(p.SKU)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 164, Col: 27}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" data-product-price=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var23 string
+			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%f", p.CostPrice))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 165, Col: 54}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\"><div><p class=\"text-sm font-medium\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var24 string
+			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 168, Col: 43}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</p><p class=\"text-xs text-base-content/50\">SKU: ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var25 string
+			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(p.SKU)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 169, Col: 56}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</p></div><span class=\"text-xs font-semibold text-base-content/60\">R$ ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var26 string
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", p.CostPrice))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 171, Col: 97}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span></button>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		return nil
+	})
+}
+
+func AdminNewOrderPage(contacts []store.Contact) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var27 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var27 == nil {
+			templ_7745c5c3_Var27 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
 		type contactOption struct {
 			ID        uint   `json:"id"`
 			Name      string `json:"name"`
 			TradeName string `json:"trade_name"`
 			Document  string `json:"document"`
 		}
-
-		opts := make([]productOption, len(products))
-		for i, p := range products {
-			opts[i] = productOption{ID: p.ID, Name: p.Name, Price: p.CostPrice}
-		}
 		contactOpts := make([]contactOption, len(contacts))
 		for i, c := range contacts {
 			contactOpts[i] = contactOption{ID: c.ID, Name: c.Name, TradeName: c.TradeName, Document: c.Document}
 		}
-
-		prodJSON, _ := json.Marshal(opts)
 		contactJSON, _ := json.Marshal(contactOpts)
 
 		xData := `{
-			productList: ` + string(prodJSON) + `,
 			contactList: ` + string(contactJSON) + `,
 			items: [], total: 0,
-			contactSearch: '', selectedContactId: 0, selectedContactLabel: '', showDropdown: false,
+			contactSearch: '', selectedContactId: 0, selectedContactLabel: '', showContactDropdown: false,
 			filteredContacts() {
-				const q = this.contactSearch.toLowerCase().replace(/\D/g, '') || this.contactSearch.toLowerCase();
-				if (!q) return this.contactList.slice(0, 10);
+				if (!this.contactSearch) return this.contactList.slice(0, 10);
 				return this.contactList.filter(c =>
 					c.name.toLowerCase().includes(this.contactSearch.toLowerCase()) ||
 					c.trade_name.toLowerCase().includes(this.contactSearch.toLowerCase()) ||
@@ -386,28 +500,48 @@ func AdminNewOrderPage(contacts []store.Contact, products []store.Product) templ
 				this.selectedContactId = c.id;
 				this.selectedContactLabel = (c.trade_name || c.name) + ' — ' + c.document;
 				this.contactSearch = c.trade_name || c.name;
-				this.showDropdown = false;
+				this.showContactDropdown = false;
 			},
-			addItem() { this.items.push({ product_id: '', quantity: 1, unit_price: 0, subtotal: 0 }) },
+			addFromSearch(p) {
+				const idx = this.items.findIndex(i => i.product_id == p.id);
+				if (idx >= 0) { this.items[idx].quantity++; this.calcSubtotal(idx); return; }
+				this.items.push({product_id: p.id, name: p.name, sku: p.sku, quantity: 1, unit_price: p.price, subtotal: p.price});
+				this.calcTotal();
+			},
 			removeItem(i) { this.items.splice(i, 1); this.calcTotal() },
-			onSelectProduct(i) { const p = this.productList.find(p => p.id == this.items[i].product_id); if (p) this.items[i].unit_price = p.price; this.calcSubtotal(i) },
 			calcSubtotal(i) { this.items[i].subtotal = this.items[i].quantity * this.items[i].unit_price; this.calcTotal() },
-			calcTotal() { this.total = this.items.reduce((s, it) => s + it.subtotal, 0) }
+			calcTotal() { this.total = this.items.reduce((s, it) => s + it.subtotal, 0) },
+			init() {
+				const results = document.getElementById('product-search-results');
+				results.addEventListener('click', e => {
+					const btn = e.target.closest('[data-product-id]');
+					if (!btn) return;
+					this.addFromSearch({
+						id: parseInt(btn.dataset.productId),
+						name: btn.dataset.productName,
+						sku: btn.dataset.productSku,
+						price: parseFloat(btn.dataset.productPrice)
+					});
+					results.innerHTML = '';
+					const input = results.previousElementSibling;
+					if (input) input.value = '';
+				});
+			}
 		}`
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div class=\"max-w-4xl mx-auto\" x-data=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"max-w-4xl mx-auto\" x-data=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var20 string
-		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(xData)
+		var templ_7745c5c3_Var28 string
+		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(xData)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 207, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 235, Col: 46}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\"><div class=\"flex items-center justify-between mb-6\"><h2 class=\"text-xl font-semibold\">Novo Pedido</h2><a class=\"btn btn-ghost btn-sm\" hx-get=\"/admin/pedidos/\" hx-target=\"#main-content\" hx-push-url=\"true\">← Voltar</a></div><form hx-post=\"/admin/pedidos\" hx-target=\"#main-content\" class=\"space-y-6\"><div class=\"card bg-base-100 shadow-sm border border-base-300 overflow-visible\"><div class=\"card-body space-y-3 overflow-visible\"><h3 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40\">Cliente</h3><div class=\"relative\" x-on:click.outside=\"showDropdown = false\"><label class=\"label py-1\"><span class=\"label-text text-sm font-medium\">Buscar por nome ou CNPJ/CPF <span class=\"text-error\">*</span></span></label> <input type=\"text\" x-model=\"contactSearch\" @focus=\"showDropdown = true\" @input=\"showDropdown = true; selectedContactId = 0\" placeholder=\"Digite nome fantasia, razão social ou documento...\" class=\"input input-bordered input-sm w-full\" autocomplete=\"off\"> <input type=\"hidden\" name=\"contact_id\" :value=\"selectedContactId\"><div x-show=\"showDropdown\" x-transition:enter=\"transition ease-out duration-100\" x-transition:enter-start=\"opacity-0 -translate-y-1\" x-transition:enter-end=\"opacity-100 translate-y-0\" class=\"absolute z-20 w-full bg-base-100 border border-base-300 rounded-lg shadow-lg mt-1 max-h-56 overflow-y-auto\"><template x-if=\"filteredContacts().length === 0\"><p class=\"px-4 py-3 text-sm text-base-content/50\">Nenhum contato encontrado.</p></template><template x-for=\"c in filteredContacts()\" :key=\"c.id\"><div @click=\"selectContact(c)\" class=\"flex items-center justify-between px-4 py-2.5 hover:bg-base-200 cursor-pointer border-b border-base-200 last:border-0\"><div><p class=\"text-sm font-medium\" x-text=\"c.trade_name || c.name\"></p><p class=\"text-xs text-base-content/50\" x-text=\"c.name\" x-show=\"c.trade_name && c.trade_name !== c.name\"></p></div><span class=\"text-xs font-mono text-base-content/40\" x-text=\"c.document\"></span></div></template></div></div><div x-show=\"selectedContactId > 0\" class=\"flex items-center gap-2 text-sm text-success\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-4 w-4\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg> <span x-text=\"selectedContactLabel\"></span></div></div></div><div class=\"card bg-base-100 shadow-sm border border-base-300\"><div class=\"card-body space-y-4\"><div class=\"flex items-center justify-between\"><h3 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40\">Itens</h3><button type=\"button\" class=\"btn btn-sm btn-outline\" @click=\"addItem()\">+ Adicionar item</button></div><div class=\"overflow-x-auto\"><table class=\"table\"><thead><tr><th>Produto</th><th class=\"w-24\">Qtd</th><th class=\"w-32\">Preço Unit. (R$)</th><th class=\"w-32 text-right\">Subtotal</th><th class=\"w-10\"></th></tr></thead> <tbody><template x-for=\"(item, i) in items\" :key=\"i\"><tr><td><select :name=\"'product_id[]'\" x-model=\"item.product_id\" @change=\"onSelectProduct(i)\" class=\"select select-bordered select-sm w-full\" required><option value=\"\">Selecione…</option><template x-for=\"p in productList\" :key=\"p.id\"><option :value=\"p.id\" x-text=\"p.name\"></option></template></select></td><td><input type=\"number\" :name=\"'quantity[]'\" x-model.number=\"item.quantity\" @input=\"calcSubtotal(i)\" min=\"1\" class=\"input input-bordered input-sm w-full\" required></td><td><input type=\"number\" :name=\"'unit_price[]'\" x-model.number=\"item.unit_price\" @input=\"calcSubtotal(i)\" min=\"0\" step=\"0.01\" class=\"input input-bordered input-sm w-full\" required></td><td class=\"text-right\" x-text=\"'R$ ' + item.subtotal.toFixed(2)\"></td><td><button type=\"button\" class=\"btn btn-ghost btn-sm text-error\" @click=\"removeItem(i)\">✕</button></td></tr></template><tr x-show=\"items.length === 0\"><td colspan=\"5\" class=\"text-center text-base-content/50 py-4\">Nenhum item adicionado</td></tr></tbody><tfoot x-show=\"items.length > 0\"><tr><td colspan=\"3\" class=\"text-right font-semibold\">Total</td><td class=\"text-right font-bold\" x-text=\"'R$ ' + total.toFixed(2)\"></td><td></td></tr></tfoot></table></div></div></div><div class=\"flex justify-end gap-3\"><button type=\"button\" class=\"btn btn-ghost\" hx-get=\"/admin/pedidos/\" hx-target=\"#main-content\" hx-push-url=\"true\">Cancelar</button> <button type=\"submit\" class=\"btn btn-primary\" :disabled=\"items.length === 0\">Confirmar Pedido</button></div></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\"><div class=\"flex items-center justify-between mb-6\"><h2 class=\"text-xl font-semibold\">Novo Pedido</h2><a class=\"btn btn-ghost btn-sm\" hx-get=\"/admin/pedidos/\" hx-target=\"#main-content\" hx-push-url=\"true\">← Voltar</a></div><form hx-post=\"/admin/pedidos\" hx-target=\"#main-content\" class=\"space-y-6\"><div class=\"card bg-base-100 shadow-sm border border-base-300 overflow-visible\"><div class=\"card-body space-y-3 overflow-visible\"><h3 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40\">Cliente</h3><div class=\"relative\" x-on:click.outside=\"showContactDropdown = false\"><label class=\"label py-1\"><span class=\"label-text text-sm font-medium\">Buscar por nome ou CNPJ/CPF <span class=\"text-error\">*</span></span></label> <input type=\"text\" x-model=\"contactSearch\" @focus=\"showContactDropdown = true\" @input=\"showContactDropdown = true; selectedContactId = 0\" placeholder=\"Digite nome fantasia, razão social ou documento...\" class=\"input input-bordered input-sm w-full\" autocomplete=\"off\"> <input type=\"hidden\" name=\"contact_id\" :value=\"selectedContactId\"><div x-show=\"showContactDropdown\" x-transition:enter=\"transition ease-out duration-100\" x-transition:enter-start=\"opacity-0 -translate-y-1\" x-transition:enter-end=\"opacity-100 translate-y-0\" class=\"absolute z-20 w-full bg-base-100 border border-base-300 rounded-lg shadow-lg mt-1 max-h-56 overflow-y-auto\"><template x-if=\"filteredContacts().length === 0\"><p class=\"px-4 py-3 text-sm text-base-content/50\">Nenhum contato encontrado.</p></template><template x-for=\"c in filteredContacts()\" :key=\"c.id\"><div @click=\"selectContact(c)\" class=\"flex items-center justify-between px-4 py-2.5 hover:bg-base-200 cursor-pointer border-b border-base-200 last:border-0\"><div><p class=\"text-sm font-medium\" x-text=\"c.trade_name || c.name\"></p><p class=\"text-xs text-base-content/50\" x-text=\"c.name\" x-show=\"c.trade_name && c.trade_name !== c.name\"></p></div><span class=\"text-xs font-mono text-base-content/40\" x-text=\"c.document\"></span></div></template></div></div><div x-show=\"selectedContactId > 0\" class=\"flex items-center gap-2 text-sm text-success\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-4 w-4\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg> <span x-text=\"selectedContactLabel\"></span></div></div></div><div class=\"card bg-base-100 shadow-sm border border-base-300 overflow-visible\"><div class=\"card-body space-y-4 overflow-visible\"><h3 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40\">Produtos</h3><div class=\"relative\"><input type=\"text\" name=\"q\" placeholder=\"Buscar por nome ou SKU...\" autocomplete=\"off\" class=\"input input-bordered input-sm w-full\" hx-get=\"/admin/pedidos/produtos\" hx-trigger=\"input changed delay:300ms\" hx-target=\"#product-search-results\"><div id=\"product-search-results\" class=\"absolute z-20 w-full bg-base-100 border border-base-300 rounded-lg shadow-lg mt-1 max-h-56 overflow-y-auto empty:hidden\"></div></div></div></div><div class=\"card bg-base-100 shadow-sm border border-base-300\"><div class=\"card-body space-y-4\"><h3 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40\">Itens</h3><div class=\"overflow-x-auto\"><table class=\"table\"><thead><tr><th>Produto</th><th class=\"w-24\">Qtd</th><th class=\"w-32\">Preço Unit. (R$)</th><th class=\"w-32 text-right\">Subtotal</th><th class=\"w-10\"></th></tr></thead> <tbody><template x-for=\"(item, i) in items\" :key=\"i\"><tr><td><input type=\"hidden\" :name=\"'product_id[]'\" :value=\"item.product_id\"><p class=\"text-sm font-medium\" x-text=\"item.name\"></p><p class=\"text-xs text-base-content/50\" x-text=\"'SKU: ' + item.sku\"></p></td><td><input type=\"number\" :name=\"'quantity[]'\" x-model.number=\"item.quantity\" @input=\"calcSubtotal(i)\" min=\"1\" class=\"input input-bordered input-sm w-20\"></td><td><input type=\"number\" :name=\"'unit_price[]'\" x-model.number=\"item.unit_price\" @input=\"calcSubtotal(i)\" min=\"0\" step=\"0.01\" class=\"input input-bordered input-sm w-28\"></td><td class=\"text-right font-semibold\" x-text=\"'R$ ' + item.subtotal.toFixed(2)\"></td><td><button type=\"button\" class=\"btn btn-ghost btn-xs text-error\" @click=\"removeItem(i)\">✕</button></td></tr></template><tr x-show=\"items.length === 0\"><td colspan=\"5\" class=\"text-center text-base-content/50 py-6 text-sm\">Use a busca acima para adicionar produtos.</td></tr></tbody><tfoot x-show=\"items.length > 0\"><tr><td colspan=\"3\" class=\"text-right font-semibold\">Total</td><td class=\"text-right font-bold\" x-text=\"'R$ ' + total.toFixed(2)\"></td><td></td></tr></tfoot></table></div></div></div><div class=\"flex justify-end gap-3\"><button type=\"button\" class=\"btn btn-ghost\" hx-get=\"/admin/pedidos/\" hx-target=\"#main-content\" hx-push-url=\"true\">Cancelar</button> <button type=\"submit\" class=\"btn btn-primary\" :disabled=\"items.length === 0\">Confirmar Pedido</button></div></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

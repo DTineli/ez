@@ -64,24 +64,52 @@ func (h *AdminOrderHandler) GetNewOrderPage(w http.ResponseWriter, r *http.Reque
 	sess := m.GetSessionFromContext(r)
 
 	contacts, err := h.contactStore.FindAll(sess.TenantID, store.ContactFilters{
-		Pagination:  store.Pagination{Page: 1, PerPage: 1000}, // TODO: No futuro vai dar ruim
+		Pagination:  store.Pagination{Page: 1, PerPage: 1000},
 		ContactType: string(store.Customer),
 	})
-
 	if err != nil {
 		http.Error(w, "Erro ao buscar contatos", http.StatusInternalServerError)
 		return
 	}
 
-	products, err := h.productStore.FindAllByUser(sess.TenantID)
+	if err := Render(templates.AdminNewOrderPage(contacts.Results), r, w); err != nil {
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+	}
+}
+
+func (h *AdminOrderHandler) SearchProductsForOrder(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	q := r.URL.Query().Get("q")
+	if len(q) < 2 {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	results, err := h.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
+		Page:    1,
+		PerPage: 10,
+		Name:    q,
+	})
 	if err != nil {
 		http.Error(w, "Erro ao buscar produtos", http.StatusInternalServerError)
 		return
 	}
 
-	if err := Render(templates.AdminNewOrderPage(contacts.Results, products), r, w); err != nil {
-		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+	// Se não achou por nome, tenta por SKU exato
+	if len(results.Results) == 0 {
+		results, err = h.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
+			Page:    1,
+			PerPage: 10,
+			SKU:     q,
+		})
+		if err != nil {
+			http.Error(w, "Erro ao buscar produtos", http.StatusInternalServerError)
+			return
+		}
 	}
+
+	templates.ProductSearchResults(results.Results).Render(r.Context(), w)
 }
 
 func (h *AdminOrderHandler) PostNewOrder(w http.ResponseWriter, r *http.Request) {

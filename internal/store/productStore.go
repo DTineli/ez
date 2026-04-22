@@ -100,6 +100,7 @@ type ProductFilters struct {
 	PerPage int
 	SKU     string
 	Name    string
+	Search  string // OR entre name LIKE e sku LIKE
 }
 
 type ProductStore interface {
