@@ -15,64 +15,51 @@ templ header(title string) {
 	</head>
 }
 
-templ linkTo(label, p string) {
+templ navLink(label, p string) {
 	<a
 		hx-get={ "/admin" + p }
 		hx-target="#main-content"
 		hx-push-url="true"
 		hx-swap="innerHTML"
+		class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-base-content/70 hover:bg-base-200 hover:text-base-content transition-colors"
 	>{ label }</a>
 }
 
 templ sideBar() {
-	<ul class="menu p-4 w-full min-h-full bg-base-100 text-base-content">
-		<li hx-boost="true">
-			<details open>
-				<summary>Produtos</summary>
-				<ul>
-					<li>
-						@linkTo("Cadastrar", "/produtos/novo")
-					</li>
-					<li>
-						@linkTo("Listar", "/produtos")
-					</li>
-					<summary>Tabela de Preço</summary>
-					<li>
-						@linkTo("Listar", "/produtos/pricetable")
-					</li>
-				</ul>
-			</details>
-		</li>
-		<li>
-			<details>
-				<summary>Contatos</summary>
-				<ul>
-					<li>
-						@linkTo("Cadastro", "/contacts/novo")
-					</li>
-					<li>
-						@linkTo("Listar", "/contacts/")
-					</li>
-				</ul>
-			</details>
-		</li>
-		<li>
-			@linkTo("Pedidos", "/pedidos/")
-		</li>
-	</ul>
+	<nav class="flex flex-col h-full p-4 gap-1">
+		<div class="mb-2">
+			<p class="px-3 text-xs font-semibold uppercase tracking-wider text-base-content/40 mb-1">Produtos</p>
+			@navLink("Cadastrar", "/produtos/novo")
+			@navLink("Listar", "/produtos")
+			@navLink("Tabelas de Preço", "/produtos/pricetable")
+		</div>
+		<div class="divider my-1"></div>
+		<div class="mb-2">
+			<p class="px-3 text-xs font-semibold uppercase tracking-wider text-base-content/40 mb-1">Contatos</p>
+			@navLink("Novo", "/contacts/novo")
+			@navLink("Listar", "/contacts/")
+		</div>
+		<div class="divider my-1"></div>
+		<div>
+			@navLink("Pedidos", "/pedidos/")
+		</div>
+	</nav>
 }
 
 templ upbar() {
-	<div class="flex flex-row justify-between navbar bg-base-100 shadow-sm">
+	<div class="flex items-center justify-between px-6 h-14 bg-base-100 border-b border-base-200">
 		<a
-			class="btn btn-ghost text-xl"
+			class="font-bold text-lg tracking-tight"
 			hx-get="/admin"
 			hx-target="#main-content"
 			hx-swap="innerHTML"
 		>Sistema</a>
-		<div>
-			<button type="button" hx-post="/logout" class="btn">Sair</button>
-			<input type="checkbox" value="dark" class="toggle theme-controller"/>
+		<div class="flex items-center gap-3">
+			<label class="flex items-center gap-1 cursor-pointer">
+				<span class="text-xs text-base-content/50">Dark</span>
+				<input type="checkbox" value="dark" class="toggle toggle-sm theme-controller"/>
+			</label>
+			<button type="button" hx-post="/logout" class="btn btn-ghost btn-sm">Sair</button>
 		</div>
 	</div>
 }
@@ -80,19 +67,17 @@ templ upbar() {
 templ Layout(contents templ.Component, title string, loggedIn bool, email string) {
 	<html lang="pt-br" data-theme="light">
 		@header(title)
-		<body class="min-h-screen" hx-boost="true">
+		<body class="min-h-screen bg-base-200" hx-boost="true">
 			@upbar()
-			<div class="flex min-h-screen">
-				<aside class="w-64 bg-base-100 shadow-md">
+			<div class="flex h-[calc(100vh-3.5rem)]">
+				<aside class="w-56 shrink-0 bg-base-100 border-r border-base-200 overflow-y-auto">
 					@sideBar()
 				</aside>
-				<div class="flex flex-col flex-1">
-					<main class="flex-1 flex justify-center p-6">
-						<div id="main-content" class="w-full max-w-6xl">
-							@contents
-						</div>
-					</main>
-				</div>
+				<main class="flex-1 overflow-y-auto p-6">
+					<div id="main-content" class="w-full max-w-6xl mx-auto">
+						@contents
+					</div>
+				</main>
 			</div>
 			<div
 				id="toast-container"

@@ -59,3 +59,4 @@ Defaults defined in `internal/config/config.go`:
 - `PORT` → `:4000`
 - `DATABASE_NAME` → `ez.db` (SQLite file in project root)
 - `SESSION_COOKIE_NAME` → `session`
+

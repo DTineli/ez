@@ -23,11 +23,12 @@ type CartItem struct {
 }
 
 type CartCheckoutItem struct {
-	ProductID uint
-	Name      string
-	Quantity  int
-	UnitPrice float64
-	Subtotal  float64
+	CartItemID uint
+	ProductID  uint
+	Name       string
+	Quantity   int
+	UnitPrice  float64
+	Subtotal   float64
 }
 
 type CartStore interface {
@@ -37,4 +38,6 @@ type CartStore interface {
 	AddOrIncrementItem(cartID, productID uint, quantity int, unitPrice float64) error
 	CountItems(cartID uint) (int64, error)
 	ListCheckoutItems(cartID, tenantID uint) ([]CartCheckoutItem, error)
+	RemoveItem(cartID, productID uint) error
+	UpdateItemQty(cartID, productID uint, quantity int) error
 }

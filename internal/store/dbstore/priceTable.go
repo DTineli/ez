@@ -38,3 +38,20 @@ func (p PriceTableDB) GetOne(id uint, tenantID uint) (*store.PriceTable, error) 
 	}
 	return &table, nil
 }
+
+func (p PriceTableDB) HasContacts(priceTableID, tenantID uint) (bool, error) {
+	var count int64
+	err := p.db.Model(&store.Contact{}).
+		Where("price_table_id = ? AND tenant_id = ?", priceTableID, tenantID).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (p PriceTableDB) Delete(id, tenantID uint) error {
+	return p.db.
+		Where("id = ? AND tenant_id = ?", id, tenantID).
+		Delete(&store.PriceTable{}).Error
+}

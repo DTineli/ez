@@ -114,6 +114,8 @@ func main() {
 			r.Get("/items", clientHandler.GetItemsPage)
 			r.Get("/confirmacao", clientHandler.GetCheckoutPage)
 			r.Post("/cart/items", clientHandler.PostAddToCart)
+			r.Delete("/cart/items/{productID}", clientHandler.DeleteCartItem)
+			r.Patch("/cart/items/{productID}", clientHandler.PatchCartItemQty)
 			r.Post("/confirmacao", clientHandler.PostConfirmOrder)
 		})
 	})
@@ -144,6 +146,7 @@ func main() {
 
 				r.Get("/pricetable", productHandler.GetTablePage)
 				r.Post("/pricetable", productHandler.CreatePriceTable)
+				r.Delete("/pricetable/{id}", productHandler.DeletePriceTable)
 
 				r.Post("/", productHandler.PostNewProduct)
 				r.Post("/{id}", productHandler.UpdateProduct)

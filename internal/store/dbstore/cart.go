@@ -79,6 +79,7 @@ func (c *CartStore) CountItems(cartID uint) (int64, error) {
 
 func (c *CartStore) ListCheckoutItems(cartID, tenantID uint) ([]store.CartCheckoutItem, error) {
 	type checkoutRow struct {
+		ID        uint
 		ProductID uint
 		Name      string
 		Quantity  int
@@ -88,7 +89,7 @@ func (c *CartStore) ListCheckoutItems(cartID, tenantID uint) ([]store.CartChecko
 	var rows []checkoutRow
 	err := c.db.
 		Table("cart_items ci").
-		Select("ci.product_id, p.name, ci.quantity, ci.unit_price").
+		Select("ci.id, ci.product_id, p.name, ci.quantity, ci.unit_price").
 		Joins("JOIN products p ON p.id = ci.product_id").
 		Where("ci.cart_id = ? AND p.tenant_id = ?", cartID, tenantID).
 		Order("ci.id ASC").
@@ -100,13 +101,26 @@ func (c *CartStore) ListCheckoutItems(cartID, tenantID uint) ([]store.CartChecko
 	items := make([]store.CartCheckoutItem, 0, len(rows))
 	for _, row := range rows {
 		items = append(items, store.CartCheckoutItem{
-			ProductID: row.ProductID,
-			Name:      row.Name,
-			Quantity:  row.Quantity,
-			UnitPrice: row.UnitPrice,
-			Subtotal:  float64(row.Quantity) * row.UnitPrice,
+			CartItemID: row.ID,
+			ProductID:  row.ProductID,
+			Name:       row.Name,
+			Quantity:   row.Quantity,
+			UnitPrice:  row.UnitPrice,
+			Subtotal:   float64(row.Quantity) * row.UnitPrice,
 		})
 	}
 
 	return items, nil
+}
+
+func (c *CartStore) RemoveItem(cartID, productID uint) error {
+	return c.db.
+		Where("cart_id = ? AND product_id = ?", cartID, productID).
+		Delete(&store.CartItem{}).Error
+}
+
+func (c *CartStore) UpdateItemQty(cartID, productID uint, quantity int) error {
+	return c.db.Model(&store.CartItem{}).
+		Where("cart_id = ? AND product_id = ?", cartID, productID).
+		Update("quantity", quantity).Error
 }

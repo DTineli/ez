@@ -8,6 +8,7 @@ import (
 
 	"github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
+	"github.com/go-chi/chi/v5"
 	"gorm.io/gorm"
 )
 
@@ -111,6 +112,65 @@ func (c *ClientHandler) resolveOpenCart(r *http.Request, w http.ResponseWriter, 
 	}
 
 	return newCart, nil
+}
+
+func (c *ClientHandler) DeleteCartItem(w http.ResponseWriter, r *http.Request) {
+	productIDStr := chi.URLParam(r, "productID")
+	productID, err := strconv.ParseUint(productIDStr, 10, 64)
+	if err != nil || productID == 0 {
+		ShowToast(w, "Item invalido", "error")
+		return
+	}
+
+	sess := middleware.GetSessionFromContext(r)
+	cart, err := c.resolveOpenCart(r, w, sess)
+	if err != nil {
+		ShowToast(w, "Erro ao acessar carrinho", "error")
+		return
+	}
+
+	if err := c.cartStore.RemoveItem(cart.ID, uint(productID)); err != nil {
+		ShowToast(w, "Erro ao remover item", "error")
+		return
+	}
+
+	w.Header().Set(HXRedirect, "/client/confirmacao")
+	w.WriteHeader(http.StatusOK)
+}
+
+func (c *ClientHandler) PatchCartItemQty(w http.ResponseWriter, r *http.Request) {
+	productIDStr := chi.URLParam(r, "productID")
+	productID, err := strconv.ParseUint(productIDStr, 10, 64)
+	if err != nil || productID == 0 {
+		ShowToast(w, "Item invalido", "error")
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		ShowToast(w, "Dados invalidos", "error")
+		return
+	}
+
+	qty, err := strconv.Atoi(r.FormValue("qty"))
+	if err != nil || qty <= 0 {
+		ShowToast(w, "Quantidade invalida", "error")
+		return
+	}
+
+	sess := middleware.GetSessionFromContext(r)
+	cart, err := c.resolveOpenCart(r, w, sess)
+	if err != nil {
+		ShowToast(w, "Erro ao acessar carrinho", "error")
+		return
+	}
+
+	if err := c.cartStore.UpdateItemQty(cart.ID, uint(productID), qty); err != nil {
+		ShowToast(w, "Erro ao atualizar quantidade", "error")
+		return
+	}
+
+	w.Header().Set(HXRedirect, "/client/confirmacao")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (c *ClientHandler) PostConfirmOrder(w http.ResponseWriter, r *http.Request) {

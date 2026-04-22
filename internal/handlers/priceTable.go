@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
 	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
@@ -99,4 +100,34 @@ func (p *ProductHandler) CreatePriceTable(w http.ResponseWriter, r *http.Request
 
 	ShowToast(w, "Tabela Cadastrada", "success")
 	templates.TableRow(table).Render(r.Context(), w)
+}
+
+func (p *ProductHandler) DeletePriceTable(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil || id == 0 {
+		ShowToast(w, "Tabela inválida", "error")
+		return
+	}
+
+	hasContacts, err := p.priceTableStore.HasContacts(uint(id), sess.TenantID)
+	if err != nil {
+		ShowToast(w, "Erro ao verificar clientes", "error")
+		return
+	}
+	if hasContacts {
+		ShowToast(w, "Tabela possui clientes vinculados e não pode ser excluída", "error")
+		return
+	}
+
+	if err := p.priceTableStore.Delete(uint(id), sess.TenantID); err != nil {
+		ShowToast(w, "Erro ao excluir tabela", "error")
+		return
+	}
+
+	ShowToast(w, "Tabela excluída", "success")
+	w.Header().Set("HX-Trigger", `{"priceTableDeleted": {}}`)
+	w.WriteHeader(http.StatusOK)
 }
