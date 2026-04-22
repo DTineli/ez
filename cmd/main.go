@@ -79,21 +79,23 @@ func main() {
 
 	//Creating handlers
 	pStore := dbstore.NewProductStore(db)
+	priceTableStore := dbstore.NewPriceTableDB(db)
 	productHandler := handlers.NewProductHandler(
 		pStore,
-		dbstore.NewPriceTableDB(db),
+		priceTableStore,
 	)
 
 	contactHandler := handlers.NewContactHandler(
 		handlers.NewContactHandlerParams{
-			Contact: contactStore,
-			Invite:  invite,
+			Contact:    contactStore,
+			Invite:     invite,
+			PriceTable: priceTableStore,
 		},
 	)
 
 	cartStore := dbstore.NewCartStore(db)
 	orderStore := dbstore.NewOrderStore(db)
-	clientHandler := handlers.NewClientHandler(pStore, cartStore, orderStore, clientSessionStore)
+	clientHandler := handlers.NewClientHandler(pStore, cartStore, orderStore, clientSessionStore, priceTableStore)
 	adminOrderHandler := handlers.NewAdminOrderHandler(orderStore, contactStore, pStore)
 
 	r.Route("/client", func(r chi.Router) {

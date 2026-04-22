@@ -36,13 +36,21 @@ func (c *ClientHandler) PostAddToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	priceTable, err := c.priceTableStore.GetOne(sess.ContactInfo.PriceTable, sess.TenantID)
+	if err != nil {
+		ShowToast(w, "Tabela de preço não encontrada", "error")
+		return
+	}
+
+	price := product.CostPrice * (1 + priceTable.Percentage/100)
+
 	cart, err := c.resolveOpenCart(r, w, sess)
 	if err != nil {
 		ShowToast(w, "Erro ao preparar carrinho", "error")
 		return
 	}
 
-	if err := c.cartStore.AddOrIncrementItem(cart.ID, product.ID, qty, product.CostPrice); err != nil {
+	if err := c.cartStore.AddOrIncrementItem(cart.ID, product.ID, qty, price); err != nil {
 		ShowToast(w, "Erro ao adicionar item", "error")
 		return
 	}

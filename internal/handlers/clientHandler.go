@@ -14,10 +14,11 @@ import (
 )
 
 type ClientHandler struct {
-	productStore store.ProductStore
-	cartStore    store.CartStore
-	orderStore   store.OrderStore
-	sessionStore store.SessionStore
+	productStore    store.ProductStore
+	cartStore       store.CartStore
+	orderStore      store.OrderStore
+	sessionStore    store.SessionStore
+	priceTableStore store.PriceTableStore
 }
 
 func NewClientHandler(
@@ -25,12 +26,14 @@ func NewClientHandler(
 	cStore store.CartStore,
 	oStore store.OrderStore,
 	sStore store.SessionStore,
+	ptStore store.PriceTableStore,
 ) *ClientHandler {
 	return &ClientHandler{
-		productStore: pStore,
-		cartStore:    cStore,
-		orderStore:   oStore,
-		sessionStore: sStore,
+		productStore:    pStore,
+		cartStore:       cStore,
+		orderStore:      oStore,
+		sessionStore:    sStore,
+		priceTableStore: ptStore,
 	}
 }
 
@@ -73,13 +76,20 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	priceTable, err := c.priceTableStore.GetOne(sess.ContactInfo.PriceTable, sess.TenantID)
+	if err != nil {
+		http.Error(w, "Tabela de preço não encontrada. Contate o administrador.", http.StatusUnprocessableEntity)
+		return
+	}
+
 	var cards []store.CardData
 
 	for _, p := range products.Results {
+		price := p.CostPrice * (1 + priceTable.Percentage/100)
 		cards = append(cards, store.CardData{
 			ID:         p.ID,
 			Name:       p.Name,
-			Price:      p.CostPrice,
+			Price:      price,
 			Photo_Link: "",
 		})
 	}
