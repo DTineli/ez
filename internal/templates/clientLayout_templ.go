@@ -71,14 +71,14 @@ func client_topBar(titulo string, cartCount int64) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<header class=\"sticky top-0 z-40 w-full border-b border-slate-200/60 bg-white/85 backdrop-blur-lg dark:border-slate-700/60 dark:bg-slate-900/85\"><div class=\"mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6\"><!-- esquerda (placeholder pra manter centro real) --><div class=\"w-8\"></div><!-- titulo --><h1 class=\"flex h-full items-center justify-center truncate font-['Manrope'] text-base font-extrabold tracking-tight text-cyan-900 dark:text-cyan-50 sm:text-lg\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<header class=\"sticky top-0 z-40 w-full border-b border-slate-200/60 bg-white/85 backdrop-blur-lg dark:border-slate-700/60 dark:bg-slate-900/85\"><div class=\"mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6\"><!-- esquerda --><button type=\"button\" hx-post=\"/client/logout\" hx-swap=\"none\" class=\"flex items-center justify-center text-slate-400 transition hover:text-red-500 active:scale-95\" title=\"Sair\"><span class=\"material-symbols-outlined\">logout</span></button><!-- titulo --><h1 class=\"flex h-full items-center justify-center truncate font-['Manrope'] text-base font-extrabold tracking-tight text-cyan-900 dark:text-cyan-50 sm:text-lg\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(titulo)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 113, Col: 12}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 121, Col: 12}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -96,7 +96,7 @@ func client_topBar(titulo string, cartCount int64) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(cartCount)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 124, Col: 18}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 132, Col: 18}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
