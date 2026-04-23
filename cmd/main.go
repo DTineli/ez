@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/store/cookiesotore"
 	"github.com/DTineli/ez/internal/store/dbstore"
+	"github.com/DTineli/ez/internal/templates"
 
 	database "github.com/DTineli/ez/internal/store/db"
 
@@ -80,8 +82,14 @@ func main() {
 		http.Redirect(w, r, "/client/login", http.StatusFound)
 	})
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		backURL := "/"
+		if strings.HasPrefix(r.URL.Path, "/admin") {
+			backURL = "/admin/"
+		} else if strings.HasPrefix(r.URL.Path, "/client") {
+			backURL = "/client/items"
+		}
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("Página não encontrada."))
+		templates.NotFoundPage(backURL).Render(r.Context(), w)
 	})
 
 	registerClientRoutes(r, loginHandler, registerHandler, clientHandler, clientSessionStore)
