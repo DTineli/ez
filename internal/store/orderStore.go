@@ -52,9 +52,17 @@ type NewOrderItem struct {
 	UnitPrice float64
 }
 
+type ClientOrderListItem struct {
+	ID          uint
+	Status      OrderStatus
+	TotalAmount float64
+	CreatedAt   time.Time
+}
+
 type OrderStore interface {
 	ConfirmFromCart(cartID, tenantID, contactID uint) (*Order, error)
 	ListByTenant(tenantID uint) ([]AdminOrderListItem, error)
+	ListByContact(tenantID, contactID uint) ([]ClientOrderListItem, error)
 	GetByID(id, tenantID uint) (*OrderDetail, error)
 	Create(tenantID, contactID uint, items []NewOrderItem) (*Order, error)
 }

@@ -146,14 +146,14 @@ func ProductCard(info store.CardData) templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900\" x-data=\"{ qty: 1 }\"><!-- NOME + PREÇO --><div class=\"min-w-0 flex-1\"><p class=\"truncate text-sm font-semibold text-slate-800 dark:text-slate-100\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900\" x-data=\"{ qty: 1, confirming: false }\"><!-- ESTADO NORMAL --><div x-show=\"!confirming\" class=\"flex items-center gap-3\"><div class=\"min-w-0 flex-1\"><p class=\"truncate text-sm font-semibold text-slate-800 dark:text-slate-100\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(info.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientProducts.templ`, Line: 71, Col: 15}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientProducts.templ`, Line: 71, Col: 92}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -166,26 +166,26 @@ func ProductCard(info store.CardData) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", info.Price))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientProducts.templ`, Line: 74, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientProducts.templ`, Line: 73, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</p></div><!-- AÇÃO --><form hx-post=\"/client/cart/items\" hx-swap=\"none\" class=\"flex shrink-0 items-center gap-2\"><input type=\"hidden\" name=\"product_id\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</p></div><div class=\"flex shrink-0 items-center gap-2\"><div class=\"flex items-center rounded-lg border border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300\"><button type=\"button\" class=\"px-2.5 py-2 text-base leading-none\" @click=\"qty = Math.max(1, qty - 1)\">−</button> <input type=\"number\" min=\"1\" x-model=\"qty\" class=\"w-8 bg-transparent text-center text-sm font-bold outline-none\"> <button type=\"button\" class=\"px-2.5 py-2 text-base leading-none\" @click=\"qty++\">+</button></div><button type=\"button\" @click=\"confirming = true\" class=\"rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition active:scale-95 hover:bg-emerald-700\">+</button></div></div><!-- CONFIRMAÇÃO --><div x-show=\"confirming\" x-cloak><p class=\"mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200\">Adicionar <span class=\"font-extrabold text-emerald-600\" x-text=\"qty\"></span> un. ao carrinho?</p><div class=\"flex gap-2\"><button type=\"button\" @click=\"confirming = false\" class=\"flex-1 rounded-lg border border-slate-200 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800\">Cancelar</button> <button type=\"button\" hx-post=\"/client/cart/items\" hx-swap=\"none\" :hx-vals=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", info.ID))
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("JSON.stringify({product_id: %d, qty: qty})", info.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientProducts.templ`, Line: 83, Col: 76}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientProducts.templ`, Line: 104, Col: 82}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\"> <input type=\"hidden\" name=\"qty\" x-bind:value=\"qty\"><!-- STEPPER --><div class=\"flex items-center rounded-lg border border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300\"><button type=\"button\" class=\"px-2.5 py-2 text-base leading-none\" @click=\"qty = Math.max(1, qty - 1)\">−</button> <input type=\"number\" min=\"1\" x-model=\"qty\" class=\"w-8 bg-transparent text-center text-sm font-bold outline-none\"> <button type=\"button\" class=\"px-2.5 py-2 text-base leading-none\" @click=\"qty++\">+</button></div><!-- BOTÃO --><button type=\"submit\" class=\"rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition active:scale-95 hover:bg-emerald-700\">+</button></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" @click=\"confirming = false\" class=\"flex-1 rounded-lg bg-emerald-600 py-2 text-xs font-bold text-white transition hover:bg-emerald-700\">Sim, adicionar</button></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

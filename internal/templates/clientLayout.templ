@@ -98,6 +98,7 @@ templ client_header(title string) {
     body {
       min-height: max(884px, 100dvh);
     }
+    [x-cloak] { display: none !important; }
   </style>
 	</head>
 }
@@ -162,8 +163,12 @@ templ bottonNavBar(activeTab string) {
 				<span class="mt-1 font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Carrinho</span>
 		</a>
 		<a
-				class="flex min-w-24 flex-col items-center justify-center px-4 py-2 text-slate-500 transition-opacity hover:opacity-80 dark:text-slate-400"
-			href="#"
+				if activeTab == "pedidos" {
+					class="flex min-w-24 flex-col items-center justify-center rounded-xl bg-cyan-900 px-4 py-2 text-white transition-all duration-200 dark:bg-cyan-200 dark:text-cyan-900"
+				} else {
+					class="flex min-w-24 flex-col items-center justify-center px-4 py-2 text-slate-500 transition-opacity hover:opacity-80 dark:text-slate-400"
+				}
+			href="/client/pedidos"
 		>
 			<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
 				<span class="mt-1 font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Pedidos</span>

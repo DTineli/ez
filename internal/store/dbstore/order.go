@@ -108,6 +108,19 @@ func (o *OrderStore) ListByTenant(tenantID uint) ([]store.AdminOrderListItem, er
 	return modelRows, nil
 }
 
+func (o *OrderStore) ListByContact(tenantID, contactID uint) ([]store.ClientOrderListItem, error) {
+	var rows []store.ClientOrderListItem
+	err := o.db.Table("orders").
+		Select("id, status, total_amount, created_at").
+		Where("tenant_id = ? AND contact_id = ?", tenantID, contactID).
+		Order("id DESC").
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
+}
+
 func (o *OrderStore) GetByID(id, tenantID uint) (*store.OrderDetail, error) {
 	var order store.Order
 	if err := o.db.Preload("Items").Where("id = ? AND tenant_id = ?", id, tenantID).First(&order).Error; err != nil {

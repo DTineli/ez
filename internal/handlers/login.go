@@ -36,8 +36,7 @@ func NewLoginHandler(params LoginHandlerParams) *LoginHandler {
 }
 
 func (h *LoginHandler) GetClientLoginPage(w http.ResponseWriter, r *http.Request) {
-	var isClient = true
-	err := templates.LoginPage(isClient).Render(r.Context(), w)
+	err := templates.ClientLoginPage().Render(r.Context(), w)
 
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
@@ -46,8 +45,7 @@ func (h *LoginHandler) GetClientLoginPage(w http.ResponseWriter, r *http.Request
 }
 
 func (h *LoginHandler) GetAdminLoginPage(w http.ResponseWriter, r *http.Request) {
-	var isClient = false
-	err := templates.LoginPage(isClient).Render(r.Context(), w)
+	err := templates.AdminLoginPage().Render(r.Context(), w)
 
 	if err != nil {
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
@@ -77,6 +75,10 @@ func (h *LoginHandler) customerLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	phone_number := strings.TrimSpace(r.FormValue("phone_number"))
+	phone_number = strings.NewReplacer(")", "", "(", "", "-", "", " ", "").Replace(phone_number)
+
+	fmt.Println(phone_number)
+
 	password := r.FormValue("password")
 
 	if phone_number == "" {
@@ -100,7 +102,7 @@ func (h *LoginHandler) customerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	page_slug := strings.Split(r.Host, ".")[0]
+	page_slug := slugFromHost(r.Host)
 	tenant, err := h.tenantStore.GetTenantBySlug(page_slug)
 
 	if err != nil {
@@ -137,7 +139,7 @@ func (h *LoginHandler) customerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set(HXRedirect, "/client/produtos")
+	w.Header().Set(HXRedirect, "/client/items")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -178,7 +180,7 @@ func (h *LoginHandler) adminLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: Se ele ta no slug errado troca ou da erro ?
-	if tenant.Slug != strings.Split(r.Host, ".")[0] {
+	if tenant.Slug != slugFromHost(r.Host) {
 		writeLoginError(r, w, "slug diferente")
 		return
 	}
@@ -202,14 +204,16 @@ func (h *LoginHandler) adminLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *LoginHandler) PostLogout(w http.ResponseWriter, r *http.Request) {
-
 	err := h.sessionStore.DeleteSession(r, w)
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
 
-	w.Header().Set(HXRedirect, "/login")
+	if strings.HasPrefix(r.URL.Path, "/admin") {
+		w.Header().Set(HXRedirect, "/admin/login")
+	} else {
+		w.Header().Set(HXRedirect, "/client/login")
+	}
 	w.WriteHeader(http.StatusOK)
 }
 

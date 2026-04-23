@@ -195,7 +195,7 @@ func upbar() templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"flex items-center justify-between px-6 h-14 bg-base-100 border-b border-base-200\"><a class=\"font-bold text-lg tracking-tight\" hx-get=\"/admin\" hx-target=\"#main-content\" hx-swap=\"innerHTML\">Sistema</a><div class=\"flex items-center gap-3\"><label class=\"flex items-center gap-1 cursor-pointer\"><span class=\"text-xs text-base-content/50\">Dark</span> <input type=\"checkbox\" value=\"dark\" class=\"toggle toggle-sm theme-controller\"></label> <button type=\"button\" hx-post=\"/logout\" class=\"btn btn-ghost btn-sm\">Sair</button></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"flex items-center justify-between px-6 h-14 bg-base-100 border-b border-base-200\"><a class=\"font-bold text-lg tracking-tight\" hx-get=\"/admin\" hx-target=\"#main-content\" hx-swap=\"innerHTML\">Sistema</a><div class=\"flex items-center gap-3\"><label class=\"flex items-center gap-1 cursor-pointer\"><span class=\"text-xs text-base-content/50\">Dark</span> <input type=\"checkbox\" value=\"dark\" class=\"toggle toggle-sm theme-controller\"></label> <button type=\"button\" hx-post=\"/admin/logout\" class=\"btn btn-ghost btn-sm\">Sair</button></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

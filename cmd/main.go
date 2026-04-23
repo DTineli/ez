@@ -76,6 +76,14 @@ func main() {
 	fileServer := http.FileServer(http.Dir("./static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
 
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/client/login", http.StatusFound)
+	})
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("Página não encontrada."))
+	})
+
 	registerClientRoutes(r, loginHandler, registerHandler, clientHandler, clientSessionStore)
 	registerAdminRoutes(r, loginHandler, registerHandler, productHandler, contactHandler, adminOrderHandler, sessionStore)
 
@@ -137,6 +145,8 @@ func registerClientRoutes(
 			r.Delete("/cart/items/{productID}", client.DeleteCartItem)
 			r.Patch("/cart/items/{productID}", client.PatchCartItemQty)
 			r.Post("/confirmacao", client.PostConfirmOrder)
+			r.Get("/pedidos", client.GetOrdersPage)
+			r.Get("/pedidos/{id}", client.GetOrderDetail)
 		})
 	})
 }

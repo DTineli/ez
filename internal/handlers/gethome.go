@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strings"
 
 	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
@@ -20,7 +19,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	const website_name = "EZ"
 	var is_hxRequest = r.Header.Get("HX-Request") == "true"
 
-	slug := strings.Split(r.Host, ".")[0]
+	slug := slugFromHost(r.Host)
 
 	sessionInfo := m.GetSessionFromContext(r)
 
