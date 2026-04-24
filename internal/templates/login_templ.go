@@ -29,7 +29,7 @@ func LoginErrors(message string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"rounded-lg bg-red-500/20 border border-red-500/50 text-red-200 px-4 py-3 text-sm mb-4\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -50,7 +50,7 @@ func LoginErrors(message string) templ.Component {
 	})
 }
 
-func LoginPage(client bool) templ.Component {
+func AdminLoginPage() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -75,56 +75,48 @@ func LoginPage(client bool) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = header("Sistema - Login Page").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = header("ez - Login").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"min-h-screen flex items-center justify-center bg-black text-gray-100\"><div class=\"w-full max-w-md bg-zinc-900 p-8 rounded-2xl shadow-lg\"><h1 class=\"text-2xl font-semibold mb-6 text-center\">Entrar</h1><div id=\"login-messages\" class=\"min-h-[1rem]\"></div><form class=\"flex flex-col space-y-4\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<body class=\"min-h-screen bg-base-200 flex items-center justify-center p-4\"><div class=\"card w-full max-w-sm bg-base-100 shadow-sm border border-base-300\"><div class=\"card-body gap-5\"><div class=\"text-center\"><h1 class=\"text-2xl font-bold\">Acesso Administrativo</h1><p class=\"text-base-content/50 text-sm mt-1\">Entre com suas credenciais</p></div><div id=\"login-messages\"></div><form hx-post=\"/admin/login\" hx-target=\"#login-messages\" hx-swap=\"innerHTML\" class=\"flex flex-col gap-4\"><div class=\"form-control\"><label class=\"label py-1\"><span class=\"label-text text-sm font-medium\">Email</span></label> <input type=\"email\" name=\"email\" class=\"input input-bordered input-sm\" placeholder=\"seu@email.com\" required autocomplete=\"email\"></div><div class=\"form-control\"><label class=\"label py-1\"><span class=\"label-text text-sm font-medium\">Senha</span></label> <input type=\"password\" name=\"password\" class=\"input input-bordered input-sm\" placeholder=\"••••••••\" required autocomplete=\"current-password\"></div><button type=\"submit\" class=\"btn btn-primary btn-sm mt-1\">Entrar</button></form></div></div></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if client {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " hx-post=\"/client/login\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " hx-post=\"/admin/login\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
+		return nil
+	})
+}
+
+func ClientLoginPage() templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " hx-target=\"#login-messages\" hx-swap=\"innerHTML\"><div class=\"flex flex-col\">")
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var4 == nil {
+			templ_7745c5c3_Var4 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<!doctype html><html lang=\"pt-br\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if client {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<label class=\"text-sm mb-1\">Numero de telefone</label> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<label class=\"text-sm mb-1\">Email</label> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<input type=\"text\"")
+		templ_7745c5c3_Err = client_header("ez - Entrar").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if client {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " name=\"phone_number\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, " name=\"email\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><div class=\"flex flex-col\"><label class=\"text-sm mb-1\">Senha</label> <input type=\"password\" name=\"password\" class=\"bg-zinc-800 border border-zinc-700 rounded-lg p-2 focus:outline-none focus:border-zinc-500\" required></div><button type=\"submit\" class=\"mt-4 bg-white text-black font-medium py-2 rounded-lg hover:bg-gray-200 transition\">Entrar</button></form></div></div></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<body class=\"min-h-dvh bg-slate-50 flex items-center justify-center px-4\"><div class=\"w-full max-w-sm\"><div class=\"mb-8 text-center\"><h1 class=\"font-['Manrope'] text-2xl font-extrabold tracking-tight text-cyan-900\">Bem-vindo</h1><p class=\"mt-1 text-sm text-slate-500\">Entre com seu telefone e senha</p></div><div id=\"login-messages\" class=\"mb-4\"></div><form hx-post=\"/client/login\" hx-target=\"#login-messages\" hx-swap=\"innerHTML\" class=\"flex flex-col gap-4\"><div><label class=\"mb-1.5 block text-sm font-medium text-slate-700\">Telefone</label> <input type=\"tel\" name=\"phone_number\" x-data x-mask=\"(99) 99999-9999\" class=\"w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 shadow-sm outline-none placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100\" placeholder=\"(00) 00000-0000\" required autocomplete=\"tel\"></div><div><label class=\"mb-1.5 block text-sm font-medium text-slate-700\">Senha</label> <input type=\"password\" name=\"password\" class=\"w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 shadow-sm outline-none placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100\" placeholder=\"••••••••\" required autocomplete=\"current-password\"></div><button type=\"submit\" class=\"mt-2 rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white transition active:scale-95 hover:bg-emerald-700\">Entrar</button></form></div></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -1,0 +1,105 @@
+package templates
+
+import (
+	"fmt"
+	"github.com/DTineli/ez/internal/store"
+)
+
+templ ClientOrdersPage(orders []store.ClientOrderListItem) {
+	<div class="space-y-4">
+		<h2 class="font-headline text-xl font-extrabold text-primary">Meus Pedidos</h2>
+		if len(orders) == 0 {
+			<div class="flex flex-col items-center justify-center py-16 text-center">
+				<span class="material-symbols-outlined mb-3 text-5xl text-slate-300">receipt_long</span>
+				<p class="font-body text-sm text-slate-500">Você ainda não fez nenhum pedido.</p>
+				<a href="/client/items" class="mt-4 rounded-full bg-primary px-5 py-2 font-body text-sm font-semibold text-white">
+					Ver produtos
+				</a>
+			</div>
+		} else {
+			<ul class="space-y-3">
+				for _, o := range orders {
+					<li>
+						<a
+							href={ templ.SafeURL(fmt.Sprintf("/client/pedidos/%d", o.ID)) }
+							class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition hover:shadow-md active:scale-[0.99]"
+						>
+							<div class="space-y-0.5">
+								<p class="font-body text-sm font-semibold text-on-surface">
+									{ fmt.Sprintf("Pedido #%d", o.ID) }
+								</p>
+								<p class="font-body text-xs text-slate-400">
+									{ o.CreatedAt.Format("02/01/2006") }
+								</p>
+							</div>
+							<div class="flex items-center gap-3">
+								<span class="rounded-full bg-emerald-100 px-2.5 py-0.5 font-label text-xs font-semibold text-emerald-700">
+									Confirmado
+								</span>
+								<p class="font-body text-sm font-bold text-primary">
+									{ fmt.Sprintf("R$ %.2f", o.TotalAmount) }
+								</p>
+								<span class="material-symbols-outlined text-base text-slate-400">chevron_right</span>
+							</div>
+						</a>
+					</li>
+				}
+			</ul>
+		}
+	</div>
+}
+
+templ ClientOrderDetailPage(order *store.OrderDetail) {
+	<div class="space-y-5">
+		<div class="flex items-center gap-2">
+			<a href="/client/pedidos" class="flex items-center text-slate-400 hover:text-primary">
+				<span class="material-symbols-outlined text-xl">arrow_back</span>
+			</a>
+			<h2 class="font-headline text-xl font-extrabold text-primary">
+				{ fmt.Sprintf("Pedido #%d", order.ID) }
+			</h2>
+		</div>
+		<!-- cabeçalho do pedido -->
+		<div class="rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
+			<div class="flex items-center justify-between">
+				<div class="space-y-0.5">
+					<p class="font-body text-xs text-slate-400">Data</p>
+					<p class="font-body text-sm font-semibold text-on-surface">{ order.CreatedAt.Format("02/01/2006 15:04") }</p>
+				</div>
+				<div class="text-right">
+					<p class="font-body text-xs text-slate-400">Status</p>
+					<span class="rounded-full bg-emerald-100 px-2.5 py-0.5 font-label text-xs font-semibold text-emerald-700">
+						Confirmado
+					</span>
+				</div>
+			</div>
+		</div>
+		<!-- itens -->
+		<div class="rounded-xl border border-slate-200 bg-white shadow-sm">
+			<div class="border-b border-slate-100 px-4 py-3">
+				<p class="font-body text-sm font-semibold text-on-surface">Itens</p>
+			</div>
+			<ul class="divide-y divide-slate-100">
+				for _, item := range order.Items {
+					<li class="flex items-center justify-between px-4 py-3">
+						<div class="space-y-0.5">
+							<p class="font-body text-sm font-medium text-on-surface">{ item.Name }</p>
+							<p class="font-body text-xs text-slate-400">
+								{ fmt.Sprintf("%d × R$ %.2f", item.Quantity, item.UnitPrice) }
+							</p>
+						</div>
+						<p class="font-body text-sm font-semibold text-on-surface">
+							{ fmt.Sprintf("R$ %.2f", item.Subtotal) }
+						</p>
+					</li>
+				}
+			</ul>
+			<div class="flex items-center justify-between border-t border-slate-200 px-4 py-3">
+				<p class="font-body text-sm font-semibold text-on-surface">Total</p>
+				<p class="font-body text-base font-extrabold text-primary">
+					{ fmt.Sprintf("R$ %.2f", order.TotalAmount) }
+				</p>
+			</div>
+		</div>
+	</div>
+}

@@ -42,7 +42,7 @@ func client_header(title string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><meta charset=\"UTF-8\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"/static/script/response-targets.js\"></script><link rel=\"stylesheet\" href=\"/static/css/style.css\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><!-- Alpine Plugins --><script defer src=\"https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js\"></script><!-- Alpine Core --><script defer src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js\"></script><script src=\"https://cdn.tailwindcss.com\"></script><link href=\"https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap\" rel=\"stylesheet\"><link href=\"https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap\" rel=\"stylesheet\"><link href=\"https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap\" rel=\"stylesheet\"><script id=\"tailwind-config\">\n      tailwind.config = {\n        darkMode: \"class\",\n        theme: {\n          extend: {\n            \"colors\": {\n                    \"secondary-container\": \"#d4e1ee\",\n                    \"on-surface\": \"#191c1d\",\n                    \"secondary-fixed\": \"#d7e4f1\",\n                    \"secondary-fixed-dim\": \"#bbc8d5\",\n                    \"secondary\": \"#53606b\",\n                    \"inverse-primary\": \"#97cdf6\",\n                    \"outline\": \"#71787f\",\n                    \"inverse-on-surface\": \"#f0f1f2\",\n                    \"tertiary-fixed\": \"#ffdcbf\",\n                    \"on-secondary-container\": \"#57646f\",\n                    \"on-surface-variant\": \"#41484e\",\n                    \"background\": \"#f8f9fa\",\n                    \"on-secondary-fixed\": \"#101d26\",\n                    \"error\": \"#ba1a1a\",\n                    \"primary\": \"#00334d\",\n                    \"on-tertiary-fixed-variant\": \"#6a3c03\",\n                    \"on-background\": \"#191c1d\",\n                    \"on-tertiary\": \"#ffffff\",\n                    \"surface-container-high\": \"#e7e8e9\",\n                    \"surface-container-highest\": \"#e1e3e4\",\n                    \"on-primary-container\": \"#85bae3\",\n                    \"on-tertiary-fixed\": \"#2d1600\",\n                    \"on-secondary-fixed-variant\": \"#3b4853\",\n                    \"on-primary\": \"#ffffff\",\n                    \"tertiary-container\": \"#693b03\",\n                    \"on-error-container\": \"#93000a\",\n                    \"tertiary\": \"#4a2700\",\n                    \"primary-fixed-dim\": \"#97cdf6\",\n                    \"on-primary-fixed\": \"#001e2f\",\n                    \"primary-fixed\": \"#c9e6ff\",\n                    \"surface-variant\": \"#e1e3e4\",\n                    \"surface-tint\": \"#296388\",\n                    \"surface-container\": \"#edeeef\",\n                    \"primary-container\": \"#004b6e\",\n                    \"surface-container-low\": \"#f3f4f5\",\n                    \"surface\": \"#f8f9fa\",\n                    \"tertiary-fixed-dim\": \"#fdb878\",\n                    \"inverse-surface\": \"#2e3132\",\n                    \"error-container\": \"#ffdad6\",\n                    \"surface-dim\": \"#d9dadb\",\n                    \"on-error\": \"#ffffff\",\n                    \"on-tertiary-container\": \"#e9a768\",\n                    \"on-secondary\": \"#ffffff\",\n                    \"outline-variant\": \"#c1c7cf\",\n                    \"surface-bright\": \"#f8f9fa\",\n                    \"surface-container-lowest\": \"#ffffff\",\n                    \"on-primary-fixed-variant\": \"#014b6e\"\n            },\n            \"borderRadius\": {\n                    \"DEFAULT\": \"0.125rem\",\n                    \"lg\": \"0.25rem\",\n                    \"xl\": \"0.5rem\",\n                    \"full\": \"0.75rem\"\n            },\n            \"fontFamily\": {\n                    \"headline\": [\"Manrope\"],\n                    \"body\": [\"Inter\"],\n                    \"label\": [\"Inter\"]\n            }\n          },\n        },\n      }\n    </script><style>\n        .material-symbols-outlined {\n            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;\n        }\n        .glass-fab {\n            background: rgba(243, 244, 245, 0.8);\n            backdrop-filter: blur(20px);\n        }\n    </style><style>\n    body {\n      min-height: max(884px, 100dvh);\n    }\n  </style></head>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><meta charset=\"UTF-8\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"/static/script/response-targets.js\"></script><link rel=\"stylesheet\" href=\"/static/css/style.css\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><!-- Alpine Plugins --><script defer src=\"https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js\"></script><!-- Alpine Core --><script defer src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js\"></script><script src=\"https://cdn.tailwindcss.com\"></script><link href=\"https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap\" rel=\"stylesheet\"><link href=\"https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap\" rel=\"stylesheet\"><link href=\"https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap\" rel=\"stylesheet\"><script id=\"tailwind-config\">\n      tailwind.config = {\n        darkMode: \"class\",\n        theme: {\n          extend: {\n            \"colors\": {\n                    \"secondary-container\": \"#d4e1ee\",\n                    \"on-surface\": \"#191c1d\",\n                    \"secondary-fixed\": \"#d7e4f1\",\n                    \"secondary-fixed-dim\": \"#bbc8d5\",\n                    \"secondary\": \"#53606b\",\n                    \"inverse-primary\": \"#97cdf6\",\n                    \"outline\": \"#71787f\",\n                    \"inverse-on-surface\": \"#f0f1f2\",\n                    \"tertiary-fixed\": \"#ffdcbf\",\n                    \"on-secondary-container\": \"#57646f\",\n                    \"on-surface-variant\": \"#41484e\",\n                    \"background\": \"#f8f9fa\",\n                    \"on-secondary-fixed\": \"#101d26\",\n                    \"error\": \"#ba1a1a\",\n                    \"primary\": \"#00334d\",\n                    \"on-tertiary-fixed-variant\": \"#6a3c03\",\n                    \"on-background\": \"#191c1d\",\n                    \"on-tertiary\": \"#ffffff\",\n                    \"surface-container-high\": \"#e7e8e9\",\n                    \"surface-container-highest\": \"#e1e3e4\",\n                    \"on-primary-container\": \"#85bae3\",\n                    \"on-tertiary-fixed\": \"#2d1600\",\n                    \"on-secondary-fixed-variant\": \"#3b4853\",\n                    \"on-primary\": \"#ffffff\",\n                    \"tertiary-container\": \"#693b03\",\n                    \"on-error-container\": \"#93000a\",\n                    \"tertiary\": \"#4a2700\",\n                    \"primary-fixed-dim\": \"#97cdf6\",\n                    \"on-primary-fixed\": \"#001e2f\",\n                    \"primary-fixed\": \"#c9e6ff\",\n                    \"surface-variant\": \"#e1e3e4\",\n                    \"surface-tint\": \"#296388\",\n                    \"surface-container\": \"#edeeef\",\n                    \"primary-container\": \"#004b6e\",\n                    \"surface-container-low\": \"#f3f4f5\",\n                    \"surface\": \"#f8f9fa\",\n                    \"tertiary-fixed-dim\": \"#fdb878\",\n                    \"inverse-surface\": \"#2e3132\",\n                    \"error-container\": \"#ffdad6\",\n                    \"surface-dim\": \"#d9dadb\",\n                    \"on-error\": \"#ffffff\",\n                    \"on-tertiary-container\": \"#e9a768\",\n                    \"on-secondary\": \"#ffffff\",\n                    \"outline-variant\": \"#c1c7cf\",\n                    \"surface-bright\": \"#f8f9fa\",\n                    \"surface-container-lowest\": \"#ffffff\",\n                    \"on-primary-fixed-variant\": \"#014b6e\"\n            },\n            \"borderRadius\": {\n                    \"DEFAULT\": \"0.125rem\",\n                    \"lg\": \"0.25rem\",\n                    \"xl\": \"0.5rem\",\n                    \"full\": \"0.75rem\"\n            },\n            \"fontFamily\": {\n                    \"headline\": [\"Manrope\"],\n                    \"body\": [\"Inter\"],\n                    \"label\": [\"Inter\"]\n            }\n          },\n        },\n      }\n    </script><style>\n        .material-symbols-outlined {\n            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;\n        }\n        .glass-fab {\n            background: rgba(243, 244, 245, 0.8);\n            backdrop-filter: blur(20px);\n        }\n    </style><style>\n    body {\n      min-height: max(884px, 100dvh);\n    }\n    [x-cloak] { display: none !important; }\n  </style></head>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -71,14 +71,14 @@ func client_topBar(titulo string, cartCount int64) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<header class=\"sticky top-0 z-40 w-full border-b border-slate-200/60 bg-white/85 backdrop-blur-lg dark:border-slate-700/60 dark:bg-slate-900/85\"><div class=\"mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6\"><!-- esquerda (placeholder pra manter centro real) --><div class=\"w-8\"></div><!-- titulo --><h1 class=\"flex h-full items-center justify-center truncate font-['Manrope'] text-base font-extrabold tracking-tight text-cyan-900 dark:text-cyan-50 sm:text-lg\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<header class=\"sticky top-0 z-40 w-full border-b border-slate-200/60 bg-white/85 backdrop-blur-lg dark:border-slate-700/60 dark:bg-slate-900/85\"><div class=\"mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6\"><!-- esquerda --><button type=\"button\" hx-post=\"/client/logout\" hx-swap=\"none\" class=\"flex items-center justify-center text-slate-400 transition hover:text-red-500 active:scale-95\" title=\"Sair\"><span class=\"material-symbols-outlined\">logout</span></button><!-- titulo --><h1 class=\"flex h-full items-center justify-center truncate font-['Manrope'] text-base font-extrabold tracking-tight text-cyan-900 dark:text-cyan-50 sm:text-lg\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(titulo)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 112, Col: 12}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 121, Col: 12}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -96,7 +96,7 @@ func client_topBar(titulo string, cartCount int64) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(cartCount)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 123, Col: 18}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 132, Col: 18}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -171,7 +171,22 @@ func bottonNavBar(activeTab string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " href=\"/client/confirmacao\"><span class=\"material-symbols-outlined\" data-icon=\"shopping_bag\">shopping_bag</span> <span class=\"mt-1 font-['Inter'] text-[11px] font-semibold uppercase tracking-wider\">Carrinho</span></a> <a class=\"flex min-w-24 flex-col items-center justify-center px-4 py-2 text-slate-500 transition-opacity hover:opacity-80 dark:text-slate-400\" href=\"#\"><span class=\"material-symbols-outlined\" data-icon=\"receipt_long\">receipt_long</span> <span class=\"mt-1 font-['Inter'] text-[11px] font-semibold uppercase tracking-wider\">Pedidos</span></a></div></nav>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " href=\"/client/confirmacao\"><span class=\"material-symbols-outlined\" data-icon=\"shopping_bag\">shopping_bag</span> <span class=\"mt-1 font-['Inter'] text-[11px] font-semibold uppercase tracking-wider\">Carrinho</span></a> <a")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if activeTab == "pedidos" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " class=\"flex min-w-24 flex-col items-center justify-center rounded-xl bg-cyan-900 px-4 py-2 text-white transition-all duration-200 dark:bg-cyan-200 dark:text-cyan-900\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " class=\"flex min-w-24 flex-col items-center justify-center px-4 py-2 text-slate-500 transition-opacity hover:opacity-80 dark:text-slate-400\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " href=\"/client/pedidos\"><span class=\"material-symbols-outlined\" data-icon=\"receipt_long\">receipt_long</span> <span class=\"mt-1 font-['Inter'] text-[11px] font-semibold uppercase tracking-wider\">Pedidos</span></a></div></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -200,7 +215,7 @@ func VaiCorinthians() templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<h1>Vai Corinthians</h1>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<h1>Vai Corinthians</h1>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -229,7 +244,7 @@ func Layout_Client(content templ.Component, cartCount int64, activeTab string) t
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<!doctype html><html lang=\"pt-br\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<!doctype html><html lang=\"pt-br\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -237,7 +252,7 @@ func Layout_Client(content templ.Component, cartCount int64, activeTab string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<body class=\"min-h-dvh bg-slate-50 text-on-surface font-body antialiased dark:bg-slate-950\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<body class=\"min-h-dvh bg-slate-50 text-on-surface font-body antialiased dark:bg-slate-950\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -245,7 +260,7 @@ func Layout_Client(content templ.Component, cartCount int64, activeTab string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<main class=\"mx-auto w-full max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pt-8\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<main class=\"mx-auto w-full max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pt-8\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -253,7 +268,7 @@ func Layout_Client(content templ.Component, cartCount int64, activeTab string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</main>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -261,7 +276,7 @@ func Layout_Client(content templ.Component, cartCount int64, activeTab string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<script>\n\t\t\t\tdocument.body.addEventListener(\"cartCountUpdated\", function (event) {\n\t\t\t\t\tconst badge = document.getElementById(\"cart-count-badge\");\n\t\t\t\t\tif (!badge) return;\n\t\t\t\t\tconst count = Number(event.detail?.count || 0);\n\t\t\t\t\tbadge.textContent = String(count);\n\t\t\t\t\tif (count > 0) {\n\t\t\t\t\t\tbadge.classList.remove(\"hidden\");\n\t\t\t\t\t} else {\n\t\t\t\t\t\tbadge.classList.add(\"hidden\");\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t</script></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<script>\n\t\t\t\tdocument.body.addEventListener(\"cartCountUpdated\", function (event) {\n\t\t\t\t\tconst badge = document.getElementById(\"cart-count-badge\");\n\t\t\t\t\tif (!badge) return;\n\t\t\t\t\tconst count = Number(event.detail?.count || 0);\n\t\t\t\t\tbadge.textContent = String(count);\n\t\t\t\t\tif (count > 0) {\n\t\t\t\t\t\tbadge.classList.remove(\"hidden\");\n\t\t\t\t\t} else {\n\t\t\t\t\t\tbadge.classList.add(\"hidden\");\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

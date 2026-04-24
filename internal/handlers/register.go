@@ -113,11 +113,14 @@ func parseClientInput(r *http.Request) (*ClientRegisterInput, error) {
 		return nil, fmt.Errorf("Tenant inválido")
 	}
 
+	phone := strings.TrimSpace(r.FormValue("phone"))
+	phone = strings.NewReplacer(")", "", "(", "", "-", "", " ", "").Replace(phone)
+
 	return &ClientRegisterInput{
 		Name:      name,
 		Email:     email,
 		Password:  password,
-		Phone:     r.FormValue("phone"),
+		Phone:     phone,
 		Document:  r.FormValue("document"),
 		ContactID: uint(contactID),
 		TenantID:  uint(tenantID),

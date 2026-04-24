@@ -147,12 +147,25 @@ func ClientCheckoutPage(items []store.CartCheckoutItem, totalAmount float64) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</p></div><button type=\"button\" hx-post=\"/client/confirmacao\" hx-swap=\"none\" class=\"mt-5 w-full rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white transition hover:bg-emerald-700\">Confirmar</button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</p></div><div x-data=\"{ confirming: false }\" class=\"mt-5\"><button x-show=\"!confirming\" type=\"button\" @click=\"confirming = true\" class=\"w-full rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white transition hover:bg-emerald-700\">Confirmar pedido</button><div x-show=\"confirming\" x-cloak class=\"rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4\"><p class=\"mb-3 text-center text-sm font-semibold text-emerald-800\">Confirmar o pedido de <span class=\"font-extrabold\">R$ ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", totalAmount))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 94, Col: 95}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span>?</p><div class=\"flex gap-3\"><button type=\"button\" @click=\"confirming = false\" class=\"flex-1 rounded-xl border border-slate-300 bg-white py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50\">Cancelar</button> <button type=\"button\" hx-post=\"/client/confirmacao\" hx-swap=\"none\" class=\"flex-1 rounded-xl bg-emerald-600 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700\">Sim, confirmar</button></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

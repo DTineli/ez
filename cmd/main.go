@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/store/cookiesotore"
 	"github.com/DTineli/ez/internal/store/dbstore"
+	"github.com/DTineli/ez/internal/templates"
 
 	database "github.com/DTineli/ez/internal/store/db"
 
@@ -28,154 +30,72 @@ var Environment = "development"
 
 func init() {
 	os.Setenv("env", Environment)
-	// run generate script
-	exec.Command("make", "tailwind-build").Run()
+	if Environment == "development" {
+		exec.Command("make", "tailwind-build").Run()
+	}
 }
 
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-
-	r := chi.NewRouter()
 	cfg := config.MustLoadConfig()
 
-	r.Use(middleware.Logger)
-
 	db := database.MustOpen(cfg.DatabaseName)
+
+	// stores
 	userStore := dbstore.NewUserStore(db)
+	tenantStore := dbstore.NewTenantStore(db)
+	invite := dbstore.NewInvireStore(db)
+	contactStore := dbstore.NewContactStore(db)
+	pStore := dbstore.NewProductStore(db)
+	priceTableStore := dbstore.NewPriceTableDB(db)
+	cartStore := dbstore.NewCartStore(db)
+	orderStore := dbstore.NewOrderStore(db)
 
-	sessionStore := cookiesotore.NewSessionStore(
-		store.AdminSessionName,
-		"VERYSECRETKEY", // TODO: Colocar no env
-	)
+	// sessions
+	sessionStore := cookiesotore.NewSessionStore(store.AdminSessionName, cfg.SessionSecret)
+	clientSessionStore := cookiesotore.NewSessionStore(store.ClientSessionName, cfg.SessionSecret)
 
-	clientSessionStore := cookiesotore.NewSessionStore(
-		store.ClientSessionName,
-		"VERYSECRETKEY", // TODO: Colocar no env
-	)
+	// handlers
+	loginHandler := handlers.NewLoginHandler(handlers.LoginHandlerParams{
+		UserStore:    userStore,
+		SessionStore: sessionStore,
+		TenantStore:  *tenantStore,
+		CookieName:   cfg.SessionCookieName,
+	})
+	registerHandler := handlers.NewRegisterHandler(userStore, tenantStore, invite, contactStore, clientSessionStore)
+	productHandler := handlers.NewProductHandler(pStore, priceTableStore)
+	contactHandler := handlers.NewContactHandler(handlers.NewContactHandlerParams{
+		Contact:    contactStore,
+		Invite:     invite,
+		PriceTable: priceTableStore,
+	})
+	clientHandler := handlers.NewClientHandler(pStore, cartStore, orderStore, clientSessionStore, priceTableStore)
+	adminOrderHandler := handlers.NewAdminOrderHandler(orderStore, contactStore, pStore)
+
+	r := chi.NewRouter()
+	r.Use(middleware.Logger)
 
 	fileServer := http.FileServer(http.Dir("./static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
 
-	invite := dbstore.NewInvireStore(db)
-	tenantStore := dbstore.NewTenantStore(db)
-	contactStore := dbstore.NewContactStore(db)
-
-	registerHandler := handlers.NewRegisterHandler(
-		userStore,
-		tenantStore,
-		invite,
-		contactStore,
-		clientSessionStore,
-	)
-
-	loginHandler := handlers.NewLoginHandler(
-		handlers.LoginHandlerParams{
-			UserStore:    userStore,
-			SessionStore: sessionStore,
-			TenantStore:  *tenantStore,
-			CookieName:   cfg.SessionCookieName,
-		},
-	)
-
-	//Creating handlers
-	pStore := dbstore.NewProductStore(db)
-	priceTableStore := dbstore.NewPriceTableDB(db)
-	productHandler := handlers.NewProductHandler(
-		pStore,
-		priceTableStore,
-	)
-
-	contactHandler := handlers.NewContactHandler(
-		handlers.NewContactHandlerParams{
-			Contact:    contactStore,
-			Invite:     invite,
-			PriceTable: priceTableStore,
-		},
-	)
-
-	cartStore := dbstore.NewCartStore(db)
-	orderStore := dbstore.NewOrderStore(db)
-	clientHandler := handlers.NewClientHandler(pStore, cartStore, orderStore, clientSessionStore, priceTableStore)
-	adminOrderHandler := handlers.NewAdminOrderHandler(orderStore, contactStore, pStore)
-
-	r.Route("/client", func(r chi.Router) {
-		r.Use(m.TextHTMLMiddleware)
-
-		r.Get("/login", loginHandler.GetClientLoginPage)
-		r.Post("/login", loginHandler.PostLoginHandler(store.AccessCustomer))
-
-		r.Get("/register", registerHandler.GetRegisterClientPage)
-		r.Post("/register", registerHandler.PostRegisterClient)
-
-		r.Group(func(r chi.Router) {
-			r.Use(m.SessionAuthMiddleware(clientSessionStore))
-
-			r.Post("/logout", loginHandler.PostLogout)
-			r.Get("/items", clientHandler.GetItemsPage)
-			r.Get("/confirmacao", clientHandler.GetCheckoutPage)
-			r.Post("/cart/items", clientHandler.PostAddToCart)
-			r.Delete("/cart/items/{productID}", clientHandler.DeleteCartItem)
-			r.Patch("/cart/items/{productID}", clientHandler.PatchCartItemQty)
-			r.Post("/confirmacao", clientHandler.PostConfirmOrder)
-		})
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/client/login", http.StatusFound)
+	})
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		backURL := "/"
+		if strings.HasPrefix(r.URL.Path, "/admin") {
+			backURL = "/admin/"
+		} else if strings.HasPrefix(r.URL.Path, "/client") {
+			backURL = "/client/items"
+		}
+		w.WriteHeader(http.StatusNotFound)
+		templates.NotFoundPage(backURL).Render(r.Context(), w)
 	})
 
-	r.Route("/admin", func(r chi.Router) {
-		r.Use(m.TextHTMLMiddleware)
-
-		r.Get("/", loginHandler.GetAdminLoginPage)
-
-		r.Get("/login", loginHandler.GetAdminLoginPage)
-		r.Post("/login", loginHandler.PostLoginHandler(store.AccessAdmin))
-		r.Get("/register", registerHandler.GetRegisterPage)
-		r.Post("/register", registerHandler.PostRegister)
-
-		r.Post("/logout", loginHandler.PostLogout)
-
-		r.Group(func(r chi.Router) {
-			r.Use(
-				m.SessionAuthMiddleware(sessionStore),
-			)
-
-			r.Get("/", handlers.NewHomeHandler(sessionStore).ServeHTTP)
-
-			r.Route("/produtos", func(r chi.Router) {
-				r.Get("/", productHandler.GetProductPage)
-				r.Get("/novo", productHandler.GetProductForm)
-				r.Get("/{id}", productHandler.GetEditPage)
-
-				r.Get("/pricetable", productHandler.GetTablePage)
-				r.Post("/pricetable", productHandler.CreatePriceTable)
-				r.Delete("/pricetable/{id}", productHandler.DeletePriceTable)
-
-				r.Post("/", productHandler.PostNewProduct)
-				r.Post("/{id}", productHandler.UpdateProduct)
-				r.Delete("/{id}", productHandler.DeleteProduct)
-			})
-
-			r.Route("/contacts", func(r chi.Router) {
-				r.Post("/", contactHandler.PostNewContact)
-				r.Post("/{id}/create-link", contactHandler.CreateLink)
-
-				r.Post("/{id}", contactHandler.Update)
-				r.Get("/{id}", contactHandler.GetEditPage)
-
-				r.Get("/", contactHandler.GetContactsPage)
-				r.Get("/novo", contactHandler.GetContactsForm)
-			})
-
-			r.Route("/pedidos", func(r chi.Router) {
-				r.Get("/", adminOrderHandler.GetOrdersPage)
-				r.Get("/novo", adminOrderHandler.GetNewOrderPage)
-				r.Get("/produtos", adminOrderHandler.SearchProductsForOrder)
-				r.Post("/", adminOrderHandler.PostNewOrder)
-				r.Get("/{id}", adminOrderHandler.GetOrderPage)
-			})
-		})
-	})
+	registerClientRoutes(r, loginHandler, registerHandler, clientHandler, clientSessionStore)
+	registerAdminRoutes(r, loginHandler, registerHandler, productHandler, contactHandler, adminOrderHandler, sessionStore)
 
 	killSig := make(chan os.Signal, 1)
-
 	signal.Notify(killSig, os.Interrupt, syscall.SIGTERM)
 
 	srv := &http.Server{
@@ -185,7 +105,6 @@ func main() {
 
 	go func() {
 		err := srv.ListenAndServe()
-
 		if errors.Is(err, http.ErrServerClosed) {
 			logger.Info("Server shutdown complete")
 		} else if err != nil {
@@ -196,18 +115,103 @@ func main() {
 
 	logger.Info("Server started", slog.String("port", cfg.Port), slog.String("env", Environment))
 	<-killSig
-
 	logger.Info("Shutting down server")
 
-	// Create a context with a timeout for shutdown
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// Attempt to gracefully shut down the server
 	if err := srv.Shutdown(ctx); err != nil {
 		logger.Error("Server shutdown failed", slog.Any("err", err))
 		os.Exit(1)
 	}
 
 	logger.Info("Server shutdown complete")
+}
+
+func registerClientRoutes(
+	r chi.Router,
+	login *handlers.LoginHandler,
+	reg *handlers.RegisterHandler,
+	client *handlers.ClientHandler,
+	sessionStore *cookiesotore.SessionStore,
+) {
+	r.Route("/client", func(r chi.Router) {
+		r.Use(m.TextHTMLMiddleware)
+
+		r.Get("/login", login.GetClientLoginPage)
+		r.Post("/login", login.PostLoginHandler(store.AccessCustomer))
+		r.Get("/register", reg.GetRegisterClientPage)
+		r.Post("/register", reg.PostRegisterClient)
+
+		r.Group(func(r chi.Router) {
+			r.Use(m.SessionAuthMiddleware(sessionStore))
+
+			r.Post("/logout", login.PostLogout)
+			r.Get("/items", client.GetItemsPage)
+			r.Get("/confirmacao", client.GetCheckoutPage)
+			r.Post("/cart/items", client.PostAddToCart)
+			r.Delete("/cart/items/{productID}", client.DeleteCartItem)
+			r.Patch("/cart/items/{productID}", client.PatchCartItemQty)
+			r.Post("/confirmacao", client.PostConfirmOrder)
+			r.Get("/pedidos", client.GetOrdersPage)
+			r.Get("/pedidos/{id}", client.GetOrderDetail)
+		})
+	})
+}
+
+func registerAdminRoutes(
+	r chi.Router,
+	login *handlers.LoginHandler,
+	reg *handlers.RegisterHandler,
+	product *handlers.ProductHandler,
+	contact *handlers.ContactHandler,
+	order *handlers.AdminOrderHandler,
+	sessionStore *cookiesotore.SessionStore,
+) {
+	r.Route("/admin", func(r chi.Router) {
+		r.Use(m.TextHTMLMiddleware)
+
+		r.Get("/", login.GetAdminLoginPage)
+		r.Get("/login", login.GetAdminLoginPage)
+		r.Post("/login", login.PostLoginHandler(store.AccessAdmin))
+		r.Get("/register", reg.GetRegisterPage)
+		r.Post("/register", reg.PostRegister)
+		r.Post("/logout", login.PostLogout)
+
+		r.Group(func(r chi.Router) {
+			r.Use(m.SessionAuthMiddleware(sessionStore))
+
+			r.Get("/", handlers.NewHomeHandler(sessionStore).ServeHTTP)
+
+			r.Route("/produtos", func(r chi.Router) {
+				r.Get("/", product.GetProductPage)
+				r.Get("/novo", product.GetProductForm)
+				r.Get("/{id}", product.GetEditPage)
+				r.Post("/", product.PostNewProduct)
+				r.Post("/{id}", product.UpdateProduct)
+				r.Delete("/{id}", product.DeleteProduct)
+
+				r.Get("/pricetable", product.GetTablePage)
+				r.Post("/pricetable", product.CreatePriceTable)
+				r.Delete("/pricetable/{id}", product.DeletePriceTable)
+			})
+
+			r.Route("/contacts", func(r chi.Router) {
+				r.Get("/", contact.GetContactsPage)
+				r.Get("/novo", contact.GetContactsForm)
+				r.Get("/{id}", contact.GetEditPage)
+				r.Post("/", contact.PostNewContact)
+				r.Post("/{id}", contact.Update)
+				r.Post("/{id}/create-link", contact.CreateLink)
+			})
+
+			r.Route("/pedidos", func(r chi.Router) {
+				r.Get("/", order.GetOrdersPage)
+				r.Get("/novo", order.GetNewOrderPage)
+				r.Get("/produtos", order.SearchProductsForOrder)
+				r.Post("/", order.PostNewOrder)
+				r.Get("/{id}", order.GetOrderPage)
+			})
+		})
+	})
 }
