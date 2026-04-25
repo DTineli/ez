@@ -221,8 +221,8 @@ func TestPostNewProduct_ValidacaoFalha(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Errorf("esperado 200, obteve %d", w.Code)
 	}
-	if !strings.Contains(w.Header().Get("HX-Trigger"), "error") {
-		t.Error("esperado toast de erro na validação")
+	if strings.Contains(w.Header().Get("HX-Trigger"), "error") {
+		t.Error("não deve usar toast para erros de validação")
 	}
 }
 
@@ -249,8 +249,8 @@ func TestPostNewProduct_SKUDuplicado(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Errorf("esperado 200, obteve %d", w.Code)
 	}
-	if !strings.Contains(w.Header().Get("HX-Trigger"), "error") {
-		t.Error("esperado toast de erro para SKU duplicado")
+	if !strings.Contains(w.Body.String(), "Este SKU já está em uso") {
+		t.Error("esperado erro inline para SKU duplicado")
 	}
 }
 

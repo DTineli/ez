@@ -127,8 +127,8 @@ func TestPostNewContact_ValidacaoFalha(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Errorf("esperado 200, obteve %d", w.Code)
 	}
-	if !strings.Contains(w.Header().Get("HX-Trigger"), "error") {
-		t.Error("esperado toast de erro na validação")
+	if strings.Contains(w.Header().Get("HX-Trigger"), "error") {
+		t.Error("não deve usar toast para erros de validação")
 	}
 }
 
@@ -179,8 +179,8 @@ func TestPostNewContact_ErroStore(t *testing.T) {
 
 	h.PostNewContact(w, r)
 
-	if !strings.Contains(w.Header().Get("HX-Trigger"), "error") {
-		t.Error("esperado toast de erro")
+	if !strings.Contains(w.Body.String(), "Erro ao cadastrar contato") {
+		t.Error("esperado erro inline no form")
 	}
 }
 
@@ -251,8 +251,8 @@ func TestUpdateContact_ValidacaoFalha(t *testing.T) {
 
 	h.Update(w, r)
 
-	if !strings.Contains(w.Header().Get("HX-Trigger"), "error") {
-		t.Error("esperado toast de erro na validação")
+	if strings.Contains(w.Header().Get("HX-Trigger"), "error") {
+		t.Error("não deve usar toast para erros de validação")
 	}
 }
 

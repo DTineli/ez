@@ -160,8 +160,6 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 	priceTables := c.fetchPriceTables(w, sess.TenantID)
 
 	if !form.Valid() {
-		ShowToast(w, "Erros de validação", "error")
-		fmt.Println(form.Errors)
 		_ = Render(templates.ContactForm(form, false, priceTables), r, w)
 		return
 	}
@@ -190,7 +188,7 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := c.contactStore.CreateContact(contact); err != nil {
-		ShowToast(w, "Erro ao cadastar contato", "error")
+		form.Errors.Add("general", "Erro ao cadastrar contato. Tente novamente.")
 		_ = Render(templates.ContactForm(form, false, priceTables), r, w)
 		return
 	}
@@ -285,7 +283,6 @@ func (h *ContactHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !form.Valid() {
-		ShowToast(w, "Erro ao salvar contato", "error")
 		_ = Render(templates.ContactForm(form, true, priceTables), r, w)
 		return
 	}
@@ -311,7 +308,7 @@ func (h *ContactHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	err = h.contactStore.UpdateById(uint(id), sess.TenantID, fields)
 	if err != nil {
-		ShowToast(w, "Erro ao salvar contato", "error")
+		form.Errors.Add("general", "Erro ao salvar contato. Tente novamente.")
 		_ = Render(templates.ContactForm(form, true, priceTables), r, w)
 		return
 	}

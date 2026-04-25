@@ -44,7 +44,6 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if !form.Valid() {
-		ShowToast(w, "Erros de validação", "error")
 		_ = Render(templates.ProductForm(form, false, nil, nil), r, w)
 		return
 	}
@@ -64,12 +63,10 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 
 	if err := p.productStore.CreateProduct(product); err != nil {
 		if isDuplicateError(err) {
-			ShowToast(w, "Erros de validação", "error")
 			form.Errors.Add("sku", "Este SKU já está em uso.")
-			_ = Render(templates.ProductForm(form, false, nil, nil), r, w)
-			return
+		} else {
+			form.Errors.Add("general", "Erro ao cadastrar produto. Tente novamente.")
 		}
-		ShowToast(w, "Erro ao cadastar produto", "error")
 		_ = Render(templates.ProductForm(form, false, nil, nil), r, w)
 		return
 	}
@@ -96,7 +93,6 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
 
 	if !form.Valid() {
-		ShowToast(w, "Erro ao salvar produto", "error")
 		_ = Render(templates.ProductForm(form, true, variants, attrs), r, w)
 		return
 	}
@@ -112,7 +108,7 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 
 	err = p.productStore.UpdateFields(uint(id), sess.TenantID, fields)
 	if err != nil {
-		ShowToast(w, "Erro ao salvar produto", "error")
+		form.Errors.Add("general", "Erro ao salvar produto. Tente novamente.")
 		_ = Render(templates.ProductForm(form, true, variants, attrs), r, w)
 		return
 	}
