@@ -205,13 +205,13 @@ func registerAdminRoutes(
 				r.Delete("/pricetable/{id}", product.DeletePriceTable)
 			})
 
-			// r.Route("/atributos", func(r chi.Router) {
-			// 	r.Get("/", attribute.GetAttributes)
-			// 	r.Post("/", attribute.PostAttribute)
-			// 	r.Delete("/{id}", attribute.DeleteAttribute)
-			// 	r.Post("/{id}/values", attribute.PostAttributeValue)
-			// 	r.Delete("/{id}/values/{valueID}", attribute.DeleteAttributeValue)
-			// })
+			r.Route("/atributos", func(r chi.Router) {
+				r.Post("/", product.PostNewAttribute)
+				r.Post("/{id}/values", product.PostAddValue)
+				// r.Get("/", attribute.GetAttributes)
+				// r.Delete("/{id}", attribute.DeleteAttribute)
+				// r.Delete("/{id}/values/{valueID}", attribute.DeleteAttributeValue)
+			})
 
 			r.Route("/contacts", func(r chi.Router) {
 				r.Get("/", contact.GetContactsPage)

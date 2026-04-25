@@ -29,6 +29,7 @@ type mockProductStore struct {
 	deleteVariant          func(id, tenantID uint) error
 	setVariantAttributes   func(variantID uint, ids []uint) error
 	createAttribute        func(*store.Attribute) error
+	getAttribute           func(id, tenantID uint) (*store.Attribute, error)
 	findAttributesByTenant func(tenantID uint) ([]store.Attribute, error)
 	deleteAttribute        func(id, tenantID uint) error
 	createAttributeValue   func(*store.AttributeValue) error
@@ -106,6 +107,12 @@ func (s *mockProductStore) CreateAttribute(a *store.Attribute) error {
 		return s.createAttribute(a)
 	}
 	return nil
+}
+func (s *mockProductStore) GetAttribute(id, tenantID uint) (*store.Attribute, error) {
+	if s.getAttribute != nil {
+		return s.getAttribute(id, tenantID)
+	}
+	return nil, nil
 }
 func (s *mockProductStore) FindAttributesByTenant(tenantID uint) ([]store.Attribute, error) {
 	if s.findAttributesByTenant != nil {

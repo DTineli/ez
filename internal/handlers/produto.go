@@ -32,7 +32,7 @@ func NewProductHandler(productDB store.ProductStore, priceTableDB store.PriceTab
 */
 
 func (p *ProductHandler) GetProductForm(w http.ResponseWriter, r *http.Request) {
-	Render(templates.ProductForm(forms.New(nil), false, nil), r, w)
+	Render(templates.ProductForm(forms.New(nil), false, nil, nil), r, w)
 }
 
 func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +45,7 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 
 	if !form.Valid() {
 		ShowToast(w, "Erros de validação", "error")
-		_ = Render(templates.ProductForm(form, false, nil), r, w)
+		_ = Render(templates.ProductForm(form, false, nil, nil), r, w)
 		return
 	}
 
@@ -66,17 +66,18 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 		if isDuplicateError(err) {
 			ShowToast(w, "Erros de validação", "error")
 			form.Errors.Add("sku", "Este SKU já está em uso.")
-			_ = Render(templates.ProductForm(form, false, nil), r, w)
+			_ = Render(templates.ProductForm(form, false, nil, nil), r, w)
 			return
 		}
 		ShowToast(w, "Erro ao cadastar produto", "error")
-		_ = Render(templates.ProductForm(form, false, nil), r, w)
+		_ = Render(templates.ProductForm(form, false, nil, nil), r, w)
 		return
 	}
 
 	ShowToast(w, "Produto Cadastrado", "success")
 	form.Set("ID", strconv.Itoa(int(product.ID)))
-	_ = Render(templates.ProductForm(form, true, nil), r, w)
+	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+	_ = Render(templates.ProductForm(form, true, nil, attrs), r, w)
 }
 
 func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
@@ -92,11 +93,11 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	variants, _ := p.productStore.FindVariantsByProduct(uint(id), sess.TenantID)
+	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
 
 	if !form.Valid() {
 		ShowToast(w, "Erro ao salvar produto", "error")
-
-		_ = Render(templates.ProductForm(form, true, variants), r, w)
+		_ = Render(templates.ProductForm(form, true, variants, attrs), r, w)
 		return
 	}
 
@@ -112,11 +113,12 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	err = p.productStore.UpdateFields(uint(id), sess.TenantID, fields)
 	if err != nil {
 		ShowToast(w, "Erro ao salvar produto", "error")
-		_ = Render(templates.ProductForm(form, true, variants), r, w)
+		_ = Render(templates.ProductForm(form, true, variants, attrs), r, w)
+		return
 	}
 
 	ShowToast(w, "Alteracoes Salvas", "success")
-	_ = Render(templates.ProductForm(form, true, variants), r, w)
+	_ = Render(templates.ProductForm(form, true, variants, attrs), r, w)
 }
 
 func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
@@ -135,8 +137,9 @@ func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	form := mapProductToForm(product)
+	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
 
-	_ = Render(templates.ProductForm(form, true, product.Variants), r, w)
+	_ = Render(templates.ProductForm(form, true, product.Variants, attrs), r, w)
 }
 
 func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
@@ -180,13 +183,98 @@ func (p *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 
 /*
 |--------------------------------------------------------------------------
+| Attributes Handlers
+|--------------------------------------------------------------------------
+*/
+
+func (p *ProductHandler) PostAddValue(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	attributeID, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		http.Error(w, "id inválido", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "erro ao processar formulário", http.StatusBadRequest)
+		return
+	}
+
+	value := r.FormValue("value")
+	if value == "" {
+		http.Error(w, "valor é obrigatório", http.StatusUnprocessableEntity)
+		return
+	}
+
+	if _, err := p.productStore.GetAttribute(uint(attributeID), sess.TenantID); err != nil {
+		http.Error(w, "atributo não encontrado", http.StatusNotFound)
+		return
+	}
+
+	av := &store.AttributeValue{
+		Value:       value,
+		AttributeID: uint(attributeID),
+	}
+
+	if err := p.productStore.CreateAttributeValue(av); err != nil {
+		if isDuplicateError(err) {
+			ShowToast(w, "Valor já cadastrado neste atributo", "error")
+		} else {
+			ShowToast(w, "Erro ao cadastrar valor", "error")
+		}
+		attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+		Render(templates.AttributesSection(attrs), r, w)
+		return
+	}
+
+	ShowToast(w, "Valor cadastrado", "success")
+	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+	Render(templates.AttributesSection(attrs), r, w)
+}
+
+func (p *ProductHandler) PostNewAttribute(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "erro ao processar formulário", http.StatusBadRequest)
+		return
+	}
+
+	name := r.FormValue("name")
+	if name == "" {
+		http.Error(w, "nome é obrigatório", http.StatusUnprocessableEntity)
+		return
+	}
+
+	attr := &store.Attribute{
+		Name:     name,
+		TenantID: sess.TenantID,
+	}
+
+	if err := p.productStore.CreateAttribute(attr); err != nil {
+		ShowToast(w, "Erro ao cadastrar atributo", "error")
+		attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+		Render(templates.AttributesSection(attrs), r, w)
+		return
+	}
+
+	ShowToast(w, "Atributo cadastrado", "success")
+	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+	Render(templates.AttributesSection(attrs), r, w)
+}
+
+/*
+|--------------------------------------------------------------------------
 | Variant Handlers
 |--------------------------------------------------------------------------
 */
 
 func (p *ProductHandler) GetVariantForm(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
 	productID := chi.URLParam(r, "id")
-	Render(templates.NewVariantForm(productID), r, w)
+	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+	Render(templates.NewVariantForm(productID, attrs), r, w)
 }
 
 func (p *ProductHandler) CancelVariantForm(w http.ResponseWriter, r *http.Request) {
@@ -299,6 +387,22 @@ func (p *ProductHandler) PostVariant(w http.ResponseWriter, r *http.Request) {
 		variants, _ := p.productStore.FindVariantsByProduct(uint(productID), sess.TenantID)
 		Render(templates.VariantsSection(variants, chi.URLParam(r, "id")), r, w)
 		return
+	}
+
+	var attributeValueIDs []uint
+	for _, raw := range r.Form["attribute_value_ids"] {
+		if id, err := strconv.ParseUint(raw, 10, 64); err == nil {
+			attributeValueIDs = append(attributeValueIDs, uint(id))
+		}
+	}
+
+	if len(attributeValueIDs) > 0 {
+		if err := p.productStore.SetVariantAttributes(variant.ID, attributeValueIDs); err != nil {
+			ShowToast(w, "Variação cadastrada, mas erro ao salvar atributos", "error")
+			variants, _ := p.productStore.FindVariantsByProduct(uint(productID), sess.TenantID)
+			Render(templates.VariantsSection(variants, chi.URLParam(r, "id")), r, w)
+			return
+		}
 	}
 
 	ShowToast(w, "Variação cadastrada", "success")

@@ -39,6 +39,7 @@ func ShowToast(w http.ResponseWriter, message string, toastType string) {
 
 func isDuplicateError(err error) bool {
 	msg := err.Error()
-	return strings.Contains(msg, "UNIQUE constraint failed") ||
-		strings.Contains(msg, "Duplicate")
+	return strings.Contains(msg, "UNIQUE constraint failed") || // SQLite
+		strings.Contains(msg, "Duplicate") || // MySQL
+		strings.Contains(msg, "duplicate key value violates unique constraint") // PostgreSQL
 }

@@ -196,7 +196,7 @@ templ ProductsPage(params store.GetProductPageParams) {
 // FORMULÁRIO DE PRODUTO
 // ==========================
 //
-templ NewVariantForm(productID string) {
+templ NewVariantForm(productID string, attrs []store.Attribute) {
 	<div id="new-variant-form" class="card bg-base-100 shadow-sm border border-base-300 mt-3">
 		<div class="card-body">
 			<h3 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Nova Variação</h3>
@@ -242,6 +242,31 @@ templ NewVariantForm(productID string) {
 						})
 					</div>
 				</div>
+				if len(attrs) > 0 {
+					<div class="space-y-3">
+						<p class="text-sm font-medium">Atributos</p>
+						<div class="flex flex-wrap gap-6">
+							for _, attr := range attrs {
+								<fieldset class="space-y-1">
+									<legend class="text-xs font-semibold uppercase tracking-wider text-base-content/50 mb-1">{ attr.Name }</legend>
+									<div class="flex flex-wrap gap-2">
+										for _, val := range attr.Values {
+											<label class="flex items-center gap-1.5 cursor-pointer">
+												<input
+													type="checkbox"
+													name="attribute_value_ids"
+													value={ strconv.Itoa(int(val.ID)) }
+													class="checkbox checkbox-sm checkbox-primary"
+												/>
+												<span class="text-sm">{ val.Value }</span>
+											</label>
+										}
+									</div>
+								</fieldset>
+							}
+						</div>
+					</div>
+				}
 				<div class="flex justify-end gap-3">
 					<button
 						type="button"
@@ -278,6 +303,15 @@ templ NewVariantTrigger(productID string) {
 templ VariantRow(v store.Variant, productID string) {
 	<tr id={ fmt.Sprintf("variant-row-%v", v.ID) } class="hover">
 		<td class="font-mono text-sm">{ v.SKU }</td>
+		<td>
+			<div class="flex flex-wrap gap-1">
+				for _, va := range v.Attributes {
+					<span class="badge badge-sm badge-ghost">
+						{ va.AttributeValue.Attribute.Name }: { va.AttributeValue.Value }
+					</span>
+				}
+			</div>
+		</td>
 		<td>{ fmt.Sprintf("%.2f", v.CostPrice) }</td>
 		<td>{ strconv.Itoa(v.CurrentStock) }</td>
 		<td>{ strconv.Itoa(v.MinimumStock) }</td>
@@ -367,6 +401,7 @@ templ VariantsSection(variants []store.Variant, productID string) {
 						<thead>
 							<tr>
 								<th>SKU</th>
+								<th>Atributos</th>
 								<th>Preço de Custo (R$)</th>
 								<th>Estoque Atual</th>
 								<th>Estoque Mínimo</th>
@@ -376,7 +411,7 @@ templ VariantsSection(variants []store.Variant, productID string) {
 						<tbody>
 							if len(variants) == 0 {
 								<tr>
-									<td colspan="5" class="text-center text-base-content/50 py-4">
+									<td colspan="6" class="text-center text-base-content/50 py-4">
 										Nenhuma variação cadastrada.
 									</td>
 								</tr>
@@ -393,7 +428,77 @@ templ VariantsSection(variants []store.Variant, productID string) {
 	</div>
 }
 
-templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant) {
+templ AttributesSection(attrs []store.Attribute) {
+	<div id="attributes-section" class="space-y-4">
+		<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40">Atributos</h2>
+		<!-- Novo atributo -->
+		<div class="card bg-base-100 shadow-sm border border-base-300">
+			<div class="card-body py-4">
+				<p class="text-sm font-medium mb-2">Cadastrar novo atributo</p>
+				<form
+					hx-post="/admin/atributos"
+					hx-target="#attributes-section"
+					hx-swap="outerHTML"
+					class="flex gap-3 items-end"
+				>
+					<div class="grow">
+						@components.BasicInput(components.BasicInputParams{
+							Name:        "name",
+							Label:       "Nome do atributo",
+							InputType:   "text",
+							Placeholder: "Ex: Cor, Tamanho...",
+							IsRequired:  true,
+						})
+					</div>
+					<button type="submit" class="btn btn-primary btn-sm mb-0.5">Adicionar</button>
+				</form>
+			</div>
+		</div>
+		<!-- Adicionar valor a atributo existente -->
+		if len(attrs) > 0 {
+			<div class="card bg-base-100 shadow-sm border border-base-300">
+				<div class="card-body py-4 space-y-4">
+					<p class="text-sm font-medium">Atributos existentes</p>
+					for _, attr := range attrs {
+						<div class="space-y-2">
+							<p class="text-xs font-semibold uppercase tracking-wider text-base-content/50">{ attr.Name }</p>
+							<div class="flex flex-wrap gap-1 mb-2">
+								for _, val := range attr.Values {
+									<span class="badge badge-ghost badge-sm">{ val.Value }</span>
+								}
+								if len(attr.Values) == 0 {
+									<span class="text-xs text-base-content/40">Nenhum valor cadastrado.</span>
+								}
+							</div>
+							<form
+								hx-post={ fmt.Sprintf("/admin/atributos/%v/values", attr.ID) }
+								hx-target="#attributes-section"
+								hx-swap="outerHTML"
+								class="flex gap-3 items-end"
+							>
+								<div class="grow max-w-xs">
+									@components.BasicInput(components.BasicInputParams{
+										Name:        "value",
+										Label:       "Novo valor",
+										InputType:   "text",
+										Placeholder: "Ex: Vermelho, GG...",
+										IsRequired:  true,
+									})
+								</div>
+								<button type="submit" class="btn btn-outline btn-sm mb-0.5">+ Adicionar valor</button>
+							</form>
+						</div>
+						if attr.ID != attrs[len(attrs)-1].ID {
+							<div class="divider my-1"></div>
+						}
+					}
+				</div>
+			</div>
+		}
+	</div>
+}
+
+templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, attrs []store.Attribute) {
 	{{
 		var action string
 		if isUpdate {
@@ -627,6 +732,7 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant) {
 			</div>
 		</div>
 		if isUpdate {
+			@AttributesSection(attrs)
 			@VariantsSection(variants, form.Get("ID"))
 		}
 	</div>

@@ -194,6 +194,15 @@ func (p *ProductStore) CreateAttribute(attr *store.Attribute) error {
 	return p.db.Create(attr).Error
 }
 
+func (p *ProductStore) GetAttribute(id uint, tenantID uint) (*store.Attribute, error) {
+	var attr store.Attribute
+	err := p.db.Where("id = ? AND tenant_id = ?", id, tenantID).First(&attr).Error
+	if err != nil {
+		return nil, err
+	}
+	return &attr, nil
+}
+
 func (p *ProductStore) FindAttributesByTenant(tenantID uint) ([]store.Attribute, error) {
 	var attrs []store.Attribute
 	err := p.db.

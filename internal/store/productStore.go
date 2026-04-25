@@ -54,9 +54,9 @@ type Attribute struct {
 // AttributeValue representa um valor de um atributo (ex: Vermelho, P, M, G)
 type AttributeValue struct {
 	ID    uint   `gorm:"primaryKey" json:"id"`
-	Value string `gorm:"type:varchar(100);not null" json:"value"`
+	Value string `gorm:"type:varchar(100);not null;uniqueIndex:idx_attribute_value,priority:2" json:"value"`
 
-	AttributeID uint      `gorm:"not null" json:"attribute_id"`
+	AttributeID uint      `gorm:"not null;uniqueIndex:idx_attribute_value,priority:1" json:"attribute_id"`
 	Attribute   Attribute `gorm:"foreignKey:AttributeID" json:"attribute,omitempty"`
 }
 
@@ -161,6 +161,7 @@ type ProductStore interface {
 
 	// Attribute
 	CreateAttribute(*Attribute) error
+	GetAttribute(id uint, tenantID uint) (*Attribute, error)
 	FindAttributesByTenant(tenantID uint) ([]Attribute, error)
 	DeleteAttribute(id uint, tenantID uint) error
 	CreateAttributeValue(*AttributeValue) error
