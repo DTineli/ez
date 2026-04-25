@@ -2,6 +2,7 @@ package templates
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/DTineli/ez/internal/forms"
 	"github.com/DTineli/ez/internal/store"
@@ -132,7 +133,6 @@ templ ProductTableBody(products []store.Product) {
 						<span class="badge badge-ghost badge-sm">Inativo</span>
 					}
 				</td>
-				<td>{ p.CurrentStock }</td>
 				<td>
 					<a
 						class="btn btn-ghost btn-xs"
@@ -179,7 +179,6 @@ templ ProductsPage(params store.GetProductPageParams) {
 								<th>SKU</th>
 								<th>Nome</th>
 								<th>Status</th>
-								<th>Estoque</th>
 								<th class="text-center">Ações</th>
 							</tr>
 						</thead>
@@ -197,7 +196,110 @@ templ ProductsPage(params store.GetProductPageParams) {
 // FORMULÁRIO DE PRODUTO
 // ==========================
 //
-templ ProductForm(form *forms.Form, isUpdate bool) {
+templ VariantsSection(variants []store.Variant, productID string) {
+	<div id="variants-section">
+		<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Variações</h2>
+		<div class="card bg-base-100 shadow-sm border border-base-300">
+			<div class="card-body p-0">
+				<div class="overflow-x-auto">
+					<table class="table table-sm">
+						<thead>
+							<tr>
+								<th>SKU</th>
+								<th>Preço de Custo (R$)</th>
+								<th>Estoque Atual</th>
+								<th>Estoque Mínimo</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							if len(variants) == 0 {
+								<tr>
+									<td colspan="5" class="text-center text-base-content/50 py-4">
+										Nenhuma variação cadastrada.
+									</td>
+								</tr>
+							}
+							for _, v := range variants {
+								<tr class="hover">
+									<td class="font-mono text-sm">{ v.SKU }</td>
+									<td>{ fmt.Sprintf("%.2f", v.CostPrice) }</td>
+									<td>{ strconv.Itoa(v.CurrentStock) }</td>
+									<td>{ strconv.Itoa(v.MinimumStock) }</td>
+									<td class="text-right">
+										<a
+											class="btn btn-ghost btn-xs"
+											href={ templ.SafeURL(fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID)) }
+											hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID) }
+											hx-target="#main-content"
+											hx-push-url="true"
+										>
+											Editar
+										</a>
+									</td>
+								</tr>
+							}
+						</tbody>
+						<tfoot>
+							<tr class="border-t border-base-300 bg-base-200/40">
+								<td>
+									<input
+										type="text"
+										name="sku"
+										class="input input-bordered input-xs w-full font-mono"
+										placeholder="SKU-01"
+									/>
+								</td>
+								<td>
+									<input
+										type="number"
+										name="cost_price"
+										class="input input-bordered input-xs w-full"
+										placeholder="0.00"
+										step="0.01"
+										min="0"
+									/>
+								</td>
+								<td>
+									<input
+										type="number"
+										name="current_stock"
+										class="input input-bordered input-xs w-full"
+										placeholder="0"
+										min="0"
+									/>
+								</td>
+								<td>
+									<input
+										type="number"
+										name="minimum_stock"
+										class="input input-bordered input-xs w-full"
+										placeholder="0"
+										min="0"
+									/>
+								</td>
+								<td class="text-right">
+									<button
+										type="button"
+										class="btn btn-primary btn-xs"
+										hx-post={ fmt.Sprintf("/admin/produtos/%s/variants", productID) }
+										hx-include="closest tr"
+										hx-target="#variants-section"
+										hx-swap="outerHTML"
+									>
+										+ Adicionar
+									</button>
+								</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant) {
 	{{
 		var action string
 		if isUpdate {
@@ -430,5 +532,8 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 				</form>
 			</div>
 		</div>
+		if isUpdate {
+			@VariantsSection(variants, form.Get("ID"))
+		}
 	</div>
 }

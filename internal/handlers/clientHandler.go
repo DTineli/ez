@@ -87,7 +87,7 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 
 	var cards []store.CardData
 	for _, p := range products.Results {
-		price := p.CostPrice * (1 + priceTable.Percentage/100)
+		price := p.DefaultCostPrice() * (1 + priceTable.Percentage/100)
 		cards = append(cards, store.CardData{
 			ID:    p.ID,
 			Name:  p.Name,

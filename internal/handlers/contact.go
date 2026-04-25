@@ -197,7 +197,7 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 
 	ShowToast(w, "Contato Cadastrado", "success")
 	form.Set("ID", strconv.Itoa(int(contact.ID)))
-	_ = Render(templates.ProductForm(form, true), r, w)
+	_ = Render(templates.ContactForm(form, true, priceTables), r, w)
 }
 
 func (c ContactHandler) GetContactsForm(w http.ResponseWriter, r *http.Request) {

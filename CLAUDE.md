@@ -53,6 +53,7 @@ Two named session cookies: `ez_admin_session` and `ez_client_session`. The sessi
 
 ### UI
 Templates use **Templ** (type-safe Go HTML). HTMX is used for partial page updates (e.g., paginated product loading, cart updates). Responses use `HX-Redirect` headers for navigation after form POSTs.
+Uses Tailwind css for styling, use de cli, do not use npm in this project
 
 ### Environment
 Defaults defined in `internal/config/config.go`:

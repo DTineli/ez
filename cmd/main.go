@@ -191,10 +191,28 @@ func registerAdminRoutes(
 				r.Post("/{id}", product.UpdateProduct)
 				r.Delete("/{id}", product.DeleteProduct)
 
+				// r.Route("/{productID}/variants", func(r chi.Router) {
+				// 	r.Get("/", variant.GetVariants)
+				// 	r.Get("/novo", variant.GetVariants)
+				//
+				// 	r.Post("/", variant.PostVariant)
+				// 	r.Patch("/{variantID}", variant.PatchVariant)
+				// 	r.Delete("/{variantID}", variant.DeleteVariant)
+				// 	r.Put("/{variantID}/attributes", variant.SetAttributes)
+				// })
+
 				r.Get("/pricetable", product.GetTablePage)
 				r.Post("/pricetable", product.CreatePriceTable)
 				r.Delete("/pricetable/{id}", product.DeletePriceTable)
 			})
+
+			// r.Route("/atributos", func(r chi.Router) {
+			// 	r.Get("/", attribute.GetAttributes)
+			// 	r.Post("/", attribute.PostAttribute)
+			// 	r.Delete("/{id}", attribute.DeleteAttribute)
+			// 	r.Post("/{id}/values", attribute.PostAttributeValue)
+			// 	r.Delete("/{id}/values/{valueID}", attribute.DeleteAttributeValue)
+			// })
 
 			r.Route("/contacts", func(r chi.Router) {
 				r.Get("/", contact.GetContactsPage)

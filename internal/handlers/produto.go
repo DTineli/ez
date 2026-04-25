@@ -5,13 +5,11 @@ import (
 	"math"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/DTineli/ez/internal/forms"
 	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
-	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -29,111 +27,17 @@ func NewProductHandler(productDB store.ProductStore, priceTableDB store.PriceTab
 
 /*
 |--------------------------------------------------------------------------
-| Helpers
-|--------------------------------------------------------------------------
-*/
-
-func Render(c templ.Component, r *http.Request, w http.ResponseWriter) error {
-	if r.Header.Get("HX-Request") == "true" {
-		return c.Render(r.Context(), w)
-	}
-
-	return templates.
-		Layout(c, "Ez", true, "").
-		Render(r.Context(), w)
-}
-
-func ShowToast(w http.ResponseWriter, message string, toastType string) {
-	w.Header().Set("HX-Trigger", fmt.Sprintf(`{
-	"showToast": {
-		"type": "%v",
-		"message": "%v"
-	}
-}`, toastType, message))
-	w.WriteHeader(http.StatusOK)
-}
-
-func validateProductForm(r *http.Request) (*forms.Form, error) {
-	if err := r.ParseForm(); err != nil {
-		return nil, err
-	}
-
-	form := forms.New(r.PostForm)
-
-	form.Required("name", "sku")
-
-	form.MaxLength("name", 255)
-	form.MinLength("name", 4)
-
-	form.MaxLength("uom", 2)
-	form.MinLength("uom", 2)
-
-	form.MaxLength("description", 15000)
-
-	form.MaxLength("sku", 25)
-	form.MinLength("sku", 4)
-
-	form.IsFloat("cost_price")
-	form.IsFloat("weight")
-	form.IsFloat("height")
-	form.IsFloat("width")
-	form.IsFloat("length")
-
-	form.IsInt("current_stock")
-	form.IsInt("minimum_stock")
-	form.IsInt("ean")
-	form.Set("ncm", strings.ReplaceAll(form.Get("ncm"), ".", ""))
-	form.IsInt("ncm")
-
-	return form, nil
-}
-
-func isDuplicateError(err error) bool {
-	msg := err.Error()
-	return strings.Contains(msg, "UNIQUE constraint failed") ||
-		strings.Contains(msg, "Duplicate")
-}
-
-func mapProductToForm(p *store.Product) *forms.Form {
-	form := forms.New(nil)
-
-	form.Set("ID", strconv.Itoa(int(p.ID)))
-	form.Set("name", p.Name)
-	form.Set("sku", p.SKU)
-	form.Set("uom", string(p.UOM))
-	form.Set("description", p.FullDescription)
-
-	form.Set("cost_price", strconv.FormatFloat(p.CostPrice, 'f', 2, 64))
-	form.Set("weight", strconv.FormatFloat(p.Weight, 'f', 2, 64))
-	form.Set("height", strconv.FormatFloat(p.HeightCm, 'f', 2, 64))
-	form.Set("length", strconv.FormatFloat(p.LengthCm, 'f', 2, 64))
-	form.Set("width", strconv.FormatFloat(p.WidthCm, 'f', 2, 64))
-
-	form.Set("ean", p.EAN)
-	ncm := p.NCM
-	if len(ncm) == 8 {
-		ncm = ncm[:4] + "." + ncm[4:6] + "." + ncm[6:]
-	}
-	form.Set("ncm", ncm)
-
-	form.Set("minimum_stock", strconv.Itoa(p.MinimumStock))
-	form.Set("current_stock", strconv.Itoa(p.CurrentStock))
-
-	return form
-}
-
-/*
-|--------------------------------------------------------------------------
 | Handlers
 |--------------------------------------------------------------------------
 */
 
 func (p *ProductHandler) GetProductForm(w http.ResponseWriter, r *http.Request) {
-	Render(templates.ProductForm(forms.New(nil), false), r, w)
+	Render(templates.ProductForm(forms.New(nil), false, nil), r, w)
 }
 
 func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) {
 	form, err := validateProductForm(r)
+
 	if err != nil {
 		http.Error(w, "Erro ao processar formulário", http.StatusBadRequest)
 		return
@@ -141,7 +45,7 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 
 	if !form.Valid() {
 		ShowToast(w, "Erros de validação", "error")
-		_ = Render(templates.ProductForm(form, false), r, w)
+		_ = Render(templates.ProductForm(form, false, nil), r, w)
 		return
 	}
 
@@ -156,30 +60,23 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 		UOM:             store.UOM(form.Get("uom")),
 		EAN:             form.Get("ean"),
 		NCM:             form.Get("ncm"),
-		CostPrice:       form.IsFloat("cost_price"),
-		WidthCm:         form.IsFloat("width"),
-		Weight:          form.IsFloat("weight"),
-		HeightCm:        form.IsFloat("height"),
-		LengthCm:        form.IsFloat("length"),
-		MinimumStock:    form.IsInt("minimum_stock"),
-		CurrentStock:    form.IsInt("current_stock"),
 	}
 
 	if err := p.productStore.CreateProduct(product); err != nil {
 		if isDuplicateError(err) {
 			ShowToast(w, "Erros de validação", "error")
 			form.Errors.Add("sku", "Este SKU já está em uso.")
-			_ = Render(templates.ProductForm(form, false), r, w)
+			_ = Render(templates.ProductForm(form, false, nil), r, w)
 			return
 		}
 		ShowToast(w, "Erro ao cadastar produto", "error")
-		_ = Render(templates.ProductForm(form, false), r, w)
+		_ = Render(templates.ProductForm(form, false, nil), r, w)
 		return
 	}
 
 	ShowToast(w, "Produto Cadastrado", "success")
 	form.Set("ID", strconv.Itoa(int(product.ID)))
-	_ = Render(templates.ProductForm(form, true), r, w)
+	_ = Render(templates.ProductForm(form, true, nil), r, w)
 }
 
 func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
@@ -194,10 +91,12 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	variants, _ := p.productStore.FindVariantsByProduct(uint(id), sess.TenantID)
+
 	if !form.Valid() {
 		ShowToast(w, "Erro ao salvar produto", "error")
 
-		_ = Render(templates.ProductForm(form, true), r, w)
+		_ = Render(templates.ProductForm(form, true, variants), r, w)
 		return
 	}
 
@@ -208,23 +107,16 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		"uom":              store.UOM(form.Get("uom")),
 		"ean":              form.Get("ean"),
 		"ncm":              form.Get("ncm"),
-		"cost_price":       form.IsFloat("cost_price"),
-		"width_cm":         form.IsFloat("width"),
-		"weight":           form.IsFloat("weight"),
-		"height_cm":        form.IsFloat("height"),
-		"length_cm":        form.IsFloat("length"),
-		"minimum_stock":    form.IsInt("minimum_stock"),
-		"current_stock":    form.IsInt("current_stock"),
 	}
 
 	err = p.productStore.UpdateFields(uint(id), sess.TenantID, fields)
 	if err != nil {
 		ShowToast(w, "Erro ao salvar produto", "error")
-		_ = Render(templates.ProductForm(form, true), r, w)
+		_ = Render(templates.ProductForm(form, true, variants), r, w)
 	}
 
 	ShowToast(w, "Alteracoes Salvas", "success")
-	_ = Render(templates.ProductForm(form, true), r, w)
+	_ = Render(templates.ProductForm(form, true, variants), r, w)
 }
 
 func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
@@ -244,7 +136,7 @@ func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 
 	form := mapProductToForm(product)
 
-	_ = Render(templates.ProductForm(form, true), r, w)
+	_ = Render(templates.ProductForm(form, true, product.Variants), r, w)
 }
 
 func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
