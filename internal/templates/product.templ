@@ -196,6 +196,167 @@ templ ProductsPage(params store.GetProductPageParams) {
 // FORMULÁRIO DE PRODUTO
 // ==========================
 //
+templ NewVariantForm(productID string) {
+	<div id="new-variant-form" class="card bg-base-100 shadow-sm border border-base-300 mt-3">
+		<div class="card-body">
+			<h3 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Nova Variação</h3>
+			<form
+				hx-post={ fmt.Sprintf("/admin/produtos/%s/variants", productID) }
+				hx-target="#variants-section"
+				hx-swap="outerHTML"
+				class="space-y-4"
+			>
+				<div class="flex flex-wrap gap-4">
+					<div class="basis-[20%] grow">
+						@components.BasicInput(components.BasicInputParams{
+							Name:        "sku",
+							Label:       "SKU",
+							InputType:   "text",
+							Placeholder: "SKU-01",
+							IsRequired:  true,
+						})
+					</div>
+					<div class="basis-[20%] grow">
+						@components.BasicInput(components.BasicInputParams{
+							Name:        "cost_price",
+							Label:       "Preço de Custo (R$)",
+							InputType:   "number",
+							Placeholder: "0.00",
+							Step:        "0.01",
+						})
+					</div>
+					<div class="basis-[20%] grow">
+						@components.BasicInput(components.BasicInputParams{
+							Name:        "current_stock",
+							Label:       "Estoque Atual",
+							InputType:   "number",
+							Placeholder: "0",
+						})
+					</div>
+					<div class="basis-[20%] grow">
+						@components.BasicInput(components.BasicInputParams{
+							Name:        "minimum_stock",
+							Label:       "Estoque Mínimo",
+							InputType:   "number",
+							Placeholder: "0",
+						})
+					</div>
+				</div>
+				<div class="flex justify-end gap-3">
+					<button
+						type="button"
+						class="btn btn-ghost btn-sm"
+						hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/form/cancel", productID) }
+						hx-target="#new-variant-form"
+						hx-swap="outerHTML"
+					>
+						Cancelar
+					</button>
+					<button type="submit" class="btn btn-primary btn-sm">
+						Salvar Variação
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}
+
+templ NewVariantTrigger(productID string) {
+	<div id="new-variant-form">
+		<button
+			type="button"
+			class="btn btn-outline btn-sm mt-3"
+			hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/form", productID) }
+			hx-target="#new-variant-form"
+			hx-swap="outerHTML"
+		>
+			+ Nova Variação
+		</button>
+	</div>
+}
+
+templ VariantRow(v store.Variant, productID string) {
+	<tr id={ fmt.Sprintf("variant-row-%v", v.ID) } class="hover">
+		<td class="font-mono text-sm">{ v.SKU }</td>
+		<td>{ fmt.Sprintf("%.2f", v.CostPrice) }</td>
+		<td>{ strconv.Itoa(v.CurrentStock) }</td>
+		<td>{ strconv.Itoa(v.MinimumStock) }</td>
+		<td class="text-right">
+			<button
+				class="btn btn-ghost btn-xs"
+				hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/%v/edit", productID, v.ID) }
+				hx-target={ fmt.Sprintf("#variant-row-%v", v.ID) }
+				hx-swap="outerHTML"
+			>
+				Editar
+			</button>
+		</td>
+	</tr>
+}
+
+templ VariantEditRow(v store.Variant, productID string) {
+	<tr id={ fmt.Sprintf("variant-row-%v", v.ID) } class="bg-base-200/40">
+		<td class="font-mono text-sm">{ v.SKU }</td>
+		<td>
+			<input
+				type="number"
+				name="cost_price"
+				form={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
+				class="input input-bordered input-xs w-24"
+				value={ fmt.Sprintf("%.2f", v.CostPrice) }
+				step="0.01"
+				min="0"
+			/>
+		</td>
+		<td>
+			<input
+				type="number"
+				name="current_stock"
+				form={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
+				class="input input-bordered input-xs w-20"
+				value={ strconv.Itoa(v.CurrentStock) }
+				min="0"
+			/>
+		</td>
+		<td>
+			<input
+				type="number"
+				name="minimum_stock"
+				form={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
+				class="input input-bordered input-xs w-20"
+				value={ strconv.Itoa(v.MinimumStock) }
+				min="0"
+			/>
+		</td>
+		<td class="text-right">
+			<form
+				id={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
+				hx-post={ fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID) }
+				hx-target={ fmt.Sprintf("#variant-row-%v", v.ID) }
+				hx-swap="outerHTML"
+			></form>
+			<div class="flex justify-end gap-1">
+				<button
+					type="button"
+					class="btn btn-ghost btn-xs"
+					hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID) }
+					hx-target={ fmt.Sprintf("#variant-row-%v", v.ID) }
+					hx-swap="outerHTML"
+				>
+					Cancelar
+				</button>
+				<button
+					type="submit"
+					form={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
+					class="btn btn-primary btn-xs"
+				>
+					Salvar
+				</button>
+			</div>
+		</td>
+	</tr>
+}
+
 templ VariantsSection(variants []store.Variant, productID string) {
 	<div id="variants-section">
 		<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Variações</h2>
@@ -221,81 +382,14 @@ templ VariantsSection(variants []store.Variant, productID string) {
 								</tr>
 							}
 							for _, v := range variants {
-								<tr class="hover">
-									<td class="font-mono text-sm">{ v.SKU }</td>
-									<td>{ fmt.Sprintf("%.2f", v.CostPrice) }</td>
-									<td>{ strconv.Itoa(v.CurrentStock) }</td>
-									<td>{ strconv.Itoa(v.MinimumStock) }</td>
-									<td class="text-right">
-										<a
-											class="btn btn-ghost btn-xs"
-											href={ templ.SafeURL(fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID)) }
-											hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID) }
-											hx-target="#main-content"
-											hx-push-url="true"
-										>
-											Editar
-										</a>
-									</td>
-								</tr>
+								@VariantRow(v, productID)
 							}
 						</tbody>
-						<tfoot>
-							<tr class="border-t border-base-300 bg-base-200/40">
-								<td>
-									<input
-										type="text"
-										name="sku"
-										class="input input-bordered input-xs w-full font-mono"
-										placeholder="SKU-01"
-									/>
-								</td>
-								<td>
-									<input
-										type="number"
-										name="cost_price"
-										class="input input-bordered input-xs w-full"
-										placeholder="0.00"
-										step="0.01"
-										min="0"
-									/>
-								</td>
-								<td>
-									<input
-										type="number"
-										name="current_stock"
-										class="input input-bordered input-xs w-full"
-										placeholder="0"
-										min="0"
-									/>
-								</td>
-								<td>
-									<input
-										type="number"
-										name="minimum_stock"
-										class="input input-bordered input-xs w-full"
-										placeholder="0"
-										min="0"
-									/>
-								</td>
-								<td class="text-right">
-									<button
-										type="button"
-										class="btn btn-primary btn-xs"
-										hx-post={ fmt.Sprintf("/admin/produtos/%s/variants", productID) }
-										hx-include="closest tr"
-										hx-target="#variants-section"
-										hx-swap="outerHTML"
-									>
-										+ Adicionar
-									</button>
-								</td>
-							</tr>
-						</tfoot>
 					</table>
 				</div>
 			</div>
 		</div>
+		@NewVariantTrigger(productID)
 	</div>
 }
 

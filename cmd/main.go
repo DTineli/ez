@@ -191,15 +191,14 @@ func registerAdminRoutes(
 				r.Post("/{id}", product.UpdateProduct)
 				r.Delete("/{id}", product.DeleteProduct)
 
-				// r.Route("/{productID}/variants", func(r chi.Router) {
-				// 	r.Get("/", variant.GetVariants)
-				// 	r.Get("/novo", variant.GetVariants)
-				//
-				// 	r.Post("/", variant.PostVariant)
-				// 	r.Patch("/{variantID}", variant.PatchVariant)
-				// 	r.Delete("/{variantID}", variant.DeleteVariant)
-				// 	r.Put("/{variantID}/attributes", variant.SetAttributes)
-				// })
+				r.Route("/{id}/variants", func(r chi.Router) {
+					r.Get("/form", product.GetVariantForm)
+					r.Get("/form/cancel", product.CancelVariantForm)
+					r.Post("/", product.PostVariant)
+					r.Get("/{variantID}", product.GetVariantRow)
+					r.Get("/{variantID}/edit", product.GetEditVariantRow)
+					r.Post("/{variantID}", product.UpdateVariant)
+				})
 
 				r.Get("/pricetable", product.GetTablePage)
 				r.Post("/pricetable", product.CreatePriceTable)

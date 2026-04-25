@@ -177,3 +177,131 @@ func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) 
 func (p *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	// TODO: implementar
 }
+
+/*
+|--------------------------------------------------------------------------
+| Variant Handlers
+|--------------------------------------------------------------------------
+*/
+
+func (p *ProductHandler) GetVariantForm(w http.ResponseWriter, r *http.Request) {
+	productID := chi.URLParam(r, "id")
+	Render(templates.NewVariantForm(productID), r, w)
+}
+
+func (p *ProductHandler) CancelVariantForm(w http.ResponseWriter, r *http.Request) {
+	productID := chi.URLParam(r, "id")
+	Render(templates.NewVariantTrigger(productID), r, w)
+}
+
+func (p *ProductHandler) GetEditVariantRow(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	variantID, err := strconv.ParseUint(chi.URLParam(r, "variantID"), 10, 64)
+	if err != nil {
+		http.Error(w, "id inválido", http.StatusBadRequest)
+		return
+	}
+
+	variant, err := p.productStore.GetVariant(uint(variantID), sess.TenantID)
+	if err != nil {
+		http.Error(w, "variação não encontrada", http.StatusNotFound)
+		return
+	}
+
+	Render(templates.VariantEditRow(*variant, chi.URLParam(r, "id")), r, w)
+}
+
+func (p *ProductHandler) GetVariantRow(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	variantID, err := strconv.ParseUint(chi.URLParam(r, "variantID"), 10, 64)
+	if err != nil {
+		http.Error(w, "id inválido", http.StatusBadRequest)
+		return
+	}
+
+	variant, err := p.productStore.GetVariant(uint(variantID), sess.TenantID)
+
+	if err != nil {
+		http.Error(w, "variação não encontrada", http.StatusNotFound)
+		return
+	}
+
+	Render(templates.VariantRow(*variant, chi.URLParam(r, "id")), r, w)
+}
+
+func (p *ProductHandler) UpdateVariant(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	variantID, err := strconv.ParseUint(chi.URLParam(r, "variantID"), 10, 64)
+	if err != nil {
+		http.Error(w, "id inválido", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "erro ao processar formulário", http.StatusBadRequest)
+		return
+	}
+
+	costPrice, _ := strconv.ParseFloat(r.FormValue("cost_price"), 64)
+	currentStock, _ := strconv.Atoi(r.FormValue("current_stock"))
+	minimumStock, _ := strconv.Atoi(r.FormValue("minimum_stock"))
+
+	fields := map[string]any{
+		"cost_price":    costPrice,
+		"current_stock": currentStock,
+		"minimum_stock": minimumStock,
+	}
+
+	if err := p.productStore.UpdateVariantFields(uint(variantID), sess.TenantID, fields); err != nil {
+		ShowToast(w, "Erro ao salvar variação", "error")
+		variant, _ := p.productStore.GetVariant(uint(variantID), sess.TenantID)
+		Render(templates.VariantEditRow(*variant, chi.URLParam(r, "id")), r, w)
+		return
+	}
+
+	ShowToast(w, "Variação salva", "success")
+	variant, _ := p.productStore.GetVariant(uint(variantID), sess.TenantID)
+	Render(templates.VariantRow(*variant, chi.URLParam(r, "id")), r, w)
+}
+
+func (p *ProductHandler) PostVariant(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	productID, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		http.Error(w, "id inválido", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "erro ao processar formulário", http.StatusBadRequest)
+		return
+	}
+
+	costPrice, _ := strconv.ParseFloat(r.FormValue("cost_price"), 64)
+	currentStock, _ := strconv.Atoi(r.FormValue("current_stock"))
+	minimumStock, _ := strconv.Atoi(r.FormValue("minimum_stock"))
+
+	variant := &store.Variant{
+		SKU:          r.FormValue("sku"),
+		CostPrice:    costPrice,
+		CurrentStock: currentStock,
+		MinimumStock: minimumStock,
+		ProductID:    uint(productID),
+		TenantID:     sess.TenantID,
+	}
+
+	if err := p.productStore.CreateVariant(variant); err != nil {
+		ShowToast(w, "Erro ao cadastrar variação", "error")
+		variants, _ := p.productStore.FindVariantsByProduct(uint(productID), sess.TenantID)
+		Render(templates.VariantsSection(variants, chi.URLParam(r, "id")), r, w)
+		return
+	}
+
+	ShowToast(w, "Variação cadastrada", "success")
+	variants, _ := p.productStore.FindVariantsByProduct(uint(productID), sess.TenantID)
+	Render(templates.VariantsSection(variants, chi.URLParam(r, "id")), r, w)
+}

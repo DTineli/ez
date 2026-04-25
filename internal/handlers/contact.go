@@ -138,7 +138,7 @@ func (c *ContactHandler) CreateLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Render(templates.InviteLink(string(id), url), r, w)
+	Render(templates.InviteLink(strconv.FormatUint(id, 10), url), r, w)
 }
 
 func (c ContactHandler) fetchPriceTables(w http.ResponseWriter, tenantID uint) []store.PriceTable {
@@ -252,12 +252,12 @@ func (c ContactHandler) GetContactsPage(w http.ResponseWriter, r *http.Request) 
 		ContactType: r.URL.Query().Get("contact_type"),
 	})
 
-	pagination.TotalPages = int(math.Floor(float64(results.Count) / float64(pagination.PerPage)))
-
 	if err != nil {
 		http.Error(w, "Error listing contacts", http.StatusInternalServerError)
 		return
 	}
+
+	pagination.TotalPages = int(math.Floor(float64(results.Count) / float64(pagination.PerPage)))
 
 	err = Render(templates.ContactPage(store.ListResults[store.Contact]{
 		Pagination: pagination,
