@@ -7,3 +7,4 @@ tmp/
 *.sqlite3
 
 tailwindcss
+static/css/style.css
