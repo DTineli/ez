@@ -2,8 +2,11 @@ package templates
 
 templ header(title string) {
 	<head>
-		<title>SistemName - { title }</title>
+		<title>ConnSale - { title }</title>
 		<meta charset="UTF-8"/>
+		<link rel="preconnect" href="https://fonts.googleapis.com"/>
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 		<script src="/static/script/htmx.min.js"></script>
 		<script src="/static/script/response-targets.js"></script>
 		<link rel="stylesheet" href="/static/css/style.css"/>
@@ -21,7 +24,7 @@ templ navLink(label, p string) {
 		hx-target="#main-content"
 		hx-push-url="true"
 		hx-swap="innerHTML"
-		class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-base-content/70 hover:bg-base-200 hover:text-base-content transition-colors"
+		class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-base-content/60 hover:bg-primary/10 hover:text-primary transition-colors"
 	>{ label }</a>
 }
 
@@ -51,11 +54,11 @@ templ sideBar() {
 templ upbar() {
 	<div class="flex items-center justify-between px-6 h-14 bg-base-100 border-b border-base-200">
 		<a
-			class="font-bold text-lg tracking-tight"
+			class="font-bold text-lg tracking-tight text-primary"
 			hx-get="/admin"
 			hx-target="#main-content"
 			hx-swap="innerHTML"
-		>Sistema</a>
+		>ConnSale</a>
 		<div class="flex items-center gap-3">
 			<label class="flex items-center gap-1 cursor-pointer">
 				<span class="text-xs text-base-content/50">Dark</span>

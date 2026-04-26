@@ -242,27 +242,25 @@ templ NewVariantForm(productID string, attrs []store.Attribute) {
 						})
 					</div>
 				</div>
-				if len(attrs) > 0 {
+				if len(attrs) == 0 {
 					<div class="space-y-3">
 						<p class="text-sm font-medium">Atributos</p>
-						<div class="flex flex-wrap gap-6">
+						<div class="flex flex-wrap gap-4">
 							for _, attr := range attrs {
-								<fieldset class="space-y-1">
-									<legend class="text-xs font-semibold uppercase tracking-wider text-base-content/50 mb-1">{ attr.Name }</legend>
-									<div class="flex flex-wrap gap-2">
+								<div class="basis-[20%] grow">
+									<label class="label py-1">
+										<span class="label-text text-sm">{ attr.Name }</span>
+									</label>
+									<select
+										name="attribute_value_ids"
+										class="select select-bordered select-sm w-full"
+									>
+										<option value="">— Selecionar —</option>
 										for _, val := range attr.Values {
-											<label class="flex items-center gap-1.5 cursor-pointer">
-												<input
-													type="checkbox"
-													name="attribute_value_ids"
-													value={ strconv.Itoa(int(val.ID)) }
-													class="checkbox checkbox-sm checkbox-primary"
-												/>
-												<span class="text-sm">{ val.Value }</span>
-											</label>
+											<option value={ strconv.Itoa(int(val.ID)) }>{ val.Value }</option>
 										}
-									</div>
-								</fieldset>
+									</select>
+								</div>
 							}
 						</div>
 					</div>

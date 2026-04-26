@@ -71,19 +71,23 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	costPrice, _ := strconv.ParseFloat(form.Get("cost_price"), 64)
+	currentStock, _ := strconv.Atoi(form.Get("current_stock"))
+	minimumStock, _ := strconv.Atoi(form.Get("minimum_stock"))
+
 	defaultVariant := &store.Variant{
-		SKU:       product.SKU,
-		ProductID: product.ID,
-		TenantID:  sess.TenantID,
-		IsDefault: true,
+		SKU:          product.SKU,
+		ProductID:    product.ID,
+		CostPrice:    costPrice,
+		CurrentStock: currentStock,
+		MinimumStock: minimumStock,
+		TenantID:     sess.TenantID,
+		IsDefault:    true,
 	}
 	_ = p.productStore.CreateVariant(defaultVariant)
 
-	ShowToast(w, "Produto Cadastrado", "success")
-	form.Set("ID", strconv.Itoa(int(product.ID)))
-	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
-	variants, _ := p.productStore.FindVariantsByProduct(product.ID, sess.TenantID)
-	_ = Render(templates.ProductForm(form, true, variants, attrs), r, w)
+	ShowToast(w, "Produto Cadastrado com Sucesso", "success")
+	w.Header().Set("HX-Redirect", "/admin/produtos/"+strconv.Itoa(int(product.ID)))
 }
 
 func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
@@ -403,6 +407,14 @@ func (p *ProductHandler) PostVariant(w http.ResponseWriter, r *http.Request) {
 		if id, err := strconv.ParseUint(raw, 10, 64); err == nil {
 			attributeValueIDs = append(attributeValueIDs, uint(id))
 		}
+	}
+
+	if len(attributeValueIDs) == 0 {
+		_ = p.productStore.DeleteVariant(variant.ID, sess.TenantID)
+		ShowToast(w, "Selecione ao menos um atributo", "error")
+		attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+		Render(templates.NewVariantForm(chi.URLParam(r, "id"), attrs), r, w)
+		return
 	}
 
 	if len(attributeValueIDs) > 0 {
