@@ -32,7 +32,9 @@ func NewProductHandler(productDB store.ProductStore, priceTableDB store.PriceTab
 */
 
 func (p *ProductHandler) GetProductForm(w http.ResponseWriter, r *http.Request) {
-	Render(templates.ProductForm(forms.New(nil), false, nil, nil), r, w)
+	sess := m.GetSessionFromContext(r)
+	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+	Render(templates.ProductForm(forms.New(nil), false, false, nil, attrs), r, w)
 }
 
 func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) {
@@ -43,12 +45,13 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	sess := m.GetSessionFromContext(r)
+
 	if !form.Valid() {
-		_ = Render(templates.ProductForm(form, false, nil, nil), r, w)
+		attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+		_ = Render(templates.ProductForm(form, false, false, nil, attrs), r, w)
 		return
 	}
-
-	sess := m.GetSessionFromContext(r)
 
 	product := &store.Product{
 		TenantID:        sess.TenantID,
@@ -67,7 +70,8 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 		} else {
 			form.Errors.Add("general", "Erro ao cadastrar produto. Tente novamente.")
 		}
-		_ = Render(templates.ProductForm(form, false, nil, nil), r, w)
+		attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+		_ = Render(templates.ProductForm(form, false, false, nil, attrs), r, w)
 		return
 	}
 
@@ -106,7 +110,7 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
 
 	if !form.Valid() {
-		_ = Render(templates.ProductForm(form, true, variants, attrs), r, w)
+		_ = Render(templates.ProductForm(form, true, false, variants, attrs), r, w)
 		return
 	}
 
@@ -122,12 +126,12 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	err = p.productStore.UpdateFields(uint(id), sess.TenantID, fields)
 	if err != nil {
 		form.Errors.Add("general", "Erro ao salvar produto. Tente novamente.")
-		_ = Render(templates.ProductForm(form, true, variants, attrs), r, w)
+		_ = Render(templates.ProductForm(form, true, false, variants, attrs), r, w)
 		return
 	}
 
 	ShowToast(w, "Alteracoes Salvas", "success")
-	_ = Render(templates.ProductForm(form, true, variants, attrs), r, w)
+	_ = Render(templates.ProductForm(form, true, false, variants, attrs), r, w)
 }
 
 func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
@@ -148,7 +152,7 @@ func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 	form := mapProductToForm(product)
 	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
 
-	_ = Render(templates.ProductForm(form, true, product.Variants, attrs), r, w)
+	_ = Render(templates.ProductForm(form, true, false, product.Variants, attrs), r, w)
 }
 
 func (p *ProductHandler) GetProductPage(w http.ResponseWriter, r *http.Request) {
@@ -243,6 +247,7 @@ func (p *ProductHandler) PostAddValue(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *ProductHandler) PostNewAttribute(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("BATEU NO HANDLER")
 	sess := m.GetSessionFromContext(r)
 
 	if err := r.ParseForm(); err != nil {

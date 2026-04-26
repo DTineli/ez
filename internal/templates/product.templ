@@ -9,6 +9,7 @@ import (
 	"github.com/DTineli/ez/internal/templates/components"
 )
 
+// ─── PRODUTO ────────────────────────────────────────────────────────────────
 templ Filter() {
 	<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
 		<div class="p-6 py-4">
@@ -86,7 +87,7 @@ templ Pagination(current, total int) {
 					hx-push-url="true"
 					hx-swap="innerHTML"
 				>
-					{ i }
+					{ strconv.Itoa(i) }
 				</button>
 			} else if i == current-3 || i == current+3 {
 				<span class="px-2">…</span>
@@ -134,7 +135,7 @@ templ ProductTableBody(products []store.Product) {
 						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs"
 						hx-push-url="true"
 						hx-target="#main-content"
-						href={ fmt.Sprintf("/admin/produtos/%v", p.ID) }
+						href={ templ.SafeURL(fmt.Sprintf("/admin/produtos/%v", p.ID)) }
 					>
 						Editar
 					</a>
@@ -182,105 +183,453 @@ templ ProductsPage(params store.GetProductPageParams) {
 	</div>
 }
 
-templ NewVariantForm(productID string, attrs []store.Attribute) {
-	<div id="new-variant-form" class="bg-white shadow-sm border border-gray-200 rounded-xl mt-3">
-		<div class="p-6">
-			<h3 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Nova Variação</h3>
-			<form
-				hx-post={ fmt.Sprintf("/admin/produtos/%s/variants", productID) }
-				hx-target="#variants-section"
-				hx-swap="outerHTML"
-				class="space-y-4"
+templ ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants []store.Variant, attrs []store.Attribute) {
+	{{
+		var action string
+		if isUpdate {
+			action = fmt.Sprintf("/admin/produtos/%s", form.Get("ID"))
+		} else {
+			action = "/admin/produtos"
+		}
+
+		uoms := []struct {
+			Value string
+			Label string
+		}{
+			{"UN", "Unidade (UN)"},
+			{"KG", "Quilograma (KG)"},
+			{"LT", "Litro (LT)"},
+			{"CX", "Caixa (CX)"},
+			{"MT", "Metro (MT)"},
+		}
+	}}
+	<div id="form" class="space-y-6 max-w-[900px] mx-auto">
+		<div class="flex items-center justify-between">
+			<div>
+				<h1 class="text-2xl font-bold">
+					if isUpdate {
+						Editar Produto
+					} else {
+						Novo Produto
+					}
+				</h1>
+				<p class="text-gray-400 text-sm mt-0.5">
+					if isUpdate {
+						Atualize os dados do produto abaixo.
+					} else {
+						Preencha os dados para cadastrar um novo produto.
+					}
+				</p>
+			</div>
+			<button
+				hx-get="/admin/produtos"
+				hx-target="#main-content"
+				hx-push-url="true"
+				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
 			>
-				<div class="flex flex-wrap gap-4">
-					<div class="basis-[20%] grow">
-						@components.BasicInput(components.BasicInputParams{
-							Name:        "sku",
-							Label:       "SKU",
-							InputType:   "text",
-							Placeholder: "SKU-01",
-							IsRequired:  true,
-						})
-					</div>
-					<div class="basis-[20%] grow">
-						@components.BasicInput(components.BasicInputParams{
-							Name:        "cost_price",
-							Label:       "Preço de Custo (R$)",
-							InputType:   "number",
-							Placeholder: "0.00",
-							Step:        "0.01",
-						})
-					</div>
-					<div class="basis-[20%] grow">
-						@components.BasicInput(components.BasicInputParams{
-							Name:        "current_stock",
-							Label:       "Estoque Atual",
-							InputType:   "number",
-							Placeholder: "0",
-						})
-					</div>
-					<div class="basis-[20%] grow">
-						@components.BasicInput(components.BasicInputParams{
-							Name:        "minimum_stock",
-							Label:       "Estoque Mínimo",
-							InputType:   "number",
-							Placeholder: "0",
-						})
-					</div>
-				</div>
-				if len(attrs) == 0 {
-					<div class="space-y-3">
-						<p class="text-sm font-medium">Atributos</p>
-						<div class="flex flex-wrap gap-4">
-							for _, attr := range attrs {
-								<div class="basis-[20%] grow">
-									<label class="flex items-center gap-2 py-1">
-										<span class="text-sm font-medium">{ attr.Name }</span>
-									</label>
-									<select
-										name="attribute_value_ids"
-										class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-									>
-										<option value="">— Selecionar —</option>
-										for _, val := range attr.Values {
-											<option value={ strconv.Itoa(int(val.ID)) }>{ val.Value }</option>
-										}
-									</select>
-								</div>
-							}
+				← Voltar
+			</button>
+		</div>
+		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+			<div class="p-5">
+				<form
+					hx-post={ action }
+					hx-target="#form"
+					hx-swap="outerHTML"
+					class="space-y-0"
+				>
+					<!-- DADOS GERAIS -->
+					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Dados Gerais</p>
+					<div class="flex flex-wrap gap-3 mb-4">
+						<div class="basis-[45%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:          "name",
+								Label:         "Nome",
+								InputType:     "text",
+								Value:         form.Get("name"),
+								ErrorMessages: form.Errors.Get("name"),
+								IsRequired:    true,
+							})
+						</div>
+						<div class="basis-[20%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:          "sku",
+								Label:         "SKU",
+								InputType:     "text",
+								Value:         form.Get("sku"),
+								ErrorMessages: form.Errors.Get("sku"),
+								IsRequired:    true,
+								Disabled:      isUpdate,
+							})
+						</div>
+						<div class="basis-[20%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:          "ean",
+								Label:         "EAN",
+								InputType:     "text",
+								Value:         form.Get("ean"),
+								ErrorMessages: form.Errors.Get("ean"),
+								Mask:          "9999999999999",
+								Placeholder:   "0000000000000",
+							})
 						</div>
 					</div>
-				}
-				<div class="flex justify-end gap-3">
-					<button
-						type="button"
-						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
-						hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/form/cancel", productID) }
-						hx-target="#new-variant-form"
-						hx-swap="outerHTML"
-					>
-						Cancelar
-					</button>
-					<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
-						Salvar Variação
-					</button>
-				</div>
-			</form>
+					<div class="flex flex-col gap-1 mb-5">
+						<label class="flex items-center gap-2 py-1">
+							<span class="text-sm font-medium">Descrição</span>
+						</label>
+						<textarea
+							name="description"
+							rows="3"
+							class="block w-full border border-gray-300 rounded-field bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-y"
+						>{ form.Get("description") }</textarea>
+					</div>
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
+					<!-- CLASSIFICAÇÃO -->
+					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Classificação</p>
+					<div class="flex flex-wrap gap-3 mb-4">
+						<div class="basis-[30%] grow">
+							<label class="flex items-center gap-2 py-1">
+								<span class="text-sm font-medium">Unidade de Medida</span>
+							</label>
+							<select name="uom" class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+								for _, u := range uoms {
+									<option
+										value={ u.Value }
+										if form.Get("uom") == u.Value {
+											selected
+										}
+									>
+										{ u.Label }
+									</option>
+								}
+							</select>
+						</div>
+						<div class="basis-[20%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:        "ncm",
+								Label:       "NCM",
+								InputType:   "text",
+								Value:       form.Get("ncm"),
+								Mask:        "9999.99.99",
+								Placeholder: "0000.00.00",
+							})
+						</div>
+					</div>
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
+					<!-- ESTOQUE & CUSTOS -->
+					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Estoque &amp; Custos</p>
+					if isUpdate && !hasVariations {
+						@HasVariationsToggle(hasVariations)
+					}
+					if !isUpdate {
+						<div class="flex flex-wrap gap-3 mb-4">
+							<div class="basis-[25%] grow">
+								@components.BasicInput(components.BasicInputParams{
+									Name:      "cost_price",
+									Label:     "Preço de Custo (R$)",
+									InputType: "number",
+									Value:     form.Get("cost_price"),
+									Step:      "0.01",
+								})
+							</div>
+							<div class="basis-[25%] grow">
+								@components.BasicInput(components.BasicInputParams{
+									Name:      "current_stock",
+									Label:     "Estoque Atual",
+									InputType: "number",
+									Value:     form.Get("current_stock"),
+								})
+							</div>
+							<div class="basis-[25%] grow">
+								@components.BasicInput(components.BasicInputParams{
+									Name:      "minimum_stock",
+									Label:     "Estoque Mínimo",
+									InputType: "number",
+									Value:     form.Get("minimum_stock"),
+								})
+							</div>
+						</div>
+					}
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
+					<!-- DIMENSÕES -->
+					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Dimensões</p>
+					<div class="flex flex-wrap gap-3 mb-4">
+						<div class="basis-[18%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:      "weight",
+								Label:     "Peso (kg)",
+								InputType: "number",
+								Step:      "0.01",
+								Value:     form.Get("weight"),
+							})
+						</div>
+						<div class="basis-[18%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:      "height",
+								Label:     "Altura (cm)",
+								InputType: "number",
+								Step:      "0.01",
+								Value:     form.Get("height"),
+							})
+						</div>
+						<div class="basis-[18%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:      "width",
+								Label:     "Largura (cm)",
+								InputType: "number",
+								Step:      "0.01",
+								Value:     form.Get("width"),
+							})
+						</div>
+						<div class="basis-[18%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:      "length",
+								Label:     "Comprimento (cm)",
+								InputType: "number",
+								Step:      "0.01",
+								Value:     form.Get("length"),
+							})
+						</div>
+					</div>
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
+					@components.FormAlert(form.Errors.Get("general"))
+					<div class="flex justify-end gap-3 pt-2">
+						<button
+							type="button"
+							hx-get="/admin/produtos"
+							hx-target="#main-content"
+							hx-push-url="true"
+							class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
+						>
+							Cancelar
+						</button>
+						<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
+							if isUpdate {
+								Salvar Alterações
+							} else {
+								Cadastrar Produto
+							}
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+		if isUpdate {
+			@VariantsSection(variants, form.Get("ID"))
+		}
+	</div>
+}
+
+// ─── ATRIBUTO ───────────────────────────────────────────────────────────────
+templ AttributeSelect(attrs []store.Attribute, formID string) {
+	<select
+		name="attribute_id"
+		form={ formID }
+		class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-64"
+	>
+		<option value="">— Atributo —</option>
+		for _, attr := range attrs {
+			<option value={ strconv.Itoa(int(attr.ID)) }>{ attr.Name }</option>
+		}
+	</select>
+}
+
+templ NewAttributeForm() {
+	<form
+		id="new-attribute-form"
+		class="flex gap-2 items-end"
+		hx-post="/admin/atributos"
+		hx-target="#attributes-section"
+		hx-swap="outerHTML"
+	>
+		<input
+			type="text"
+			name="name"
+			class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-48"
+			placeholder="Ex: Cor, Tamanho..."
+			required
+			autofocus
+		/>
+		<button
+			type="submit"
+			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm"
+		>
+			Criar
+		</button>
+		<button
+			type="button"
+			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
+			hx-get="/admin/atributos/form/cancel"
+			hx-target="#new-attribute-form"
+			hx-swap="outerHTML"
+		>
+			Cancelar
+		</button>
+	</form>
+}
+
+templ AttributesSection(attrs []store.Attribute) {
+	<div id="attributes-section" class="flex flex-col gap-2">
+		<div class="flex gap-2 items-center">
+			@AttributeSelect(attrs, "")
+			<button
+				type="button"
+				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-dashed border-gray-300 text-gray-500 bg-transparent hover:bg-gray-50 px-3 py-1.5 text-sm"
+				hx-get="/admin/atributos/form"
+				hx-target="#attributes-section"
+				hx-swap="afterend"
+			>
+				+ Novo atributo
+			</button>
 		</div>
 	</div>
 }
 
-templ NewVariantTrigger(productID string) {
-	<div id="new-variant-form">
+// ─── VARIAÇÃO ───────────────────────────────────────────────────────────────
+templ HasVariationsToggle(hasVariations bool) {
+	<div class="flex items-center justify-between py-3 border-b border-gray-100 mb-5">
+		<div>
+			<p class="text-sm font-medium">Produto com variações</p>
+			<p class="text-xs text-gray-400 mt-0.5">Cor, tamanho, material, etc.</p>
+		</div>
 		<button
 			type="button"
-			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-content px-3 py-1.5 text-sm mt-3"
-			hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/form", productID) }
-			hx-target="#new-variant-form"
+			class={ "relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors cursor-pointer " + func() string {
+				if hasVariations {
+					return "bg-primary"
+				}
+				return "bg-gray-300"
+			}() }
+			hx-post="/admin/produtos/toggle-variacoes"
+			hx-target="#form"
 			hx-swap="outerHTML"
+			hx-include="closest form"
 		>
-			+ Nova Variação
+			<span
+				class={ "inline-block h-3 w-3 transform rounded-full bg-white transition-transform shadow " + func() string {
+					if hasVariations {
+						return "translate-x-5"
+					}
+					return "translate-x-1"
+				}() }
+			></span>
 		</button>
+	</div>
+}
+
+templ VariationBuilderSection(attrs []store.Attribute) {
+	<div id="variation-builder" class="mb-4">
+		@AttributesSection(attrs)
+		<div class="mt-4" id="variation-combos">
+			<p class="text-sm text-gray-400 italic">Nenhuma variação definida.</p>
+		</div>
+	</div>
+}
+
+templ VariantCombosTable(combos [][]string) {
+	<div id="variation-combos" class="overflow-x-auto rounded border border-gray-100 mt-4">
+		if len(combos) == 0 {
+			<p class="text-sm text-gray-400 italic p-4">Nenhuma combinação gerada.</p>
+		} else {
+			<table class="w-full text-sm text-left">
+				<thead class="bg-gray-100/50">
+					<tr>
+						<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">Combinação</th>
+						<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200"><span class="text-primary">*</span> Preço (R$)</th>
+						<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200"><span class="text-primary">*</span> Estoque</th>
+						<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">SKU</th>
+						<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">GTIN (EAN)</th>
+					</tr>
+				</thead>
+				<tbody>
+					for ci, combo := range combos {
+						<tr class="hover:bg-gray-50">
+							<td class="px-3 py-2">
+								for i, val := range combo {
+									if i > 0 {
+										<span class="text-gray-400 mx-1">/</span>
+									}
+									<span class="text-sm">{ val }</span>
+								}
+							</td>
+							<td class="px-3 py-2">
+								<input
+									type="number"
+									name={ fmt.Sprintf("combo[%d][price]", ci) }
+									class="block border border-gray-300 rounded bg-white px-2 py-1 text-xs focus:outline-none w-24"
+									placeholder="0,00"
+									step="0.01"
+									min="0"
+								/>
+							</td>
+							<td class="px-3 py-2">
+								<input
+									type="number"
+									name={ fmt.Sprintf("combo[%d][stock]", ci) }
+									class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-16"
+									placeholder="0"
+									min="0"
+								/>
+							</td>
+							<td class="px-3 py-2">
+								<input
+									type="text"
+									name={ fmt.Sprintf("combo[%d][sku]", ci) }
+									class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-24"
+									placeholder="SKU-001"
+								/>
+							</td>
+							<td class="px-3 py-2">
+								<input
+									type="text"
+									name={ fmt.Sprintf("combo[%d][gtin]", ci) }
+									class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-28"
+									placeholder="0000000000000"
+								/>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		}
+	</div>
+}
+
+templ VariantsSection(variants []store.Variant, productID string) {
+	<div id="variants-section">
+		<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Variações</h2>
+		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+			<div class="p-0">
+				<div class="overflow-x-auto">
+					<table class="w-full text-sm text-left">
+						<thead>
+							<tr>
+								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">SKU</th>
+								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Atributos</th>
+								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Preço de Custo (R$)</th>
+								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Estoque Atual</th>
+								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Estoque Mínimo</th>
+								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200"></th>
+							</tr>
+						</thead>
+						<tbody>
+							if len(variants) == 0 {
+								<tr>
+									<td colspan="6" class="text-center text-gray-400 py-4 px-4">
+										Nenhuma variação cadastrada.
+									</td>
+								</tr>
+							}
+							for _, v := range variants {
+								@VariantRow(v, productID)
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		@NewVariantTrigger(productID)
 	</div>
 }
 
@@ -375,599 +724,104 @@ templ VariantEditRow(v store.Variant, productID string) {
 	</tr>
 }
 
-templ VariantsSection(variants []store.Variant, productID string) {
-	<div id="variants-section">
-		<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Variações</h2>
-		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
-			<div class="p-0">
-				<div class="overflow-x-auto">
-					<table class="w-full text-sm text-left">
-						<thead>
-							<tr>
-								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">SKU</th>
-								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Atributos</th>
-								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Preço de Custo (R$)</th>
-								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Estoque Atual</th>
-								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Estoque Mínimo</th>
-								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200"></th>
-							</tr>
-						</thead>
-						<tbody>
-							if len(variants) == 0 {
-								<tr>
-									<td colspan="6" class="text-center text-gray-400 py-4 px-4">
-										Nenhuma variação cadastrada.
-									</td>
-								</tr>
-							}
-							for _, v := range variants {
-								@VariantRow(v, productID)
-							}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-		@NewVariantTrigger(productID)
-	</div>
-}
-
-templ AttributesSection(attrs []store.Attribute) {
-	<div id="attributes-section" class="space-y-4">
-		<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400">Atributos</h2>
-		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
-			<div class="p-6 py-4">
-				<p class="text-sm font-medium mb-2">Cadastrar novo atributo</p>
-				<form
-					hx-post="/admin/atributos"
-					hx-target="#attributes-section"
-					hx-swap="outerHTML"
-					class="flex gap-3 items-end"
-				>
-					<div class="grow">
+templ NewVariantForm(productID string, attrs []store.Attribute) {
+	<div id="new-variant-form" class="bg-white shadow-sm border border-gray-200 rounded-xl mt-3">
+		<div class="p-6">
+			<h3 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Nova Variação</h3>
+			<form
+				hx-post={ fmt.Sprintf("/admin/produtos/%s/variants", productID) }
+				hx-target="#variants-section"
+				hx-swap="outerHTML"
+				class="space-y-4"
+			>
+				<div class="flex flex-wrap gap-4">
+					<div class="basis-[20%] grow">
 						@components.BasicInput(components.BasicInputParams{
-							Name:        "name",
-							Label:       "Nome do atributo",
+							Name:        "sku",
+							Label:       "SKU",
 							InputType:   "text",
-							Placeholder: "Ex: Cor, Tamanho...",
+							Placeholder: "SKU-01",
 							IsRequired:  true,
 						})
 					</div>
-					<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm mb-0.5">Adicionar</button>
-				</form>
-			</div>
-		</div>
-		if len(attrs) > 0 {
-			<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
-				<div class="p-6 py-4 space-y-4">
-					<p class="text-sm font-medium">Atributos existentes</p>
-					for _, attr := range attrs {
-						<div class="space-y-2">
-							<p class="text-xs font-semibold uppercase tracking-wider text-gray-400">{ attr.Name }</p>
-							<div class="flex flex-wrap gap-1 mb-2">
-								for _, val := range attr.Values {
-									<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-gray-100 text-gray-700">{ val.Value }</span>
-								}
-								if len(attr.Values) == 0 {
-									<span class="text-xs text-gray-300">Nenhum valor cadastrado.</span>
-								}
-							</div>
-							<form
-								hx-post={ fmt.Sprintf("/admin/atributos/%v/values", attr.ID) }
-								hx-target="#attributes-section"
-								hx-swap="outerHTML"
-								class="flex gap-3 items-end"
-							>
-								<div class="grow max-w-xs">
-									@components.BasicInput(components.BasicInputParams{
-										Name:        "value",
-										Label:       "Novo valor",
-										InputType:   "text",
-										Placeholder: "Ex: Vermelho, GG...",
-										IsRequired:  true,
-									})
-								</div>
-								<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-content px-3 py-1.5 text-sm mb-0.5">+ Adicionar valor</button>
-							</form>
-						</div>
-						if attr.ID != attrs[len(attrs)-1].ID {
-							<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
-						}
-					}
+					<div class="basis-[20%] grow">
+						@components.BasicInput(components.BasicInputParams{
+							Name:        "cost_price",
+							Label:       "Preço de Custo (R$)",
+							InputType:   "number",
+							Placeholder: "0.00",
+							Step:        "0.01",
+						})
+					</div>
+					<div class="basis-[20%] grow">
+						@components.BasicInput(components.BasicInputParams{
+							Name:        "current_stock",
+							Label:       "Estoque Atual",
+							InputType:   "number",
+							Placeholder: "0",
+						})
+					</div>
+					<div class="basis-[20%] grow">
+						@components.BasicInput(components.BasicInputParams{
+							Name:        "minimum_stock",
+							Label:       "Estoque Mínimo",
+							InputType:   "number",
+							Placeholder: "0",
+						})
+					</div>
 				</div>
-			</div>
-		}
+				if len(attrs) > 0 {
+					<div class="space-y-3">
+						<p class="text-sm font-medium">Atributos</p>
+						<div class="flex flex-wrap gap-4">
+							for _, attr := range attrs {
+								<div class="basis-[20%] grow">
+									<label class="flex items-center gap-2 py-1">
+										<span class="text-sm font-medium">{ attr.Name }</span>
+									</label>
+									<select
+										name="attribute_value_ids"
+										class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+									>
+										<option value="">— Selecionar —</option>
+										for _, val := range attr.Values {
+											<option value={ strconv.Itoa(int(val.ID)) }>{ val.Value }</option>
+										}
+									</select>
+								</div>
+							}
+						</div>
+					</div>
+				}
+				<div class="flex justify-end gap-3">
+					<button
+						type="button"
+						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
+						hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/form/cancel", productID) }
+						hx-target="#new-variant-form"
+						hx-swap="outerHTML"
+					>
+						Cancelar
+					</button>
+					<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
+						Salvar Variação
+					</button>
+				</div>
+			</form>
+		</div>
 	</div>
 }
 
-templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, attrs []store.Attribute) {
-	{{
-		var action string
-		if isUpdate {
-			action = fmt.Sprintf("/admin/produtos/%s", form.Get("ID"))
-		} else {
-			action = "/admin/produtos"
-		}
-
-		uoms := []struct {
-			Value string
-			Label string
-		}{
-			{"UN", "Unidade (UN)"},
-			{"KG", "Quilograma (KG)"},
-			{"LT", "Litro (LT)"},
-			{"CX", "Caixa (CX)"},
-			{"MT", "Metro (MT)"},
-		}
-	}}
-	<div id="form" class="space-y-6 max-w-[900px] mx-auto" x-data="productForm()">
-		<div class="flex items-center justify-between">
-			<div>
-				<h1 class="text-2xl font-bold">
-					if isUpdate {
-						Editar Produto
-					} else {
-						Novo Produto
-					}
-				</h1>
-				<p class="text-gray-400 text-sm mt-0.5">
-					if isUpdate {
-						Atualize os dados do produto abaixo.
-					} else {
-						Preencha os dados para cadastrar um novo produto.
-					}
-				</p>
-			</div>
-			<button
-				hx-get="/admin/produtos"
-				hx-target="#main-content"
-				hx-push-url="true"
-				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
-			>
-				← Voltar
-			</button>
-		</div>
-		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
-			<div class="p-5">
-				<form
-					hx-post={ action }
-					hx-target="#form"
-					hx-swap="outerHTML"
-					class="space-y-0"
-				>
-					<input type="hidden" name="variations_json" :value="JSON.stringify(variations)"/>
-					<input type="hidden" name="var_rows_json" :value="JSON.stringify(varRows)"/>
-					<!-- DADOS GERAIS -->
-					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Dados Gerais</p>
-					<div class="flex flex-wrap gap-3 mb-4">
-						<div class="basis-[45%] grow">
-							@components.BasicInput(components.BasicInputParams{
-								Name:          "name",
-								Label:         "Nome",
-								InputType:     "text",
-								Value:         form.Get("name"),
-								ErrorMessages: form.Errors.Get("name"),
-								IsRequired:    true,
-							})
-						</div>
-						<div class="basis-[20%] grow">
-							@components.BasicInput(components.BasicInputParams{
-								Name:          "sku",
-								Label:         "SKU",
-								InputType:     "text",
-								Value:         form.Get("sku"),
-								ErrorMessages: form.Errors.Get("sku"),
-								IsRequired:    true,
-								Disabled:      isUpdate,
-							})
-						</div>
-						<div class="basis-[20%] grow">
-							@components.BasicInput(components.BasicInputParams{
-								Name:          "ean",
-								Label:         "EAN",
-								InputType:     "text",
-								Value:         form.Get("ean"),
-								ErrorMessages: form.Errors.Get("ean"),
-								Mask:          "9999999999999",
-								Placeholder:   "0000000000000",
-							})
-						</div>
-					</div>
-					<div class="flex flex-col gap-1 mb-5">
-						<label class="flex items-center gap-2 py-1">
-							<span class="text-sm font-medium">Descrição</span>
-						</label>
-						<textarea
-							name="description"
-							rows="3"
-							class="block w-full border border-gray-300 rounded-field bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-y"
-						>{ form.Get("description") }</textarea>
-					</div>
-					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
-					<!-- CLASSIFICAÇÃO -->
-					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Classificação</p>
-					<div class="flex flex-wrap gap-3 mb-4">
-						<div class="basis-[30%] grow">
-							<label class="flex items-center gap-2 py-1">
-								<span class="text-sm font-medium">Unidade de Medida</span>
-							</label>
-							<select name="uom" class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
-								for _, u := range uoms {
-									<option
-										value={ u.Value }
-										if form.Get("uom") == u.Value {
-											selected
-										}
-									>
-										{ u.Label }
-									</option>
-								}
-							</select>
-						</div>
-						<div class="basis-[20%] grow">
-							@components.BasicInput(components.BasicInputParams{
-								Name:        "ncm",
-								Label:       "NCM",
-								InputType:   "text",
-								Value:       form.Get("ncm"),
-								Mask:        "9999.99.99",
-								Placeholder: "0000.00.00",
-							})
-						</div>
-					</div>
-					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
-					<!-- ESTOQUE & CUSTOS -->
-					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Estoque &amp; Custos</p>
-					<div class="flex items-center justify-between py-3 border-b border-gray-100 mb-5">
-						<div>
-							<p class="text-sm font-medium">Produto com variações</p>
-							<p class="text-xs text-gray-400 mt-0.5">Cor, tamanho, material, etc.</p>
-						</div>
-						<button
-							type="button"
-							@click="hasVariations = !hasVariations"
-							:class="hasVariations ? 'bg-primary' : 'bg-gray-300'"
-							class="relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors cursor-pointer"
-						>
-							<span
-								:class="hasVariations ? 'translate-x-5' : 'translate-x-1'"
-								class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform shadow"
-							></span>
-						</button>
-					</div>
-					<!-- Variation builder (when hasVariations = true) -->
-					<div x-show="hasVariations" x-cloak>
-						<template x-for="(v, vi) in variations" :key="v.id">
-							<div class="bg-gray-100/60 border border-gray-200 rounded-md mb-3 overflow-hidden">
-								<div class="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-gray-100">
-									<span class="text-xs font-semibold uppercase tracking-wider text-gray-400" x-text="'Variação ' + (vi+1)"></span>
-									<button type="button" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs" @click="removeVariation(vi)">
-										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"></path></svg>
-									</button>
-								</div>
-								<div class="p-4">
-									<input
-										type="text"
-										class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-64"
-										x-model="v.name"
-										:placeholder="vi === 0 ? 'Ex: Cor, Material' : 'Ex: Tamanho, Voltagem'"
-									/>
-									<div class="flex items-center gap-2 mt-3 mb-2">
-										<span class="w-2 h-2 rounded-full bg-primary flex-shrink-0"></span>
-										<span class="text-xs font-semibold text-gray-400">Opções</span>
-									</div>
-									<div class="grid grid-cols-2 gap-2">
-										<template x-for="(opt, oi) in v.options" :key="opt.id">
-											<div class="flex items-center gap-1.5">
-												<input
-													type="text"
-													class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none flex-1 min-w-0"
-													x-model="opt.label"
-													placeholder="Ex: Cinza"
-													@keydown.enter.prevent="addOption(vi)"
-												/>
-												<input
-													type="text"
-													class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-28 flex-shrink-0"
-													x-model="opt.explain"
-													placeholder="Explicação"
-												/>
-												<button type="button" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-1 py-1 text-xs flex-shrink-0" @click="removeOption(vi, oi)" title="Remover">
-													<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"></path></svg>
-												</button>
-											</div>
-										</template>
-										<div class="flex items-center gap-1.5">
-											<input
-												type="text"
-												class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none flex-1 min-w-0"
-												placeholder="Inserir"
-												@keydown.enter.prevent="if($event.target.value.trim()){ addOption(vi, $event.target.value.trim()); $event.target.value=''; }"
-												@blur="if($event.target.value.trim()){ addOption(vi, $event.target.value.trim()); $event.target.value=''; }"
-											/>
-											<input type="text" class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-28 flex-shrink-0" placeholder="Explicação"/>
-										</div>
-									</div>
-								</div>
-							</div>
-						</template>
-						<button
-							type="button"
-							class="inline-flex items-center justify-center gap-1.5 cursor-pointer font-medium rounded-field transition-all border border-dashed border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-content px-3 py-1.5 text-sm mt-1"
-							@click="addVariation()"
-							:disabled="variations.length >= 2"
-						>
-							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"></path></svg>
-							<span x-text="variations.length === 0 ? 'Adicionar Variação' : 'Adicionar Variação 2'"></span>
-						</button>
-						<!-- Combinations table -->
-						<div class="mt-6" x-show="combos.length > 0" x-cloak>
-							<p class="text-sm font-semibold mb-3">Lista de Variações</p>
-							<div class="flex flex-wrap gap-2 mb-3">
-								<div class="inline-flex">
-									<span class="flex items-center px-2 bg-gray-100 border border-gray-300 text-xs text-gray-500 rounded-l-field border-r-0">R$</span>
-									<input type="number" class="block border border-gray-300 rounded-r-field bg-white px-3 py-1.5 text-sm focus:outline-none w-24" x-model="bulkPrice" placeholder="Preço"/>
-								</div>
-								<input type="number" class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-24" x-model="bulkStock" placeholder="Estoque"/>
-								<input type="text" class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-28" x-model="bulkSku" placeholder="SKU Variação"/>
-								<button type="button" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm" @click="applyAll()">Aplicar a todos</button>
-							</div>
-							<div class="overflow-x-auto rounded border border-gray-100">
-								<table class="w-full text-sm text-left">
-									<thead class="bg-gray-100/50">
-										<tr>
-											<template x-for="v in variations" :key="v.id">
-												<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200" x-text="v.name || 'Variação'"></th>
-											</template>
-											<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200"><span class="text-primary">*</span> Preço</th>
-											<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200"><span class="text-primary">*</span> Estoque</th>
-											<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">SKU</th>
-											<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">GTIN (EAN)</th>
-											<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">Sem GTIN</th>
-											<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">Foto</th>
-										</tr>
-									</thead>
-									<tbody>
-										<template x-for="(combo, ci) in combos" :key="ci">
-											<tr class="hover:bg-gray-50">
-												<template x-for="(val, i) in combo" :key="i">
-													<td class="px-3 py-2">
-														<span class="text-sm" x-text="val"></span>
-													</td>
-												</template>
-												<td class="px-3 py-2">
-													<div class="inline-flex">
-														<span class="flex items-center px-1.5 bg-gray-100 border border-gray-300 text-xs text-gray-500 rounded-l border-r-0">R$</span>
-														<input
-															type="number"
-															class="block border border-gray-300 rounded-r bg-white px-2 py-1 text-xs focus:outline-none w-20"
-															:value="getRow(ci).price"
-															@input="setRow(ci, 'price', $event.target.value)"
-															placeholder="0,00"
-														/>
-													</div>
-												</td>
-												<td class="px-3 py-2">
-													<input
-														type="number"
-														class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-16"
-														:value="getRow(ci).stock"
-														@input="setRow(ci, 'stock', $event.target.value)"
-														placeholder="0"
-													/>
-												</td>
-												<td class="px-3 py-2">
-													<input
-														type="text"
-														class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-24"
-														:value="getRow(ci).sku"
-														@input="setRow(ci, 'sku', $event.target.value)"
-														placeholder="SKU-001"
-													/>
-												</td>
-												<td class="px-3 py-2">
-													<input
-														type="text"
-														class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-28"
-														:value="getRow(ci).gtin"
-														@input="setRow(ci, 'gtin', $event.target.value)"
-														placeholder="EAN código de barras"
-													/>
-												</td>
-												<td class="px-3 py-2">
-													<div class="flex justify-center">
-														<input
-															type="checkbox"
-															class="h-3 w-3 rounded border-gray-300 text-primary focus:ring-primary"
-															:checked="getRow(ci).noGtin"
-															@change="setRow(ci, 'noGtin', $event.target.checked)"
-														/>
-													</div>
-												</td>
-												<td class="px-3 py-2">
-													<div class="w-9 h-9 rounded border border-dashed border-gray-200 cursor-pointer bg-gray-100 flex items-center justify-center text-gray-300 hover:border-primary hover:text-primary transition-colors">
-														<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M12 8v8M8 12h8"></path></svg>
-													</div>
-												</td>
-											</tr>
-										</template>
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-					<!-- Flat fields (when hasVariations = false) -->
-					<div x-show="!hasVariations" x-cloak>
-						<div class="flex flex-wrap gap-3 mb-4">
-							<div class="basis-[25%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:      "cost_price",
-									Label:     "Preço de Custo (R$)",
-									InputType: "number",
-									Value:     form.Get("cost_price"),
-									Step:      "0.01",
-								})
-							</div>
-							<div class="basis-[25%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:      "current_stock",
-									Label:     "Estoque Atual",
-									InputType: "number",
-									Value:     form.Get("current_stock"),
-								})
-							</div>
-							<div class="basis-[25%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:      "minimum_stock",
-									Label:     "Estoque Mínimo",
-									InputType: "number",
-									Value:     form.Get("minimum_stock"),
-								})
-							</div>
-						</div>
-					</div>
-					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
-					<!-- DIMENSÕES -->
-					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Dimensões</p>
-					<div class="flex flex-wrap gap-3 mb-4">
-						<div class="basis-[18%] grow">
-							@components.BasicInput(components.BasicInputParams{
-								Name:      "weight",
-								Label:     "Peso (kg)",
-								InputType: "number",
-								Step:      "0.01",
-								Value:     form.Get("weight"),
-							})
-						</div>
-						<div class="basis-[18%] grow">
-							@components.BasicInput(components.BasicInputParams{
-								Name:      "height",
-								Label:     "Altura (cm)",
-								InputType: "number",
-								Step:      "0.01",
-								Value:     form.Get("height"),
-							})
-						</div>
-						<div class="basis-[18%] grow">
-							@components.BasicInput(components.BasicInputParams{
-								Name:      "width",
-								Label:     "Largura (cm)",
-								InputType: "number",
-								Step:      "0.01",
-								Value:     form.Get("width"),
-							})
-						</div>
-						<div class="basis-[18%] grow">
-							@components.BasicInput(components.BasicInputParams{
-								Name:      "length",
-								Label:     "Comprimento (cm)",
-								InputType: "number",
-								Step:      "0.01",
-								Value:     form.Get("length"),
-							})
-						</div>
-					</div>
-					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
-					@components.FormAlert(form.Errors.Get("general"))
-					<div class="flex justify-end gap-3 pt-2">
-						<button
-							type="button"
-							hx-get="/admin/produtos"
-							hx-target="#main-content"
-							hx-push-url="true"
-							class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
-						>
-							Cancelar
-						</button>
-						<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
-							if isUpdate {
-								Salvar Alterações
-							} else {
-								Cadastrar Produto
-							}
-						</button>
-					</div>
-				</form>
-			</div>
-		</div>
+templ NewVariantTrigger(productID string) {
+	<div id="new-variant-form">
+		<button
+			type="button"
+			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-content px-3 py-1.5 text-sm mt-3"
+			hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/form", productID) }
+			hx-target="#new-variant-form"
+			hx-swap="outerHTML"
+		>
+			+ Nova Variação
+		</button>
 	</div>
-	<script>
-	function productForm() {
-		return {
-			hasVariations: false,
-			variations: [],
-			bulkPrice: '',
-			bulkStock: '',
-			bulkSku: '',
-			varRows: [],
-
-			uid() {
-				return Math.random().toString(36).slice(2, 8);
-			},
-
-			cartesian(arrays) {
-				if (!arrays.length) return [];
-				return arrays.reduce(
-					(acc, arr) => acc.flatMap(a => arr.map(v => [...a, v])),
-					[[]]
-				);
-			},
-
-			get combos() {
-				const opts = this.variations
-					.map(v => v.options.filter(o => o.label.trim()).map(o => o.label))
-					.filter(a => a.length > 0);
-				if (!opts.length) return [];
-				return this.cartesian(opts);
-			},
-
-			addVariation() {
-				if (this.variations.length >= 2) return;
-				this.variations.push({
-					id: this.uid(),
-					name: '',
-					options: [{ id: this.uid(), label: '', explain: '' }]
-				});
-			},
-
-			removeVariation(vi) {
-				this.variations.splice(vi, 1);
-			},
-
-			addOption(vi, label) {
-				this.variations[vi].options.push({
-					id: this.uid(),
-					label: label || '',
-					explain: ''
-				});
-			},
-
-			removeOption(vi, oi) {
-				this.variations[vi].options.splice(oi, 1);
-			},
-
-			getRow(ci) {
-				return this.varRows[ci] || { price: '', stock: '', sku: '', gtin: '', noGtin: false };
-			},
-
-			setRow(ci, field, val) {
-				if (!this.varRows[ci]) {
-					this.varRows[ci] = { price: '', stock: '', sku: '', gtin: '', noGtin: false };
-				}
-				this.varRows[ci][field] = val;
-			},
-
-			applyAll() {
-				this.combos.forEach((_, ci) => {
-					if (!this.varRows[ci]) {
-						this.varRows[ci] = { price: '', stock: '', sku: '', gtin: '', noGtin: false };
-					}
-					if (this.bulkPrice) this.varRows[ci].price = this.bulkPrice;
-					if (this.bulkStock) this.varRows[ci].stock = this.bulkStock;
-					if (this.bulkSku) this.varRows[ci].sku = this.bulkSku;
-				});
-			}
-		}
-	}
-	</script>
 }
