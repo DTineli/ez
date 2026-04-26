@@ -14,9 +14,9 @@ type BasicInputParams struct {
 }
 
 templ BasicInput(p BasicInputParams) {
-	<div class="form-control" x-data>
-		<label class="label">
-			<span class="label-text">{ p.Label }</span>
+	<div class="flex flex-col gap-1" x-data>
+		<label class="flex items-center gap-2">
+			<span class="text-sm font-medium text-gray-700">{ p.Label }</span>
 		</label>
 		<input
 			if p.Disabled {
@@ -33,9 +33,9 @@ templ BasicInput(p BasicInputParams) {
 			name={ p.Name }
 			value={ p.Value }
 			if len(p.ErrorMessages) > 0 {
-				class="input input-bordered w-full border-red-600"
+				class="block w-full border border-red-600 rounded-field bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
 			} else {
-				class="input input-bordered w-full"
+				class="block w-full border border-gray-300 rounded-field bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
 			}
 			if p.IsRequired {
 				required

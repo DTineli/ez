@@ -199,12 +199,12 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 			return templ_7745c5c3_Err
 		}
 		if loggedIn {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<button type=\"button\" hx-post=\"/admin/logout\" class=\"btn btn-ghost btn-sm\" style=\"margin-left:4px;\">Sair</button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<button type=\"button\" hx-post=\"/admin/logout\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm\" style=\"margin-left:4px;\">Sair</button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</header><!-- CONTENT --><main class=\"cs-content\"><div id=\"main-content\" class=\"w-full\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</header><!-- CONTENT --><main class=\"cs-content\"><div id=\"main-content\" class=\"w-full max-w-[1280px] mx-auto\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

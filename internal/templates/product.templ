@@ -10,8 +10,8 @@ import (
 )
 
 templ Filter() {
-	<div class="card bg-base-100 shadow-sm border border-base-300">
-		<div class="card-body py-4">
+	<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+		<div class="p-6 py-4">
 			<form
 				id="filter-form"
 				class="flex flex-wrap items-end gap-3"
@@ -21,11 +21,11 @@ templ Filter() {
 				hx-push-url="true"
 			>
 				<div class="flex-1 min-w-[160px]">
-					<label class="label py-1">
-						<span class="label-text text-sm font-medium">Nome</span>
+					<label class="flex items-center gap-2 py-1">
+						<span class="text-sm font-medium">Nome</span>
 					</label>
 					<input
-						class="input input-bordered input-sm w-full"
+						class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
 						type="text"
 						name="name"
 						id="name-input"
@@ -34,11 +34,11 @@ templ Filter() {
 					/>
 				</div>
 				<div class="w-36">
-					<label class="label py-1">
-						<span class="label-text text-sm font-medium">SKU</span>
+					<label class="flex items-center gap-2 py-1">
+						<span class="text-sm font-medium">SKU</span>
 					</label>
 					<input
-						class="input input-bordered input-sm w-full"
+						class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
 						type="text"
 						name="sku"
 						id="sku-input"
@@ -47,7 +47,7 @@ templ Filter() {
 					/>
 				</div>
 				<div class="pb-0.5">
-					<button type="submit" class="btn btn-primary btn-sm">
+					<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
 						Buscar
 					</button>
 				</div>
@@ -58,9 +58,8 @@ templ Filter() {
 
 templ Pagination(current, total int) {
 	<div class="flex justify-center items-center gap-2 mt-6">
-		<!-- botão anterior -->
 		<button
-			class="btn btn-sm"
+			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
 			if current <= 1 {
 				disabled="true"
 			}
@@ -72,15 +71,13 @@ templ Pagination(current, total int) {
 		>
 			« Anterior
 		</button>
-		<!-- páginas -->
 		for i := 1; i <= total; i++ {
-			// mostra a primeira, última, e 2 páginas antes/depois da atual
 			if i == 1 || i == total || (i >= current-2 && i <= current+2) {
 				<button
 					if i == current {
-						class="btn btn-sm btn-active"
+						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-gray-100 border border-gray-300 px-3 py-1.5 text-sm"
 					} else {
-						class="btn btn-sm"
+						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 text-sm"
 					}
 					hx-get={ fmt.Sprintf("/admin/produtos/?page=%d", i) }
 					hx-target="#main-content"
@@ -95,9 +92,8 @@ templ Pagination(current, total int) {
 				<span class="px-2">…</span>
 			}
 		}
-		<!-- botão próximo -->
 		<button
-			class="btn btn-sm"
+			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
 			if current >= total {
 				disabled="true"
 			}
@@ -117,25 +113,25 @@ templ ProductTableBody(products []store.Product) {
 	<tbody id="product-data">
 		if len(products) == 0 {
 			<tr>
-				<td colspan="5" class="text-center text-base-content/50 py-8">
+				<td colspan="5" class="text-center text-gray-400 py-8 px-4">
 					Nenhum produto encontrado.
 				</td>
 			</tr>
 		}
 		for _, p := range products {
-			<tr class="hover">
-				<td class="font-mono text-sm text-base-content/60">{ p.SKU }</td>
-				<td class="font-medium">{ p.Name }</td>
-				<td>
+			<tr class="hover:bg-gray-50">
+				<td class="px-4 py-3 font-mono text-sm text-gray-500">{ p.SKU }</td>
+				<td class="px-4 py-3 font-medium">{ p.Name }</td>
+				<td class="px-4 py-3">
 					if p.Status {
-						<span class="badge badge-success badge-sm">Ativo</span>
+						<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-green-100 text-green-800">Ativo</span>
 					} else {
-						<span class="badge badge-ghost badge-sm">Inativo</span>
+						<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-gray-100 text-gray-700">Inativo</span>
 					}
 				</td>
-				<td>
+				<td class="px-4 py-3">
 					<a
-						class="btn btn-ghost btn-xs"
+						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs"
 						hx-push-url="true"
 						hx-target="#main-content"
 						href={ fmt.Sprintf("/admin/produtos/%v", p.ID) }
@@ -148,38 +144,33 @@ templ ProductTableBody(products []store.Product) {
 	</tbody>
 }
 
-//
-// ==========================
-// LISTAGEM DE PRODUTOS
-// ==========================
-//
 templ ProductsPage(params store.GetProductPageParams) {
 	<div class="space-y-6">
 		<div class="flex items-center justify-between">
 			<div>
 				<h1 class="text-2xl font-bold">Produtos</h1>
-				<p class="text-base-content/60 text-sm mt-0.5">Gerencie o catálogo de produtos do tenant.</p>
+				<p class="text-gray-400 text-sm mt-0.5">Gerencie o catálogo de produtos do tenant.</p>
 			</div>
 			<button
 				hx-get="/admin/produtos/novo"
 				hx-target="#main-content"
 				hx-push-url="true"
-				class="btn btn-primary btn-sm"
+				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm"
 			>
 				+ Novo Produto
 			</button>
 		</div>
 		@Filter()
-		<div class="card bg-base-100 shadow-sm border border-base-300">
-			<div class="card-body p-0">
+		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+			<div class="p-0">
 				<div class="overflow-x-auto">
-					<table class="table table-zebra">
+					<table class="w-full text-sm text-left">
 						<thead>
 							<tr>
-								<th>SKU</th>
-								<th>Nome</th>
-								<th>Status</th>
-								<th class="text-center">Ações</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">SKU</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Nome</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Status</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-center">Ações</th>
 							</tr>
 						</thead>
 						@ProductTableBody(params.Products)
@@ -191,15 +182,10 @@ templ ProductsPage(params store.GetProductPageParams) {
 	</div>
 }
 
-//
-// ==========================
-// FORMULÁRIO DE PRODUTO
-// ==========================
-//
 templ NewVariantForm(productID string, attrs []store.Attribute) {
-	<div id="new-variant-form" class="card bg-base-100 shadow-sm border border-base-300 mt-3">
-		<div class="card-body">
-			<h3 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Nova Variação</h3>
+	<div id="new-variant-form" class="bg-white shadow-sm border border-gray-200 rounded-xl mt-3">
+		<div class="p-6">
+			<h3 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Nova Variação</h3>
 			<form
 				hx-post={ fmt.Sprintf("/admin/produtos/%s/variants", productID) }
 				hx-target="#variants-section"
@@ -248,12 +234,12 @@ templ NewVariantForm(productID string, attrs []store.Attribute) {
 						<div class="flex flex-wrap gap-4">
 							for _, attr := range attrs {
 								<div class="basis-[20%] grow">
-									<label class="label py-1">
-										<span class="label-text text-sm">{ attr.Name }</span>
+									<label class="flex items-center gap-2 py-1">
+										<span class="text-sm font-medium">{ attr.Name }</span>
 									</label>
 									<select
 										name="attribute_value_ids"
-										class="select select-bordered select-sm w-full"
+										class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
 									>
 										<option value="">— Selecionar —</option>
 										for _, val := range attr.Values {
@@ -268,14 +254,14 @@ templ NewVariantForm(productID string, attrs []store.Attribute) {
 				<div class="flex justify-end gap-3">
 					<button
 						type="button"
-						class="btn btn-ghost btn-sm"
+						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
 						hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/form/cancel", productID) }
 						hx-target="#new-variant-form"
 						hx-swap="outerHTML"
 					>
 						Cancelar
 					</button>
-					<button type="submit" class="btn btn-primary btn-sm">
+					<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
 						Salvar Variação
 					</button>
 				</div>
@@ -288,7 +274,7 @@ templ NewVariantTrigger(productID string) {
 	<div id="new-variant-form">
 		<button
 			type="button"
-			class="btn btn-outline btn-sm mt-3"
+			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-content px-3 py-1.5 text-sm mt-3"
 			hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/form", productID) }
 			hx-target="#new-variant-form"
 			hx-swap="outerHTML"
@@ -299,23 +285,23 @@ templ NewVariantTrigger(productID string) {
 }
 
 templ VariantRow(v store.Variant, productID string) {
-	<tr id={ fmt.Sprintf("variant-row-%v", v.ID) } class="hover">
-		<td class="font-mono text-sm">{ v.SKU }</td>
-		<td>
+	<tr id={ fmt.Sprintf("variant-row-%v", v.ID) } class="hover:bg-gray-50">
+		<td class="px-4 py-2 font-mono text-sm">{ v.SKU }</td>
+		<td class="px-4 py-2">
 			<div class="flex flex-wrap gap-1">
 				for _, va := range v.Attributes {
-					<span class="badge badge-sm badge-ghost">
+					<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-gray-100 text-gray-700">
 						{ va.AttributeValue.Attribute.Name }: { va.AttributeValue.Value }
 					</span>
 				}
 			</div>
 		</td>
-		<td>{ fmt.Sprintf("%.2f", v.CostPrice) }</td>
-		<td>{ strconv.Itoa(v.CurrentStock) }</td>
-		<td>{ strconv.Itoa(v.MinimumStock) }</td>
-		<td class="text-right">
+		<td class="px-4 py-2">{ fmt.Sprintf("%.2f", v.CostPrice) }</td>
+		<td class="px-4 py-2">{ strconv.Itoa(v.CurrentStock) }</td>
+		<td class="px-4 py-2">{ strconv.Itoa(v.MinimumStock) }</td>
+		<td class="px-4 py-2 text-right">
 			<button
-				class="btn btn-ghost btn-xs"
+				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs"
 				hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/%v/edit", productID, v.ID) }
 				hx-target={ fmt.Sprintf("#variant-row-%v", v.ID) }
 				hx-swap="outerHTML"
@@ -327,40 +313,40 @@ templ VariantRow(v store.Variant, productID string) {
 }
 
 templ VariantEditRow(v store.Variant, productID string) {
-	<tr id={ fmt.Sprintf("variant-row-%v", v.ID) } class="bg-base-200/40">
-		<td class="font-mono text-sm">{ v.SKU }</td>
-		<td>
+	<tr id={ fmt.Sprintf("variant-row-%v", v.ID) } class="bg-gray-100/40">
+		<td class="px-4 py-2 font-mono text-sm">{ v.SKU }</td>
+		<td class="px-4 py-2">
 			<input
 				type="number"
 				name="cost_price"
 				form={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
-				class="input input-bordered input-xs w-24"
+				class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-24"
 				value={ fmt.Sprintf("%.2f", v.CostPrice) }
 				step="0.01"
 				min="0"
 			/>
 		</td>
-		<td>
+		<td class="px-4 py-2">
 			<input
 				type="number"
 				name="current_stock"
 				form={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
-				class="input input-bordered input-xs w-20"
+				class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-20"
 				value={ strconv.Itoa(v.CurrentStock) }
 				min="0"
 			/>
 		</td>
-		<td>
+		<td class="px-4 py-2">
 			<input
 				type="number"
 				name="minimum_stock"
 				form={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
-				class="input input-bordered input-xs w-20"
+				class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-20"
 				value={ strconv.Itoa(v.MinimumStock) }
 				min="0"
 			/>
 		</td>
-		<td class="text-right">
+		<td class="px-4 py-2 text-right">
 			<form
 				id={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
 				hx-post={ fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID) }
@@ -370,7 +356,7 @@ templ VariantEditRow(v store.Variant, productID string) {
 			<div class="flex justify-end gap-1">
 				<button
 					type="button"
-					class="btn btn-ghost btn-xs"
+					class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs"
 					hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID) }
 					hx-target={ fmt.Sprintf("#variant-row-%v", v.ID) }
 					hx-swap="outerHTML"
@@ -380,7 +366,7 @@ templ VariantEditRow(v store.Variant, productID string) {
 				<button
 					type="submit"
 					form={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
-					class="btn btn-primary btn-xs"
+					class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-2 py-1 text-xs"
 				>
 					Salvar
 				</button>
@@ -391,25 +377,25 @@ templ VariantEditRow(v store.Variant, productID string) {
 
 templ VariantsSection(variants []store.Variant, productID string) {
 	<div id="variants-section">
-		<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Variações</h2>
-		<div class="card bg-base-100 shadow-sm border border-base-300">
-			<div class="card-body p-0">
+		<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Variações</h2>
+		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+			<div class="p-0">
 				<div class="overflow-x-auto">
-					<table class="table table-sm">
+					<table class="w-full text-sm text-left">
 						<thead>
 							<tr>
-								<th>SKU</th>
-								<th>Atributos</th>
-								<th>Preço de Custo (R$)</th>
-								<th>Estoque Atual</th>
-								<th>Estoque Mínimo</th>
-								<th></th>
+								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">SKU</th>
+								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Atributos</th>
+								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Preço de Custo (R$)</th>
+								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Estoque Atual</th>
+								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Estoque Mínimo</th>
+								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200"></th>
 							</tr>
 						</thead>
 						<tbody>
 							if len(variants) == 0 {
 								<tr>
-									<td colspan="6" class="text-center text-base-content/50 py-4">
+									<td colspan="6" class="text-center text-gray-400 py-4 px-4">
 										Nenhuma variação cadastrada.
 									</td>
 								</tr>
@@ -428,10 +414,9 @@ templ VariantsSection(variants []store.Variant, productID string) {
 
 templ AttributesSection(attrs []store.Attribute) {
 	<div id="attributes-section" class="space-y-4">
-		<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40">Atributos</h2>
-		<!-- Novo atributo -->
-		<div class="card bg-base-100 shadow-sm border border-base-300">
-			<div class="card-body py-4">
+		<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400">Atributos</h2>
+		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+			<div class="p-6 py-4">
 				<p class="text-sm font-medium mb-2">Cadastrar novo atributo</p>
 				<form
 					hx-post="/admin/atributos"
@@ -448,24 +433,23 @@ templ AttributesSection(attrs []store.Attribute) {
 							IsRequired:  true,
 						})
 					</div>
-					<button type="submit" class="btn btn-primary btn-sm mb-0.5">Adicionar</button>
+					<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm mb-0.5">Adicionar</button>
 				</form>
 			</div>
 		</div>
-		<!-- Adicionar valor a atributo existente -->
 		if len(attrs) > 0 {
-			<div class="card bg-base-100 shadow-sm border border-base-300">
-				<div class="card-body py-4 space-y-4">
+			<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+				<div class="p-6 py-4 space-y-4">
 					<p class="text-sm font-medium">Atributos existentes</p>
 					for _, attr := range attrs {
 						<div class="space-y-2">
-							<p class="text-xs font-semibold uppercase tracking-wider text-base-content/50">{ attr.Name }</p>
+							<p class="text-xs font-semibold uppercase tracking-wider text-gray-400">{ attr.Name }</p>
 							<div class="flex flex-wrap gap-1 mb-2">
 								for _, val := range attr.Values {
-									<span class="badge badge-ghost badge-sm">{ val.Value }</span>
+									<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-gray-100 text-gray-700">{ val.Value }</span>
 								}
 								if len(attr.Values) == 0 {
-									<span class="text-xs text-base-content/40">Nenhum valor cadastrado.</span>
+									<span class="text-xs text-gray-300">Nenhum valor cadastrado.</span>
 								}
 							</div>
 							<form
@@ -483,11 +467,11 @@ templ AttributesSection(attrs []store.Attribute) {
 										IsRequired:  true,
 									})
 								</div>
-								<button type="submit" class="btn btn-outline btn-sm mb-0.5">+ Adicionar valor</button>
+								<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-content px-3 py-1.5 text-sm mb-0.5">+ Adicionar valor</button>
 							</form>
 						</div>
 						if attr.ID != attrs[len(attrs)-1].ID {
-							<div class="divider my-1"></div>
+							<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
 						}
 					}
 				</div>
@@ -516,7 +500,7 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 			{"MT", "Metro (MT)"},
 		}
 	}}
-	<div id="form" class="space-y-6" x-data="productForm()">
+	<div id="form" class="space-y-6 max-w-[900px] mx-auto" x-data="productForm()">
 		<div class="flex items-center justify-between">
 			<div>
 				<h1 class="text-2xl font-bold">
@@ -526,7 +510,7 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 						Novo Produto
 					}
 				</h1>
-				<p class="text-base-content/60 text-sm mt-0.5">
+				<p class="text-gray-400 text-sm mt-0.5">
 					if isUpdate {
 						Atualize os dados do produto abaixo.
 					} else {
@@ -538,13 +522,13 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 				hx-get="/admin/produtos"
 				hx-target="#main-content"
 				hx-push-url="true"
-				class="btn btn-ghost btn-sm"
+				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
 			>
 				← Voltar
 			</button>
 		</div>
-		<div class="card bg-base-100 shadow-sm border border-base-300">
-			<div class="card-body p-5">
+		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+			<div class="p-5">
 				<form
 					hx-post={ action }
 					hx-target="#form"
@@ -554,7 +538,7 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 					<input type="hidden" name="variations_json" :value="JSON.stringify(variations)"/>
 					<input type="hidden" name="var_rows_json" :value="JSON.stringify(varRows)"/>
 					<!-- DADOS GERAIS -->
-					<p class="text-xs font-bold tracking-widest uppercase text-base-content/40 mb-4">Dados Gerais</p>
+					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Dados Gerais</p>
 					<div class="flex flex-wrap gap-3 mb-4">
 						<div class="basis-[45%] grow">
 							@components.BasicInput(components.BasicInputParams{
@@ -589,25 +573,25 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 							})
 						</div>
 					</div>
-					<div class="form-control mb-5">
-						<label class="label py-1">
-							<span class="label-text text-sm">Descrição</span>
+					<div class="flex flex-col gap-1 mb-5">
+						<label class="flex items-center gap-2 py-1">
+							<span class="text-sm font-medium">Descrição</span>
 						</label>
 						<textarea
 							name="description"
 							rows="3"
-							class="textarea textarea-bordered w-full text-sm"
+							class="block w-full border border-gray-300 rounded-field bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-y"
 						>{ form.Get("description") }</textarea>
 					</div>
-					<div class="divider my-1"></div>
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
 					<!-- CLASSIFICAÇÃO -->
-					<p class="text-xs font-bold tracking-widest uppercase text-base-content/40 mb-4">Classificação</p>
+					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Classificação</p>
 					<div class="flex flex-wrap gap-3 mb-4">
 						<div class="basis-[30%] grow">
-							<label class="label py-1">
-								<span class="label-text text-sm">Unidade de Medida</span>
+							<label class="flex items-center gap-2 py-1">
+								<span class="text-sm font-medium">Unidade de Medida</span>
 							</label>
-							<select name="uom" class="select select-bordered select-sm w-full">
+							<select name="uom" class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
 								for _, u := range uoms {
 									<option
 										value={ u.Value }
@@ -631,54 +615,54 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 							})
 						</div>
 					</div>
-					<div class="divider my-1"></div>
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
 					<!-- ESTOQUE & CUSTOS -->
-					<p class="text-xs font-bold tracking-widest uppercase text-base-content/40 mb-4">Estoque &amp; Custos</p>
-					<div class="flex items-center justify-between py-3 border-b border-base-200 mb-5">
+					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Estoque &amp; Custos</p>
+					<div class="flex items-center justify-between py-3 border-b border-gray-100 mb-5">
 						<div>
 							<p class="text-sm font-medium">Produto com variações</p>
-							<p class="text-xs text-base-content/50 mt-0.5">Cor, tamanho, material, etc.</p>
+							<p class="text-xs text-gray-400 mt-0.5">Cor, tamanho, material, etc.</p>
 						</div>
-						<input type="checkbox" class="toggle toggle-primary toggle-sm" x-model="hasVariations"/>
+						<input type="checkbox" class="h-4 w-8 cursor-pointer rounded-full border-2 border-transparent transition-colors checked:bg-primary bg-gray-300 appearance-none" x-model="hasVariations"/>
 					</div>
 					<!-- Variation builder (when hasVariations = true) -->
 					<div x-show="hasVariations" x-cloak>
 						<template x-for="(v, vi) in variations" :key="v.id">
-							<div class="bg-base-200/60 border border-base-300 rounded-md mb-3 overflow-hidden">
-								<div class="flex items-center justify-between px-4 py-2.5 border-b border-base-300 bg-base-200">
-									<span class="text-xs font-semibold uppercase tracking-wider text-base-content/50" x-text="'Variação ' + (vi+1)"></span>
-									<button type="button" class="btn btn-ghost btn-xs px-2" @click="removeVariation(vi)">
+							<div class="bg-gray-100/60 border border-gray-200 rounded-md mb-3 overflow-hidden">
+								<div class="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-gray-100">
+									<span class="text-xs font-semibold uppercase tracking-wider text-gray-400" x-text="'Variação ' + (vi+1)"></span>
+									<button type="button" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs" @click="removeVariation(vi)">
 										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"></path></svg>
 									</button>
 								</div>
 								<div class="p-4">
 									<input
 										type="text"
-										class="input input-bordered input-sm w-64"
+										class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-64"
 										x-model="v.name"
 										:placeholder="vi === 0 ? 'Ex: Cor, Material' : 'Ex: Tamanho, Voltagem'"
 									/>
 									<div class="flex items-center gap-2 mt-3 mb-2">
 										<span class="w-2 h-2 rounded-full bg-primary flex-shrink-0"></span>
-										<span class="text-xs font-semibold text-base-content/50">Opções</span>
+										<span class="text-xs font-semibold text-gray-400">Opções</span>
 									</div>
 									<div class="grid grid-cols-2 gap-2">
 										<template x-for="(opt, oi) in v.options" :key="opt.id">
 											<div class="flex items-center gap-1.5">
 												<input
 													type="text"
-													class="input input-bordered input-xs flex-1 min-w-0"
+													class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none flex-1 min-w-0"
 													x-model="opt.label"
 													placeholder="Ex: Cinza"
 													@keydown.enter.prevent="addOption(vi)"
 												/>
 												<input
 													type="text"
-													class="input input-bordered input-xs w-28 flex-shrink-0"
+													class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-28 flex-shrink-0"
 													x-model="opt.explain"
 													placeholder="Explicação"
 												/>
-												<button type="button" class="btn btn-ghost btn-xs px-1 flex-shrink-0" @click="removeOption(vi, oi)" title="Remover">
+												<button type="button" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-1 py-1 text-xs flex-shrink-0" @click="removeOption(vi, oi)" title="Remover">
 													<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"></path></svg>
 												</button>
 											</div>
@@ -686,12 +670,12 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 										<div class="flex items-center gap-1.5">
 											<input
 												type="text"
-												class="input input-bordered input-xs flex-1 min-w-0 bg-base-100"
+												class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none flex-1 min-w-0"
 												placeholder="Inserir"
 												@keydown.enter.prevent="if($event.target.value.trim()){ addOption(vi, $event.target.value.trim()); $event.target.value=''; }"
 												@blur="if($event.target.value.trim()){ addOption(vi, $event.target.value.trim()); $event.target.value=''; }"
 											/>
-											<input type="text" class="input input-bordered input-xs w-28 bg-base-100 flex-shrink-0" placeholder="Explicação"/>
+											<input type="text" class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-28 flex-shrink-0" placeholder="Explicação"/>
 										</div>
 									</div>
 								</div>
@@ -699,7 +683,7 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 						</template>
 						<button
 							type="button"
-							class="btn btn-outline btn-primary btn-sm gap-1.5 border-dashed mt-1"
+							class="inline-flex items-center justify-center gap-1.5 cursor-pointer font-medium rounded-field transition-all border border-dashed border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-content px-3 py-1.5 text-sm mt-1"
 							@click="addVariation()"
 							:disabled="variations.length >= 2"
 						>
@@ -710,88 +694,88 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 						<div class="mt-6" x-show="combos.length > 0" x-cloak>
 							<p class="text-sm font-semibold mb-3">Lista de Variações</p>
 							<div class="flex flex-wrap gap-2 mb-3">
-								<div class="join">
-									<span class="join-item flex items-center px-2 bg-base-200 border border-base-300 text-xs text-base-content/60 rounded-l">R$</span>
-									<input type="number" class="input input-bordered input-sm join-item w-24 rounded-l-none" x-model="bulkPrice" placeholder="Preço"/>
+								<div class="inline-flex">
+									<span class="flex items-center px-2 bg-gray-100 border border-gray-300 text-xs text-gray-500 rounded-l-field border-r-0">R$</span>
+									<input type="number" class="block border border-gray-300 rounded-r-field bg-white px-3 py-1.5 text-sm focus:outline-none w-24" x-model="bulkPrice" placeholder="Preço"/>
 								</div>
-								<input type="number" class="input input-bordered input-sm w-24" x-model="bulkStock" placeholder="Estoque"/>
-								<input type="text" class="input input-bordered input-sm w-28" x-model="bulkSku" placeholder="SKU Variação"/>
-								<button type="button" class="btn btn-primary btn-sm" @click="applyAll()">Aplicar a todos</button>
+								<input type="number" class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-24" x-model="bulkStock" placeholder="Estoque"/>
+								<input type="text" class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-28" x-model="bulkSku" placeholder="SKU Variação"/>
+								<button type="button" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm" @click="applyAll()">Aplicar a todos</button>
 							</div>
-							<div class="overflow-x-auto rounded border border-base-200">
-								<table class="table table-sm">
-									<thead class="bg-base-200/50">
+							<div class="overflow-x-auto rounded border border-gray-100">
+								<table class="w-full text-sm text-left">
+									<thead class="bg-gray-100/50">
 										<tr>
 											<template x-for="v in variations" :key="v.id">
-												<th class="text-xs font-semibold" x-text="v.name || 'Variação'"></th>
+												<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200" x-text="v.name || 'Variação'"></th>
 											</template>
-											<th class="text-xs font-semibold"><span class="text-primary">*</span> Preço</th>
-											<th class="text-xs font-semibold"><span class="text-primary">*</span> Estoque</th>
-											<th class="text-xs font-semibold">SKU</th>
-											<th class="text-xs font-semibold">GTIN (EAN)</th>
-											<th class="text-xs font-semibold">Sem GTIN</th>
-											<th class="text-xs font-semibold">Foto</th>
+											<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200"><span class="text-primary">*</span> Preço</th>
+											<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200"><span class="text-primary">*</span> Estoque</th>
+											<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">SKU</th>
+											<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">GTIN (EAN)</th>
+											<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">Sem GTIN</th>
+											<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">Foto</th>
 										</tr>
 									</thead>
 									<tbody>
 										<template x-for="(combo, ci) in combos" :key="ci">
-											<tr class="hover">
+											<tr class="hover:bg-gray-50">
 												<template x-for="(val, i) in combo" :key="i">
-													<td>
+													<td class="px-3 py-2">
 														<span class="text-sm" x-text="val"></span>
 													</td>
 												</template>
-												<td>
-													<div class="join">
-														<span class="join-item flex items-center px-1.5 bg-base-200 border border-base-300 text-xs text-base-content/60">R$</span>
+												<td class="px-3 py-2">
+													<div class="inline-flex">
+														<span class="flex items-center px-1.5 bg-gray-100 border border-gray-300 text-xs text-gray-500 rounded-l border-r-0">R$</span>
 														<input
 															type="number"
-															class="input input-bordered input-xs join-item w-20 rounded-l-none"
+															class="block border border-gray-300 rounded-r bg-white px-2 py-1 text-xs focus:outline-none w-20"
 															:value="getRow(ci).price"
 															@input="setRow(ci, 'price', $event.target.value)"
 															placeholder="0,00"
 														/>
 													</div>
 												</td>
-												<td>
+												<td class="px-3 py-2">
 													<input
 														type="number"
-														class="input input-bordered input-xs w-16"
+														class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-16"
 														:value="getRow(ci).stock"
 														@input="setRow(ci, 'stock', $event.target.value)"
 														placeholder="0"
 													/>
 												</td>
-												<td>
+												<td class="px-3 py-2">
 													<input
 														type="text"
-														class="input input-bordered input-xs w-24"
+														class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-24"
 														:value="getRow(ci).sku"
 														@input="setRow(ci, 'sku', $event.target.value)"
 														placeholder="SKU-001"
 													/>
 												</td>
-												<td>
+												<td class="px-3 py-2">
 													<input
 														type="text"
-														class="input input-bordered input-xs w-28"
+														class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-28"
 														:value="getRow(ci).gtin"
 														@input="setRow(ci, 'gtin', $event.target.value)"
 														placeholder="EAN código de barras"
 													/>
 												</td>
-												<td>
+												<td class="px-3 py-2">
 													<div class="flex justify-center">
 														<input
 															type="checkbox"
-															class="checkbox checkbox-xs checkbox-primary"
+															class="h-3 w-3 rounded border-gray-300 text-primary focus:ring-primary"
 															:checked="getRow(ci).noGtin"
 															@change="setRow(ci, 'noGtin', $event.target.checked)"
 														/>
 													</div>
 												</td>
-												<td>
-													<div class="w-9 h-9 rounded border border-dashed border-base-300 cursor-pointer bg-base-200 flex items-center justify-center text-base-content/30 hover:border-primary hover:text-primary transition-colors">
+												<td class="px-3 py-2">
+													<div class="w-9 h-9 rounded border border-dashed border-gray-200 cursor-pointer bg-gray-100 flex items-center justify-center text-gray-300 hover:border-primary hover:text-primary transition-colors">
 														<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M12 8v8M8 12h8"></path></svg>
 													</div>
 												</td>
@@ -832,9 +816,9 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 							</div>
 						</div>
 					</div>
-					<div class="divider my-1"></div>
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
 					<!-- DIMENSÕES -->
-					<p class="text-xs font-bold tracking-widest uppercase text-base-content/40 mb-4">Dimensões</p>
+					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Dimensões</p>
 					<div class="flex flex-wrap gap-3 mb-4">
 						<div class="basis-[18%] grow">
 							@components.BasicInput(components.BasicInputParams{
@@ -873,7 +857,7 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 							})
 						</div>
 					</div>
-					<div class="divider my-1"></div>
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
 					@components.FormAlert(form.Errors.Get("general"))
 					<div class="flex justify-end gap-3 pt-2">
 						<button
@@ -881,11 +865,11 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 							hx-get="/admin/produtos"
 							hx-target="#main-content"
 							hx-push-url="true"
-							class="btn btn-ghost btn-sm"
+							class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
 						>
 							Cancelar
 						</button>
-						<button type="submit" class="btn btn-primary btn-sm">
+						<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
 							if isUpdate {
 								Salvar Alterações
 							} else {

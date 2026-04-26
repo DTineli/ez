@@ -38,7 +38,7 @@ func ContactFilter() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card bg-base-100 shadow-sm border border-base-300\"><div class=\"card-body py-4\"><form id=\"filter-form\" class=\"flex flex-wrap items-end gap-3\" hx-get=\"/admin/contacts/\" hx-target=\"#main-content\" hx-swap=\"innerHTML\" hx-push-url=\"true\"><div class=\"flex-1 min-w-[160px]\"><label class=\"label py-1\"><span class=\"label-text text-sm font-medium\">Nome Fantasia</span></label> <input id=\"trade-name-input\" class=\"input input-bordered input-sm w-full\" type=\"text\" name=\"trade_name\" hx-preserve=\"true\" placeholder=\"Buscar por nome fantasia...\"></div><div class=\"flex-1 min-w-[160px]\"><label class=\"label py-1\"><span class=\"label-text text-sm font-medium\">Razão Social</span></label> <input class=\"input input-bordered input-sm w-full\" type=\"text\" name=\"name\" id=\"name-input\" hx-preserve=\"true\" placeholder=\"Buscar por razão social...\"></div><div class=\"w-40\"><label class=\"label py-1\"><span class=\"label-text text-sm font-medium\">Documento</span></label> <input class=\"input input-bordered input-sm w-full\" type=\"text\" name=\"document\" id=\"document-input\" hx-preserve=\"true\" placeholder=\"CPF / CNPJ\"></div><div class=\"w-36\"><label class=\"label py-1\"><span class=\"label-text text-sm font-medium\">Tipo</span></label> <select name=\"contact_type\" id=\"contact_type-input\" class=\"select select-bordered select-sm w-full\" hx-preserve=\"true\"><option value=\"\">Todos</option> <option value=\"customer\">Cliente</option> <option value=\"supplier\">Fornecedor</option></select></div><div class=\"pb-0.5\"><button type=\"submit\" class=\"btn btn-primary btn-sm\">Buscar</button></div></form></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"bg-white shadow-sm border border-gray-200 rounded-xl\"><div class=\"p-6 py-4\"><form id=\"filter-form\" class=\"flex flex-wrap items-end gap-3\" hx-get=\"/admin/contacts/\" hx-target=\"#main-content\" hx-swap=\"innerHTML\" hx-push-url=\"true\"><div class=\"flex-1 min-w-[160px]\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Nome Fantasia</span></label> <input id=\"trade-name-input\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\" type=\"text\" name=\"trade_name\" hx-preserve=\"true\" placeholder=\"Buscar por nome fantasia...\"></div><div class=\"flex-1 min-w-[160px]\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Razão Social</span></label> <input class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\" type=\"text\" name=\"name\" id=\"name-input\" hx-preserve=\"true\" placeholder=\"Buscar por razão social...\"></div><div class=\"w-40\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Documento</span></label> <input class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\" type=\"text\" name=\"document\" id=\"document-input\" hx-preserve=\"true\" placeholder=\"CPF / CNPJ\"></div><div class=\"w-36\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Tipo</span></label> <select name=\"contact_type\" id=\"contact_type-input\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\" hx-preserve=\"true\"><option value=\"\">Todos</option> <option value=\"customer\">Cliente</option> <option value=\"supplier\">Fornecedor</option></select></div><div class=\"pb-0.5\"><button type=\"submit\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm\">Buscar</button></div></form></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -67,7 +67,7 @@ func ContactPagination(current, total int) templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"flex justify-center items-center gap-2 mt-6\"><button class=\"btn btn-sm\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"flex justify-center items-center gap-2 mt-6\"><button class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -114,12 +114,12 @@ func ContactPagination(current, total int) templ.Component {
 					return templ_7745c5c3_Err
 				}
 				if i == current {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " class=\"btn btn-sm btn-active\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-gray-100 border border-gray-300 px-3 py-1.5 text-sm\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " class=\"btn btn-sm\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 text-sm\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -174,7 +174,7 @@ func ContactPagination(current, total int) templ.Component {
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<button class=\"btn btn-sm\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<button class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -244,13 +244,13 @@ func ContactTableBody(contacts []store.Contact) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if len(contacts) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<tr><td colspan=\"5\" class=\"text-center text-base-content/50 py-8\">Nenhum contato encontrado.</td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<tr><td colspan=\"5\" class=\"text-center text-gray-400 py-8\">Nenhum contato encontrado.</td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
 		for _, c := range contacts {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<tr class=\"hover\"><td class=\"font-medium\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<tr class=\"hover:bg-gray-50\"><td class=\"font-medium\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -263,14 +263,14 @@ func ContactTableBody(contacts []store.Contact) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</td><td class=\"text-base-content/70\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</td><td class=\"text-gray-500\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 147, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 147, Col: 38}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -281,30 +281,30 @@ func ContactTableBody(contacts []store.Contact) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if c.ContactType == "customer" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"badge badge-info badge-sm\">Cliente</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-blue-100 text-blue-800\">Cliente</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"badge badge-ghost badge-sm\">Fornecedor</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-gray-100 text-gray-700\">Fornecedor</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</td><td class=\"font-mono text-sm text-base-content/60\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</td><td class=\"font-mono text-sm text-gray-400\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(c.Document)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 155, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 155, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</td><td class=\"text-center\"><a class=\"btn btn-ghost btn-xs\" hx-push-url=\"true\" hx-target=\"#main-content\" href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</td><td class=\"text-center\"><a class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs\" hx-push-url=\"true\" hx-target=\"#main-content\" href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -351,7 +351,7 @@ func ContactPage(params store.ListResults[store.Contact]) templ.Component {
 			templ_7745c5c3_Var15 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"space-y-6\"><div class=\"flex items-center justify-between\"><div><h1 class=\"text-2xl font-bold\">Contatos</h1><p class=\"text-base-content/60 text-sm mt-0.5\">Gerencie clientes e fornecedores do tenant.</p></div><button hx-get=\"/admin/contacts/novo\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"btn btn-primary btn-sm\">+ Novo Contato</button></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"space-y-6\"><div class=\"flex items-center justify-between\"><div><h1 class=\"text-2xl font-bold\">Contatos</h1><p class=\"text-gray-400 text-sm mt-0.5\">Gerencie clientes e fornecedores do tenant.</p></div><button hx-get=\"/admin/contacts/novo\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm\">+ Novo Contato</button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -359,7 +359,7 @@ func ContactPage(params store.ListResults[store.Contact]) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div class=\"card bg-base-100 shadow-sm border border-base-300\"><div class=\"card-body p-0\"><div class=\"overflow-x-auto\"><table class=\"table table-zebra\"><thead><tr><th>Nome Fantasia</th><th>Razão Social</th><th>Tipo</th><th>Documento</th><th class=\"text-center\">Ações</th></tr></thead>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div class=\"bg-white shadow-sm border border-gray-200 rounded-xl\"><div class=\"p-0\"><div class=\"overflow-x-auto\"><table class=\"w-full text-sm text-left\"><thead><tr><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Nome Fantasia</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Razão Social</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Tipo</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Documento</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-center\">Ações</th></tr></thead>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -404,7 +404,7 @@ func InviteLink(id, link string) templ.Component {
 			templ_7745c5c3_Var16 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div id=\"invite-link\" x-data=\"{copied:false}\" class=\"flex items-center gap-2\"><label class=\"input input-bordered input-sm flex items-center gap-2\"><input type=\"text\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div id=\"invite-link\" x-data=\"{copied:false}\" class=\"flex items-center gap-2\"><div class=\"flex items-center gap-2 border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm\"><input type=\"text\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -417,7 +417,7 @@ func InviteLink(id, link string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" id=\"link\" x-ref=\"link\" readonly placeholder=\"URL do convite\" class=\"w-60 text-sm\"> <button type=\"button\" class=\"text-xs text-base-content/50 hover:text-base-content transition-colors\" @click=\"\n\t\t\t\tnavigator.clipboard.writeText($refs.link.value);\n\t\t\t\tcopied = true;\n\t\t\t\tsetTimeout(() => copied = false, 2000)\n\t\t\t\t\">copiar</button></label> <span x-show=\"copied\" x-transition class=\"text-success text-xs\">Copiado!</span> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" id=\"link\" x-ref=\"link\" readonly placeholder=\"URL do convite\" class=\"w-60 text-sm bg-transparent outline-none\"> <button type=\"button\" class=\"text-xs text-gray-400 hover:text-gray-900 transition-colors\" @click=\"\n\t\t\t\tnavigator.clipboard.writeText($refs.link.value);\n\t\t\t\tcopied = true;\n\t\t\t\tsetTimeout(() => copied = false, 2000)\n\t\t\t\t\">copiar</button></div><span x-show=\"copied\" x-transition class=\"text-green-600 text-xs\">Copiado!</span> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -435,7 +435,7 @@ func InviteLink(id, link string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" hx-target=\"#invite-link\" hx-swap=\"innerHTML\" class=\"btn btn-outline btn-sm\">Gerar Link</button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" hx-target=\"#invite-link\" hx-swap=\"innerHTML\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-content px-3 py-1.5 text-sm\">Gerar Link</button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -524,12 +524,12 @@ func ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<p class=\"text-base-content/60 text-sm mt-0.5\">Preencha os dados para cadastrar um novo contato.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<p class=\"text-gray-400 text-sm mt-0.5\">Preencha os dados para cadastrar um novo contato.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div><button hx-get=\"/admin/contacts/\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"btn btn-ghost btn-sm\">← Voltar</button></div><div class=\"card bg-base-100 shadow-sm border border-base-300\"><div class=\"card-body\"><form hx-post=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div><button hx-get=\"/admin/contacts/\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm\">← Voltar</button></div><div class=\"bg-white shadow-sm border border-gray-200 rounded-xl\"><div class=\"p-6\"><form hx-post=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -542,7 +542,7 @@ func ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "\" hx-target=\"#form\" hx-swap=\"outerHTML\" class=\"space-y-6\"><!-- DADOS GERAIS --><div><h2 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3\">Dados Gerais</h2><div class=\"flex flex-wrap gap-4\"><div class=\"basis-[45%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "\" hx-target=\"#form\" hx-swap=\"outerHTML\" class=\"space-y-6\"><!-- DADOS GERAIS --><div><h2 class=\"text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3\">Dados Gerais</h2><div class=\"flex flex-wrap gap-4\"><div class=\"basis-[45%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -571,7 +571,7 @@ func ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div><div class=\"basis-[15%] grow\"><label class=\"label py-1\"><span class=\"label-text text-sm\">Tipo</span></label> <select name=\"contact_type\" class=\"select select-bordered select-sm w-full\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div><div class=\"basis-[15%] grow\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Tipo</span></label> <select name=\"contact_type\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -617,7 +617,7 @@ func ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</select></div><div class=\"basis-[25%] grow\"><label class=\"label py-1\"><span class=\"label-text text-sm\">Tabela de Preço <span class=\"text-error\">*</span></span></label> <select name=\"price_table_id\" class=\"select select-bordered select-sm w-full\" required><option value=\"\">Selecione uma tabela</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</select></div><div class=\"basis-[25%] grow\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Tabela de Preço <span class=\"text-red-600\">*</span></span></label> <select name=\"price_table_id\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\" required><option value=\"\">Selecione uma tabela</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -668,14 +668,14 @@ func ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable
 			return templ_7745c5c3_Err
 		}
 		if len(form.Errors.Get("price_table_id")) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<p class=\"text-error text-xs mt-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<p class=\"text-red-600 text-xs mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var25 string
 			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(form.Errors.Get("price_table_id")[0])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 357, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 357, Col: 84}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {
@@ -686,7 +686,7 @@ func ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div></div></div><div class=\"divider my-1\"></div><!-- DOCUMENTO --><div><h2 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3\">Documento</h2><div class=\"flex flex-wrap gap-4\"><div class=\"basis-[18%] grow\"><label class=\"label py-1\"><span class=\"label-text text-sm\">Tipo</span></label> <select name=\"document_type\" class=\"select select-bordered select-sm w-full\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div></div></div><div class=\"flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200\"></div><!-- DOCUMENTO --><div><h2 class=\"text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3\">Documento</h2><div class=\"flex flex-wrap gap-4\"><div class=\"basis-[18%] grow\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Tipo</span></label> <select name=\"document_type\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -732,7 +732,7 @@ func ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</select></div><div class=\"basis-[35%] grow form-control\" x-data><label class=\"label py-1\"><span class=\"label-text text-sm\">CPF / CNPJ <span class=\"text-error\">*</span></span></label> <input type=\"text\" name=\"document\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</select></div><div class=\"basis-[35%] grow flex flex-col gap-1\" x-data><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">CPF / CNPJ <span class=\"text-red-600\">*</span></span></label> <input type=\"text\" name=\"document\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -750,12 +750,12 @@ func ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable
 			return templ_7745c5c3_Err
 		}
 		if len(form.Errors.Get("document")) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, " class=\"input input-bordered w-full border-error\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, " class=\"block w-full border border-red-600 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, " class=\"input input-bordered w-full\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, " class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -765,14 +765,14 @@ func ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable
 			return templ_7745c5c3_Err
 		}
 		for _, e := range form.Errors.Get("document") {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<span class=\"text-error text-xs mt-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<span class=\"text-red-600 text-xs mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(e)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 402, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/contacts.templ`, Line: 402, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 			if templ_7745c5c3_Err != nil {
@@ -797,7 +797,7 @@ func ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</div></div></div><div class=\"divider my-1\"></div><!-- CONTATO --><div><h2 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3\">Contato</h2><div class=\"flex flex-wrap gap-4\"><div class=\"basis-[40%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</div></div></div><div class=\"flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200\"></div><!-- CONTATO --><div><h2 class=\"text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3\">Contato</h2><div class=\"flex flex-wrap gap-4\"><div class=\"basis-[40%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -827,7 +827,7 @@ func ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</div></div></div><div class=\"divider my-1\"></div><!-- ENDEREÇO --><div><h2 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3\">Endereço</h2><div class=\"flex flex-wrap gap-4\"><div class=\"basis-[15%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</div></div></div><div class=\"flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200\"></div><!-- ENDEREÇO --><div><h2 class=\"text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3\">Endereço</h2><div class=\"flex flex-wrap gap-4\"><div class=\"basis-[15%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -906,7 +906,7 @@ func ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "</div></div></div><div class=\"divider my-1\"></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "</div></div></div><div class=\"flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -914,7 +914,7 @@ func ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "<div class=\"flex justify-end gap-3\"><button hx-get=\"/admin/contacts/\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"btn btn-ghost btn-sm\">Cancelar</button> <button type=\"submit\" class=\"btn btn-primary btn-sm\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "<div class=\"flex justify-end gap-3\"><button hx-get=\"/admin/contacts/\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm\">Cancelar</button> <button type=\"submit\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

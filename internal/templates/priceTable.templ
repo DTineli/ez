@@ -9,9 +9,9 @@ import (
 
 templ PriceTableForm(errors map[string]string) {
 	<div id="price-table-form">
-		<div class="card bg-base-100 shadow-sm border border-base-300">
-			<div class="card-body">
-				<h2 class="card-title text-base">Nova Tabela de Preço</h2>
+		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+			<div class="p-6">
+				<h2 class="text-base font-bold mb-4">Nova Tabela de Preço</h2>
 				<form
 					hx-post="/admin/produtos/pricetable"
 					hx-target="#table-body"
@@ -20,8 +20,8 @@ templ PriceTableForm(errors map[string]string) {
 					class="flex flex-wrap items-end gap-4"
 				>
 					<div class="flex-1 min-w-[180px]">
-						<label class="label py-1">
-							<span class="label-text text-sm font-medium">Nome <span class="text-error">*</span></span>
+						<label class="flex items-center gap-2 py-1">
+							<span class="text-sm font-medium">Nome <span class="text-red-600">*</span></span>
 						</label>
 						<input
 							name="name"
@@ -29,21 +29,23 @@ templ PriceTableForm(errors map[string]string) {
 							placeholder="Ex: Tabela Prazo 30d"
 							required
 							class={
-								"input input-bordered input-sm w-full",
-								templ.KV("border-error", errors["name"] != ""),
+								"block w-full border rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50",
+								templ.KV("border-red-600", errors["name"] != ""),
+								templ.KV("border-gray-300", errors["name"] == ""),
 							}
 						/>
 						if errors["name"] != "" {
-							<p class="text-error text-xs mt-1">{ errors["name"] }</p>
+							<p class="text-red-600 text-xs mt-1">{ errors["name"] }</p>
 						}
 					</div>
 					<div class="w-36">
-						<label class="label py-1">
-							<span class="label-text text-sm font-medium">Margem (%) <span class="text-error">*</span></span>
+						<label class="flex items-center gap-2 py-1">
+							<span class="text-sm font-medium">Margem (%) <span class="text-red-600">*</span></span>
 						</label>
-						<label class={
-							"input input-bordered input-sm flex items-center gap-1",
-							templ.KV("border-error", errors["percentage"] != ""),
+						<div class={
+							"flex items-center gap-1 border rounded-field bg-white px-3 py-1.5 text-sm",
+							templ.KV("border-red-600", errors["percentage"] != ""),
+							templ.KV("border-gray-300", errors["percentage"] == ""),
 						}>
 							<input
 								name="percentage"
@@ -52,16 +54,16 @@ templ PriceTableForm(errors map[string]string) {
 								step="0.01"
 								placeholder="10"
 								required
-								class="w-full"
+								class="w-full bg-transparent outline-none"
 							/>
-							<span class="text-base-content/50 text-sm">%</span>
-						</label>
+							<span class="text-gray-400 text-sm">%</span>
+						</div>
 						if errors["percentage"] != "" {
-							<p class="text-error text-xs mt-1">{ errors["percentage"] }</p>
+							<p class="text-red-600 text-xs mt-1">{ errors["percentage"] }</p>
 						}
 					</div>
 					<div class="pb-0.5">
-						<button type="submit" class="btn btn-primary btn-sm">
+						<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
 							Criar Tabela
 						</button>
 					</div>
@@ -72,27 +74,27 @@ templ PriceTableForm(errors map[string]string) {
 }
 
 templ TableRow(table store.PriceTable) {
-	<tr class="hover" id={ fmt.Sprintf("pricetable-row-%d", table.ID) }>
-		<td class="text-sm text-base-content/50 font-mono">{ strconv.Itoa(int(table.ID)) }</td>
-		<td class="font-medium">{ table.Name }</td>
-		<td>{ fmt.Sprintf("%.2f", table.Percentage) }%</td>
-		<td>
+	<tr class="hover:bg-gray-50" id={ fmt.Sprintf("pricetable-row-%d", table.ID) }>
+		<td class="px-4 py-3 text-sm text-gray-400 font-mono">{ strconv.Itoa(int(table.ID)) }</td>
+		<td class="px-4 py-3 font-medium">{ table.Name }</td>
+		<td class="px-4 py-3">{ fmt.Sprintf("%.2f", table.Percentage) }%</td>
+		<td class="px-4 py-3">
 			if table.Status {
-				<span class="badge badge-success badge-sm">Ativo</span>
+				<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-green-100 text-green-800">Ativo</span>
 			} else {
-				<span class="badge badge-ghost badge-sm">Inativo</span>
+				<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-gray-100 text-gray-700">Inativo</span>
 			}
 		</td>
-		<td>
+		<td class="px-4 py-3">
 			<div class="flex justify-center gap-2">
-				<button type="button" class="btn btn-ghost btn-xs">Editar</button>
+				<button type="button" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs">Editar</button>
 				<button
 					type="button"
 					hx-delete={ fmt.Sprintf("/admin/produtos/pricetable/%d", table.ID) }
 					hx-target={ fmt.Sprintf("#pricetable-row-%d", table.ID) }
 					hx-swap="delete"
 					hx-confirm={ fmt.Sprintf("Excluir a tabela \"%s\"? Esta ação não pode ser desfeita.", table.Name) }
-					class="btn btn-ghost btn-xs text-error"
+					class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs text-red-600"
 				>
 					Excluir
 				</button>
@@ -106,28 +108,28 @@ templ PriceTablePage(tables []store.PriceTable) {
 		<div class="flex items-center justify-between">
 			<div>
 				<h1 class="text-2xl font-bold">Tabelas de Preço</h1>
-				<p class="text-base-content/60 text-sm mt-0.5">Gerencie as tabelas de margem aplicadas aos produtos.</p>
+				<p class="text-gray-400 text-sm mt-0.5">Gerencie as tabelas de margem aplicadas aos produtos.</p>
 			</div>
-			<span class="badge badge-outline">{ strconv.Itoa(len(tables)) } tabela(s)</span>
+			<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full border border-current bg-transparent">{ strconv.Itoa(len(tables)) } tabela(s)</span>
 		</div>
 		@PriceTableForm(map[string]string{})
-		<div class="card bg-base-100 shadow-sm border border-base-300">
-			<div class="card-body p-0">
+		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+			<div class="p-0">
 				<div class="overflow-x-auto">
-					<table class="table table-zebra">
+					<table class="w-full text-sm text-left">
 						<thead>
 							<tr>
-								<th>ID</th>
-								<th>Nome</th>
-								<th>Margem</th>
-								<th>Status</th>
-								<th class="text-center">Ações</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">ID</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Nome</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Margem</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Status</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-center">Ações</th>
 							</tr>
 						</thead>
 						<tbody id="table-body">
 							if len(tables) == 0 {
 								<tr>
-									<td colspan="5" class="text-center text-base-content/50 py-8">
+									<td colspan="5" class="text-center text-gray-400 py-8 px-4">
 										Nenhuma tabela cadastrada ainda.
 									</td>
 								</tr>
