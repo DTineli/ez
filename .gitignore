@@ -8,3 +8,4 @@ tmp/
 
 tailwindcss
 static/css/style.css
+static/css/style.min.css
