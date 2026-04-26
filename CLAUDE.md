@@ -23,7 +23,7 @@ Routes: `/admin/*` (dashboard) · `/client/*` (storefront)
 | `internal/config/` | envconfig: PORT, DATABASE_NAME, SESSION_COOKIE_NAME |
 | `internal/middleware/` | `SessionAuthMiddleware`, `TextHTMLMiddleware`; session in ctx key `"info"` |
 | `internal/store/store.go` | models + interfaces |
-| `internal/store/db/` | GORM + SQLite, auto-migrate |
+| `internal/store/db/` | GORM + SQLite, auto-migrate — **toda nova struct com tags gorm deve ser adicionada ao `AutoMigrate` em `db.go`** |
 | `internal/store/dbstore/` | store implementations |
 | `internal/store/cookiesotore/` | Gorilla sessions: `CreateSession`, `GetSessionInfo`, `SetCartID` |
 | `internal/handlers/` | HTTP handlers |

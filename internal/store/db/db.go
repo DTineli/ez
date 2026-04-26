@@ -43,6 +43,11 @@ func MustOpen(dbName string) *gorm.DB {
 		&store.CartItem{},
 		&store.Order{},
 		&store.OrderItem{},
+
+		&store.Attribute{},
+		&store.AttributeValue{},
+		&store.VariantAttribute{},
+		&store.Variant{},
 	)
 
 	if err != nil {
