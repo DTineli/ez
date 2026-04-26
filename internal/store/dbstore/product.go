@@ -151,6 +151,17 @@ func (p *ProductStore) UpdateVariantFields(id uint, tenantID uint, fields map[st
 	return nil
 }
 
+func (p *ProductStore) FindDefaultVariant(productID uint, tenantID uint) (*store.Variant, error) {
+	var v store.Variant
+	result := p.db.
+		Where("product_id = ? AND tenant_id = ? AND is_default = ?", productID, tenantID, true).
+		First(&v)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &v, nil
+}
+
 func (p *ProductStore) DeleteVariant(id uint, tenantID uint) error {
 	result := p.db.
 		Where("id = ? AND tenant_id = ?", id, tenantID).

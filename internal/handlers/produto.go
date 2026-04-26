@@ -71,10 +71,19 @@ func (p *ProductHandler) PostNewProduct(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	defaultVariant := &store.Variant{
+		SKU:       product.SKU,
+		ProductID: product.ID,
+		TenantID:  sess.TenantID,
+		IsDefault: true,
+	}
+	_ = p.productStore.CreateVariant(defaultVariant)
+
 	ShowToast(w, "Produto Cadastrado", "success")
 	form.Set("ID", strconv.Itoa(int(product.ID)))
 	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
-	_ = Render(templates.ProductForm(form, true, nil, attrs), r, w)
+	variants, _ := p.productStore.FindVariantsByProduct(product.ID, sess.TenantID)
+	_ = Render(templates.ProductForm(form, true, variants, attrs), r, w)
 }
 
 func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
@@ -368,6 +377,10 @@ func (p *ProductHandler) PostVariant(w http.ResponseWriter, r *http.Request) {
 	costPrice, _ := strconv.ParseFloat(r.FormValue("cost_price"), 64)
 	currentStock, _ := strconv.Atoi(r.FormValue("current_stock"))
 	minimumStock, _ := strconv.Atoi(r.FormValue("minimum_stock"))
+
+	if defaultVariant, err := p.productStore.FindDefaultVariant(uint(productID), sess.TenantID); err == nil && defaultVariant != nil {
+		_ = p.productStore.DeleteVariant(defaultVariant.ID, sess.TenantID)
+	}
 
 	variant := &store.Variant{
 		SKU:          r.FormValue("sku"),

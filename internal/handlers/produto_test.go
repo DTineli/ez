@@ -132,6 +132,10 @@ func (s *mockProductStore) CreateAttributeValue(v *store.AttributeValue) error {
 	}
 	return nil
 }
+func (s *mockProductStore) FindDefaultVariant(productID, tenantID uint) (*store.Variant, error) {
+	return nil, nil
+}
+
 func (s *mockProductStore) DeleteAttributeValue(id, tenantID uint) error {
 	if s.deleteAttributeValue != nil {
 		return s.deleteAttributeValue(id, tenantID)

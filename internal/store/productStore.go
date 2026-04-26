@@ -81,6 +81,8 @@ type Variant struct {
 	WidthCm  float64 `gorm:"type:decimal(10,2)" json:"width_cm"`
 	LengthCm float64 `gorm:"type:decimal(10,2)" json:"length_cm"`
 
+	IsDefault bool `gorm:"default:false" json:"is_default"`
+
 	Attributes []VariantAttribute `gorm:"foreignKey:VariantID" json:"attributes,omitempty"`
 	Prices     []ProductPrice     `gorm:"foreignKey:VariantID" json:"prices,omitempty"`
 
@@ -157,6 +159,7 @@ type ProductStore interface {
 	FindVariantsByProduct(productID uint, tenantID uint) ([]Variant, error)
 	UpdateVariantFields(id uint, tenantID uint, fields map[string]any) error
 	DeleteVariant(id uint, tenantID uint) error
+	FindDefaultVariant(productID uint, tenantID uint) (*Variant, error)
 	SetVariantAttributes(variantID uint, attributeValueIDs []uint) error
 
 	// Attribute
