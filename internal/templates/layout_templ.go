@@ -8,6 +8,27 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import "strings"
+
+func emailInitials(email string) string {
+	if email == "" {
+		return "U"
+	}
+	at := strings.Index(email, "@")
+	name := email
+	if at > 0 {
+		name = email[:at]
+	}
+	parts := strings.SplitN(name, ".", 2)
+	if len(parts) == 2 && len(parts[0]) > 0 && len(parts[1]) > 0 {
+		return strings.ToUpper(parts[0][:1]) + strings.ToUpper(parts[1][:1])
+	}
+	if len(name) > 0 {
+		return strings.ToUpper(name[:1])
+	}
+	return "U"
+}
+
 func header(title string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -36,166 +57,13 @@ func header(title string) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 5, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 26, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><meta charset=\"UTF-8\"><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin=\"anonymous\"><link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap\" rel=\"stylesheet\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"/static/script/response-targets.js\"></script><link rel=\"stylesheet\" href=\"/static/css/style.css\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><!-- Alpine Plugins --><script defer src=\"https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js\"></script><!-- Alpine Core --><script defer src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js\"></script></head>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-func navLink(label, p string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var3 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var3 == nil {
-			templ_7745c5c3_Var3 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<a hx-get=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs("/admin" + p)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 23, Col: 23}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" class=\"flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-base-content/60 hover:bg-primary/10 hover:text-primary transition-colors\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(label)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 28, Col: 9}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</a>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-func sideBar() templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var6 == nil {
-			templ_7745c5c3_Var6 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<nav class=\"flex flex-col h-full p-4 gap-1\"><div class=\"mb-2\"><p class=\"px-3 text-xs font-semibold uppercase tracking-wider text-base-content/40 mb-1\">Produtos</p>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = navLink("Cadastrar", "/produtos/novo").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = navLink("Listar", "/produtos").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = navLink("Tabelas de Preço", "/produtos/pricetable").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div class=\"divider my-1\"></div><div class=\"mb-2\"><p class=\"px-3 text-xs font-semibold uppercase tracking-wider text-base-content/40 mb-1\">Contatos</p>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = navLink("Novo", "/contacts/novo").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = navLink("Listar", "/contacts/").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div class=\"divider my-1\"></div><div class=\"mb-2\"><p class=\"px-3 text-xs font-semibold uppercase tracking-wider text-base-content/40 mb-1\">Pedidos</p>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = navLink("Novo", "/pedidos/novo").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = navLink("Listar", "/pedidos/").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></nav>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-func upbar() templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var7 == nil {
-			templ_7745c5c3_Var7 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"flex items-center justify-between px-6 h-14 bg-base-100 border-b border-base-200\"><a class=\"font-bold text-lg tracking-tight text-primary\" hx-get=\"/admin\" hx-target=\"#main-content\" hx-swap=\"innerHTML\">ConnSale</a><div class=\"flex items-center gap-3\"><label class=\"flex items-center gap-1 cursor-pointer\"><span class=\"text-xs text-base-content/50\">Dark</span> <input type=\"checkbox\" value=\"dark\" class=\"toggle toggle-sm theme-controller\"></label> <button type=\"button\" hx-post=\"/admin/logout\" class=\"btn btn-ghost btn-sm\">Sair</button></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -219,12 +87,41 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var8 == nil {
-			templ_7745c5c3_Var8 = templ.NopComponent
+		templ_7745c5c3_Var3 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var3 == nil {
+			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<html lang=\"pt-br\" data-theme=\"light\">")
+		initials := emailInitials(email)
+		xData := `{
+			collapsed: false,
+			active: 'dashboard',
+			getPage() {
+				const p = window.location.pathname;
+				if (p.startsWith('/admin/produtos')) return 'products';
+				if (p.startsWith('/admin/pedidos'))  return 'orders';
+				if (p.startsWith('/admin/contacts')) return 'clients';
+				if (p.startsWith('/admin/relatorios')) return 'reports';
+				if (p.startsWith('/admin/configuracoes')) return 'config';
+				return 'dashboard';
+			},
+			pageLabel() {
+				const labels = {
+					dashboard: 'Visão Geral',
+					products:  'Produtos',
+					orders:    'Pedidos',
+					clients:   'Clientes',
+					reports:   'Relatórios',
+					config:    'Configurações'
+				};
+				return labels[this.active] || this.active;
+			},
+			init() {
+				this.active = this.getPage();
+				document.addEventListener('htmx:afterSettle', () => { this.active = this.getPage(); });
+			}
+		}`
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<html lang=\"pt-BR\" data-theme=\"light\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -232,23 +129,82 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<body class=\"min-h-screen bg-base-200\" hx-boost=\"true\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<body style=\"overflow:hidden;height:100vh;margin:0;padding:0;\"><div class=\"cs-shell\" x-data=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = upbar().Render(ctx, templ_7745c5c3_Buffer)
+		var templ_7745c5c3_Var4 string
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(xData)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 77, Col: 39}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"flex h-[calc(100vh-3.5rem)]\"><aside class=\"w-56 shrink-0 bg-base-100 border-r border-base-200 overflow-y-auto\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><!-- ═══ SIDEBAR ═══ --><aside class=\"cs-sidebar\" :class=\"{ 'collapsed': collapsed }\"><div class=\"cs-sidebar-logo\"><div class=\"cs-logo-icon\">C</div><div class=\"cs-logo-text\" x-show=\"!collapsed\" x-transition.opacity>Conn<span>Sale</span></div></div><div class=\"cs-sidebar-toggle\" @click=\"collapsed = !collapsed\"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" :style=\"collapsed ? 'transform:rotate(180deg);transition:transform .22s' : 'transition:transform .22s'\"><path d=\"M15 18l-6-6 6-6\"></path></svg></div><nav class=\"cs-sidebar-nav\"><!-- Visão Geral --><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'dashboard' }\" hx-get=\"/admin/\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" @click=\"active = 'dashboard'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Visão Geral</span></a><!-- VENDAS --><div class=\"cs-nav-group-label\">Vendas</div><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'orders' }\" hx-get=\"/admin/pedidos/\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" @click=\"active = 'orders'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2\"></path> <path d=\"M9 5a2 2 0 002 2h2a2 2 0 002-2\"></path> <path d=\"M9 5a2 2 0 012-2h2a2 2 0 012 2\"></path> <path d=\"M9 14l2 2 4-4\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Pedidos</span></a> <a class=\"cs-nav-item\" :class=\"{ 'active': active === 'clients' }\" hx-get=\"/admin/contacts/\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" @click=\"active = 'clients'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2\"></path> <path d=\"M9 11a4 4 0 100-8 4 4 0 000 8z\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Clientes</span></a><!-- CATÁLOGO --><div class=\"cs-nav-group-label\">Catálogo</div><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'products' }\" hx-get=\"/admin/produtos/\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" @click=\"active = 'products'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Produtos</span></a><!-- ANÁLISE --><div class=\"cs-nav-group-label\">Análise</div><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'reports' }\" href=\"#\" @click.prevent=\"active = 'reports'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 20V10M12 20V4M6 20v-6\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Relatórios</span></a><!-- SISTEMA --><div class=\"cs-nav-group-label\">Sistema</div><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'config' }\" href=\"#\" @click.prevent=\"active = 'config'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 15a3 3 0 100-6 3 3 0 000 6z\"></path> <path d=\"M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Configurações</span></a></nav><!-- User --><div class=\"cs-sidebar-user\"><div class=\"cs-user-avatar\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = sideBar().Render(ctx, templ_7745c5c3_Buffer)
+		var templ_7745c5c3_Var5 string
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(initials)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 209, Col: 44}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</aside><main class=\"flex-1 overflow-y-auto p-6\"><div id=\"main-content\" class=\"w-full max-w-6xl mx-auto\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div class=\"cs-sidebar-user-info\" x-show=\"!collapsed\" x-transition.opacity><div class=\"cs-user-name\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var6 string
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(email)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 211, Col: 40}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div class=\"cs-user-role\">Admin</div></div></div></aside><!-- ═══ MAIN ═══ --><div class=\"cs-main\"><!-- HEADER --><header class=\"cs-header\"><nav class=\"cs-breadcrumb\"><span class=\"current\" x-text=\"pageLabel()\"></span></nav><div class=\"cs-header-spacer\"></div><div class=\"cs-header-search\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0\"></path></svg> <input placeholder=\"Buscar pedidos, produtos, clientes…\"></div><button class=\"cs-header-btn\" type=\"button\" aria-label=\"Notificações\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9\"></path> <path d=\"M13.73 21a2 2 0 01-3.46 0\"></path></svg> <span class=\"cs-notif-dot\"></span></button><div class=\"cs-header-divider\"></div><div class=\"cs-header-user\"><div class=\"cs-header-avatar\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var7 string
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(initials)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 239, Col: 47}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><div><div class=\"cs-header-user-name\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var8 string
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(email)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 241, Col: 48}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"cs-header-user-role\">Admin</div></div></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if loggedIn {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<button type=\"button\" hx-post=\"/admin/logout\" class=\"btn btn-ghost btn-sm\" style=\"margin-left:4px;\">Sair</button>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</header><!-- CONTENT --><main class=\"cs-content\"><div id=\"main-content\" class=\"w-full\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -256,7 +212,7 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></main></div><div id=\"toast-container\" class=\"fixed top-6 right-6 z-50 space-y-4 w-80\"></div></body><script>\n\t\t\tdocument.body.addEventListener(\"showToast\", function (event) {\n\t\t\t\tconst { type, message } = event.detail;\n\t\t\t\tconst container = document.getElementById(\"toast-container\");\n\t\t\t\tconst toast = document.createElement(\"div\");\n\n\t\t\t\ttoast.className = \"px-4 py-3 rounded-xl shadow-lg text-white transition-all duration-300 opacity-0 translate-y-2 \" +\n\t\t\t\t\t(type === \"success\"\n\t\t\t\t\t? \"bg-green-600\"\n\t\t\t\t\t: \"bg-red-600\");\n\n\t\t\t\ttoast.textContent = message;\n\t\t\t\tcontainer.appendChild(toast);\n\n\t\t\t\t//anima entrada\n\t\t\t\trequestAnimationFrame(() => {\n\t\t\t\t\ttoast.classList.remove(\"opacity-0\", \"translate-y-2\");\n\t\t\t\t});\n\n\t\t\t\t// anima saída\n\t\t\t\tsetTimeout(() => {\n\t\t\t\t\ttoast.classList.add(\"opacity-0\", \"translate-y-2\");\n\t\t\t\t\tsetTimeout(() => toast.remove(), 300);\n\t\t\t\t}, 3000);\n\t\t\t});\n\t\t</script></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></main><!-- FOOTER --><footer class=\"cs-footer\"><div class=\"cs-footer-copy\"><strong>ConnSale</strong> © 2026</div><nav class=\"cs-footer-links\"><a class=\"cs-footer-link\" href=\"#\">Termos de Uso</a> <a class=\"cs-footer-link\" href=\"#\">Privacidade</a> <a class=\"cs-footer-link\" href=\"#\">Suporte</a></nav><div class=\"cs-footer-version\">v1.0.0</div></footer></div></div><!-- Toast container --><div id=\"toast-container\" class=\"fixed top-6 right-6 z-50 space-y-4 w-80\"></div></body><script>\n\t\t\tdocument.body.addEventListener(\"showToast\", function (event) {\n\t\t\t\tconst { type, message } = event.detail;\n\t\t\t\tconst container = document.getElementById(\"toast-container\");\n\t\t\t\tconst toast = document.createElement(\"div\");\n\n\t\t\t\ttoast.className = \"px-4 py-3 rounded-xl shadow-lg text-white transition-all duration-300 opacity-0 translate-y-2 \" +\n\t\t\t\t\t(type === \"success\"\n\t\t\t\t\t? \"bg-green-600\"\n\t\t\t\t\t: \"bg-red-600\");\n\n\t\t\t\ttoast.textContent = message;\n\t\t\t\tcontainer.appendChild(toast);\n\n\t\t\t\trequestAnimationFrame(() => {\n\t\t\t\t\ttoast.classList.remove(\"opacity-0\", \"translate-y-2\");\n\t\t\t\t});\n\n\t\t\t\tsetTimeout(() => {\n\t\t\t\t\ttoast.classList.add(\"opacity-0\", \"translate-y-2\");\n\t\t\t\t\tsetTimeout(() => toast.remove(), 300);\n\t\t\t\t}, 3000);\n\t\t\t});\n\t\t</script></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

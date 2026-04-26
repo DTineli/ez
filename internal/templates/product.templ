@@ -516,7 +516,7 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 			{"MT", "Metro (MT)"},
 		}
 	}}
-	<div id="form" class="space-y-6">
+	<div id="form" class="space-y-6" x-data="productForm()">
 		<div class="flex items-center justify-between">
 			<div>
 				<h1 class="text-2xl font-bold">
@@ -544,100 +544,267 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 			</button>
 		</div>
 		<div class="card bg-base-100 shadow-sm border border-base-300">
-			<div class="card-body">
+			<div class="card-body p-5">
 				<form
 					hx-post={ action }
 					hx-target="#form"
 					hx-swap="outerHTML"
-					class="space-y-6"
+					class="space-y-0"
 				>
+					<input type="hidden" name="variations_json" :value="JSON.stringify(variations)"/>
+					<input type="hidden" name="var_rows_json" :value="JSON.stringify(varRows)"/>
 					<!-- DADOS GERAIS -->
-					<div>
-						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Dados Gerais</h2>
-						<div class="flex flex-wrap gap-4">
-							<div class="basis-[45%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:          "name",
-									Label:         "Nome",
-									InputType:     "text",
-									Value:         form.Get("name"),
-									ErrorMessages: form.Errors.Get("name"),
-									IsRequired:    true,
-								})
-							</div>
-							<div class="basis-[20%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:          "sku",
-									Label:         "SKU",
-									InputType:     "text",
-									Value:         form.Get("sku"),
-									ErrorMessages: form.Errors.Get("sku"),
-									IsRequired:    true,
-									Disabled:      isUpdate,
-								})
-							</div>
-							<div class="basis-[20%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:          "ean",
-									Label:         "EAN",
-									InputType:     "text",
-									Value:         form.Get("ean"),
-									ErrorMessages: form.Errors.Get("ean"),
-									Mask:          "9999999999999",
-									Placeholder:   "0000000000000",
-								})
-							</div>
+					<p class="text-xs font-bold tracking-widest uppercase text-base-content/40 mb-4">Dados Gerais</p>
+					<div class="flex flex-wrap gap-3 mb-4">
+						<div class="basis-[45%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:          "name",
+								Label:         "Nome",
+								InputType:     "text",
+								Value:         form.Get("name"),
+								ErrorMessages: form.Errors.Get("name"),
+								IsRequired:    true,
+							})
 						</div>
-						<div class="form-control mt-4">
-							<label class="label py-1">
-								<span class="label-text text-sm">Descrição</span>
-							</label>
-							<textarea
-								name="description"
-								rows="3"
-								class="textarea textarea-bordered w-full text-sm"
-							>{ form.Get("description") }</textarea>
+						<div class="basis-[20%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:          "sku",
+								Label:         "SKU",
+								InputType:     "text",
+								Value:         form.Get("sku"),
+								ErrorMessages: form.Errors.Get("sku"),
+								IsRequired:    true,
+								Disabled:      isUpdate,
+							})
 						</div>
+						<div class="basis-[20%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:          "ean",
+								Label:         "EAN",
+								InputType:     "text",
+								Value:         form.Get("ean"),
+								ErrorMessages: form.Errors.Get("ean"),
+								Mask:          "9999999999999",
+								Placeholder:   "0000000000000",
+							})
+						</div>
+					</div>
+					<div class="form-control mb-5">
+						<label class="label py-1">
+							<span class="label-text text-sm">Descrição</span>
+						</label>
+						<textarea
+							name="description"
+							rows="3"
+							class="textarea textarea-bordered w-full text-sm"
+						>{ form.Get("description") }</textarea>
 					</div>
 					<div class="divider my-1"></div>
 					<!-- CLASSIFICAÇÃO -->
-					<div>
-						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Classificação</h2>
-						<div class="flex flex-wrap gap-4">
-							<div class="basis-[30%] grow">
-								<label class="label py-1">
-									<span class="label-text text-sm">Unidade de Medida</span>
-								</label>
-								<select name="uom" class="select select-bordered select-sm w-full">
-									for _, u := range uoms {
-										<option
-											value={ u.Value }
-											if form.Get("uom") == u.Value {
-												selected
-											}
-										>
-											{ u.Label }
-										</option>
-									}
-								</select>
-							</div>
-							<div class="basis-[20%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:        "ncm",
-									Label:       "NCM",
-									InputType:   "text",
-									Value:       form.Get("ncm"),
-									Mask:        "9999.99.99",
-									Placeholder: "0000.00.00",
-								})
-							</div>
+					<p class="text-xs font-bold tracking-widest uppercase text-base-content/40 mb-4">Classificação</p>
+					<div class="flex flex-wrap gap-3 mb-4">
+						<div class="basis-[30%] grow">
+							<label class="label py-1">
+								<span class="label-text text-sm">Unidade de Medida</span>
+							</label>
+							<select name="uom" class="select select-bordered select-sm w-full">
+								for _, u := range uoms {
+									<option
+										value={ u.Value }
+										if form.Get("uom") == u.Value {
+											selected
+										}
+									>
+										{ u.Label }
+									</option>
+								}
+							</select>
+						</div>
+						<div class="basis-[20%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:        "ncm",
+								Label:       "NCM",
+								InputType:   "text",
+								Value:       form.Get("ncm"),
+								Mask:        "9999.99.99",
+								Placeholder: "0000.00.00",
+							})
 						</div>
 					</div>
 					<div class="divider my-1"></div>
 					<!-- ESTOQUE & CUSTOS -->
-					<div>
-						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Estoque & Custos</h2>
-						<div class="flex flex-wrap gap-4">
+					<p class="text-xs font-bold tracking-widest uppercase text-base-content/40 mb-4">Estoque &amp; Custos</p>
+					<div class="flex items-center justify-between py-3 border-b border-base-200 mb-5">
+						<div>
+							<p class="text-sm font-medium">Produto com variações</p>
+							<p class="text-xs text-base-content/50 mt-0.5">Cor, tamanho, material, etc.</p>
+						</div>
+						<input type="checkbox" class="toggle toggle-primary toggle-sm" x-model="hasVariations"/>
+					</div>
+					<!-- Variation builder (when hasVariations = true) -->
+					<div x-show="hasVariations" x-cloak>
+						<template x-for="(v, vi) in variations" :key="v.id">
+							<div class="bg-base-200/60 border border-base-300 rounded-md mb-3 overflow-hidden">
+								<div class="flex items-center justify-between px-4 py-2.5 border-b border-base-300 bg-base-200">
+									<span class="text-xs font-semibold uppercase tracking-wider text-base-content/50" x-text="'Variação ' + (vi+1)"></span>
+									<button type="button" class="btn btn-ghost btn-xs px-2" @click="removeVariation(vi)">
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+									</button>
+								</div>
+								<div class="p-4">
+									<input
+										type="text"
+										class="input input-bordered input-sm w-64"
+										x-model="v.name"
+										:placeholder="vi === 0 ? 'Ex: Cor, Material' : 'Ex: Tamanho, Voltagem'"
+									/>
+									<div class="flex items-center gap-2 mt-3 mb-2">
+										<span class="w-2 h-2 rounded-full bg-primary flex-shrink-0"></span>
+										<span class="text-xs font-semibold text-base-content/50">Opções</span>
+									</div>
+									<div class="grid grid-cols-2 gap-2">
+										<template x-for="(opt, oi) in v.options" :key="opt.id">
+											<div class="flex items-center gap-1.5">
+												<input
+													type="text"
+													class="input input-bordered input-xs flex-1 min-w-0"
+													x-model="opt.label"
+													placeholder="Ex: Cinza"
+													@keydown.enter.prevent="addOption(vi)"
+												/>
+												<input
+													type="text"
+													class="input input-bordered input-xs w-28 flex-shrink-0"
+													x-model="opt.explain"
+													placeholder="Explicação"
+												/>
+												<button type="button" class="btn btn-ghost btn-xs px-1 flex-shrink-0" @click="removeOption(vi, oi)" title="Remover">
+													<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"></path></svg>
+												</button>
+											</div>
+										</template>
+										<div class="flex items-center gap-1.5">
+											<input
+												type="text"
+												class="input input-bordered input-xs flex-1 min-w-0 bg-base-100"
+												placeholder="Inserir"
+												@keydown.enter.prevent="if($event.target.value.trim()){ addOption(vi, $event.target.value.trim()); $event.target.value=''; }"
+												@blur="if($event.target.value.trim()){ addOption(vi, $event.target.value.trim()); $event.target.value=''; }"
+											/>
+											<input type="text" class="input input-bordered input-xs w-28 bg-base-100 flex-shrink-0" placeholder="Explicação"/>
+										</div>
+									</div>
+								</div>
+							</div>
+						</template>
+						<button
+							type="button"
+							class="btn btn-outline btn-primary btn-sm gap-1.5 border-dashed mt-1"
+							@click="addVariation()"
+							:disabled="variations.length >= 2"
+						>
+							<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"></path></svg>
+							<span x-text="variations.length === 0 ? 'Adicionar Variação' : 'Adicionar Variação 2'"></span>
+						</button>
+						<!-- Combinations table -->
+						<div class="mt-6" x-show="combos.length > 0" x-cloak>
+							<p class="text-sm font-semibold mb-3">Lista de Variações</p>
+							<div class="flex flex-wrap gap-2 mb-3">
+								<div class="join">
+									<span class="join-item flex items-center px-2 bg-base-200 border border-base-300 text-xs text-base-content/60 rounded-l">R$</span>
+									<input type="number" class="input input-bordered input-sm join-item w-24 rounded-l-none" x-model="bulkPrice" placeholder="Preço"/>
+								</div>
+								<input type="number" class="input input-bordered input-sm w-24" x-model="bulkStock" placeholder="Estoque"/>
+								<input type="text" class="input input-bordered input-sm w-28" x-model="bulkSku" placeholder="SKU Variação"/>
+								<button type="button" class="btn btn-primary btn-sm" @click="applyAll()">Aplicar a todos</button>
+							</div>
+							<div class="overflow-x-auto rounded border border-base-200">
+								<table class="table table-sm">
+									<thead class="bg-base-200/50">
+										<tr>
+											<template x-for="v in variations" :key="v.id">
+												<th class="text-xs font-semibold" x-text="v.name || 'Variação'"></th>
+											</template>
+											<th class="text-xs font-semibold"><span class="text-primary">*</span> Preço</th>
+											<th class="text-xs font-semibold"><span class="text-primary">*</span> Estoque</th>
+											<th class="text-xs font-semibold">SKU</th>
+											<th class="text-xs font-semibold">GTIN (EAN)</th>
+											<th class="text-xs font-semibold">Sem GTIN</th>
+											<th class="text-xs font-semibold">Foto</th>
+										</tr>
+									</thead>
+									<tbody>
+										<template x-for="(combo, ci) in combos" :key="ci">
+											<tr class="hover">
+												<template x-for="(val, i) in combo" :key="i">
+													<td>
+														<span class="text-sm" x-text="val"></span>
+													</td>
+												</template>
+												<td>
+													<div class="join">
+														<span class="join-item flex items-center px-1.5 bg-base-200 border border-base-300 text-xs text-base-content/60">R$</span>
+														<input
+															type="number"
+															class="input input-bordered input-xs join-item w-20 rounded-l-none"
+															:value="getRow(ci).price"
+															@input="setRow(ci, 'price', $event.target.value)"
+															placeholder="0,00"
+														/>
+													</div>
+												</td>
+												<td>
+													<input
+														type="number"
+														class="input input-bordered input-xs w-16"
+														:value="getRow(ci).stock"
+														@input="setRow(ci, 'stock', $event.target.value)"
+														placeholder="0"
+													/>
+												</td>
+												<td>
+													<input
+														type="text"
+														class="input input-bordered input-xs w-24"
+														:value="getRow(ci).sku"
+														@input="setRow(ci, 'sku', $event.target.value)"
+														placeholder="SKU-001"
+													/>
+												</td>
+												<td>
+													<input
+														type="text"
+														class="input input-bordered input-xs w-28"
+														:value="getRow(ci).gtin"
+														@input="setRow(ci, 'gtin', $event.target.value)"
+														placeholder="EAN código de barras"
+													/>
+												</td>
+												<td>
+													<div class="flex justify-center">
+														<input
+															type="checkbox"
+															class="checkbox checkbox-xs checkbox-primary"
+															:checked="getRow(ci).noGtin"
+															@change="setRow(ci, 'noGtin', $event.target.checked)"
+														/>
+													</div>
+												</td>
+												<td>
+													<div class="w-9 h-9 rounded border border-dashed border-base-300 cursor-pointer bg-base-200 flex items-center justify-center text-base-content/30 hover:border-primary hover:text-primary transition-colors">
+														<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M12 8v8M8 12h8"></path></svg>
+													</div>
+												</td>
+											</tr>
+										</template>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<!-- Flat fields (when hasVariations = false) -->
+					<div x-show="!hasVariations" x-cloak>
+						<div class="flex flex-wrap gap-3 mb-4">
 							<div class="basis-[25%] grow">
 								@components.BasicInput(components.BasicInputParams{
 									Name:      "cost_price",
@@ -667,51 +834,50 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 					</div>
 					<div class="divider my-1"></div>
 					<!-- DIMENSÕES -->
-					<div>
-						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Dimensões</h2>
-						<div class="flex flex-wrap gap-4">
-							<div class="basis-[18%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:      "weight",
-									Label:     "Peso (kg)",
-									InputType: "number",
-									Step:      "0.01",
-									Value:     form.Get("weight"),
-								})
-							</div>
-							<div class="basis-[18%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:      "height",
-									Label:     "Altura (cm)",
-									InputType: "number",
-									Step:      "0.01",
-									Value:     form.Get("height"),
-								})
-							</div>
-							<div class="basis-[18%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:      "width",
-									Label:     "Largura (cm)",
-									InputType: "number",
-									Step:      "0.01",
-									Value:     form.Get("width"),
-								})
-							</div>
-							<div class="basis-[18%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:      "length",
-									Label:     "Comprimento (cm)",
-									InputType: "number",
-									Step:      "0.01",
-									Value:     form.Get("length"),
-								})
-							</div>
+					<p class="text-xs font-bold tracking-widest uppercase text-base-content/40 mb-4">Dimensões</p>
+					<div class="flex flex-wrap gap-3 mb-4">
+						<div class="basis-[18%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:      "weight",
+								Label:     "Peso (kg)",
+								InputType: "number",
+								Step:      "0.01",
+								Value:     form.Get("weight"),
+							})
+						</div>
+						<div class="basis-[18%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:      "height",
+								Label:     "Altura (cm)",
+								InputType: "number",
+								Step:      "0.01",
+								Value:     form.Get("height"),
+							})
+						</div>
+						<div class="basis-[18%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:      "width",
+								Label:     "Largura (cm)",
+								InputType: "number",
+								Step:      "0.01",
+								Value:     form.Get("width"),
+							})
+						</div>
+						<div class="basis-[18%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:      "length",
+								Label:     "Comprimento (cm)",
+								InputType: "number",
+								Step:      "0.01",
+								Value:     form.Get("length"),
+							})
 						</div>
 					</div>
 					<div class="divider my-1"></div>
 					@components.FormAlert(form.Errors.Get("general"))
-					<div class="flex justify-end gap-3">
+					<div class="flex justify-end gap-3 pt-2">
 						<button
+							type="button"
 							hx-get="/admin/produtos"
 							hx-target="#main-content"
 							hx-push-url="true"
@@ -730,9 +896,84 @@ templ ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, att
 				</form>
 			</div>
 		</div>
-		if isUpdate {
-			@AttributesSection(attrs)
-			@VariantsSection(variants, form.Get("ID"))
-		}
 	</div>
+	<script>
+	function productForm() {
+		return {
+			hasVariations: false,
+			variations: [],
+			bulkPrice: '',
+			bulkStock: '',
+			bulkSku: '',
+			varRows: [],
+
+			uid() {
+				return Math.random().toString(36).slice(2, 8);
+			},
+
+			cartesian(arrays) {
+				if (!arrays.length) return [];
+				return arrays.reduce(
+					(acc, arr) => acc.flatMap(a => arr.map(v => [...a, v])),
+					[[]]
+				);
+			},
+
+			get combos() {
+				const opts = this.variations
+					.map(v => v.options.filter(o => o.label.trim()).map(o => o.label))
+					.filter(a => a.length > 0);
+				if (!opts.length) return [];
+				return this.cartesian(opts);
+			},
+
+			addVariation() {
+				if (this.variations.length >= 2) return;
+				this.variations.push({
+					id: this.uid(),
+					name: '',
+					options: [{ id: this.uid(), label: '', explain: '' }]
+				});
+			},
+
+			removeVariation(vi) {
+				this.variations.splice(vi, 1);
+			},
+
+			addOption(vi, label) {
+				this.variations[vi].options.push({
+					id: this.uid(),
+					label: label || '',
+					explain: ''
+				});
+			},
+
+			removeOption(vi, oi) {
+				this.variations[vi].options.splice(oi, 1);
+			},
+
+			getRow(ci) {
+				return this.varRows[ci] || { price: '', stock: '', sku: '', gtin: '', noGtin: false };
+			},
+
+			setRow(ci, field, val) {
+				if (!this.varRows[ci]) {
+					this.varRows[ci] = { price: '', stock: '', sku: '', gtin: '', noGtin: false };
+				}
+				this.varRows[ci][field] = val;
+			},
+
+			applyAll() {
+				this.combos.forEach((_, ci) => {
+					if (!this.varRows[ci]) {
+						this.varRows[ci] = { price: '', stock: '', sku: '', gtin: '', noGtin: false };
+					}
+					if (this.bulkPrice) this.varRows[ci].price = this.bulkPrice;
+					if (this.bulkStock) this.varRows[ci].stock = this.bulkStock;
+					if (this.bulkSku) this.varRows[ci].sku = this.bulkSku;
+				});
+			}
+		}
+	}
+	</script>
 }

@@ -1196,7 +1196,7 @@ func ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, attr
 			{"CX", "Caixa (CX)"},
 			{"MT", "Metro (MT)"},
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "<div id=\"form\" class=\"space-y-6\"><div class=\"flex items-center justify-between\"><div><h1 class=\"text-2xl font-bold\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "<div id=\"form\" class=\"space-y-6\" x-data=\"productForm()\"><div class=\"flex items-center justify-between\"><div><h1 class=\"text-2xl font-bold\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1226,7 +1226,7 @@ func ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, attr
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "</p></div><button hx-get=\"/admin/produtos\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"btn btn-ghost btn-sm\">← Voltar</button></div><div class=\"card bg-base-100 shadow-sm border border-base-300\"><div class=\"card-body\"><form hx-post=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "</p></div><button hx-get=\"/admin/produtos\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"btn btn-ghost btn-sm\">← Voltar</button></div><div class=\"card bg-base-100 shadow-sm border border-base-300\"><div class=\"card-body p-5\"><form hx-post=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1239,7 +1239,7 @@ func ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, attr
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "\" hx-target=\"#form\" hx-swap=\"outerHTML\" class=\"space-y-6\"><!-- DADOS GERAIS --><div><h2 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3\">Dados Gerais</h2><div class=\"flex flex-wrap gap-4\"><div class=\"basis-[45%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "\" hx-target=\"#form\" hx-swap=\"outerHTML\" class=\"space-y-0\"><input type=\"hidden\" name=\"variations_json\" :value=\"JSON.stringify(variations)\"> <input type=\"hidden\" name=\"var_rows_json\" :value=\"JSON.stringify(varRows)\"><!-- DADOS GERAIS --><p class=\"text-xs font-bold tracking-widest uppercase text-base-content/40 mb-4\">Dados Gerais</p><div class=\"flex flex-wrap gap-3 mb-4\"><div class=\"basis-[45%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1286,20 +1286,20 @@ func ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, attr
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "</div></div><div class=\"form-control mt-4\"><label class=\"label py-1\"><span class=\"label-text text-sm\">Descrição</span></label> <textarea name=\"description\" rows=\"3\" class=\"textarea textarea-bordered w-full text-sm\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "</div></div><div class=\"form-control mb-5\"><label class=\"label py-1\"><span class=\"label-text text-sm\">Descrição</span></label> <textarea name=\"description\" rows=\"3\" class=\"textarea textarea-bordered w-full text-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var55 string
 		templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(form.Get("description"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 599, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 600, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "</textarea></div></div><div class=\"divider my-1\"></div><!-- CLASSIFICAÇÃO --><div><h2 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3\">Classificação</h2><div class=\"flex flex-wrap gap-4\"><div class=\"basis-[30%] grow\"><label class=\"label py-1\"><span class=\"label-text text-sm\">Unidade de Medida</span></label> <select name=\"uom\" class=\"select select-bordered select-sm w-full\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "</textarea></div><div class=\"divider my-1\"></div><!-- CLASSIFICAÇÃO --><p class=\"text-xs font-bold tracking-widest uppercase text-base-content/40 mb-4\">Classificação</p><div class=\"flex flex-wrap gap-3 mb-4\"><div class=\"basis-[30%] grow\"><label class=\"label py-1\"><span class=\"label-text text-sm\">Unidade de Medida</span></label> <select name=\"uom\" class=\"select select-bordered select-sm w-full\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1311,7 +1311,7 @@ func ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, attr
 			var templ_7745c5c3_Var56 string
 			templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(u.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 614, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 613, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 			if templ_7745c5c3_Err != nil {
@@ -1334,7 +1334,7 @@ func ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, attr
 			var templ_7745c5c3_Var57 string
 			templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(u.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 619, Col: 20}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 618, Col: 19}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
 			if templ_7745c5c3_Err != nil {
@@ -1360,7 +1360,7 @@ func ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, attr
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "</div></div></div><div class=\"divider my-1\"></div><!-- ESTOQUE & CUSTOS --><div><h2 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3\">Estoque & Custos</h2><div class=\"flex flex-wrap gap-4\"><div class=\"basis-[25%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "</div></div><div class=\"divider my-1\"></div><!-- ESTOQUE & CUSTOS --><p class=\"text-xs font-bold tracking-widest uppercase text-base-content/40 mb-4\">Estoque &amp; Custos</p><div class=\"flex items-center justify-between py-3 border-b border-base-200 mb-5\"><div><p class=\"text-sm font-medium\">Produto com variações</p><p class=\"text-xs text-base-content/50 mt-0.5\">Cor, tamanho, material, etc.</p></div><input type=\"checkbox\" class=\"toggle toggle-primary toggle-sm\" x-model=\"hasVariations\"></div><!-- Variation builder (when hasVariations = true) --><div x-show=\"hasVariations\" x-cloak><template x-for=\"(v, vi) in variations\" :key=\"v.id\"><div class=\"bg-base-200/60 border border-base-300 rounded-md mb-3 overflow-hidden\"><div class=\"flex items-center justify-between px-4 py-2.5 border-b border-base-300 bg-base-200\"><span class=\"text-xs font-semibold uppercase tracking-wider text-base-content/50\" x-text=\"'Variação ' + (vi+1)\"></span> <button type=\"button\" class=\"btn btn-ghost btn-xs px-2\" @click=\"removeVariation(vi)\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M18 6L6 18M6 6l12 12\"></path></svg></button></div><div class=\"p-4\"><input type=\"text\" class=\"input input-bordered input-sm w-64\" x-model=\"v.name\" :placeholder=\"vi === 0 ? 'Ex: Cor, Material' : 'Ex: Tamanho, Voltagem'\"><div class=\"flex items-center gap-2 mt-3 mb-2\"><span class=\"w-2 h-2 rounded-full bg-primary flex-shrink-0\"></span> <span class=\"text-xs font-semibold text-base-content/50\">Opções</span></div><div class=\"grid grid-cols-2 gap-2\"><template x-for=\"(opt, oi) in v.options\" :key=\"opt.id\"><div class=\"flex items-center gap-1.5\"><input type=\"text\" class=\"input input-bordered input-xs flex-1 min-w-0\" x-model=\"opt.label\" placeholder=\"Ex: Cinza\" @keydown.enter.prevent=\"addOption(vi)\"> <input type=\"text\" class=\"input input-bordered input-xs w-28 flex-shrink-0\" x-model=\"opt.explain\" placeholder=\"Explicação\"> <button type=\"button\" class=\"btn btn-ghost btn-xs px-1 flex-shrink-0\" @click=\"removeOption(vi, oi)\" title=\"Remover\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6\"></path></svg></button></div></template><div class=\"flex items-center gap-1.5\"><input type=\"text\" class=\"input input-bordered input-xs flex-1 min-w-0 bg-base-100\" placeholder=\"Inserir\" @keydown.enter.prevent=\"if($event.target.value.trim()){ addOption(vi, $event.target.value.trim()); $event.target.value=''; }\" @blur=\"if($event.target.value.trim()){ addOption(vi, $event.target.value.trim()); $event.target.value=''; }\"> <input type=\"text\" class=\"input input-bordered input-xs w-28 bg-base-100 flex-shrink-0\" placeholder=\"Explicação\"></div></div></div></div></template><button type=\"button\" class=\"btn btn-outline btn-primary btn-sm gap-1.5 border-dashed mt-1\" @click=\"addVariation()\" :disabled=\"variations.length >= 2\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M12 5v14M5 12h14\"></path></svg> <span x-text=\"variations.length === 0 ? 'Adicionar Variação' : 'Adicionar Variação 2'\"></span></button><!-- Combinations table --><div class=\"mt-6\" x-show=\"combos.length > 0\" x-cloak><p class=\"text-sm font-semibold mb-3\">Lista de Variações</p><div class=\"flex flex-wrap gap-2 mb-3\"><div class=\"join\"><span class=\"join-item flex items-center px-2 bg-base-200 border border-base-300 text-xs text-base-content/60 rounded-l\">R$</span> <input type=\"number\" class=\"input input-bordered input-sm join-item w-24 rounded-l-none\" x-model=\"bulkPrice\" placeholder=\"Preço\"></div><input type=\"number\" class=\"input input-bordered input-sm w-24\" x-model=\"bulkStock\" placeholder=\"Estoque\"> <input type=\"text\" class=\"input input-bordered input-sm w-28\" x-model=\"bulkSku\" placeholder=\"SKU Variação\"> <button type=\"button\" class=\"btn btn-primary btn-sm\" @click=\"applyAll()\">Aplicar a todos</button></div><div class=\"overflow-x-auto rounded border border-base-200\"><table class=\"table table-sm\"><thead class=\"bg-base-200/50\"><tr><template x-for=\"v in variations\" :key=\"v.id\"><th class=\"text-xs font-semibold\" x-text=\"v.name || 'Variação'\"></th></template><th class=\"text-xs font-semibold\"><span class=\"text-primary\">*</span> Preço</th><th class=\"text-xs font-semibold\"><span class=\"text-primary\">*</span> Estoque</th><th class=\"text-xs font-semibold\">SKU</th><th class=\"text-xs font-semibold\">GTIN (EAN)</th><th class=\"text-xs font-semibold\">Sem GTIN</th><th class=\"text-xs font-semibold\">Foto</th></tr></thead> <tbody><template x-for=\"(combo, ci) in combos\" :key=\"ci\"><tr class=\"hover\"><template x-for=\"(val, i) in combo\" :key=\"i\"><td><span class=\"text-sm\" x-text=\"val\"></span></td></template><td><div class=\"join\"><span class=\"join-item flex items-center px-1.5 bg-base-200 border border-base-300 text-xs text-base-content/60\">R$</span> <input type=\"number\" class=\"input input-bordered input-xs join-item w-20 rounded-l-none\" :value=\"getRow(ci).price\" @input=\"setRow(ci, 'price', $event.target.value)\" placeholder=\"0,00\"></div></td><td><input type=\"number\" class=\"input input-bordered input-xs w-16\" :value=\"getRow(ci).stock\" @input=\"setRow(ci, 'stock', $event.target.value)\" placeholder=\"0\"></td><td><input type=\"text\" class=\"input input-bordered input-xs w-24\" :value=\"getRow(ci).sku\" @input=\"setRow(ci, 'sku', $event.target.value)\" placeholder=\"SKU-001\"></td><td><input type=\"text\" class=\"input input-bordered input-xs w-28\" :value=\"getRow(ci).gtin\" @input=\"setRow(ci, 'gtin', $event.target.value)\" placeholder=\"EAN código de barras\"></td><td><div class=\"flex justify-center\"><input type=\"checkbox\" class=\"checkbox checkbox-xs checkbox-primary\" :checked=\"getRow(ci).noGtin\" @change=\"setRow(ci, 'noGtin', $event.target.checked)\"></div></td><td><div class=\"w-9 h-9 rounded border border-dashed border-base-300 cursor-pointer bg-base-200 flex items-center justify-center text-base-content/30 hover:border-primary hover:text-primary transition-colors\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"></rect><path d=\"M12 8v8M8 12h8\"></path></svg></div></td></tr></template></tbody></table></div></div></div><!-- Flat fields (when hasVariations = false) --><div x-show=\"!hasVariations\" x-cloak><div class=\"flex flex-wrap gap-3 mb-4\"><div class=\"basis-[25%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1400,7 +1400,7 @@ func ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, attr
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "</div></div></div><div class=\"divider my-1\"></div><!-- DIMENSÕES --><div><h2 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3\">Dimensões</h2><div class=\"flex flex-wrap gap-4\"><div class=\"basis-[18%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "</div></div></div><div class=\"divider my-1\"></div><!-- DIMENSÕES --><p class=\"text-xs font-bold tracking-widest uppercase text-base-content/40 mb-4\">Dimensões</p><div class=\"flex flex-wrap gap-3 mb-4\"><div class=\"basis-[18%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1456,7 +1456,7 @@ func ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, attr
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 123, "</div></div></div><div class=\"divider my-1\"></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 123, "</div></div><div class=\"divider my-1\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1464,7 +1464,7 @@ func ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, attr
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 124, "<div class=\"flex justify-end gap-3\"><button hx-get=\"/admin/produtos\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"btn btn-ghost btn-sm\">Cancelar</button> <button type=\"submit\" class=\"btn btn-primary btn-sm\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 124, "<div class=\"flex justify-end gap-3 pt-2\"><button type=\"button\" hx-get=\"/admin/produtos\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"btn btn-ghost btn-sm\">Cancelar</button> <button type=\"submit\" class=\"btn btn-primary btn-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1479,25 +1479,7 @@ func ProductForm(form *forms.Form, isUpdate bool, variants []store.Variant, attr
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 127, "</button></div></form></div></div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if isUpdate {
-			templ_7745c5c3_Err = AttributesSection(attrs).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 128, " ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = VariantsSection(variants, form.Get("ID")).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 129, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 127, "</button></div></form></div></div></div><script>\n\tfunction productForm() {\n\t\treturn {\n\t\t\thasVariations: false,\n\t\t\tvariations: [],\n\t\t\tbulkPrice: '',\n\t\t\tbulkStock: '',\n\t\t\tbulkSku: '',\n\t\t\tvarRows: [],\n\n\t\t\tuid() {\n\t\t\t\treturn Math.random().toString(36).slice(2, 8);\n\t\t\t},\n\n\t\t\tcartesian(arrays) {\n\t\t\t\tif (!arrays.length) return [];\n\t\t\t\treturn arrays.reduce(\n\t\t\t\t\t(acc, arr) => acc.flatMap(a => arr.map(v => [...a, v])),\n\t\t\t\t\t[[]]\n\t\t\t\t);\n\t\t\t},\n\n\t\t\tget combos() {\n\t\t\t\tconst opts = this.variations\n\t\t\t\t\t.map(v => v.options.filter(o => o.label.trim()).map(o => o.label))\n\t\t\t\t\t.filter(a => a.length > 0);\n\t\t\t\tif (!opts.length) return [];\n\t\t\t\treturn this.cartesian(opts);\n\t\t\t},\n\n\t\t\taddVariation() {\n\t\t\t\tif (this.variations.length >= 2) return;\n\t\t\t\tthis.variations.push({\n\t\t\t\t\tid: this.uid(),\n\t\t\t\t\tname: '',\n\t\t\t\t\toptions: [{ id: this.uid(), label: '', explain: '' }]\n\t\t\t\t});\n\t\t\t},\n\n\t\t\tremoveVariation(vi) {\n\t\t\t\tthis.variations.splice(vi, 1);\n\t\t\t},\n\n\t\t\taddOption(vi, label) {\n\t\t\t\tthis.variations[vi].options.push({\n\t\t\t\t\tid: this.uid(),\n\t\t\t\t\tlabel: label || '',\n\t\t\t\t\texplain: ''\n\t\t\t\t});\n\t\t\t},\n\n\t\t\tremoveOption(vi, oi) {\n\t\t\t\tthis.variations[vi].options.splice(oi, 1);\n\t\t\t},\n\n\t\t\tgetRow(ci) {\n\t\t\t\treturn this.varRows[ci] || { price: '', stock: '', sku: '', gtin: '', noGtin: false };\n\t\t\t},\n\n\t\t\tsetRow(ci, field, val) {\n\t\t\t\tif (!this.varRows[ci]) {\n\t\t\t\t\tthis.varRows[ci] = { price: '', stock: '', sku: '', gtin: '', noGtin: false };\n\t\t\t\t}\n\t\t\t\tthis.varRows[ci][field] = val;\n\t\t\t},\n\n\t\t\tapplyAll() {\n\t\t\t\tthis.combos.forEach((_, ci) => {\n\t\t\t\t\tif (!this.varRows[ci]) {\n\t\t\t\t\t\tthis.varRows[ci] = { price: '', stock: '', sku: '', gtin: '', noGtin: false };\n\t\t\t\t\t}\n\t\t\t\t\tif (this.bulkPrice) this.varRows[ci].price = this.bulkPrice;\n\t\t\t\t\tif (this.bulkStock) this.varRows[ci].stock = this.bulkStock;\n\t\t\t\t\tif (this.bulkSku) this.varRows[ci].sku = this.bulkSku;\n\t\t\t\t});\n\t\t\t}\n\t\t}\n\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
