@@ -23,7 +23,7 @@ func (p *ProductStore) CreateProduct(product *store.Product) error {
 
 func (p *ProductStore) GetProduct(id uint) (*store.Product, error) {
 	var product store.Product
-	err := p.db.Preload("Variants").Where("id = ?", id).First(&product).Error
+	err := p.db.Preload("Variants.Attributes.AttributeValue.Attribute").Where("id = ?", id).First(&product).Error
 	return &product, err
 }
 
@@ -244,6 +244,18 @@ func (p *ProductStore) DeleteAttribute(id uint, tenantID uint) error {
 
 func (p *ProductStore) CreateAttributeValue(val *store.AttributeValue) error {
 	return p.db.Create(val).Error
+}
+
+func (p *ProductStore) FindOrCreateAttribute(name string, tenantID uint) (*store.Attribute, error) {
+	var attr store.Attribute
+	result := p.db.Where(store.Attribute{Name: name, TenantID: tenantID}).FirstOrCreate(&attr)
+	return &attr, result.Error
+}
+
+func (p *ProductStore) FindOrCreateAttributeValue(value string, attrID uint) (*store.AttributeValue, error) {
+	var av store.AttributeValue
+	result := p.db.Where(store.AttributeValue{Value: value, AttributeID: attrID}).FirstOrCreate(&av)
+	return &av, result.Error
 }
 
 func (p *ProductStore) DeleteAttributeValue(id uint, tenantID uint) error {

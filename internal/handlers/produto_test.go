@@ -143,6 +143,14 @@ func (s *mockProductStore) DeleteAttributeValue(id, tenantID uint) error {
 	return nil
 }
 
+func (s *mockProductStore) FindOrCreateAttribute(name string, tenantID uint) (*store.Attribute, error) {
+	return &store.Attribute{Name: name, TenantID: tenantID}, nil
+}
+
+func (s *mockProductStore) FindOrCreateAttributeValue(value string, attrID uint) (*store.AttributeValue, error) {
+	return &store.AttributeValue{Value: value, AttributeID: attrID}, nil
+}
+
 type mockPriceTableStore struct{}
 
 func (s *mockPriceTableStore) CreatePriceTable(p *store.PriceTable) error  { return nil }
@@ -469,14 +477,19 @@ func TestPostVariant_Sucesso(t *testing.T) {
 			criado = v
 			return nil
 		},
+		setVariantAttributes: func(variantID uint, ids []uint) error { return nil },
+		findVariantsByProduct: func(productID, tenantID uint) ([]store.Variant, error) {
+			return []store.Variant{}, nil
+		},
 	}
 	h := NewProductHandler(ps, &mockPriceTableStore{})
 
 	body := url.Values{
-		"sku":           {"VAR-01"},
-		"cost_price":    {"19.90"},
-		"current_stock": {"5"},
-		"minimum_stock": {"1"},
+		"sku":                 {"VAR-01"},
+		"cost_price":          {"19.90"},
+		"current_stock":       {"5"},
+		"minimum_stock":       {"1"},
+		"attribute_value_ids": {"1"},
 	}
 	r := httptest.NewRequest(http.MethodPost, "/admin/produtos/1/variants", strings.NewReader(body.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")

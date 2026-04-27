@@ -169,4 +169,6 @@ type ProductStore interface {
 	DeleteAttribute(id uint, tenantID uint) error
 	CreateAttributeValue(*AttributeValue) error
 	DeleteAttributeValue(id uint, tenantID uint) error
+	FindOrCreateAttribute(name string, tenantID uint) (*Attribute, error)
+	FindOrCreateAttributeValue(value string, attrID uint) (*AttributeValue, error)
 }

@@ -11,174 +11,314 @@ import (
 
 // ─── PRODUTO ────────────────────────────────────────────────────────────────
 templ Filter() {
-	<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
-		<div class="p-6 py-4">
-			<form
-				id="filter-form"
-				class="flex flex-wrap items-end gap-3"
-				hx-get="/admin/produtos/"
-				hx-target="#main-content"
-				hx-swap="innerHTML"
-				hx-push-url="true"
-			>
-				<div class="flex-1 min-w-[160px]">
-					<label class="flex items-center gap-2 py-1">
-						<span class="text-sm font-medium">Nome</span>
-					</label>
-					<input
-						class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-						type="text"
-						name="name"
-						id="name-input"
-						hx-preserve="true"
-						placeholder="Buscar por nome..."
-					/>
-				</div>
-				<div class="w-36">
-					<label class="flex items-center gap-2 py-1">
-						<span class="text-sm font-medium">SKU</span>
-					</label>
-					<input
-						class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-						type="text"
-						name="sku"
-						id="sku-input"
-						hx-preserve="true"
-						placeholder="Ex: PROD-01"
-					/>
-				</div>
-				<div class="pb-0.5">
-					<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
-						Buscar
-					</button>
-				</div>
-			</form>
+	<form
+		id="filter-form"
+		class="flex flex-wrap items-center gap-2"
+		hx-get="/admin/produtos/"
+		hx-target="#main-content"
+		hx-swap="innerHTML"
+		hx-push-url="true"
+	>
+		<div class="relative flex-1 min-w-[180px]">
+			<span class="absolute left-[11px] top-1/2 -translate-y-1/2 pointer-events-none" style="color:#9CA3AF">
+				<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="11" cy="11" r="8"></circle>
+					<path d="M21 21l-4.35-4.35"></path>
+				</svg>
+			</span>
+			<input
+				class="block w-full border border-gray-200 rounded-lg bg-gray-50 pl-[30px] pr-3 py-1.5 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-violet-400/60 focus:bg-white focus:ring-2 focus:ring-violet-300/20 transition-all"
+				type="text"
+				name="name"
+				id="name-input"
+				hx-preserve="true"
+				placeholder="Buscar por nome…"
+			/>
 		</div>
-	</div>
+		<div class="w-36">
+			<input
+				class="block w-full border border-gray-200 rounded-lg bg-gray-50 px-3 py-1.5 font-mono text-xs tracking-widest uppercase text-gray-700 placeholder:text-gray-400 placeholder:tracking-normal focus:outline-none focus:border-violet-400/60 focus:bg-white focus:ring-2 focus:ring-violet-300/20 transition-all"
+				type="text"
+				name="sku"
+				id="sku-input"
+				hx-preserve="true"
+				placeholder="SKU…"
+			/>
+		</div>
+		<button
+			type="submit"
+			class="shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-primary text-primary-content text-sm font-semibold hover:brightness-95 active:scale-[.97] transition-all cursor-pointer"
+		>
+			Buscar
+		</button>
+	</form>
 }
 
 templ Pagination(current, total int) {
-	<div class="flex justify-center items-center gap-2 mt-6">
-		<button
-			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-			if current <= 1 {
-				disabled="true"
+	if total > 1 {
+		<div class="flex items-center justify-center gap-1 pt-1 pb-3">
+			<button
+				class="cat-pgbtn"
+				if current <= 1 {
+					disabled="true"
+				}
+				hx-get={ fmt.Sprintf("/admin/produtos?page=%d", current-1) }
+				hx-target="#main-content"
+				hx-include="#filter-form"
+				hx-swap="innerHTML"
+			>←</button>
+			for i := 1; i <= total; i++ {
+				if i == 1 || i == total || (i >= current-2 && i <= current+2) {
+					<button
+						if i == current {
+							class="cat-pgbtn cat-pgbtn--active"
+						} else {
+							class="cat-pgbtn"
+						}
+						hx-get={ fmt.Sprintf("/admin/produtos/?page=%d", i) }
+						hx-target="#main-content"
+						hx-include="#filter-form"
+						hx-push-url="true"
+						hx-swap="innerHTML"
+					>{ strconv.Itoa(i) }</button>
+				} else if i == current-3 || i == current+3 {
+					<span class="px-0.5 text-gray-300 text-xs select-none">·</span>
+				}
 			}
-			hx-get={ fmt.Sprintf("/admin/produtos?page=%d", current-1) }
-			hx-target="#main-content"
-			hx-include="#filter-form"
-			hx-vals={ fmt.Sprintf("page: %d", current-1) }
-			hx-swap="innerHTML"
-		>
-			« Anterior
-		</button>
-		for i := 1; i <= total; i++ {
-			if i == 1 || i == total || (i >= current-2 && i <= current+2) {
-				<button
-					if i == current {
-						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-gray-100 border border-gray-300 px-3 py-1.5 text-sm"
-					} else {
-						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 text-sm"
-					}
-					hx-get={ fmt.Sprintf("/admin/produtos/?page=%d", i) }
-					hx-target="#main-content"
-					hx-include="#filter-form"
-					hx-vals={ fmt.Sprintf("page: %d", i) }
-					hx-push-url="true"
-					hx-swap="innerHTML"
-				>
-					{ strconv.Itoa(i) }
-				</button>
-			} else if i == current-3 || i == current+3 {
-				<span class="px-2">…</span>
-			}
-		}
-		<button
-			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-			if current >= total {
-				disabled="true"
-			}
-			hx-get={ fmt.Sprintf("/admin/produtos?page=%d", current+1) }
-			hx-push-url="true"
-			hx-target="#main-content"
-			hx-include="#filter-form"
-			hx-vals={ fmt.Sprintf("page: %d", current+1) }
-			hx-swap="innerHTML"
-		>
-			Próximo »
-		</button>
-	</div>
+			<button
+				class="cat-pgbtn"
+				if current >= total {
+					disabled="true"
+				}
+				hx-get={ fmt.Sprintf("/admin/produtos?page=%d", current+1) }
+				hx-push-url="true"
+				hx-target="#main-content"
+				hx-include="#filter-form"
+				hx-swap="innerHTML"
+			>→</button>
+		</div>
+	}
 }
 
 templ ProductTableBody(products []store.Product) {
-	<tbody id="product-data">
+	<div id="product-data" class="flex flex-col gap-[5px]">
 		if len(products) == 0 {
-			<tr>
-				<td colspan="5" class="text-center text-gray-400 py-8 px-4">
-					Nenhum produto encontrado.
-				</td>
-			</tr>
+			<div class="cat-empty">
+				<svg class="cat-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+					<path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+				</svg>
+				<p class="cat-empty-title">Nenhum produto encontrado</p>
+				<p class="cat-empty-sub">Ajuste os filtros ou cadastre um novo produto</p>
+			</div>
 		}
 		for _, p := range products {
-			<tr class="hover:bg-gray-50">
-				<td class="px-4 py-3 font-mono text-sm text-gray-500">{ p.SKU }</td>
-				<td class="px-4 py-3 font-medium">{ p.Name }</td>
-				<td class="px-4 py-3">
-					if p.Status {
-						<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-green-100 text-green-800">Ativo</span>
-					} else {
-						<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-gray-100 text-gray-700">Inativo</span>
-					}
-				</td>
-				<td class="px-4 py-3">
-					<a
-						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs"
-						hx-push-url="true"
-						hx-target="#main-content"
-						href={ templ.SafeURL(fmt.Sprintf("/admin/produtos/%v", p.ID)) }
-					>
-						Editar
-					</a>
-				</td>
-			</tr>
+			<a
+				class="cat-row"
+				href={ templ.SafeURL(fmt.Sprintf("/admin/produtos/%v", p.ID)) }
+				hx-get={ fmt.Sprintf("/admin/produtos/%v", p.ID) }
+				hx-target="#main-content"
+				hx-push-url="true"
+			>
+				<span class="cat-sku">{ p.SKU }</span>
+				<span class="cat-name">{ p.Name }</span>
+				if p.Status {
+					<span class="cat-status cat-status--active">
+						<span class="cat-status-dot cat-status-dot--active"></span>
+						Ativo
+					</span>
+				} else {
+					<span class="cat-status cat-status--inactive">
+						<span class="cat-status-dot cat-status-dot--inactive"></span>
+						Inativo
+					</span>
+				}
+				<span class="cat-edit-btn">
+					Editar
+					<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M5 12h14M12 5l7 7-7 7"></path>
+					</svg>
+				</span>
+			</a>
 		}
-	</tbody>
+	</div>
 }
 
 templ ProductsPage(params store.GetProductPageParams) {
-	<div class="space-y-6">
-		<div class="flex items-center justify-between">
+	<style>
+		.cat-title {
+			font-family: 'Syne', sans-serif;
+			font-size: 1.9rem;
+			font-weight: 800;
+			line-height: 1;
+			letter-spacing: -.03em;
+			color: #1C1C2E;
+		}
+		.cat-row {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			padding: 13px 18px 13px 20px;
+			background: white;
+			border: 1px solid #E5E7EB;
+			border-radius: 11px;
+			position: relative;
+			overflow: hidden;
+			text-decoration: none;
+			color: inherit;
+			cursor: pointer;
+			transition: border-color .18s, box-shadow .18s, transform .13s;
+			opacity: 0;
+			animation: catRowIn .3s ease forwards;
+		}
+		.cat-row::before {
+			content: '';
+			position: absolute;
+			left: 0; top: 8px; bottom: 8px;
+			width: 3px;
+			background: #7C3AED;
+			border-radius: 0 2px 2px 0;
+			transform: scaleY(0);
+			transform-origin: center;
+			transition: transform .2s ease;
+		}
+		.cat-row:hover::before { transform: scaleY(1); }
+		.cat-row:hover {
+			border-color: #C4B5FD;
+			box-shadow: 0 3px 14px rgba(124,58,237,.07);
+			transform: translateY(-1px);
+		}
+		.cat-row:nth-child(1)  { animation-delay:   0ms }
+		.cat-row:nth-child(2)  { animation-delay:  42ms }
+		.cat-row:nth-child(3)  { animation-delay:  84ms }
+		.cat-row:nth-child(4)  { animation-delay: 126ms }
+		.cat-row:nth-child(5)  { animation-delay: 168ms }
+		.cat-row:nth-child(6)  { animation-delay: 210ms }
+		.cat-row:nth-child(7)  { animation-delay: 252ms }
+		.cat-row:nth-child(8)  { animation-delay: 294ms }
+		.cat-row:nth-child(9)  { animation-delay: 336ms }
+		.cat-row:nth-child(10) { animation-delay: 378ms }
+		@keyframes catRowIn {
+			from { opacity: 0; transform: translateY(7px) }
+			to   { opacity: 1; transform: translateY(0)   }
+		}
+		.cat-sku {
+			font-family: 'JetBrains Mono', monospace;
+			font-size: .695rem;
+			font-weight: 500;
+			color: #6B7280;
+			background: #F3F4F6;
+			padding: 3px 9px;
+			border-radius: 5px;
+			white-space: nowrap;
+			min-width: 78px;
+			text-align: center;
+			flex-shrink: 0;
+		}
+		.cat-name {
+			flex: 1;
+			font-size: .875rem;
+			font-weight: 500;
+			color: #1C1C2E;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		.cat-status {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			font-size: .75rem;
+			font-weight: 500;
+			white-space: nowrap;
+			flex-shrink: 0;
+		}
+		.cat-status-dot {
+			width: 6px; height: 6px;
+			border-radius: 50%;
+			flex-shrink: 0;
+		}
+		.cat-status--active            { color: #15803D }
+		.cat-status-dot--active        { background: #22C55E; box-shadow: 0 0 0 2.5px #DCFCE7 }
+		.cat-status--inactive          { color: #9CA3AF }
+		.cat-status-dot--inactive      { background: #D1D5DB }
+		.cat-edit-btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			padding: 4px 12px;
+			border-radius: 7px;
+			font-size: .75rem;
+			font-weight: 600;
+			color: #6B21A8;
+			background: #F5F3FF;
+			border: 1px solid #DDD6FE;
+			transition: background .14s, color .14s, border-color .14s;
+			white-space: nowrap;
+			flex-shrink: 0;
+		}
+		.cat-row:hover .cat-edit-btn {
+			background: #7C3AED;
+			color: white;
+			border-color: #7C3AED;
+		}
+		.cat-empty {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 56px 32px;
+			background: white;
+			border: 1.5px dashed #E5E7EB;
+			border-radius: 12px;
+			gap: 10px;
+		}
+		.cat-empty-icon  { width: 36px; height: 36px; color: #D1D5DB }
+		.cat-empty-title { font-size: .875rem; font-weight: 600; color: #9CA3AF }
+		.cat-empty-sub   { font-size: .75rem; color: #D1D5DB }
+		.cat-pgbtn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 32px;
+			height: 32px;
+			padding: 0 10px;
+			border-radius: 8px;
+			font-size: .8125rem;
+			font-weight: 500;
+			border: 1px solid #E5E7EB;
+			background: white;
+			color: #555570;
+			cursor: pointer;
+			transition: all .14s;
+		}
+		.cat-pgbtn:not([disabled]):hover { border-color: #A78BFA; color: #6B21A8 }
+		.cat-pgbtn--active { background: #7C3AED; border-color: #7C3AED; color: white; font-weight: 600 }
+		.cat-pgbtn[disabled] { opacity: .35; cursor: not-allowed }
+	</style>
+	<div class="space-y-4">
+		<div class="flex items-end justify-between pt-1">
 			<div>
-				<h1 class="text-2xl font-bold">Produtos</h1>
-				<p class="text-gray-400 text-sm mt-0.5">Gerencie o catálogo de produtos do tenant.</p>
+				<h1 class="cat-title">Produtos</h1>
+				<p class="text-xs text-gray-400 mt-1.5">
+					{ strconv.Itoa(len(params.Products)) } resultado(s) · página { strconv.Itoa(params.Page) }
+				</p>
 			</div>
 			<button
 				hx-get="/admin/produtos/novo"
 				hx-target="#main-content"
 				hx-push-url="true"
-				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm"
+				class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-content text-sm font-semibold hover:brightness-95 active:scale-[.97] transition-all cursor-pointer"
 			>
-				+ Novo Produto
+				<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M12 5v14M5 12h14"></path>
+				</svg>
+				Novo Produto
 			</button>
 		</div>
-		@Filter()
-		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
-			<div class="p-0">
-				<div class="overflow-x-auto">
-					<table class="w-full text-sm text-left">
-						<thead>
-							<tr>
-								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">SKU</th>
-								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Nome</th>
-								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Status</th>
-								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-center">Ações</th>
-							</tr>
-						</thead>
-						@ProductTableBody(params.Products)
-					</table>
-				</div>
-			</div>
+		<div class="bg-white border border-gray-200 rounded-xl px-4 py-3">
+			@Filter()
 		</div>
+		@ProductTableBody(params.Products)
 		@Pagination(params.Page, params.TotalPages)
 	</div>
 }
@@ -316,13 +456,10 @@ templ ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants 
 							})
 						</div>
 					</div>
+					if !isUpdate {
 					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
 					<!-- ESTOQUE & CUSTOS -->
 					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Estoque &amp; Custos</p>
-					if isUpdate && !hasVariations {
-						@HasVariationsToggle(hasVariations)
-					}
-					if !isUpdate {
 						<div class="flex flex-wrap gap-3 mb-4">
 							<div class="basis-[25%] grow">
 								@components.BasicInput(components.BasicInputParams{
@@ -416,412 +553,7 @@ templ ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants 
 			</div>
 		</div>
 		if isUpdate {
-			@VariantsSection(variants, form.Get("ID"))
+			@VariationArea(form.Get("ID"), variants, attrs)
 		}
-	</div>
-}
-
-// ─── ATRIBUTO ───────────────────────────────────────────────────────────────
-templ AttributeSelect(attrs []store.Attribute, formID string) {
-	<select
-		name="attribute_id"
-		form={ formID }
-		class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-64"
-	>
-		<option value="">— Atributo —</option>
-		for _, attr := range attrs {
-			<option value={ strconv.Itoa(int(attr.ID)) }>{ attr.Name }</option>
-		}
-	</select>
-}
-
-templ NewAttributeForm() {
-	<form
-		id="new-attribute-form"
-		class="flex gap-2 items-end"
-		hx-post="/admin/atributos"
-		hx-target="#attributes-section"
-		hx-swap="outerHTML"
-	>
-		<input
-			type="text"
-			name="name"
-			class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-48"
-			placeholder="Ex: Cor, Tamanho..."
-			required
-			autofocus
-		/>
-		<button
-			type="submit"
-			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm"
-		>
-			Criar
-		</button>
-		<button
-			type="button"
-			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
-			hx-get="/admin/atributos/form/cancel"
-			hx-target="#new-attribute-form"
-			hx-swap="outerHTML"
-		>
-			Cancelar
-		</button>
-	</form>
-}
-
-templ AttributesSection(attrs []store.Attribute) {
-	<div id="attributes-section" class="flex flex-col gap-2">
-		<div class="flex gap-2 items-center">
-			@AttributeSelect(attrs, "")
-			<button
-				type="button"
-				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-dashed border-gray-300 text-gray-500 bg-transparent hover:bg-gray-50 px-3 py-1.5 text-sm"
-				hx-get="/admin/atributos/form"
-				hx-target="#attributes-section"
-				hx-swap="afterend"
-			>
-				+ Novo atributo
-			</button>
-		</div>
-	</div>
-}
-
-// ─── VARIAÇÃO ───────────────────────────────────────────────────────────────
-templ HasVariationsToggle(hasVariations bool) {
-	<div class="flex items-center justify-between py-3 border-b border-gray-100 mb-5">
-		<div>
-			<p class="text-sm font-medium">Produto com variações</p>
-			<p class="text-xs text-gray-400 mt-0.5">Cor, tamanho, material, etc.</p>
-		</div>
-		<button
-			type="button"
-			class={ "relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors cursor-pointer " + func() string {
-				if hasVariations {
-					return "bg-primary"
-				}
-				return "bg-gray-300"
-			}() }
-			hx-post="/admin/produtos/toggle-variacoes"
-			hx-target="#form"
-			hx-swap="outerHTML"
-			hx-include="closest form"
-		>
-			<span
-				class={ "inline-block h-3 w-3 transform rounded-full bg-white transition-transform shadow " + func() string {
-					if hasVariations {
-						return "translate-x-5"
-					}
-					return "translate-x-1"
-				}() }
-			></span>
-		</button>
-	</div>
-}
-
-templ VariationBuilderSection(attrs []store.Attribute) {
-	<div id="variation-builder" class="mb-4">
-		@AttributesSection(attrs)
-		<div class="mt-4" id="variation-combos">
-			<p class="text-sm text-gray-400 italic">Nenhuma variação definida.</p>
-		</div>
-	</div>
-}
-
-templ VariantCombosTable(combos [][]string) {
-	<div id="variation-combos" class="overflow-x-auto rounded border border-gray-100 mt-4">
-		if len(combos) == 0 {
-			<p class="text-sm text-gray-400 italic p-4">Nenhuma combinação gerada.</p>
-		} else {
-			<table class="w-full text-sm text-left">
-				<thead class="bg-gray-100/50">
-					<tr>
-						<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">Combinação</th>
-						<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200"><span class="text-primary">*</span> Preço (R$)</th>
-						<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200"><span class="text-primary">*</span> Estoque</th>
-						<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">SKU</th>
-						<th class="px-3 py-2 text-xs font-semibold text-gray-700 border-b border-gray-200">GTIN (EAN)</th>
-					</tr>
-				</thead>
-				<tbody>
-					for ci, combo := range combos {
-						<tr class="hover:bg-gray-50">
-							<td class="px-3 py-2">
-								for i, val := range combo {
-									if i > 0 {
-										<span class="text-gray-400 mx-1">/</span>
-									}
-									<span class="text-sm">{ val }</span>
-								}
-							</td>
-							<td class="px-3 py-2">
-								<input
-									type="number"
-									name={ fmt.Sprintf("combo[%d][price]", ci) }
-									class="block border border-gray-300 rounded bg-white px-2 py-1 text-xs focus:outline-none w-24"
-									placeholder="0,00"
-									step="0.01"
-									min="0"
-								/>
-							</td>
-							<td class="px-3 py-2">
-								<input
-									type="number"
-									name={ fmt.Sprintf("combo[%d][stock]", ci) }
-									class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-16"
-									placeholder="0"
-									min="0"
-								/>
-							</td>
-							<td class="px-3 py-2">
-								<input
-									type="text"
-									name={ fmt.Sprintf("combo[%d][sku]", ci) }
-									class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-24"
-									placeholder="SKU-001"
-								/>
-							</td>
-							<td class="px-3 py-2">
-								<input
-									type="text"
-									name={ fmt.Sprintf("combo[%d][gtin]", ci) }
-									class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-28"
-									placeholder="0000000000000"
-								/>
-							</td>
-						</tr>
-					}
-				</tbody>
-			</table>
-		}
-	</div>
-}
-
-templ VariantsSection(variants []store.Variant, productID string) {
-	<div id="variants-section">
-		<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Variações</h2>
-		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
-			<div class="p-0">
-				<div class="overflow-x-auto">
-					<table class="w-full text-sm text-left">
-						<thead>
-							<tr>
-								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">SKU</th>
-								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Atributos</th>
-								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Preço de Custo (R$)</th>
-								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Estoque Atual</th>
-								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200">Estoque Mínimo</th>
-								<th class="px-4 py-2 font-semibold text-gray-700 border-b border-gray-200"></th>
-							</tr>
-						</thead>
-						<tbody>
-							if len(variants) == 0 {
-								<tr>
-									<td colspan="6" class="text-center text-gray-400 py-4 px-4">
-										Nenhuma variação cadastrada.
-									</td>
-								</tr>
-							}
-							for _, v := range variants {
-								@VariantRow(v, productID)
-							}
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-		@NewVariantTrigger(productID)
-	</div>
-}
-
-templ VariantRow(v store.Variant, productID string) {
-	<tr id={ fmt.Sprintf("variant-row-%v", v.ID) } class="hover:bg-gray-50">
-		<td class="px-4 py-2 font-mono text-sm">{ v.SKU }</td>
-		<td class="px-4 py-2">
-			<div class="flex flex-wrap gap-1">
-				for _, va := range v.Attributes {
-					<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-gray-100 text-gray-700">
-						{ va.AttributeValue.Attribute.Name }: { va.AttributeValue.Value }
-					</span>
-				}
-			</div>
-		</td>
-		<td class="px-4 py-2">{ fmt.Sprintf("%.2f", v.CostPrice) }</td>
-		<td class="px-4 py-2">{ strconv.Itoa(v.CurrentStock) }</td>
-		<td class="px-4 py-2">{ strconv.Itoa(v.MinimumStock) }</td>
-		<td class="px-4 py-2 text-right">
-			<button
-				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs"
-				hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/%v/edit", productID, v.ID) }
-				hx-target={ fmt.Sprintf("#variant-row-%v", v.ID) }
-				hx-swap="outerHTML"
-			>
-				Editar
-			</button>
-		</td>
-	</tr>
-}
-
-templ VariantEditRow(v store.Variant, productID string) {
-	<tr id={ fmt.Sprintf("variant-row-%v", v.ID) } class="bg-gray-100/40">
-		<td class="px-4 py-2 font-mono text-sm">{ v.SKU }</td>
-		<td class="px-4 py-2">
-			<input
-				type="number"
-				name="cost_price"
-				form={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
-				class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-24"
-				value={ fmt.Sprintf("%.2f", v.CostPrice) }
-				step="0.01"
-				min="0"
-			/>
-		</td>
-		<td class="px-4 py-2">
-			<input
-				type="number"
-				name="current_stock"
-				form={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
-				class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-20"
-				value={ strconv.Itoa(v.CurrentStock) }
-				min="0"
-			/>
-		</td>
-		<td class="px-4 py-2">
-			<input
-				type="number"
-				name="minimum_stock"
-				form={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
-				class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none w-20"
-				value={ strconv.Itoa(v.MinimumStock) }
-				min="0"
-			/>
-		</td>
-		<td class="px-4 py-2 text-right">
-			<form
-				id={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
-				hx-post={ fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID) }
-				hx-target={ fmt.Sprintf("#variant-row-%v", v.ID) }
-				hx-swap="outerHTML"
-			></form>
-			<div class="flex justify-end gap-1">
-				<button
-					type="button"
-					class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs"
-					hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID) }
-					hx-target={ fmt.Sprintf("#variant-row-%v", v.ID) }
-					hx-swap="outerHTML"
-				>
-					Cancelar
-				</button>
-				<button
-					type="submit"
-					form={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
-					class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-2 py-1 text-xs"
-				>
-					Salvar
-				</button>
-			</div>
-		</td>
-	</tr>
-}
-
-templ NewVariantForm(productID string, attrs []store.Attribute) {
-	<div id="new-variant-form" class="bg-white shadow-sm border border-gray-200 rounded-xl mt-3">
-		<div class="p-6">
-			<h3 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Nova Variação</h3>
-			<form
-				hx-post={ fmt.Sprintf("/admin/produtos/%s/variants", productID) }
-				hx-target="#variants-section"
-				hx-swap="outerHTML"
-				class="space-y-4"
-			>
-				<div class="flex flex-wrap gap-4">
-					<div class="basis-[20%] grow">
-						@components.BasicInput(components.BasicInputParams{
-							Name:        "sku",
-							Label:       "SKU",
-							InputType:   "text",
-							Placeholder: "SKU-01",
-							IsRequired:  true,
-						})
-					</div>
-					<div class="basis-[20%] grow">
-						@components.BasicInput(components.BasicInputParams{
-							Name:        "cost_price",
-							Label:       "Preço de Custo (R$)",
-							InputType:   "number",
-							Placeholder: "0.00",
-							Step:        "0.01",
-						})
-					</div>
-					<div class="basis-[20%] grow">
-						@components.BasicInput(components.BasicInputParams{
-							Name:        "current_stock",
-							Label:       "Estoque Atual",
-							InputType:   "number",
-							Placeholder: "0",
-						})
-					</div>
-					<div class="basis-[20%] grow">
-						@components.BasicInput(components.BasicInputParams{
-							Name:        "minimum_stock",
-							Label:       "Estoque Mínimo",
-							InputType:   "number",
-							Placeholder: "0",
-						})
-					</div>
-				</div>
-				if len(attrs) > 0 {
-					<div class="space-y-3">
-						<p class="text-sm font-medium">Atributos</p>
-						<div class="flex flex-wrap gap-4">
-							for _, attr := range attrs {
-								<div class="basis-[20%] grow">
-									<label class="flex items-center gap-2 py-1">
-										<span class="text-sm font-medium">{ attr.Name }</span>
-									</label>
-									<select
-										name="attribute_value_ids"
-										class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-									>
-										<option value="">— Selecionar —</option>
-										for _, val := range attr.Values {
-											<option value={ strconv.Itoa(int(val.ID)) }>{ val.Value }</option>
-										}
-									</select>
-								</div>
-							}
-						</div>
-					</div>
-				}
-				<div class="flex justify-end gap-3">
-					<button
-						type="button"
-						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
-						hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/form/cancel", productID) }
-						hx-target="#new-variant-form"
-						hx-swap="outerHTML"
-					>
-						Cancelar
-					</button>
-					<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
-						Salvar Variação
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
-}
-
-templ NewVariantTrigger(productID string) {
-	<div id="new-variant-form">
-		<button
-			type="button"
-			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-content px-3 py-1.5 text-sm mt-3"
-			hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/form", productID) }
-			hx-target="#new-variant-form"
-			hx-swap="outerHTML"
-		>
-			+ Nova Variação
-		</button>
 	</div>
 }

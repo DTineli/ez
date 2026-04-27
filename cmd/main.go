@@ -191,10 +191,13 @@ func registerAdminRoutes(
 				r.Post("/{id}", product.UpdateProduct)
 				r.Delete("/{id}", product.DeleteProduct)
 
-				r.Route("/{id}/variants", func(r chi.Router) {
+				r.Post("/{id}/variacoes", product.PostSyncVariations)
+
+			r.Route("/{id}/variants", func(r chi.Router) {
 					r.Get("/form", product.GetVariantForm)
 					r.Get("/form/cancel", product.CancelVariantForm)
 					r.Post("/", product.PostVariant)
+					r.Post("/bulk", product.BulkUpdateVariants)
 					r.Get("/{variantID}", product.GetVariantRow)
 					r.Get("/{variantID}/edit", product.GetEditVariantRow)
 					r.Post("/{variantID}", product.UpdateVariant)
@@ -207,6 +210,8 @@ func registerAdminRoutes(
 
 			r.Route("/atributos", func(r chi.Router) {
 				r.Post("/", product.PostNewAttribute)
+				r.Get("/form", product.GetAttributeForm)
+				r.Get("/form/cancel", product.CancelAttributeForm)
 				r.Post("/{id}/values", product.PostAddValue)
 				// r.Get("/", attribute.GetAttributes)
 				// r.Delete("/{id}", attribute.DeleteAttribute)
