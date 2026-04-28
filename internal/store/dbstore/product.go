@@ -2,6 +2,7 @@ package dbstore
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/DTineli/ez/internal/store"
 	"gorm.io/gorm"
@@ -261,6 +262,7 @@ func (p *ProductStore) CreateAttributeValue(val *store.AttributeValue) error {
 
 func (p *ProductStore) FindOrCreateAttribute(name string, tenantID uint) (*store.Attribute, error) {
 	var attr store.Attribute
+	name = strings.ToLower(strings.TrimSpace(name))
 	result := p.db.Where(store.Attribute{Name: name, TenantID: tenantID}).FirstOrCreate(&attr)
 	return &attr, result.Error
 }

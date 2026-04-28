@@ -139,14 +139,25 @@ templ VariantRow(v store.Variant, productID string) {
 		<td class="px-4 py-2.5 text-sm">{ strconv.Itoa(v.CurrentStock) }</td>
 		<td class="px-4 py-2.5 text-sm text-gray-500">{ strconv.Itoa(v.MinimumStock) }</td>
 		<td class="px-4 py-2.5 text-right">
-			<button
-				class="inline-flex items-center justify-center gap-1.5 cursor-pointer font-medium rounded-field transition-all text-xs px-2.5 py-1 text-primary border border-primary/30 bg-primary/5 hover:bg-primary hover:text-primary-content"
-				hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/%v/edit", productID, v.ID) }
-				hx-target={ fmt.Sprintf("#variant-row-%v", v.ID) }
-				hx-swap="outerHTML"
-			>
-				Editar
-			</button>
+			<div class="flex items-center justify-end gap-2">
+				<button
+					class="inline-flex items-center justify-center gap-1.5 cursor-pointer font-medium rounded-field transition-all text-xs px-2.5 py-1 text-primary border border-primary/30 bg-primary/5 hover:bg-primary hover:text-primary-content"
+					hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/%v/edit", productID, v.ID) }
+					hx-target={ fmt.Sprintf("#variant-row-%v", v.ID) }
+					hx-swap="outerHTML"
+				>
+					Editar
+				</button>
+				<button
+					class="inline-flex items-center justify-center gap-1.5 cursor-pointer font-medium rounded-field transition-all text-xs px-2.5 py-1 text-error border border-error/30 bg-error/5 hover:bg-error hover:text-error-content"
+					hx-delete={ fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID) }
+					hx-target={ fmt.Sprintf("#variant-row-%v", v.ID) }
+					hx-swap="outerHTML swap:300ms"
+					hx-confirm="Desativar esta variação?"
+				>
+					Excluir
+				</button>
+			</div>
 		</td>
 	</tr>
 }
