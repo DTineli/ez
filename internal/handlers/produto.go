@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/DTineli/ez/internal/forms"
 	m "github.com/DTineli/ez/internal/middleware"
@@ -230,6 +231,8 @@ func (p *ProductHandler) PostAddValue(w http.ResponseWriter, r *http.Request) {
 		AttributeID: uint(attributeID),
 	}
 
+	fromPage := r.FormValue("ctx") == "page"
+
 	if err := p.productStore.CreateAttributeValue(av); err != nil {
 		if isDuplicateError(err) {
 			ShowToast(w, "Valor já cadastrado neste atributo", "error")
@@ -237,13 +240,21 @@ func (p *ProductHandler) PostAddValue(w http.ResponseWriter, r *http.Request) {
 			ShowToast(w, "Erro ao cadastrar valor", "error")
 		}
 		attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
-		Render(templates.AttributesSection(attrs), r, w)
+		if fromPage {
+			Render(templates.AttributesPage(attrs), r, w)
+		} else {
+			Render(templates.AttributesSection(attrs), r, w)
+		}
 		return
 	}
 
 	ShowToast(w, "Valor cadastrado", "success")
 	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
-	Render(templates.AttributesSection(attrs), r, w)
+	if fromPage {
+		Render(templates.AttributesPage(attrs), r, w)
+	} else {
+		Render(templates.AttributesSection(attrs), r, w)
+	}
 }
 
 func (p *ProductHandler) GetAttributeForm(w http.ResponseWriter, r *http.Request) {
@@ -272,21 +283,75 @@ func (p *ProductHandler) PostNewAttribute(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+	for _, existing := range attrs {
+		if strings.EqualFold(strings.TrimSpace(existing.Name), strings.TrimSpace(name)) {
+			ShowToast(w, "Este atributo já existe", "error")
+			Render(templates.AttributeManagementSectionWithForm(attrs), r, w)
+			return
+		}
+	}
+
 	attr := &store.Attribute{
 		Name:     name,
 		TenantID: sess.TenantID,
 	}
 
+	fromPage := r.FormValue("ctx") == "page"
+
 	if err := p.productStore.CreateAttribute(attr); err != nil {
 		ShowToast(w, "Erro ao cadastrar atributo", "error")
-		attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
-		Render(templates.AttributeManagementSectionWithForm(attrs), r, w)
+		attrs2, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+		if fromPage {
+			Render(templates.AttributesPage(attrs2), r, w)
+		} else {
+			Render(templates.AttributeManagementSectionWithForm(attrs2), r, w)
+		}
 		return
 	}
 
 	ShowToast(w, "Atributo cadastrado", "success")
+	attrs = append(attrs, *attr)
+	if fromPage {
+		Render(templates.AttributesPage(attrs), r, w)
+	} else {
+		Render(templates.AttributeManagementSection(attrs), r, w)
+	}
+}
+
+func (p *ProductHandler) GetAttributesPage(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
 	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
-	Render(templates.AttributeManagementSection(attrs), r, w)
+	Render(templates.AttributesPage(attrs), r, w)
+}
+
+func (p *ProductHandler) DeleteAttribute(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	if err != nil {
+		http.Error(w, "id inválido", http.StatusBadRequest)
+		return
+	}
+
+	inUse, err := p.productStore.AttributeInUse(uint(id), sess.TenantID)
+	if err != nil {
+		ShowToast(w, "Erro ao verificar atributo", "error")
+		return
+	}
+	if inUse {
+		ShowToast(w, "Atributo em uso por variações, não pode ser deletado", "error")
+		return
+	}
+
+	if err := p.productStore.DeleteAttribute(uint(id), sess.TenantID); err != nil {
+		ShowToast(w, "Erro ao deletar atributo", "error")
+		return
+	}
+
+	ShowToast(w, "Atributo deletado", "success")
+	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+	Render(templates.AttributesPage(attrs), r, w)
 }
 
 /*
@@ -299,7 +364,14 @@ func (p *ProductHandler) GetVariantForm(w http.ResponseWriter, r *http.Request) 
 	sess := m.GetSessionFromContext(r)
 	productID := chi.URLParam(r, "id")
 	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
-	Render(templates.NewVariantForm(productID, attrs), r, w)
+
+	productSKU := r.URL.Query().Get("sku")
+	if productSKU == "" {
+		http.Error(w, "sku inválido", http.StatusBadRequest)
+		return
+	}
+
+	Render(templates.NewVariantForm(productID, productSKU, attrs), r, w)
 }
 
 func (p *ProductHandler) CancelVariantForm(w http.ResponseWriter, r *http.Request) {
@@ -379,120 +451,6 @@ func (p *ProductHandler) UpdateVariant(w http.ResponseWriter, r *http.Request) {
 	Render(templates.VariantRow(*variant, chi.URLParam(r, "id")), r, w)
 }
 
-func (p *ProductHandler) PostSyncVariations(w http.ResponseWriter, r *http.Request) {
-	sess := m.GetSessionFromContext(r)
-
-	productID, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
-	if err != nil {
-		http.Error(w, "id inválido", http.StatusBadRequest)
-		return
-	}
-
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "erro ao processar formulário", http.StatusBadRequest)
-		return
-	}
-
-	variations := parseVariations(r.Form)
-	if len(variations) == 0 {
-		ShowToast(w, "Defina ao menos uma variação com opções", "error")
-		variants, _ := p.productStore.FindVariantsByProduct(uint(productID), sess.TenantID)
-		Render(templates.VariantsSection(variants, chi.URLParam(r, "id")), r, w)
-		return
-	}
-
-	type resolvedVar struct {
-		valIDs []uint
-	}
-	resolved := make([]resolvedVar, 0, len(variations))
-
-	for _, v := range variations {
-		attr, err := p.productStore.FindOrCreateAttribute(v.name, sess.TenantID)
-		if err != nil {
-			ShowToast(w, "Erro ao processar atributo: "+v.name, "error")
-			variants, _ := p.productStore.FindVariantsByProduct(uint(productID), sess.TenantID)
-			Render(templates.VariantsSection(variants, chi.URLParam(r, "id")), r, w)
-			return
-		}
-		rv := resolvedVar{}
-		for _, opt := range v.options {
-			if opt.value == "" {
-				continue
-			}
-			av, err := p.productStore.FindOrCreateAttributeValue(opt.value, attr.ID)
-			if err != nil {
-				continue
-			}
-			rv.valIDs = append(rv.valIDs, av.ID)
-		}
-		if len(rv.valIDs) > 0 {
-			resolved = append(resolved, rv)
-		}
-	}
-
-	sets := make([][]uint, len(resolved))
-	for i, rv := range resolved {
-		sets[i] = rv.valIDs
-	}
-	combos := cartesianProductIDs(sets)
-
-	comboInputs := parseComboInputs(r.Form, len(combos))
-
-	existingVariants, _ := p.productStore.FindVariantsByProduct(uint(productID), sess.TenantID)
-
-	if defaultVariant, err := p.productStore.FindDefaultVariant(uint(productID), sess.TenantID); err == nil && defaultVariant != nil {
-		_ = p.productStore.DeleteVariant(defaultVariant.ID, sess.TenantID)
-	}
-
-	seenIDs := make(map[uint]bool)
-
-	for ci, combo := range combos {
-		var found *store.Variant
-		for i := range existingVariants {
-			if variantHasExactAttributes(existingVariants[i], combo) {
-				found = &existingVariants[i]
-				break
-			}
-		}
-		if found != nil {
-			seenIDs[found.ID] = true
-			continue
-		}
-
-		input := comboInputs[ci]
-		sku := input.sku
-		if sku == "" {
-			sku = fmt.Sprintf("%s-V%d", chi.URLParam(r, "id"), ci+1)
-		}
-		newVariant := &store.Variant{
-			SKU:          sku,
-			CostPrice:    input.price,
-			CurrentStock: input.stock,
-			ProductID:    uint(productID),
-			TenantID:     sess.TenantID,
-		}
-		if err := p.productStore.CreateVariant(newVariant); err != nil {
-			continue
-		}
-		if err := p.productStore.SetVariantAttributes(newVariant.ID, combo); err != nil {
-			_ = p.productStore.DeleteVariant(newVariant.ID, sess.TenantID)
-			continue
-		}
-		seenIDs[newVariant.ID] = true
-	}
-
-	for _, v := range existingVariants {
-		if !seenIDs[v.ID] && !v.IsDefault {
-			_ = p.productStore.DeleteVariant(v.ID, sess.TenantID)
-		}
-	}
-
-	ShowToast(w, "Variações sincronizadas", "success")
-	variants, _ := p.productStore.FindVariantsByProduct(uint(productID), sess.TenantID)
-	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
-	Render(templates.VariationArea(chi.URLParam(r, "id"), variants, attrs), r, w)
-}
-
 func (p *ProductHandler) BulkUpdateVariants(w http.ResponseWriter, r *http.Request) {
 	sess := m.GetSessionFromContext(r)
 
@@ -508,9 +466,10 @@ func (p *ProductHandler) BulkUpdateVariants(w http.ResponseWriter, r *http.Reque
 	}
 
 	addStockStr := r.FormValue("add_stock")
+	setMinStockStr := r.FormValue("add_min_stock")
 	setPriceStr := r.FormValue("set_price")
 
-	if addStockStr == "" && setPriceStr == "" {
+	if addStockStr == "" && setPriceStr == "" && setMinStockStr == "" {
 		variants, _ := p.productStore.FindVariantsByProduct(uint(productID), sess.TenantID)
 		Render(templates.VariantsSection(variants, chi.URLParam(r, "id")), r, w)
 		return
@@ -522,16 +481,21 @@ func (p *ProductHandler) BulkUpdateVariants(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	addStock, _ := strconv.Atoi(addStockStr)
+	setStock, _ := strconv.Atoi(addStockStr)
+	setMinStock, _ := strconv.Atoi(setMinStockStr)
 	setPrice, _ := strconv.ParseFloat(setPriceStr, 64)
 
 	for _, v := range variants {
 		fields := map[string]any{}
 		if addStockStr != "" {
-			fields["current_stock"] = v.CurrentStock + addStock
+			fields["current_stock"] = setStock
 		}
 		if setPriceStr != "" {
 			fields["cost_price"] = setPrice
+		}
+
+		if setMinStockStr != "" {
+			fields["minimum_stock"] = setMinStock
 		}
 		if len(fields) > 0 {
 			_ = p.productStore.UpdateVariantFields(v.ID, sess.TenantID, fields)
@@ -582,17 +546,36 @@ func (p *ProductHandler) PostVariant(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var attributeValueIDs []uint
-	for _, raw := range r.Form["attribute_value_ids"] {
-		if id, err := strconv.ParseUint(raw, 10, 64); err == nil {
-			attributeValueIDs = append(attributeValueIDs, uint(id))
+	for key, vals := range r.Form {
+		if !strings.HasPrefix(key, "attr_name_") || len(vals) == 0 || strings.TrimSpace(vals[0]) == "" {
+			continue
 		}
+		idxStr := strings.TrimPrefix(key, "attr_name_")
+		name := strings.TrimSpace(vals[0])
+		value := strings.TrimSpace(r.FormValue("attr_value_" + idxStr))
+		if value == "" {
+			continue
+		}
+		attr, err := p.productStore.FindOrCreateAttribute(name, sess.TenantID)
+		if err != nil {
+			continue
+		}
+		av, err := p.productStore.FindOrCreateAttributeValue(value, attr.ID)
+		if err != nil {
+			continue
+		}
+		attributeValueIDs = append(attributeValueIDs, av.ID)
 	}
 
 	if len(attributeValueIDs) == 0 {
 		_ = p.productStore.DeleteVariant(variant.ID, sess.TenantID)
-		ShowToast(w, "Selecione ao menos um atributo", "error")
+		ShowToast(w, "Informe ao menos um valor de atributo", "error")
 		attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
-		Render(templates.NewVariantForm(chi.URLParam(r, "id"), attrs), r, w)
+		parentSku := ""
+		if prod, err := p.productStore.GetProduct(uint(productID)); err == nil && prod != nil {
+			parentSku = prod.SKU
+		}
+		Render(templates.NewVariantForm(chi.URLParam(r, "id"), parentSku, attrs), r, w)
 		return
 	}
 

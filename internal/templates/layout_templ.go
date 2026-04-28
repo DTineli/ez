@@ -99,6 +99,7 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 			getPage() {
 				const p = window.location.pathname;
 				if (p.startsWith('/admin/produtos')) return 'products';
+				if (p.startsWith('/admin/atributos')) return 'attributes';
 				if (p.startsWith('/admin/pedidos'))  return 'orders';
 				if (p.startsWith('/admin/contacts')) return 'clients';
 				if (p.startsWith('/admin/relatorios')) return 'reports';
@@ -107,12 +108,13 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 			},
 			pageLabel() {
 				const labels = {
-					dashboard: 'Visão Geral',
-					products:  'Produtos',
-					orders:    'Pedidos',
-					clients:   'Clientes',
-					reports:   'Relatórios',
-					config:    'Configurações'
+					dashboard:  'Visão Geral',
+					products:   'Produtos',
+					attributes: 'Atributos',
+					orders:     'Pedidos',
+					clients:    'Clientes',
+					reports:    'Relatórios',
+					config:     'Configurações'
 				};
 				return labels[this.active] || this.active;
 			},
@@ -136,20 +138,20 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(xData)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 78, Col: 39}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 80, Col: 39}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><!-- ═══ SIDEBAR ═══ --><aside class=\"cs-sidebar\" :class=\"{ 'collapsed': collapsed }\"><div class=\"cs-sidebar-logo\"><div class=\"cs-logo-icon\">C</div><div class=\"cs-logo-text\" x-show=\"!collapsed\" x-transition.opacity>Conn<span>Sale</span></div></div><div class=\"cs-sidebar-toggle\" @click=\"collapsed = !collapsed\"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" :style=\"collapsed ? 'transform:rotate(180deg);transition:transform .22s' : 'transition:transform .22s'\"><path d=\"M15 18l-6-6 6-6\"></path></svg></div><nav class=\"cs-sidebar-nav\"><!-- Visão Geral --><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'dashboard' }\" hx-get=\"/admin/\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" @click=\"active = 'dashboard'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Visão Geral</span></a><!-- VENDAS --><div class=\"cs-nav-group-label\">Vendas</div><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'orders' }\" hx-get=\"/admin/pedidos/\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" @click=\"active = 'orders'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2\"></path> <path d=\"M9 5a2 2 0 002 2h2a2 2 0 002-2\"></path> <path d=\"M9 5a2 2 0 012-2h2a2 2 0 012 2\"></path> <path d=\"M9 14l2 2 4-4\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Pedidos</span></a> <a class=\"cs-nav-item\" :class=\"{ 'active': active === 'clients' }\" hx-get=\"/admin/contacts/\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" @click=\"active = 'clients'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2\"></path> <path d=\"M9 11a4 4 0 100-8 4 4 0 000 8z\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Clientes</span></a><!-- CATÁLOGO --><div class=\"cs-nav-group-label\">Catálogo</div><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'products' }\" hx-get=\"/admin/produtos/\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" @click=\"active = 'products'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Produtos</span></a><!-- ANÁLISE --><div class=\"cs-nav-group-label\">Análise</div><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'reports' }\" href=\"#\" @click.prevent=\"active = 'reports'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 20V10M12 20V4M6 20v-6\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Relatórios</span></a><!-- SISTEMA --><div class=\"cs-nav-group-label\">Sistema</div><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'config' }\" href=\"#\" @click.prevent=\"active = 'config'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 15a3 3 0 100-6 3 3 0 000 6z\"></path> <path d=\"M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Configurações</span></a></nav><!-- User --><div class=\"cs-sidebar-user\"><div class=\"cs-user-avatar\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\"><!-- ═══ SIDEBAR ═══ --><aside class=\"cs-sidebar\" :class=\"{ 'collapsed': collapsed }\"><div class=\"cs-sidebar-logo\"><div class=\"cs-logo-icon\">C</div><div class=\"cs-logo-text\" x-show=\"!collapsed\" x-transition.opacity>Conn<span>Sale</span></div></div><div class=\"cs-sidebar-toggle\" @click=\"collapsed = !collapsed\"><svg width=\"11\" height=\"11\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" :style=\"collapsed ? 'transform:rotate(180deg);transition:transform .22s' : 'transition:transform .22s'\"><path d=\"M15 18l-6-6 6-6\"></path></svg></div><nav class=\"cs-sidebar-nav\"><!-- Visão Geral --><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'dashboard' }\" hx-get=\"/admin/\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" @click=\"active = 'dashboard'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Visão Geral</span></a><!-- VENDAS --><div class=\"cs-nav-group-label\">Vendas</div><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'orders' }\" hx-get=\"/admin/pedidos/\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" @click=\"active = 'orders'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2\"></path> <path d=\"M9 5a2 2 0 002 2h2a2 2 0 002-2\"></path> <path d=\"M9 5a2 2 0 012-2h2a2 2 0 012 2\"></path> <path d=\"M9 14l2 2 4-4\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Pedidos</span></a> <a class=\"cs-nav-item\" :class=\"{ 'active': active === 'clients' }\" hx-get=\"/admin/contacts/\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" @click=\"active = 'clients'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2\"></path> <path d=\"M9 11a4 4 0 100-8 4 4 0 000 8z\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Clientes</span></a><!-- CATÁLOGO --><div class=\"cs-nav-group-label\">Catálogo</div><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'products' }\" hx-get=\"/admin/produtos/\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" @click=\"active = 'products'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Produtos</span></a> <a class=\"cs-nav-item\" :class=\"{ 'active': active === 'attributes' }\" hx-get=\"/admin/atributos\" hx-target=\"#main-content\" hx-push-url=\"true\" hx-swap=\"innerHTML\" @click=\"active = 'attributes'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M7 7h.01M7 12h.01M7 17h.01M11 7h6M11 12h6M11 17h6\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Atributos</span></a><!-- ANÁLISE --><div class=\"cs-nav-group-label\">Análise</div><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'reports' }\" href=\"#\" @click.prevent=\"active = 'reports'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 20V10M12 20V4M6 20v-6\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Relatórios</span></a><!-- SISTEMA --><div class=\"cs-nav-group-label\">Sistema</div><a class=\"cs-nav-item\" :class=\"{ 'active': active === 'config' }\" href=\"#\" @click.prevent=\"active = 'config'\"><span class=\"cs-nav-item-icon\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 15a3 3 0 100-6 3 3 0 000 6z\"></path> <path d=\"M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z\"></path></svg></span> <span class=\"cs-nav-item-label\" x-show=\"!collapsed\">Configurações</span></a></nav><!-- User --><div class=\"cs-sidebar-user\"><div class=\"cs-user-avatar\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(initials)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 210, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 228, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -162,7 +164,7 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(email)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 212, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 230, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -175,7 +177,7 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(initials)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 240, Col: 47}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 258, Col: 47}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -188,7 +190,7 @@ func Layout(contents templ.Component, title string, loggedIn bool, email string)
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(email)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 242, Col: 48}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/layout.templ`, Line: 260, Col: 48}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {

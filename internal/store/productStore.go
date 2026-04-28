@@ -167,6 +167,7 @@ type ProductStore interface {
 	GetAttribute(id uint, tenantID uint) (*Attribute, error)
 	FindAttributesByTenant(tenantID uint) ([]Attribute, error)
 	DeleteAttribute(id uint, tenantID uint) error
+	AttributeInUse(id uint, tenantID uint) (bool, error)
 	CreateAttributeValue(*AttributeValue) error
 	DeleteAttributeValue(id uint, tenantID uint) error
 	FindOrCreateAttribute(name string, tenantID uint) (*Attribute, error)

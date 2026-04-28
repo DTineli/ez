@@ -126,6 +126,9 @@ func (s *mockProductStore) DeleteAttribute(id, tenantID uint) error {
 	}
 	return nil
 }
+func (s *mockProductStore) AttributeInUse(id, tenantID uint) (bool, error) {
+	return false, nil
+}
 func (s *mockProductStore) CreateAttributeValue(v *store.AttributeValue) error {
 	if s.createAttributeValue != nil {
 		return s.createAttributeValue(v)
@@ -485,11 +488,11 @@ func TestPostVariant_Sucesso(t *testing.T) {
 	h := NewProductHandler(ps, &mockPriceTableStore{})
 
 	body := url.Values{
-		"sku":                 {"VAR-01"},
-		"cost_price":          {"19.90"},
-		"current_stock":       {"5"},
-		"minimum_stock":       {"1"},
-		"attribute_value_ids": {"1"},
+		"sku":           {"VAR-01"},
+		"cost_price":    {"19.90"},
+		"current_stock": {"5"},
+		"minimum_stock": {"1"},
+		"attr_typed_1":  {"Vermelho"},
 	}
 	r := httptest.NewRequest(http.MethodPost, "/admin/produtos/1/variants", strings.NewReader(body.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")

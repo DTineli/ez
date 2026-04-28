@@ -242,6 +242,19 @@ func (p *ProductStore) DeleteAttribute(id uint, tenantID uint) error {
 	return nil
 }
 
+func (p *ProductStore) AttributeInUse(id uint, tenantID uint) (bool, error) {
+	var count int64
+	err := p.db.Model(&store.VariantAttribute{}).
+		Joins("JOIN attribute_values ON variant_attributes.attribute_value_id = attribute_values.id").
+		Joins("JOIN attributes ON attribute_values.attribute_id = attributes.id").
+		Where("attributes.id = ? AND attributes.tenant_id = ?", id, tenantID).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 func (p *ProductStore) CreateAttributeValue(val *store.AttributeValue) error {
 	return p.db.Create(val).Error
 }

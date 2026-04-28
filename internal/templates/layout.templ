@@ -49,6 +49,7 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 			getPage() {
 				const p = window.location.pathname;
 				if (p.startsWith('/admin/produtos')) return 'products';
+				if (p.startsWith('/admin/atributos')) return 'attributes';
 				if (p.startsWith('/admin/pedidos'))  return 'orders';
 				if (p.startsWith('/admin/contacts')) return 'clients';
 				if (p.startsWith('/admin/relatorios')) return 'reports';
@@ -57,12 +58,13 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 			},
 			pageLabel() {
 				const labels = {
-					dashboard: 'Visão Geral',
-					products:  'Produtos',
-					orders:    'Pedidos',
-					clients:   'Clientes',
-					reports:   'Relatórios',
-					config:    'Configurações'
+					dashboard:  'Visão Geral',
+					products:   'Produtos',
+					attributes: 'Atributos',
+					orders:     'Pedidos',
+					clients:    'Clientes',
+					reports:    'Relatórios',
+					config:     'Configurações'
 				};
 				return labels[this.active] || this.active;
 			},
@@ -172,6 +174,22 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 								</svg>
 							</span>
 							<span class="cs-nav-item-label" x-show="!collapsed">Produtos</span>
+						</a>
+						<a
+							class="cs-nav-item"
+							:class="{ 'active': active === 'attributes' }"
+							hx-get="/admin/atributos"
+							hx-target="#main-content"
+							hx-push-url="true"
+							hx-swap="innerHTML"
+							@click="active = 'attributes'"
+						>
+							<span class="cs-nav-item-icon">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M7 7h.01M7 12h.01M7 17h.01M11 7h6M11 12h6M11 17h6"></path>
+								</svg>
+							</span>
+							<span class="cs-nav-item-label" x-show="!collapsed">Atributos</span>
 						</a>
 						<!-- ANÁLISE -->
 						<div class="cs-nav-group-label">Análise</div>

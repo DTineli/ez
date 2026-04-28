@@ -191,8 +191,6 @@ func registerAdminRoutes(
 				r.Post("/{id}", product.UpdateProduct)
 				r.Delete("/{id}", product.DeleteProduct)
 
-				r.Post("/{id}/variacoes", product.PostSyncVariations)
-
 			r.Route("/{id}/variants", func(r chi.Router) {
 					r.Get("/form", product.GetVariantForm)
 					r.Get("/form/cancel", product.CancelVariantForm)
@@ -209,13 +207,12 @@ func registerAdminRoutes(
 			})
 
 			r.Route("/atributos", func(r chi.Router) {
+				r.Get("/", product.GetAttributesPage)
 				r.Post("/", product.PostNewAttribute)
 				r.Get("/form", product.GetAttributeForm)
 				r.Get("/form/cancel", product.CancelAttributeForm)
 				r.Post("/{id}/values", product.PostAddValue)
-				// r.Get("/", attribute.GetAttributes)
-				// r.Delete("/{id}", attribute.DeleteAttribute)
-				// r.Delete("/{id}/values/{valueID}", attribute.DeleteAttributeValue)
+				r.Delete("/{id}", product.DeleteAttribute)
 			})
 
 			r.Route("/contacts", func(r chi.Router) {
