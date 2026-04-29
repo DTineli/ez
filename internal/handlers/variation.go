@@ -25,7 +25,9 @@ func (p *ProductHandler) GetVariantForm(
 		return
 	}
 
-	Render(templates.NewVariantForm(productID, productSKU, attrs), r, w)
+	defaultCostPrice, _ := strconv.ParseFloat(r.URL.Query().Get("default_cost_price"), 64)
+
+	Render(templates.NewVariantForm(productID, productSKU, attrs, defaultCostPrice), r, w)
 }
 
 func (p *ProductHandler) CancelVariantForm(
@@ -210,8 +212,12 @@ func (p *ProductHandler) PostVariant(w http.ResponseWriter, r *http.Request) {
 			parentSku = prod.SKU
 		}
 		variants, _ := p.productStore.FindVariantsByProduct(uint(productID), sess.TenantID)
+		var defaultCostPrice float64
+		if len(variants) > 0 {
+			defaultCostPrice = variants[0].CostPrice
+		}
 		Render(
-			templates.VariantsSectionWithNewForm(variants, chi.URLParam(r, "id"), parentSku, attrs),
+			templates.VariantsSectionWithNewForm(variants, chi.URLParam(r, "id"), parentSku, attrs, defaultCostPrice),
 			r,
 			w,
 		)

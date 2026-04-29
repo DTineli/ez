@@ -53,7 +53,7 @@ func VariationArea(productID string, variants []store.Variant, attrs []store.Att
 	})
 }
 
-func VariantsSectionWithNewForm(variants []store.Variant, productID string, parentSku string, attrs []store.Attribute) templ.Component {
+func VariantsSectionWithNewForm(variants []store.Variant, productID string, parentSku string, attrs []store.Attribute, defaultCostPrice float64) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -82,7 +82,7 @@ func VariantsSectionWithNewForm(variants []store.Variant, productID string, pare
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = NewVariantForm(productID, parentSku, attrs).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = NewVariantForm(productID, parentSku, attrs, defaultCostPrice).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -120,9 +120,14 @@ func VariantsSection(variants []store.Variant, productID string) templ.Component
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/produtos/%s/variants/form", productID))
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(func() string {
+			if len(variants) > 0 {
+				return fmt.Sprintf("/admin/produtos/%s/variants/form?default_cost_price=%.2f", productID, variants[0].CostPrice)
+			}
+			return fmt.Sprintf("/admin/produtos/%s/variants/form", productID)
+		}())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 30, Col: 71}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 30, Col: 237}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -610,7 +615,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 	})
 }
 
-func NewVariantForm(productID string, parentSku string, attrs []store.Attribute) templ.Component {
+func NewVariantForm(productID string, parentSku string, attrs []store.Attribute, defaultCostPrice float64) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -689,6 +694,12 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute)
 			InputType:   "number",
 			Placeholder: "0.00",
 			Step:        "0.01",
+			Value: func() string {
+				if defaultCostPrice > 0 {
+					return fmt.Sprintf("%.2f", defaultCostPrice)
+				}
+				return ""
+			}(),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -731,7 +742,7 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute)
 			var templ_7745c5c3_Var39 string
 			templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(attr.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 324, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 325, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 			if templ_7745c5c3_Err != nil {
@@ -754,7 +765,7 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute)
 			var templ_7745c5c3_Var40 string
 			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs("datalist-vals-" + strconv.Itoa(int(attr.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 328, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 329, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 			if templ_7745c5c3_Err != nil {
@@ -772,7 +783,7 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute)
 				var templ_7745c5c3_Var41 string
 				templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(val.Value)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 330, Col: 33}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 331, Col: 33}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 				if templ_7745c5c3_Err != nil {
@@ -795,7 +806,7 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute)
 		var templ_7745c5c3_Var42 string
 		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/produtos/%s/variants/form/cancel", productID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 391, Col: 80}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 392, Col: 80}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 		if templ_7745c5c3_Err != nil {

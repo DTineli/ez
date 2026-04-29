@@ -14,10 +14,10 @@ templ VariationArea(productID string, variants []store.Variant, attrs []store.At
 	</div>
 }
 
-templ VariantsSectionWithNewForm(variants []store.Variant, productID string, parentSku string, attrs []store.Attribute) {
+templ VariantsSectionWithNewForm(variants []store.Variant, productID string, parentSku string, attrs []store.Attribute, defaultCostPrice float64) {
 	@VariantsSection(variants, productID)
 	<div hx-swap-oob="innerHTML:#new-variant-area">
-		@NewVariantForm(productID, parentSku, attrs)
+		@NewVariantForm(productID, parentSku, attrs, defaultCostPrice)
 	</div>
 }
 
@@ -27,7 +27,7 @@ templ VariantsSection(variants []store.Variant, productID string) {
 			<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400">Variações</h2>
 			<button
 				type="button"
-				hx-get={ fmt.Sprintf("/admin/produtos/%s/variants/form", productID) }
+				hx-get={ func() string { if len(variants) > 0 { return fmt.Sprintf("/admin/produtos/%s/variants/form?default_cost_price=%.2f", productID, variants[0].CostPrice) }; return fmt.Sprintf("/admin/produtos/%s/variants/form", productID) }() }
 				hx-include="[name='sku']"
 				hx-target="#new-variant-area"
 				hx-swap="innerHTML"
@@ -241,7 +241,7 @@ templ VariantEditRow(v store.Variant, productID string) {
 	</tr>
 }
 
-templ NewVariantForm(productID string, parentSku string, attrs []store.Attribute) {
+templ NewVariantForm(productID string, parentSku string, attrs []store.Attribute, defaultCostPrice float64) {
 	{{
 		nameToVlist := "{"
 		for i, attr := range attrs {
@@ -299,6 +299,7 @@ templ NewVariantForm(productID string, parentSku string, attrs []store.Attribute
 							InputType:   "number",
 							Placeholder: "0.00",
 							Step:        "0.01",
+							Value:       func() string { if defaultCostPrice > 0 { return fmt.Sprintf("%.2f", defaultCostPrice) }; return "" }(),
 						})
 					</div>
 					<div class="basis-[20%] grow">
