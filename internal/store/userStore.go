@@ -9,7 +9,7 @@ const (
 
 type User struct {
 	ID         uint       `gorm:"primaryKey" json:"id"`
-	UserAccess AccessType `gorm:"varchar(25)"`
+	UserAccess AccessType `gorm:"type:varchar(25)"`
 
 	Name     string `json:"name"`
 	Email    string `gorm:"uniqueIndex" json:"email"`
