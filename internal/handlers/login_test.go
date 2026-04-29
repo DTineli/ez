@@ -15,8 +15,8 @@ import (
 // --- mocks ---
 
 type mockUserStore struct {
-	createUser    func(*store.User) error
-	getUser       func(email string) (*store.User, error)
+	createUser     func(*store.User) error
+	getUser        func(email string) (*store.User, error)
 	getUserByPhone func(phone string) (*store.User, error)
 }
 
@@ -51,6 +51,7 @@ func (s *mockTenantStore) CreateTenant(t store.Tenant) (uint, error) {
 	}
 	return 1, nil
 }
+
 func (s *mockTenantStore) GetTenantByID(id uint) (*store.Tenant, error) {
 	if s.getTenantByID != nil {
 		return s.getTenantByID(id)
@@ -65,38 +66,58 @@ func (s *mockTenantStore) GetTenantBySlug(slug string) (*store.Tenant, error) {
 }
 
 type mockSessionStore struct {
-	createSession func(*http.Request, http.ResponseWriter, store.Session) error
-	deleteSession func(*http.Request, http.ResponseWriter) error
+	createSession  func(*http.Request, http.ResponseWriter, store.Session) error
+	deleteSession  func(*http.Request, http.ResponseWriter) error
 	getSessionInfo func(*http.Request) (*store.Session, error)
 	setCartID      func(*http.Request, http.ResponseWriter, uint) error
 }
 
-func (s *mockSessionStore) CreateSession(r *http.Request, w http.ResponseWriter, sess store.Session) error {
+func (s *mockSessionStore) CreateSession(
+	r *http.Request,
+	w http.ResponseWriter,
+	sess store.Session,
+) error {
 	if s.createSession != nil {
 		return s.createSession(r, w, sess)
 	}
 	return nil
 }
-func (s *mockSessionStore) DeleteSession(r *http.Request, w http.ResponseWriter) error {
+
+func (s *mockSessionStore) DeleteSession(
+	r *http.Request,
+	w http.ResponseWriter,
+) error {
 	if s.deleteSession != nil {
 		return s.deleteSession(r, w)
 	}
 	return nil
 }
-func (s *mockSessionStore) GetSessionInfo(r *http.Request) (*store.Session, error) {
+
+func (s *mockSessionStore) GetSessionInfo(
+	r *http.Request,
+) (*store.Session, error) {
 	if s.getSessionInfo != nil {
 		return s.getSessionInfo(r)
 	}
 	return nil, errors.New("no session")
 }
-func (s *mockSessionStore) SetCartID(r *http.Request, w http.ResponseWriter, id uint) error {
+
+func (s *mockSessionStore) SetCartID(
+	r *http.Request,
+	w http.ResponseWriter,
+	id uint,
+) error {
 	if s.setCartID != nil {
 		return s.setCartID(r, w, id)
 	}
 	return nil
 }
 
-func newLoginHandler(us *mockUserStore, ts *mockTenantStore, ss *mockSessionStore) *LoginHandler {
+func newLoginHandler(
+	us *mockUserStore,
+	ts *mockTenantStore,
+	ss *mockSessionStore,
+) *LoginHandler {
 	if us == nil {
 		us = &mockUserStore{}
 	}
@@ -154,7 +175,11 @@ func TestAdminLogin_EmailVazio(t *testing.T) {
 	h := newLoginHandler(nil, nil, nil)
 
 	body := url.Values{"email": {""}, "password": {"senha123"}}
-	r := httptest.NewRequest(http.MethodPost, "/admin/login", strings.NewReader(body.Encode()))
+	r := httptest.NewRequest(
+		http.MethodPost,
+		"/admin/login",
+		strings.NewReader(body.Encode()),
+	)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
@@ -169,7 +194,11 @@ func TestAdminLogin_SenhaVazia(t *testing.T) {
 	h := newLoginHandler(nil, nil, nil)
 
 	body := url.Values{"email": {"admin@test.com"}, "password": {""}}
-	r := httptest.NewRequest(http.MethodPost, "/admin/login", strings.NewReader(body.Encode()))
+	r := httptest.NewRequest(
+		http.MethodPost,
+		"/admin/login",
+		strings.NewReader(body.Encode()),
+	)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
@@ -188,8 +217,15 @@ func TestAdminLogin_UsuarioNaoEncontrado(t *testing.T) {
 	}
 	h := newLoginHandler(us, nil, nil)
 
-	body := url.Values{"email": {"inexistente@test.com"}, "password": {"senha123"}}
-	r := httptest.NewRequest(http.MethodPost, "/admin/login", strings.NewReader(body.Encode()))
+	body := url.Values{
+		"email":    {"inexistente@test.com"},
+		"password": {"senha123"},
+	}
+	r := httptest.NewRequest(
+		http.MethodPost,
+		"/admin/login",
+		strings.NewReader(body.Encode()),
+	)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r.Host = "empresa.localhost"
 	w := httptest.NewRecorder()
@@ -211,7 +247,11 @@ func TestAdminLogin_SenhaErrada(t *testing.T) {
 	h := newLoginHandler(us, nil, nil)
 
 	body := url.Values{"email": {"admin@test.com"}, "password": {"errada"}}
-	r := httptest.NewRequest(http.MethodPost, "/admin/login", strings.NewReader(body.Encode()))
+	r := httptest.NewRequest(
+		http.MethodPost,
+		"/admin/login",
+		strings.NewReader(body.Encode()),
+	)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r.Host = "empresa.localhost"
 	w := httptest.NewRecorder()
@@ -228,7 +268,12 @@ func TestAdminLogin_Sucesso(t *testing.T) {
 	var sessaoCriada store.Session
 	us := &mockUserStore{
 		getUser: func(email string) (*store.User, error) {
-			return &store.User{ID: 1, Email: email, Password: hashedPassword(t, senha), TenantID: 1}, nil
+			return &store.User{
+				ID:       1,
+				Email:    email,
+				Password: hashedPassword(t, senha),
+				TenantID: 1,
+			}, nil
 		},
 	}
 	ts := &mockTenantStore{
@@ -245,7 +290,11 @@ func TestAdminLogin_Sucesso(t *testing.T) {
 	h := newLoginHandler(us, ts, ss)
 
 	body := url.Values{"email": {"admin@test.com"}, "password": {senha}}
-	r := httptest.NewRequest(http.MethodPost, "/admin/login", strings.NewReader(body.Encode()))
+	r := httptest.NewRequest(
+		http.MethodPost,
+		"/admin/login",
+		strings.NewReader(body.Encode()),
+	)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r.Host = "empresa.localhost"
 	w := httptest.NewRecorder()
@@ -256,7 +305,10 @@ func TestAdminLogin_Sucesso(t *testing.T) {
 		t.Errorf("esperado 200, obteve %d", w.Code)
 	}
 	if w.Header().Get(HXRedirect) != "/admin/" {
-		t.Errorf("esperado redirect para /admin/, obteve %q", w.Header().Get(HXRedirect))
+		t.Errorf(
+			"esperado redirect para /admin/, obteve %q",
+			w.Header().Get(HXRedirect),
+		)
 	}
 	if sessaoCriada.UserAccessType != store.AccessAdmin {
 		t.Error("sessão criada com tipo de acesso incorreto")
@@ -267,18 +319,30 @@ func TestAdminLogin_SlugDiferente(t *testing.T) {
 	senha := "senha123"
 	us := &mockUserStore{
 		getUser: func(email string) (*store.User, error) {
-			return &store.User{ID: 1, Email: email, Password: hashedPassword(t, senha), TenantID: 1}, nil
+			return &store.User{
+				ID:       1,
+				Email:    email,
+				Password: hashedPassword(t, senha),
+				TenantID: 1,
+			}, nil
 		},
 	}
 	ts := &mockTenantStore{
 		getTenantByID: func(id uint) (*store.Tenant, error) {
-			return &store.Tenant{ID: 1, Slug: "outro"}, nil // slug diferente do host
+			return &store.Tenant{
+				ID:   1,
+				Slug: "outro",
+			}, nil // slug diferente do host
 		},
 	}
 	h := newLoginHandler(us, ts, nil)
 
 	body := url.Values{"email": {"admin@test.com"}, "password": {senha}}
-	r := httptest.NewRequest(http.MethodPost, "/admin/login", strings.NewReader(body.Encode()))
+	r := httptest.NewRequest(
+		http.MethodPost,
+		"/admin/login",
+		strings.NewReader(body.Encode()),
+	)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r.Host = "empresa.localhost" // slug "empresa" ≠ "outro"
 	w := httptest.NewRecorder()
@@ -295,7 +359,11 @@ func TestClientLogin_TelefoneVazio(t *testing.T) {
 	h := newLoginHandler(nil, nil, nil)
 
 	body := url.Values{"phone_number": {""}, "password": {"senha123"}}
-	r := httptest.NewRequest(http.MethodPost, "/client/login", strings.NewReader(body.Encode()))
+	r := httptest.NewRequest(
+		http.MethodPost,
+		"/client/login",
+		strings.NewReader(body.Encode()),
+	)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 
@@ -314,14 +382,20 @@ func TestClientLogin_Sucesso(t *testing.T) {
 				ID:       1,
 				Phone:    phone,
 				Password: hashedPassword(t, senha),
-				Contacts: []store.Contact{{ID: 5, TenantID: 1, PriceTableID: 2}},
+				Contacts: []store.Contact{
+					{ID: 5, TenantID: 1, PriceTableID: 2},
+				},
 			}, nil
 		},
 	}
 	h := newLoginHandler(us, nil, nil)
 
 	body := url.Values{"phone_number": {"11999999999"}, "password": {senha}}
-	r := httptest.NewRequest(http.MethodPost, "/client/login", strings.NewReader(body.Encode()))
+	r := httptest.NewRequest(
+		http.MethodPost,
+		"/client/login",
+		strings.NewReader(body.Encode()),
+	)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r.Host = "empresa.localhost"
 	w := httptest.NewRecorder()
@@ -332,7 +406,10 @@ func TestClientLogin_Sucesso(t *testing.T) {
 		t.Errorf("esperado 200, obteve %d", w.Code)
 	}
 	if w.Header().Get(HXRedirect) != "/client/items" {
-		t.Errorf("esperado redirect para /client/items, obteve %q", w.Header().Get(HXRedirect))
+		t.Errorf(
+			"esperado redirect para /client/items, obteve %q",
+			w.Header().Get(HXRedirect),
+		)
 	}
 }
 
@@ -348,7 +425,10 @@ func TestPostLogout_Admin(t *testing.T) {
 	h.PostLogout(w, r)
 
 	if w.Header().Get(HXRedirect) != "/admin/login" {
-		t.Errorf("esperado redirect para /admin/login, obteve %q", w.Header().Get(HXRedirect))
+		t.Errorf(
+			"esperado redirect para /admin/login, obteve %q",
+			w.Header().Get(HXRedirect),
+		)
 	}
 }
 
@@ -364,6 +444,9 @@ func TestPostLogout_Client(t *testing.T) {
 	h.PostLogout(w, r)
 
 	if w.Header().Get(HXRedirect) != "/client/login" {
-		t.Errorf("esperado redirect para /client/login, obteve %q", w.Header().Get(HXRedirect))
+		t.Errorf(
+			"esperado redirect para /client/login, obteve %q",
+			w.Header().Get(HXRedirect),
+		)
 	}
 }

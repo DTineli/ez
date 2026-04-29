@@ -15,7 +15,9 @@ func NewOrderStore(db *gorm.DB) *OrderStore {
 	return &OrderStore{db: db}
 }
 
-func (o *OrderStore) ConfirmFromCart(cartID, tenantID, contactID uint) (*store.Order, error) {
+func (o *OrderStore) ConfirmFromCart(
+	cartID, tenantID, contactID uint,
+) (*store.Order, error) {
 	var created store.Order
 
 	err := o.db.Transaction(func(tx *gorm.DB) error {
@@ -93,7 +95,9 @@ func (o *OrderStore) ConfirmFromCart(cartID, tenantID, contactID uint) (*store.O
 	return &created, nil
 }
 
-func (o *OrderStore) ListByTenant(tenantID uint) ([]store.AdminOrderListItem, error) {
+func (o *OrderStore) ListByTenant(
+	tenantID uint,
+) ([]store.AdminOrderListItem, error) {
 	var modelRows []store.AdminOrderListItem
 	err := o.db.Table("orders o").
 		Select("o.id, c.name as contact_name, o.status, o.total_amount, o.created_at").
@@ -108,7 +112,9 @@ func (o *OrderStore) ListByTenant(tenantID uint) ([]store.AdminOrderListItem, er
 	return modelRows, nil
 }
 
-func (o *OrderStore) ListByContact(tenantID, contactID uint) ([]store.ClientOrderListItem, error) {
+func (o *OrderStore) ListByContact(
+	tenantID, contactID uint,
+) ([]store.ClientOrderListItem, error) {
 	var rows []store.ClientOrderListItem
 	err := o.db.Table("orders").
 		Select("id, status, total_amount, created_at").
@@ -143,7 +149,10 @@ func (o *OrderStore) GetByID(id, tenantID uint) (*store.OrderDetail, error) {
 	}, nil
 }
 
-func (o *OrderStore) Create(tenantID, contactID uint, items []store.NewOrderItem) (*store.Order, error) {
+func (o *OrderStore) Create(
+	tenantID, contactID uint,
+	items []store.NewOrderItem,
+) (*store.Order, error) {
 	var created store.Order
 
 	err := o.db.Transaction(func(tx *gorm.DB) error {

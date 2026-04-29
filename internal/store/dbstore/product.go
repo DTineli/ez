@@ -24,7 +24,10 @@ func (p *ProductStore) CreateProduct(product *store.Product) error {
 
 func (p *ProductStore) GetProduct(id uint) (*store.Product, error) {
 	var product store.Product
-	err := p.db.Preload("Variants.Attributes.AttributeValue.Attribute").Where("id = ?", id).First(&product).Error
+	err := p.db.Preload("Variants.Attributes.AttributeValue.Attribute").
+		Where("id = ?", id).
+		First(&product).
+		Error
 	return &product, err
 }
 
@@ -39,9 +42,14 @@ func (p *ProductStore) FindAllByUser(userID uint) ([]store.Product, error) {
 	return products, nil
 }
 
-func (p *ProductStore) FindAllByUserWithFilters(id uint, filters store.ProductFilters) (*store.FindResults[store.Product], error) {
+func (p *ProductStore) FindAllByUserWithFilters(
+	id uint,
+	filters store.ProductFilters,
+) (*store.FindResults[store.Product], error) {
 	var products []store.Product
-	query := p.db.Model(&store.Product{}).Preload("Variants").Where("tenant_id = ?", id)
+	query := p.db.Model(&store.Product{}).
+		Preload("Variants").
+		Where("tenant_id = ?", id)
 
 	if filters.Search != "" {
 		like := "%" + filters.Search + "%"
@@ -60,7 +68,9 @@ func (p *ProductStore) FindAllByUserWithFilters(id uint, filters store.ProductFi
 		return nil, err
 	}
 
-	query = query.Order("id DESC").Offset((filters.Page - 1) * filters.PerPage).Limit(filters.PerPage)
+	query = query.Order("id DESC").
+		Offset((filters.Page - 1) * filters.PerPage).
+		Limit(filters.PerPage)
 
 	if err := query.Find(&products).Error; err != nil {
 		return nil, err
@@ -72,7 +82,11 @@ func (p *ProductStore) FindAllByUserWithFilters(id uint, filters store.ProductFi
 	}, nil
 }
 
-func (p *ProductStore) UpdateFields(id uint, tenantID uint, fields map[string]any) error {
+func (p *ProductStore) UpdateFields(
+	id uint,
+	tenantID uint,
+	fields map[string]any,
+) error {
 	if len(fields) == 0 {
 		return errors.New("no fields to update")
 	}
@@ -102,7 +116,10 @@ func (p *ProductStore) CreateVariant(variant *store.Variant) error {
 	return p.db.Create(variant).Error
 }
 
-func (p *ProductStore) GetVariant(id uint, tenantID uint) (*store.Variant, error) {
+func (p *ProductStore) GetVariant(
+	id uint,
+	tenantID uint,
+) (*store.Variant, error) {
 	var variant store.Variant
 	err := p.db.
 		Preload("Attributes.AttributeValue.Attribute").
@@ -115,7 +132,10 @@ func (p *ProductStore) GetVariant(id uint, tenantID uint) (*store.Variant, error
 	return &variant, nil
 }
 
-func (p *ProductStore) FindVariantsByProduct(productID uint, tenantID uint) ([]store.Variant, error) {
+func (p *ProductStore) FindVariantsByProduct(
+	productID uint,
+	tenantID uint,
+) ([]store.Variant, error) {
 	var variants []store.Variant
 	err := p.db.
 		Preload("Attributes.AttributeValue.Attribute").
@@ -127,7 +147,11 @@ func (p *ProductStore) FindVariantsByProduct(productID uint, tenantID uint) ([]s
 	return variants, nil
 }
 
-func (p *ProductStore) UpdateVariantFields(id uint, tenantID uint, fields map[string]any) error {
+func (p *ProductStore) UpdateVariantFields(
+	id uint,
+	tenantID uint,
+	fields map[string]any,
+) error {
 	if len(fields) == 0 {
 		return errors.New("no fields to update")
 	}
@@ -152,10 +176,18 @@ func (p *ProductStore) UpdateVariantFields(id uint, tenantID uint, fields map[st
 	return nil
 }
 
-func (p *ProductStore) FindDefaultVariant(productID uint, tenantID uint) (*store.Variant, error) {
+func (p *ProductStore) FindDefaultVariant(
+	productID uint,
+	tenantID uint,
+) (*store.Variant, error) {
 	var v store.Variant
 	result := p.db.
-		Where("product_id = ? AND tenant_id = ? AND is_default = ?", productID, tenantID, true).
+		Where(
+			"product_id = ? AND tenant_id = ? AND is_default = ?",
+			productID,
+			tenantID,
+			true,
+		).
 		First(&v)
 	if result.Error != nil {
 		return nil, result.Error
@@ -180,7 +212,10 @@ func (p *ProductStore) DeleteVariant(id uint, tenantID uint) error {
 }
 
 // SetVariantAttributes substitui todos os atributos do variant atomicamente.
-func (p *ProductStore) SetVariantAttributes(variantID uint, attributeValueIDs []uint) error {
+func (p *ProductStore) SetVariantAttributes(
+	variantID uint,
+	attributeValueIDs []uint,
+) error {
 	return p.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Where("variant_id = ?", variantID).Delete(&store.VariantAttribute{}).Error; err != nil {
 			return err
@@ -206,16 +241,23 @@ func (p *ProductStore) CreateAttribute(attr *store.Attribute) error {
 	return p.db.Create(attr).Error
 }
 
-func (p *ProductStore) GetAttribute(id uint, tenantID uint) (*store.Attribute, error) {
+func (p *ProductStore) GetAttribute(
+	id uint,
+	tenantID uint,
+) (*store.Attribute, error) {
 	var attr store.Attribute
-	err := p.db.Where("id = ? AND tenant_id = ?", id, tenantID).First(&attr).Error
+	err := p.db.Where("id = ? AND tenant_id = ?", id, tenantID).
+		First(&attr).
+		Error
 	if err != nil {
 		return nil, err
 	}
 	return &attr, nil
 }
 
-func (p *ProductStore) FindAttributesByTenant(tenantID uint) ([]store.Attribute, error) {
+func (p *ProductStore) FindAttributesByTenant(
+	tenantID uint,
+) ([]store.Attribute, error) {
 	var attrs []store.Attribute
 	err := p.db.
 		Preload("Values").
@@ -260,23 +302,35 @@ func (p *ProductStore) CreateAttributeValue(val *store.AttributeValue) error {
 	return p.db.Create(val).Error
 }
 
-func (p *ProductStore) FindOrCreateAttribute(name string, tenantID uint) (*store.Attribute, error) {
+func (p *ProductStore) FindOrCreateAttribute(
+	name string,
+	tenantID uint,
+) (*store.Attribute, error) {
 	var attr store.Attribute
 	name = strings.ToLower(strings.TrimSpace(name))
-	result := p.db.Where(store.Attribute{Name: name, TenantID: tenantID}).FirstOrCreate(&attr)
+	result := p.db.Where(store.Attribute{Name: name, TenantID: tenantID}).
+		FirstOrCreate(&attr)
 	return &attr, result.Error
 }
 
-func (p *ProductStore) FindOrCreateAttributeValue(value string, attrID uint) (*store.AttributeValue, error) {
+func (p *ProductStore) FindOrCreateAttributeValue(
+	value string,
+	attrID uint,
+) (*store.AttributeValue, error) {
 	var av store.AttributeValue
-	result := p.db.Where(store.AttributeValue{Value: value, AttributeID: attrID}).FirstOrCreate(&av)
+	result := p.db.Where(store.AttributeValue{Value: value, AttributeID: attrID}).
+		FirstOrCreate(&av)
 	return &av, result.Error
 }
 
 func (p *ProductStore) DeleteAttributeValue(id uint, tenantID uint) error {
 	// AttributeValue não tem tenant_id direto; valida via join com Attribute
 	result := p.db.
-		Where("id = ? AND attribute_id IN (SELECT id FROM attributes WHERE tenant_id = ?)", id, tenantID).
+		Where(
+			"id = ? AND attribute_id IN (SELECT id FROM attributes WHERE tenant_id = ?)",
+			id,
+			tenantID,
+		).
 		Delete(&store.AttributeValue{})
 
 	if result.Error != nil {
