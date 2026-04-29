@@ -5,8 +5,14 @@
 @theme {
   --color-primary: oklch(37% 0.19 290);
   --color-primary-content: oklch(97% 0.02 290);
+  --color-on-surface: #191c1d;
+  --color-error: #ba1a1a;
+  --color-error-content: #ffffff;
   --radius-field: 6px;
   --radius-box: 10px;
+  --font-headline: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-label: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ── ConnSale Design System ──────────────────────────────────────── */
