@@ -361,14 +361,12 @@ templ ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants 
 					}
 				</p>
 			</div>
-			<button
-				hx-get="/admin/produtos"
-				hx-target="#main-content"
-				hx-push-url="true"
+			<a
+				href="/admin/produtos"
 				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
 			>
 				← Voltar
-			</button>
+			</a>
 		</div>
 		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
 			<div class="p-5">
@@ -532,15 +530,12 @@ templ ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants 
 					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
 					@components.FormAlert(form.Errors.Get("general"))
 					<div class="flex justify-end gap-3 pt-2">
-						<button
-							type="button"
-							hx-get="/admin/produtos"
-							hx-target="#main-content"
-							hx-push-url="true"
+						<a
+							href="/admin/produtos"
 							class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
 						>
 							Cancelar
-						</button>
+						</a>
 						<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
 							if isUpdate {
 								Salvar Alterações

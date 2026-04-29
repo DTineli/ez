@@ -168,6 +168,5 @@ func (h *AdminOrderHandler) PostNewOrder(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	w.Header().Set("HX-Redirect", fmt.Sprintf("/admin/pedidos/%d", order.ID))
-	w.WriteHeader(http.StatusOK)
+	HXLocation(w, fmt.Sprintf("/admin/pedidos/%d", order.ID))
 }
