@@ -52,8 +52,13 @@ func main() {
 	orderStore := dbstore.NewOrderStore(db)
 
 	// sessions
-	sessionStore := cookiesotore.NewSessionStore(store.AdminSessionName, cfg.SessionSecret)
-	clientSessionStore := cookiesotore.NewSessionStore(store.ClientSessionName, cfg.SessionSecret)
+	sessionStore := cookiesotore.NewSessionStore(
+		store.AdminSessionName,
+		cfg.SessionSecret,
+	)
+	clientSessionStore := cookiesotore.NewSessionStore(
+		store.ClientSessionName,
+		cfg.SessionSecret)
 
 	// handlers
 	loginHandler := handlers.NewLoginHandler(handlers.LoginHandlerParams{
@@ -62,15 +67,31 @@ func main() {
 		TenantStore:  *tenantStore,
 		CookieName:   cfg.SessionCookieName,
 	})
-	registerHandler := handlers.NewRegisterHandler(userStore, tenantStore, invite, contactStore, clientSessionStore)
+	registerHandler := handlers.NewRegisterHandler(userStore,
+		tenantStore,
+		invite,
+		contactStore,
+		clientSessionStore)
 	productHandler := handlers.NewProductHandler(pStore, priceTableStore)
-	contactHandler := handlers.NewContactHandler(handlers.NewContactHandlerParams{
-		Contact:    contactStore,
-		Invite:     invite,
-		PriceTable: priceTableStore,
-	})
-	clientHandler := handlers.NewClientHandler(pStore, cartStore, orderStore, clientSessionStore, priceTableStore)
-	adminOrderHandler := handlers.NewAdminOrderHandler(orderStore, contactStore, pStore)
+	contactHandler := handlers.NewContactHandler(
+		handlers.NewContactHandlerParams{
+			Contact:    contactStore,
+			Invite:     invite,
+			PriceTable: priceTableStore,
+		},
+	)
+	clientHandler := handlers.NewClientHandler(
+		pStore,
+		cartStore,
+		orderStore,
+		clientSessionStore,
+		priceTableStore,
+	)
+	adminOrderHandler := handlers.NewAdminOrderHandler(
+		orderStore,
+		contactStore,
+		pStore,
+	)
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -92,8 +113,22 @@ func main() {
 		templates.NotFoundPage(backURL).Render(r.Context(), w)
 	})
 
-	registerClientRoutes(r, loginHandler, registerHandler, clientHandler, clientSessionStore)
-	registerAdminRoutes(r, loginHandler, registerHandler, productHandler, contactHandler, adminOrderHandler, sessionStore)
+	registerClientRoutes(
+		r,
+		loginHandler,
+		registerHandler,
+		clientHandler,
+		clientSessionStore,
+	)
+	registerAdminRoutes(
+		r,
+		loginHandler,
+		registerHandler,
+		productHandler,
+		contactHandler,
+		adminOrderHandler,
+		sessionStore,
+	)
 
 	killSig := make(chan os.Signal, 1)
 	signal.Notify(killSig, os.Interrupt, syscall.SIGTERM)
@@ -113,7 +148,11 @@ func main() {
 		}
 	}()
 
-	logger.Info("Server started", slog.String("port", cfg.Port), slog.String("env", Environment))
+	logger.Info(
+		"Server started",
+		slog.String("port", cfg.Port),
+		slog.String("env", Environment),
+	)
 	<-killSig
 	logger.Info("Shutting down server")
 
@@ -191,9 +230,29 @@ func registerAdminRoutes(
 				r.Post("/{id}", product.UpdateProduct)
 				r.Delete("/{id}", product.DeleteProduct)
 
+				r.Route("/{id}/variants", func(r chi.Router) {
+					r.Get("/form", product.GetVariantForm)
+					r.Get("/form/cancel", product.CancelVariantForm)
+					r.Post("/", product.PostVariant)
+					r.Post("/bulk", product.BulkUpdateVariants)
+					r.Get("/{variantID}", product.GetVariantRow)
+					r.Get("/{variantID}/edit", product.GetEditVariantRow)
+					r.Post("/{variantID}", product.UpdateVariant)
+					r.Delete("/{variantID}", product.DeleteVariant)
+				})
+
 				r.Get("/pricetable", product.GetTablePage)
 				r.Post("/pricetable", product.CreatePriceTable)
 				r.Delete("/pricetable/{id}", product.DeletePriceTable)
+			})
+
+			r.Route("/atributos", func(r chi.Router) {
+				r.Get("/", product.GetAttributesPage)
+				r.Post("/", product.PostNewAttribute)
+				r.Get("/form", product.GetAttributeForm)
+				r.Get("/form/cancel", product.CancelAttributeForm)
+				r.Post("/{id}/values", product.PostAddValue)
+				r.Delete("/{id}", product.DeleteAttribute)
 			})
 
 			r.Route("/contacts", func(r chi.Router) {

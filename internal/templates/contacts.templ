@@ -10,8 +10,8 @@ import (
 )
 
 templ ContactFilter() {
-	<div class="card bg-base-100 shadow-sm border border-base-300">
-		<div class="card-body py-4">
+	<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+		<div class="p-6 py-4">
 			<form
 				id="filter-form"
 				class="flex flex-wrap items-end gap-3"
@@ -21,12 +21,12 @@ templ ContactFilter() {
 				hx-push-url="true"
 			>
 				<div class="flex-1 min-w-[160px]">
-					<label class="label py-1">
-						<span class="label-text text-sm font-medium">Nome Fantasia</span>
+					<label class="flex items-center gap-2 py-1">
+						<span class="text-sm font-medium">Nome Fantasia</span>
 					</label>
 					<input
 						id="trade-name-input"
-						class="input input-bordered input-sm w-full"
+						class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
 						type="text"
 						name="trade_name"
 						hx-preserve="true"
@@ -34,11 +34,11 @@ templ ContactFilter() {
 					/>
 				</div>
 				<div class="flex-1 min-w-[160px]">
-					<label class="label py-1">
-						<span class="label-text text-sm font-medium">Razão Social</span>
+					<label class="flex items-center gap-2 py-1">
+						<span class="text-sm font-medium">Razão Social</span>
 					</label>
 					<input
-						class="input input-bordered input-sm w-full"
+						class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
 						type="text"
 						name="name"
 						id="name-input"
@@ -47,11 +47,11 @@ templ ContactFilter() {
 					/>
 				</div>
 				<div class="w-40">
-					<label class="label py-1">
-						<span class="label-text text-sm font-medium">Documento</span>
+					<label class="flex items-center gap-2 py-1">
+						<span class="text-sm font-medium">Documento</span>
 					</label>
 					<input
-						class="input input-bordered input-sm w-full"
+						class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
 						type="text"
 						name="document"
 						id="document-input"
@@ -60,17 +60,17 @@ templ ContactFilter() {
 					/>
 				</div>
 				<div class="w-36">
-					<label class="label py-1">
-						<span class="label-text text-sm font-medium">Tipo</span>
+					<label class="flex items-center gap-2 py-1">
+						<span class="text-sm font-medium">Tipo</span>
 					</label>
-					<select name="contact_type" id="contact_type-input" class="select select-bordered select-sm w-full" hx-preserve="true">
+					<select name="contact_type" id="contact_type-input" class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" hx-preserve="true">
 						<option value="">Todos</option>
 						<option value="customer">Cliente</option>
 						<option value="supplier">Fornecedor</option>
 					</select>
 				</div>
 				<div class="pb-0.5">
-					<button type="submit" class="btn btn-primary btn-sm">
+					<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
 						Buscar
 					</button>
 				</div>
@@ -82,7 +82,7 @@ templ ContactFilter() {
 templ ContactPagination(current, total int) {
 	<div class="flex justify-center items-center gap-2 mt-6">
 		<button
-			class="btn btn-sm"
+			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
 			if current <= 1 {
 				disabled="true"
 			}
@@ -98,9 +98,9 @@ templ ContactPagination(current, total int) {
 			if i == 1 || i == total || (i >= current-2 && i <= current+2) {
 				<button
 					if i == current {
-						class="btn btn-sm btn-active"
+						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-gray-100 border border-gray-300 px-3 py-1.5 text-sm"
 					} else {
-						class="btn btn-sm"
+						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 text-sm"
 					}
 					hx-get={ fmt.Sprintf("/admin/contacts/?page=%d", i) }
 					hx-target="#main-content"
@@ -116,7 +116,7 @@ templ ContactPagination(current, total int) {
 			}
 		}
 		<button
-			class="btn btn-sm"
+			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-gray-300 bg-white hover:bg-gray-50 px-3 py-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
 			if current >= total {
 				disabled="true"
 			}
@@ -136,26 +136,26 @@ templ ContactTableBody(contacts []store.Contact) {
 	<tbody id="contact-data">
 		if len(contacts) == 0 {
 			<tr>
-				<td colspan="5" class="text-center text-base-content/50 py-8">
+				<td colspan="5" class="text-center text-gray-400 py-8">
 					Nenhum contato encontrado.
 				</td>
 			</tr>
 		}
 		for _, c := range contacts {
-			<tr class="hover">
+			<tr class="hover:bg-gray-50">
 				<td class="font-medium">{ c.TradeName }</td>
-				<td class="text-base-content/70">{ c.Name }</td>
+				<td class="text-gray-500">{ c.Name }</td>
 				<td>
 					if c.ContactType == "customer" {
-						<span class="badge badge-info badge-sm">Cliente</span>
+						<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-blue-100 text-blue-800">Cliente</span>
 					} else {
-						<span class="badge badge-ghost badge-sm">Fornecedor</span>
+						<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-gray-100 text-gray-700">Fornecedor</span>
 					}
 				</td>
-				<td class="font-mono text-sm text-base-content/60">{ c.Document }</td>
+				<td class="font-mono text-sm text-gray-400">{ c.Document }</td>
 				<td class="text-center">
 					<a
-						class="btn btn-ghost btn-xs"
+						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs"
 						hx-push-url="true"
 						hx-target="#main-content"
 						href={ fmt.Sprintf("/admin/contacts/%v", c.ID) }
@@ -173,29 +173,29 @@ templ ContactPage(params store.ListResults[store.Contact]) {
 		<div class="flex items-center justify-between">
 			<div>
 				<h1 class="text-2xl font-bold">Contatos</h1>
-				<p class="text-base-content/60 text-sm mt-0.5">Gerencie clientes e fornecedores do tenant.</p>
+				<p class="text-gray-400 text-sm mt-0.5">Gerencie clientes e fornecedores do tenant.</p>
 			</div>
 			<button
 				hx-get="/admin/contacts/novo"
 				hx-target="#main-content"
 				hx-push-url="true"
-				class="btn btn-primary btn-sm"
+				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm"
 			>
 				+ Novo Contato
 			</button>
 		</div>
 		@ContactFilter()
-		<div class="card bg-base-100 shadow-sm border border-base-300">
-			<div class="card-body p-0">
+		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+			<div class="p-0">
 				<div class="overflow-x-auto">
-					<table class="table table-zebra">
+					<table class="w-full text-sm text-left">
 						<thead>
 							<tr>
-								<th>Nome Fantasia</th>
-								<th>Razão Social</th>
-								<th>Tipo</th>
-								<th>Documento</th>
-								<th class="text-center">Ações</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Nome Fantasia</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Razão Social</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Tipo</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Documento</th>
+								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-center">Ações</th>
 							</tr>
 						</thead>
 						@ContactTableBody(params.Results.Results)
@@ -209,26 +209,26 @@ templ ContactPage(params store.ListResults[store.Contact]) {
 
 templ InviteLink(id, link string) {
 	<div id="invite-link" x-data="{copied:false}" class="flex items-center gap-2">
-		<label class="input input-bordered input-sm flex items-center gap-2">
-			<input type="text" value={ link } id="link" x-ref="link" readonly placeholder="URL do convite" class="w-60 text-sm"/>
+		<div class="flex items-center gap-2 border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm">
+			<input type="text" value={ link } id="link" x-ref="link" readonly placeholder="URL do convite" class="w-60 text-sm bg-transparent outline-none"/>
 			<button
 				type="button"
-				class="text-xs text-base-content/50 hover:text-base-content transition-colors"
+				class="text-xs text-gray-400 hover:text-gray-900 transition-colors"
 				@click="
 				navigator.clipboard.writeText($refs.link.value);
 				copied = true;
 				setTimeout(() => copied = false, 2000)
 				"
 			>copiar</button>
-		</label>
-		<span x-show="copied" x-transition class="text-success text-xs">Copiado!</span>
+		</div>
+		<span x-show="copied" x-transition class="text-green-600 text-xs">Copiado!</span>
 		if link == "" {
 			<button
 				type="button"
 				hx-post={ fmt.Sprintf("/admin/contacts/%v/create-link", id) }
 				hx-target="#invite-link"
 				hx-swap="innerHTML"
-				class="btn btn-outline btn-sm"
+				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-content px-3 py-1.5 text-sm"
 			>
 				Gerar Link
 			</button>
@@ -276,20 +276,18 @@ templ ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTabl
 						@InviteLink(form.Get("id"), form.Get("invite_link"))
 					</div>
 				} else {
-					<p class="text-base-content/60 text-sm mt-0.5">Preencha os dados para cadastrar um novo contato.</p>
+					<p class="text-gray-400 text-sm mt-0.5">Preencha os dados para cadastrar um novo contato.</p>
 				}
 			</div>
-			<button
-				hx-get="/admin/contacts/"
-				hx-target="#main-content"
-				hx-push-url="true"
-				class="btn btn-ghost btn-sm"
+			<a
+				href="/admin/contacts/"
+				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
 			>
 				← Voltar
-			</button>
+			</a>
 		</div>
-		<div class="card bg-base-100 shadow-sm border border-base-300">
-			<div class="card-body">
+		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+			<div class="p-6">
 				<form
 					hx-post={ action }
 					hx-target="#form"
@@ -298,7 +296,7 @@ templ ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTabl
 				>
 					<!-- DADOS GERAIS -->
 					<div>
-						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Dados Gerais</h2>
+						<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Dados Gerais</h2>
 						<div class="flex flex-wrap gap-4">
 							<div class="basis-[45%] grow">
 								@components.BasicInput(components.BasicInputParams{
@@ -320,10 +318,10 @@ templ ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTabl
 								})
 							</div>
 							<div class="basis-[15%] grow">
-								<label class="label py-1">
-									<span class="label-text text-sm">Tipo</span>
+								<label class="flex items-center gap-2 py-1">
+									<span class="text-sm font-medium">Tipo</span>
 								</label>
-								<select name="contact_type" class="select select-bordered select-sm w-full">
+								<select name="contact_type" class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
 									for _, u := range contactTypes {
 										<option
 											value={ u.Value }
@@ -337,10 +335,10 @@ templ ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTabl
 								</select>
 							</div>
 							<div class="basis-[25%] grow">
-								<label class="label py-1">
-									<span class="label-text text-sm">Tabela de Preço <span class="text-error">*</span></span>
+								<label class="flex items-center gap-2 py-1">
+									<span class="text-sm font-medium">Tabela de Preço <span class="text-red-600">*</span></span>
 								</label>
-								<select name="price_table_id" class="select select-bordered select-sm w-full" required>
+								<select name="price_table_id" class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" required>
 									<option value="">Selecione uma tabela</option>
 									for _, pt := range priceTables {
 										<option
@@ -354,21 +352,21 @@ templ ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTabl
 									}
 								</select>
 								if len(form.Errors.Get("price_table_id")) > 0 {
-									<p class="text-error text-xs mt-1">{ form.Errors.Get("price_table_id")[0] }</p>
+									<p class="text-red-600 text-xs mt-1">{ form.Errors.Get("price_table_id")[0] }</p>
 								}
 							</div>
 						</div>
 					</div>
-					<div class="divider my-1"></div>
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
 					<!-- DOCUMENTO -->
 					<div>
-						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Documento</h2>
+						<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Documento</h2>
 						<div class="flex flex-wrap gap-4">
 							<div class="basis-[18%] grow">
-								<label class="label py-1">
-									<span class="label-text text-sm">Tipo</span>
+								<label class="flex items-center gap-2 py-1">
+									<span class="text-sm font-medium">Tipo</span>
 								</label>
-								<select name="document_type" class="select select-bordered select-sm w-full">
+								<select name="document_type" class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
 									for _, u := range documentTypes {
 										<option
 											value={ u.Value }
@@ -381,9 +379,9 @@ templ ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTabl
 									}
 								</select>
 							</div>
-							<div class="basis-[35%] grow form-control" x-data>
-								<label class="label py-1">
-									<span class="label-text text-sm">CPF / CNPJ <span class="text-error">*</span></span>
+							<div class="basis-[35%] grow flex flex-col gap-1" x-data>
+								<label class="flex items-center gap-2 py-1">
+									<span class="text-sm font-medium">CPF / CNPJ <span class="text-red-600">*</span></span>
 								</label>
 								<input
 									type="text"
@@ -393,13 +391,13 @@ templ ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTabl
 									placeholder="000.000.000-00"
 									x-mask:dynamic="$input.replace(/\D/g, '').length > 11 ? '99.999.999/9999-99' : '999.999.999-99'"
 									if len(form.Errors.Get("document")) > 0 {
-										class="input input-bordered w-full border-error"
+										class="block w-full border border-red-600 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
 									} else {
-										class="input input-bordered w-full"
+										class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
 									}
 								/>
 								for _, e := range form.Errors.Get("document") {
-									<span class="text-error text-xs mt-1">{ e }</span>
+									<span class="text-red-600 text-xs mt-1">{ e }</span>
 								}
 							</div>
 							<div class="basis-[25%] grow">
@@ -413,10 +411,10 @@ templ ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTabl
 							</div>
 						</div>
 					</div>
-					<div class="divider my-1"></div>
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
 					<!-- CONTATO -->
 					<div>
-						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Contato</h2>
+						<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Contato</h2>
 						<div class="flex flex-wrap gap-4">
 							<div class="basis-[40%] grow">
 								@components.BasicInput(components.BasicInputParams{
@@ -440,10 +438,10 @@ templ ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTabl
 							</div>
 						</div>
 					</div>
-					<div class="divider my-1"></div>
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
 					<!-- ENDEREÇO -->
 					<div>
-						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Endereço</h2>
+						<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">Endereço</h2>
 						<div class="flex flex-wrap gap-4">
 							<div class="basis-[15%] grow">
 								@components.BasicInput(components.BasicInputParams{
@@ -496,17 +494,16 @@ templ ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTabl
 							</div>
 						</div>
 					</div>
-					<div class="divider my-1"></div>
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
+					@components.FormAlert(form.Errors.Get("general"))
 					<div class="flex justify-end gap-3">
-						<button
-							hx-get="/admin/contacts/"
-							hx-target="#main-content"
-							hx-push-url="true"
-							class="btn btn-ghost btn-sm"
+						<a
+							href="/admin/contacts/"
+							class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
 						>
 							Cancelar
-						</button>
-						<button type="submit" class="btn btn-primary btn-sm">
+						</a>
+						<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
 							if isUpdate {
 								Salvar Alterações
 							} else {

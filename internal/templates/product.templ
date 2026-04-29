@@ -2,202 +2,328 @@ package templates
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/DTineli/ez/internal/forms"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates/components"
 )
 
+// ─── PRODUTO ────────────────────────────────────────────────────────────────
 templ Filter() {
-	<div class="card bg-base-100 shadow-sm border border-base-300">
-		<div class="card-body py-4">
-			<form
-				id="filter-form"
-				class="flex flex-wrap items-end gap-3"
-				hx-get="/admin/produtos/"
-				hx-target="#main-content"
-				hx-swap="innerHTML"
-				hx-push-url="true"
-			>
-				<div class="flex-1 min-w-[160px]">
-					<label class="label py-1">
-						<span class="label-text text-sm font-medium">Nome</span>
-					</label>
-					<input
-						class="input input-bordered input-sm w-full"
-						type="text"
-						name="name"
-						id="name-input"
-						hx-preserve="true"
-						placeholder="Buscar por nome..."
-					/>
-				</div>
-				<div class="w-36">
-					<label class="label py-1">
-						<span class="label-text text-sm font-medium">SKU</span>
-					</label>
-					<input
-						class="input input-bordered input-sm w-full"
-						type="text"
-						name="sku"
-						id="sku-input"
-						hx-preserve="true"
-						placeholder="Ex: PROD-01"
-					/>
-				</div>
-				<div class="pb-0.5">
-					<button type="submit" class="btn btn-primary btn-sm">
-						Buscar
-					</button>
-				</div>
-			</form>
+	<form
+		id="filter-form"
+		class="flex flex-wrap items-center gap-2"
+		hx-get="/admin/produtos/"
+		hx-target="#main-content"
+		hx-swap="innerHTML"
+		hx-push-url="true"
+	>
+		<div class="relative flex-1 min-w-[180px]">
+			<span class="absolute left-[11px] top-1/2 -translate-y-1/2 pointer-events-none" style="color:#9CA3AF">
+				<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="11" cy="11" r="8"></circle>
+					<path d="M21 21l-4.35-4.35"></path>
+				</svg>
+			</span>
+			<input
+				class="block w-full border border-gray-200 rounded-lg bg-gray-50 pl-[30px] pr-3 py-1.5 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-violet-400/60 focus:bg-white focus:ring-2 focus:ring-violet-300/20 transition-all"
+				type="text"
+				name="name"
+				id="name-input"
+				hx-preserve="true"
+				placeholder="Buscar por nome…"
+			/>
 		</div>
-	</div>
+		<div class="w-36">
+			<input
+				class="block w-full border border-gray-200 rounded-lg bg-gray-50 px-3 py-1.5 font-mono text-xs tracking-widest uppercase text-gray-700 placeholder:text-gray-400 placeholder:tracking-normal focus:outline-none focus:border-violet-400/60 focus:bg-white focus:ring-2 focus:ring-violet-300/20 transition-all"
+				type="text"
+				name="sku"
+				id="sku-input"
+				hx-preserve="true"
+				placeholder="SKU…"
+			/>
+		</div>
+		<button
+			type="submit"
+			class="shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-primary text-primary-content text-sm font-semibold hover:brightness-95 active:scale-[.97] transition-all cursor-pointer"
+		>
+			Buscar
+		</button>
+	</form>
 }
 
 templ Pagination(current, total int) {
-	<div class="flex justify-center items-center gap-2 mt-6">
-		<!-- botão anterior -->
-		<button
-			class="btn btn-sm"
-			if current <= 1 {
-				disabled="true"
+	if total > 1 {
+		<div class="flex items-center justify-center gap-1 pt-1 pb-3">
+			<button
+				class="cat-pgbtn"
+				if current <= 1 {
+					disabled="true"
+				}
+				hx-get={ fmt.Sprintf("/admin/produtos?page=%d", current-1) }
+				hx-target="#main-content"
+				hx-include="#filter-form"
+				hx-swap="innerHTML"
+			>←</button>
+			for i := 1; i <= total; i++ {
+				if i == 1 || i == total || (i >= current-2 && i <= current+2) {
+					<button
+						if i == current {
+							class="cat-pgbtn cat-pgbtn--active"
+						} else {
+							class="cat-pgbtn"
+						}
+						hx-get={ fmt.Sprintf("/admin/produtos/?page=%d", i) }
+						hx-target="#main-content"
+						hx-include="#filter-form"
+						hx-push-url="true"
+						hx-swap="innerHTML"
+					>{ strconv.Itoa(i) }</button>
+				} else if i == current-3 || i == current+3 {
+					<span class="px-0.5 text-gray-300 text-xs select-none">·</span>
+				}
 			}
-			hx-get={ fmt.Sprintf("/admin/produtos?page=%d", current-1) }
-			hx-target="#main-content"
-			hx-include="#filter-form"
-			hx-vals={ fmt.Sprintf("page: %d", current-1) }
-			hx-swap="innerHTML"
-		>
-			« Anterior
-		</button>
-		<!-- páginas -->
-		for i := 1; i <= total; i++ {
-			// mostra a primeira, última, e 2 páginas antes/depois da atual
-			if i == 1 || i == total || (i >= current-2 && i <= current+2) {
-				<button
-					if i == current {
-						class="btn btn-sm btn-active"
-					} else {
-						class="btn btn-sm"
-					}
-					hx-get={ fmt.Sprintf("/admin/produtos/?page=%d", i) }
-					hx-target="#main-content"
-					hx-include="#filter-form"
-					hx-vals={ fmt.Sprintf("page: %d", i) }
-					hx-push-url="true"
-					hx-swap="innerHTML"
-				>
-					{ i }
-				</button>
-			} else if i == current-3 || i == current+3 {
-				<span class="px-2">…</span>
-			}
-		}
-		<!-- botão próximo -->
-		<button
-			class="btn btn-sm"
-			if current >= total {
-				disabled="true"
-			}
-			hx-get={ fmt.Sprintf("/admin/produtos?page=%d", current+1) }
-			hx-push-url="true"
-			hx-target="#main-content"
-			hx-include="#filter-form"
-			hx-vals={ fmt.Sprintf("page: %d", current+1) }
-			hx-swap="innerHTML"
-		>
-			Próximo »
-		</button>
-	</div>
+			<button
+				class="cat-pgbtn"
+				if current >= total {
+					disabled="true"
+				}
+				hx-get={ fmt.Sprintf("/admin/produtos?page=%d", current+1) }
+				hx-push-url="true"
+				hx-target="#main-content"
+				hx-include="#filter-form"
+				hx-swap="innerHTML"
+			>→</button>
+		</div>
+	}
 }
 
 templ ProductTableBody(products []store.Product) {
-	<tbody id="product-data">
+	<div id="product-data" class="flex flex-col gap-[5px]">
 		if len(products) == 0 {
-			<tr>
-				<td colspan="5" class="text-center text-base-content/50 py-8">
-					Nenhum produto encontrado.
-				</td>
-			</tr>
+			<div class="cat-empty">
+				<svg class="cat-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+					<path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+				</svg>
+				<p class="cat-empty-title">Nenhum produto encontrado</p>
+				<p class="cat-empty-sub">Ajuste os filtros ou cadastre um novo produto</p>
+			</div>
 		}
 		for _, p := range products {
-			<tr class="hover">
-				<td class="font-mono text-sm text-base-content/60">{ p.SKU }</td>
-				<td class="font-medium">{ p.Name }</td>
-				<td>
-					if p.Status {
-						<span class="badge badge-success badge-sm">Ativo</span>
-					} else {
-						<span class="badge badge-ghost badge-sm">Inativo</span>
-					}
-				</td>
-				<td>{ p.CurrentStock }</td>
-				<td>
-					<a
-						class="btn btn-ghost btn-xs"
-						hx-push-url="true"
-						hx-target="#main-content"
-						href={ fmt.Sprintf("/admin/produtos/%v", p.ID) }
-					>
-						Editar
-					</a>
-				</td>
-			</tr>
+			<a
+				class="cat-row"
+				href={ templ.SafeURL(fmt.Sprintf("/admin/produtos/%v", p.ID)) }
+				hx-get={ fmt.Sprintf("/admin/produtos/%v", p.ID) }
+				hx-target="#main-content"
+				hx-push-url="true"
+			>
+				<span class="cat-sku">{ p.SKU }</span>
+				<span class="cat-name">{ p.Name }</span>
+				if p.Status {
+					<span class="cat-status cat-status--active">
+						<span class="cat-status-dot cat-status-dot--active"></span>
+						Ativo
+					</span>
+				} else {
+					<span class="cat-status cat-status--inactive">
+						<span class="cat-status-dot cat-status-dot--inactive"></span>
+						Inativo
+					</span>
+				}
+				<span class="cat-edit-btn">
+					Editar
+					<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M5 12h14M12 5l7 7-7 7"></path>
+					</svg>
+				</span>
+			</a>
 		}
-	</tbody>
+	</div>
 }
 
-//
-// ==========================
-// LISTAGEM DE PRODUTOS
-// ==========================
-//
 templ ProductsPage(params store.GetProductPageParams) {
-	<div class="space-y-6">
-		<div class="flex items-center justify-between">
+	<style>
+		.cat-title {
+			font-family: 'Syne', sans-serif;
+			font-size: 1.9rem;
+			font-weight: 800;
+			line-height: 1;
+			letter-spacing: -.03em;
+			color: #1C1C2E;
+		}
+		.cat-row {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			padding: 13px 18px 13px 20px;
+			background: white;
+			border: 1px solid #E5E7EB;
+			border-radius: 11px;
+			position: relative;
+			overflow: hidden;
+			text-decoration: none;
+			color: inherit;
+			cursor: pointer;
+			transition: border-color .18s, box-shadow .18s, transform .13s;
+			opacity: 0;
+			animation: catRowIn .3s ease forwards;
+		}
+		.cat-row::before {
+			content: '';
+			position: absolute;
+			left: 0; top: 8px; bottom: 8px;
+			width: 3px;
+			background: #7C3AED;
+			border-radius: 0 2px 2px 0;
+			transform: scaleY(0);
+			transform-origin: center;
+			transition: transform .2s ease;
+		}
+		.cat-row:hover::before { transform: scaleY(1); }
+		.cat-row:hover {
+			border-color: #C4B5FD;
+			box-shadow: 0 3px 14px rgba(124,58,237,.07);
+			transform: translateY(-1px);
+		}
+		.cat-row:nth-child(1)  { animation-delay:   0ms }
+		.cat-row:nth-child(2)  { animation-delay:  42ms }
+		.cat-row:nth-child(3)  { animation-delay:  84ms }
+		.cat-row:nth-child(4)  { animation-delay: 126ms }
+		.cat-row:nth-child(5)  { animation-delay: 168ms }
+		.cat-row:nth-child(6)  { animation-delay: 210ms }
+		.cat-row:nth-child(7)  { animation-delay: 252ms }
+		.cat-row:nth-child(8)  { animation-delay: 294ms }
+		.cat-row:nth-child(9)  { animation-delay: 336ms }
+		.cat-row:nth-child(10) { animation-delay: 378ms }
+		@keyframes catRowIn {
+			from { opacity: 0; transform: translateY(7px) }
+			to   { opacity: 1; transform: translateY(0)   }
+		}
+		.cat-sku {
+			font-family: 'JetBrains Mono', monospace;
+			font-size: .695rem;
+			font-weight: 500;
+			color: #6B7280;
+			background: #F3F4F6;
+			padding: 3px 9px;
+			border-radius: 5px;
+			white-space: nowrap;
+			min-width: 78px;
+			text-align: center;
+			flex-shrink: 0;
+		}
+		.cat-name {
+			flex: 1;
+			font-size: .875rem;
+			font-weight: 500;
+			color: #1C1C2E;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		.cat-status {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			font-size: .75rem;
+			font-weight: 500;
+			white-space: nowrap;
+			flex-shrink: 0;
+		}
+		.cat-status-dot {
+			width: 6px; height: 6px;
+			border-radius: 50%;
+			flex-shrink: 0;
+		}
+		.cat-status--active            { color: #15803D }
+		.cat-status-dot--active        { background: #22C55E; box-shadow: 0 0 0 2.5px #DCFCE7 }
+		.cat-status--inactive          { color: #9CA3AF }
+		.cat-status-dot--inactive      { background: #D1D5DB }
+		.cat-edit-btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			padding: 4px 12px;
+			border-radius: 7px;
+			font-size: .75rem;
+			font-weight: 600;
+			color: #6B21A8;
+			background: #F5F3FF;
+			border: 1px solid #DDD6FE;
+			transition: background .14s, color .14s, border-color .14s;
+			white-space: nowrap;
+			flex-shrink: 0;
+		}
+		.cat-row:hover .cat-edit-btn {
+			background: #7C3AED;
+			color: white;
+			border-color: #7C3AED;
+		}
+		.cat-empty {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 56px 32px;
+			background: white;
+			border: 1.5px dashed #E5E7EB;
+			border-radius: 12px;
+			gap: 10px;
+		}
+		.cat-empty-icon  { width: 36px; height: 36px; color: #D1D5DB }
+		.cat-empty-title { font-size: .875rem; font-weight: 600; color: #9CA3AF }
+		.cat-empty-sub   { font-size: .75rem; color: #D1D5DB }
+		.cat-pgbtn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 32px;
+			height: 32px;
+			padding: 0 10px;
+			border-radius: 8px;
+			font-size: .8125rem;
+			font-weight: 500;
+			border: 1px solid #E5E7EB;
+			background: white;
+			color: #555570;
+			cursor: pointer;
+			transition: all .14s;
+		}
+		.cat-pgbtn:not([disabled]):hover { border-color: #A78BFA; color: #6B21A8 }
+		.cat-pgbtn--active { background: #7C3AED; border-color: #7C3AED; color: white; font-weight: 600 }
+		.cat-pgbtn[disabled] { opacity: .35; cursor: not-allowed }
+	</style>
+	<div class="space-y-4">
+		<div class="flex items-end justify-between pt-1">
 			<div>
-				<h1 class="text-2xl font-bold">Produtos</h1>
-				<p class="text-base-content/60 text-sm mt-0.5">Gerencie o catálogo de produtos do tenant.</p>
+				<h1 class="cat-title">Produtos</h1>
+				<p class="text-xs text-gray-400 mt-1.5">
+					{ strconv.Itoa(len(params.Products)) } resultado(s) · página { strconv.Itoa(params.Page) }
+				</p>
 			</div>
 			<button
 				hx-get="/admin/produtos/novo"
 				hx-target="#main-content"
 				hx-push-url="true"
-				class="btn btn-primary btn-sm"
+				class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-content text-sm font-semibold hover:brightness-95 active:scale-[.97] transition-all cursor-pointer"
 			>
-				+ Novo Produto
+				<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M12 5v14M5 12h14"></path>
+				</svg>
+				Novo Produto
 			</button>
 		</div>
-		@Filter()
-		<div class="card bg-base-100 shadow-sm border border-base-300">
-			<div class="card-body p-0">
-				<div class="overflow-x-auto">
-					<table class="table table-zebra">
-						<thead>
-							<tr>
-								<th>SKU</th>
-								<th>Nome</th>
-								<th>Status</th>
-								<th>Estoque</th>
-								<th class="text-center">Ações</th>
-							</tr>
-						</thead>
-						@ProductTableBody(params.Products)
-					</table>
-				</div>
-			</div>
+		<div class="bg-white border border-gray-200 rounded-xl px-4 py-3">
+			@Filter()
 		</div>
+		@ProductTableBody(params.Products)
 		@Pagination(params.Page, params.TotalPages)
 	</div>
 }
 
-//
-// ==========================
-// FORMULÁRIO DE PRODUTO
-// ==========================
-//
-templ ProductForm(form *forms.Form, isUpdate bool) {
+templ ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants []store.Variant, attrs []store.Attribute) {
 	{{
 		var action string
 		if isUpdate {
@@ -217,7 +343,7 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 			{"MT", "Metro (MT)"},
 		}
 	}}
-	<div id="form" class="space-y-6">
+	<div id="form" class="space-y-6 max-w-[900px] mx-auto">
 		<div class="flex items-center justify-between">
 			<div>
 				<h1 class="text-2xl font-bold">
@@ -227,7 +353,7 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 						Novo Produto
 					}
 				</h1>
-				<p class="text-base-content/60 text-sm mt-0.5">
+				<p class="text-gray-400 text-sm mt-0.5">
 					if isUpdate {
 						Atualize os dados do produto abaixo.
 					} else {
@@ -235,110 +361,104 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 					}
 				</p>
 			</div>
-			<button
-				hx-get="/admin/produtos"
-				hx-target="#main-content"
-				hx-push-url="true"
-				class="btn btn-ghost btn-sm"
+			<a
+				href="/admin/produtos"
+				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
 			>
 				← Voltar
-			</button>
+			</a>
 		</div>
-		<div class="card bg-base-100 shadow-sm border border-base-300">
-			<div class="card-body">
+		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+			<div class="p-5">
 				<form
 					hx-post={ action }
 					hx-target="#form"
 					hx-swap="outerHTML"
-					class="space-y-6"
+					class="space-y-0"
 				>
 					<!-- DADOS GERAIS -->
-					<div>
-						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Dados Gerais</h2>
-						<div class="flex flex-wrap gap-4">
-							<div class="basis-[45%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:          "name",
-									Label:         "Nome",
-									InputType:     "text",
-									Value:         form.Get("name"),
-									ErrorMessages: form.Errors.Get("name"),
-									IsRequired:    true,
-								})
-							</div>
-							<div class="basis-[20%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:          "sku",
-									Label:         "SKU",
-									InputType:     "text",
-									Value:         form.Get("sku"),
-									ErrorMessages: form.Errors.Get("sku"),
-									IsRequired:    true,
-									Disabled:      isUpdate,
-								})
-							</div>
-							<div class="basis-[20%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:          "ean",
-									Label:         "EAN",
-									InputType:     "text",
-									Value:         form.Get("ean"),
-									ErrorMessages: form.Errors.Get("ean"),
-									Mask:          "9999999999999",
-									Placeholder:   "0000000000000",
-								})
-							</div>
+					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Dados Gerais</p>
+					<div class="flex flex-wrap gap-3 mb-4">
+						<div class="basis-[45%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:          "name",
+								Label:         "Nome",
+								InputType:     "text",
+								Value:         form.Get("name"),
+								ErrorMessages: form.Errors.Get("name"),
+								IsRequired:    true,
+							})
 						</div>
-						<div class="form-control mt-4">
-							<label class="label py-1">
-								<span class="label-text text-sm">Descrição</span>
-							</label>
-							<textarea
-								name="description"
-								rows="3"
-								class="textarea textarea-bordered w-full text-sm"
-							>{ form.Get("description") }</textarea>
+						<div class="basis-[20%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:          "sku",
+								Label:         "SKU",
+								InputType:     "text",
+								Value:         form.Get("sku"),
+								ErrorMessages: form.Errors.Get("sku"),
+								IsRequired:    true,
+								Disabled:      isUpdate,
+							})
+						</div>
+						<div class="basis-[20%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:          "ean",
+								Label:         "EAN",
+								InputType:     "text",
+								Value:         form.Get("ean"),
+								ErrorMessages: form.Errors.Get("ean"),
+								Mask:          "9999999999999",
+								Placeholder:   "0000000000000",
+							})
 						</div>
 					</div>
-					<div class="divider my-1"></div>
+					<div class="flex flex-col gap-1 mb-5">
+						<label class="flex items-center gap-2 py-1">
+							<span class="text-sm font-medium">Descrição</span>
+						</label>
+						<textarea
+							name="description"
+							rows="3"
+							class="block w-full border border-gray-300 rounded-field bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-y"
+						>{ form.Get("description") }</textarea>
+					</div>
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
 					<!-- CLASSIFICAÇÃO -->
-					<div>
-						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Classificação</h2>
-						<div class="flex flex-wrap gap-4">
-							<div class="basis-[30%] grow">
-								<label class="label py-1">
-									<span class="label-text text-sm">Unidade de Medida</span>
-								</label>
-								<select name="uom" class="select select-bordered select-sm w-full">
-									for _, u := range uoms {
-										<option
-											value={ u.Value }
-											if form.Get("uom") == u.Value {
-												selected
-											}
-										>
-											{ u.Label }
-										</option>
-									}
-								</select>
-							</div>
-							<div class="basis-[20%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:        "ncm",
-									Label:       "NCM",
-									InputType:   "text",
-									Value:       form.Get("ncm"),
-									Mask:        "9999.99.99",
-									Placeholder: "0000.00.00",
-								})
-							</div>
+					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Classificação</p>
+					<div class="flex flex-wrap gap-3 mb-4">
+						<div class="basis-[30%] grow">
+							<label class="flex items-center gap-2 py-1">
+								<span class="text-sm font-medium">Unidade de Medida</span>
+							</label>
+							<select name="uom" class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+								for _, u := range uoms {
+									<option
+										value={ u.Value }
+										if form.Get("uom") == u.Value {
+											selected
+										}
+									>
+										{ u.Label }
+									</option>
+								}
+							</select>
+						</div>
+						<div class="basis-[20%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:        "ncm",
+								Label:       "NCM",
+								InputType:   "text",
+								Value:       form.Get("ncm"),
+								Mask:        "9999.99.99",
+								Placeholder: "0000.00.00",
+							})
 						</div>
 					</div>
-					<div class="divider my-1"></div>
+					if !isUpdate {
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
 					<!-- ESTOQUE & CUSTOS -->
-					<div>
-						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Estoque & Custos</h2>
-						<div class="flex flex-wrap gap-4">
+					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Estoque &amp; Custos</p>
+						<div class="flex flex-wrap gap-3 mb-4">
 							<div class="basis-[25%] grow">
 								@components.BasicInput(components.BasicInputParams{
 									Name:      "cost_price",
@@ -365,61 +485,58 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 								})
 							</div>
 						</div>
-					</div>
-					<div class="divider my-1"></div>
+					}
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
 					<!-- DIMENSÕES -->
-					<div>
-						<h2 class="text-sm font-semibold uppercase tracking-wider text-base-content/40 mb-3">Dimensões</h2>
-						<div class="flex flex-wrap gap-4">
-							<div class="basis-[18%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:      "weight",
-									Label:     "Peso (kg)",
-									InputType: "number",
-									Step:      "0.01",
-									Value:     form.Get("weight"),
-								})
-							</div>
-							<div class="basis-[18%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:      "height",
-									Label:     "Altura (cm)",
-									InputType: "number",
-									Step:      "0.01",
-									Value:     form.Get("height"),
-								})
-							</div>
-							<div class="basis-[18%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:      "width",
-									Label:     "Largura (cm)",
-									InputType: "number",
-									Step:      "0.01",
-									Value:     form.Get("width"),
-								})
-							</div>
-							<div class="basis-[18%] grow">
-								@components.BasicInput(components.BasicInputParams{
-									Name:      "length",
-									Label:     "Comprimento (cm)",
-									InputType: "number",
-									Step:      "0.01",
-									Value:     form.Get("length"),
-								})
-							</div>
+					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Dimensões</p>
+					<div class="flex flex-wrap gap-3 mb-4">
+						<div class="basis-[18%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:      "weight",
+								Label:     "Peso (kg)",
+								InputType: "number",
+								Step:      "0.01",
+								Value:     form.Get("weight"),
+							})
+						</div>
+						<div class="basis-[18%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:      "height",
+								Label:     "Altura (cm)",
+								InputType: "number",
+								Step:      "0.01",
+								Value:     form.Get("height"),
+							})
+						</div>
+						<div class="basis-[18%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:      "width",
+								Label:     "Largura (cm)",
+								InputType: "number",
+								Step:      "0.01",
+								Value:     form.Get("width"),
+							})
+						</div>
+						<div class="basis-[18%] grow">
+							@components.BasicInput(components.BasicInputParams{
+								Name:      "length",
+								Label:     "Comprimento (cm)",
+								InputType: "number",
+								Step:      "0.01",
+								Value:     form.Get("length"),
+							})
 						</div>
 					</div>
-					<div class="divider my-1"></div>
-					<div class="flex justify-end gap-3">
-						<button
-							hx-get="/admin/produtos"
-							hx-target="#main-content"
-							hx-push-url="true"
-							class="btn btn-ghost btn-sm"
+					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
+					@components.FormAlert(form.Errors.Get("general"))
+					<div class="flex justify-end gap-3 pt-2">
+						<a
+							href="/admin/produtos"
+							class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
 						>
 							Cancelar
-						</button>
-						<button type="submit" class="btn btn-primary btn-sm">
+						</a>
+						<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
 							if isUpdate {
 								Salvar Alterações
 							} else {
@@ -430,5 +547,8 @@ templ ProductForm(form *forms.Form, isUpdate bool) {
 				</form>
 			</div>
 		</div>
+		if isUpdate {
+			@VariationArea(form.Get("ID"), variants, attrs)
+		}
 	</div>
 }

@@ -1,10 +1,35 @@
 package templates
 
+import "strings"
+
+func emailInitials(email string) string {
+	if email == "" {
+		return "U"
+	}
+	at := strings.Index(email, "@")
+	name := email
+	if at > 0 {
+		name = email[:at]
+	}
+	parts := strings.SplitN(name, ".", 2)
+	if len(parts) == 2 && len(parts[0]) > 0 && len(parts[1]) > 0 {
+		return strings.ToUpper(parts[0][:1]) + strings.ToUpper(parts[1][:1])
+	}
+	if len(name) > 0 {
+		return strings.ToUpper(name[:1])
+	}
+	return "U"
+}
+
 templ header(title string) {
 	<head>
-		<title>SistemName - { title }</title>
+		<title>ConnSale - { title }</title>
 		<meta charset="UTF-8"/>
+		<link rel="preconnect" href="https://fonts.googleapis.com"/>
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 		<script src="/static/script/htmx.min.js"></script>
+		<script>htmx.config.useTemplateFragments = true;</script>
 		<script src="/static/script/response-targets.js"></script>
 		<link rel="stylesheet" href="/static/css/style.css"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -15,76 +40,251 @@ templ header(title string) {
 	</head>
 }
 
-templ navLink(label, p string) {
-	<a
-		hx-get={ "/admin" + p }
-		hx-target="#main-content"
-		hx-push-url="true"
-		hx-swap="innerHTML"
-		class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-base-content/70 hover:bg-base-200 hover:text-base-content transition-colors"
-	>{ label }</a>
-}
-
-templ sideBar() {
-	<nav class="flex flex-col h-full p-4 gap-1">
-		<div class="mb-2">
-			<p class="px-3 text-xs font-semibold uppercase tracking-wider text-base-content/40 mb-1">Produtos</p>
-			@navLink("Cadastrar", "/produtos/novo")
-			@navLink("Listar", "/produtos")
-			@navLink("Tabelas de Preço", "/produtos/pricetable")
-		</div>
-		<div class="divider my-1"></div>
-		<div class="mb-2">
-			<p class="px-3 text-xs font-semibold uppercase tracking-wider text-base-content/40 mb-1">Contatos</p>
-			@navLink("Novo", "/contacts/novo")
-			@navLink("Listar", "/contacts/")
-		</div>
-		<div class="divider my-1"></div>
-		<div class="mb-2">
-			<p class="px-3 text-xs font-semibold uppercase tracking-wider text-base-content/40 mb-1">Pedidos</p>
-			@navLink("Novo", "/pedidos/novo")
-			@navLink("Listar", "/pedidos/")
-		</div>
-	</nav>
-}
-
-templ upbar() {
-	<div class="flex items-center justify-between px-6 h-14 bg-base-100 border-b border-base-200">
-		<a
-			class="font-bold text-lg tracking-tight"
-			hx-get="/admin"
-			hx-target="#main-content"
-			hx-swap="innerHTML"
-		>Sistema</a>
-		<div class="flex items-center gap-3">
-			<label class="flex items-center gap-1 cursor-pointer">
-				<span class="text-xs text-base-content/50">Dark</span>
-				<input type="checkbox" value="dark" class="toggle toggle-sm theme-controller"/>
-			</label>
-			<button type="button" hx-post="/admin/logout" class="btn btn-ghost btn-sm">Sair</button>
-		</div>
-	</div>
-}
-
 templ Layout(contents templ.Component, title string, loggedIn bool, email string) {
-	<html lang="pt-br" data-theme="light">
+	{{
+		initials := emailInitials(email)
+		xData := `{
+			collapsed: false,
+			active: 'dashboard',
+			getPage() {
+				const p = window.location.pathname;
+				if (p.startsWith('/admin/produtos')) return 'products';
+				if (p.startsWith('/admin/atributos')) return 'attributes';
+				if (p.startsWith('/admin/pedidos'))  return 'orders';
+				if (p.startsWith('/admin/contacts')) return 'clients';
+				if (p.startsWith('/admin/relatorios')) return 'reports';
+				if (p.startsWith('/admin/configuracoes')) return 'config';
+				return 'dashboard';
+			},
+			pageLabel() {
+				const labels = {
+					dashboard:  'Visão Geral',
+					products:   'Produtos',
+					attributes: 'Atributos',
+					orders:     'Pedidos',
+					clients:    'Clientes',
+					reports:    'Relatórios',
+					config:     'Configurações'
+				};
+				return labels[this.active] || this.active;
+			},
+			init() {
+				this.active = this.getPage();
+				document.addEventListener('htmx:afterSettle', () => { this.active = this.getPage(); });
+			}
+		}`
+	}}
+	<html lang="pt-BR" data-theme="light">
 		@header(title)
-		<body class="min-h-screen bg-base-200" hx-boost="true">
-			@upbar()
-			<div class="flex h-[calc(100vh-3.5rem)]">
-				<aside class="w-56 shrink-0 bg-base-100 border-r border-base-200 overflow-y-auto">
-					@sideBar()
-				</aside>
-				<main class="flex-1 overflow-y-auto p-6">
-					<div id="main-content" class="w-full max-w-6xl mx-auto">
-						@contents
+		<body style="overflow:hidden;height:100vh;margin:0;padding:0;">
+			<div class="cs-shell" x-data={ xData }>
+				<!-- ═══ SIDEBAR ═══ -->
+				<aside class="cs-sidebar" :class="{ 'collapsed': collapsed }">
+					<div class="cs-sidebar-logo">
+						<div class="cs-logo-icon">C</div>
+						<div class="cs-logo-text" x-show="!collapsed" x-transition.opacity>
+							Conn<span>Sale</span>
+						</div>
 					</div>
-				</main>
+					<div class="cs-sidebar-toggle" @click="collapsed = !collapsed">
+						<svg
+							width="11"
+							height="11"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.5"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							:style="collapsed ? 'transform:rotate(180deg);transition:transform .22s' : 'transition:transform .22s'"
+						>
+							<path d="M15 18l-6-6 6-6"></path>
+						</svg>
+					</div>
+					<nav class="cs-sidebar-nav">
+						<!-- Visão Geral -->
+						<a
+							class="cs-nav-item"
+							:class="{ 'active': active === 'dashboard' }"
+							hx-get="/admin/"
+							hx-target="#main-content"
+							hx-push-url="true"
+							hx-swap="innerHTML"
+							@click="active = 'dashboard'"
+						>
+							<span class="cs-nav-item-icon">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"></path>
+								</svg>
+							</span>
+							<span class="cs-nav-item-label" x-show="!collapsed">Visão Geral</span>
+						</a>
+						<!-- VENDAS -->
+						<div class="cs-nav-group-label">Vendas</div>
+						<a
+							class="cs-nav-item"
+							:class="{ 'active': active === 'orders' }"
+							hx-get="/admin/pedidos/"
+							hx-target="#main-content"
+							hx-push-url="true"
+							hx-swap="innerHTML"
+							@click="active = 'orders'"
+						>
+							<span class="cs-nav-item-icon">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"></path>
+									<path d="M9 5a2 2 0 002 2h2a2 2 0 002-2"></path>
+									<path d="M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+									<path d="M9 14l2 2 4-4"></path>
+								</svg>
+							</span>
+							<span class="cs-nav-item-label" x-show="!collapsed">Pedidos</span>
+						</a>
+						<a
+							class="cs-nav-item"
+							:class="{ 'active': active === 'clients' }"
+							hx-get="/admin/contacts/"
+							hx-target="#main-content"
+							hx-push-url="true"
+							hx-swap="innerHTML"
+							@click="active = 'clients'"
+						>
+							<span class="cs-nav-item-icon">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+									<path d="M9 11a4 4 0 100-8 4 4 0 000 8z"></path>
+								</svg>
+							</span>
+							<span class="cs-nav-item-label" x-show="!collapsed">Clientes</span>
+						</a>
+						<!-- CATÁLOGO -->
+						<div class="cs-nav-group-label">Catálogo</div>
+						<a
+							class="cs-nav-item"
+							:class="{ 'active': active === 'products' }"
+							hx-get="/admin/produtos/"
+							hx-target="#main-content"
+							hx-push-url="true"
+							hx-swap="innerHTML"
+							@click="active = 'products'"
+						>
+							<span class="cs-nav-item-icon">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+								</svg>
+							</span>
+							<span class="cs-nav-item-label" x-show="!collapsed">Produtos</span>
+						</a>
+						<a
+							class="cs-nav-item"
+							:class="{ 'active': active === 'attributes' }"
+							hx-get="/admin/atributos"
+							hx-target="#main-content"
+							hx-push-url="true"
+							hx-swap="innerHTML"
+							@click="active = 'attributes'"
+						>
+							<span class="cs-nav-item-icon">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M7 7h.01M7 12h.01M7 17h.01M11 7h6M11 12h6M11 17h6"></path>
+								</svg>
+							</span>
+							<span class="cs-nav-item-label" x-show="!collapsed">Atributos</span>
+						</a>
+						<!-- ANÁLISE -->
+						<div class="cs-nav-group-label">Análise</div>
+						<a
+							class="cs-nav-item"
+							:class="{ 'active': active === 'reports' }"
+							href="#"
+							@click.prevent="active = 'reports'"
+						>
+							<span class="cs-nav-item-icon">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M18 20V10M12 20V4M6 20v-6"></path>
+								</svg>
+							</span>
+							<span class="cs-nav-item-label" x-show="!collapsed">Relatórios</span>
+						</a>
+						<!-- SISTEMA -->
+						<div class="cs-nav-group-label">Sistema</div>
+						<a
+							class="cs-nav-item"
+							:class="{ 'active': active === 'config' }"
+							href="#"
+							@click.prevent="active = 'config'"
+						>
+							<span class="cs-nav-item-icon">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M12 15a3 3 0 100-6 3 3 0 000 6z"></path>
+									<path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"></path>
+								</svg>
+							</span>
+							<span class="cs-nav-item-label" x-show="!collapsed">Configurações</span>
+						</a>
+					</nav>
+					<!-- User -->
+					<div class="cs-sidebar-user">
+						<div class="cs-user-avatar">{ initials }</div>
+						<div class="cs-sidebar-user-info" x-show="!collapsed" x-transition.opacity>
+							<div class="cs-user-name">{ email }</div>
+							<div class="cs-user-role">Admin</div>
+						</div>
+					</div>
+				</aside>
+				<!-- ═══ MAIN ═══ -->
+				<div class="cs-main">
+					<!-- HEADER -->
+					<header class="cs-header">
+						<nav class="cs-breadcrumb">
+							<span class="current" x-text="pageLabel()"></span>
+						</nav>
+						<div class="cs-header-spacer"></div>
+						<div class="cs-header-search">
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"></path>
+							</svg>
+							<input placeholder="Buscar pedidos, produtos, clientes…"/>
+						</div>
+						<button class="cs-header-btn" type="button" aria-label="Notificações">
+							<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+								<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+								<path d="M13.73 21a2 2 0 01-3.46 0"></path>
+							</svg>
+							<span class="cs-notif-dot"></span>
+						</button>
+						<div class="cs-header-divider"></div>
+						<div class="cs-header-user">
+							<div class="cs-header-avatar">{ initials }</div>
+							<div>
+								<div class="cs-header-user-name">{ email }</div>
+								<div class="cs-header-user-role">Admin</div>
+							</div>
+						</div>
+						if loggedIn {
+							<button type="button" hx-post="/admin/logout" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm" style="margin-left:4px;">Sair</button>
+						}
+					</header>
+					<!-- CONTENT -->
+					<main class="cs-content">
+						<div id="main-content" class="w-full max-w-[1280px] mx-auto">
+							@contents
+						</div>
+					</main>
+					<!-- FOOTER -->
+					<footer class="cs-footer">
+						<div class="cs-footer-copy"><strong>ConnSale</strong> © 2026</div>
+						<nav class="cs-footer-links">
+							<a class="cs-footer-link" href="#">Termos de Uso</a>
+							<a class="cs-footer-link" href="#">Privacidade</a>
+							<a class="cs-footer-link" href="#">Suporte</a>
+						</nav>
+						<div class="cs-footer-version">v1.0.0</div>
+					</footer>
+				</div>
 			</div>
-			<div
-				id="toast-container"
-				class="fixed top-6 right-6 z-50 space-y-4 w-80"
-			></div>
+			<!-- Toast container -->
+			<div id="toast-container" class="fixed top-6 right-6 z-50 space-y-4 w-80"></div>
 		</body>
 		<script>
 			document.body.addEventListener("showToast", function (event) {
@@ -100,12 +300,10 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 				toast.textContent = message;
 				container.appendChild(toast);
 
-				//anima entrada
 				requestAnimationFrame(() => {
 					toast.classList.remove("opacity-0", "translate-y-2");
 				});
 
-				// anima saída
 				setTimeout(() => {
 					toast.classList.add("opacity-0", "translate-y-2");
 					setTimeout(() => toast.remove(), 300);

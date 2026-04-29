@@ -138,7 +138,7 @@ func (c *ContactHandler) CreateLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Render(templates.InviteLink(string(id), url), r, w)
+	Render(templates.InviteLink(strconv.FormatUint(id, 10), url), r, w)
 }
 
 func (c ContactHandler) fetchPriceTables(w http.ResponseWriter, tenantID uint) []store.PriceTable {
@@ -160,8 +160,6 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 	priceTables := c.fetchPriceTables(w, sess.TenantID)
 
 	if !form.Valid() {
-		ShowToast(w, "Erros de validação", "error")
-		fmt.Println(form.Errors)
 		_ = Render(templates.ContactForm(form, false, priceTables), r, w)
 		return
 	}
@@ -190,14 +188,14 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := c.contactStore.CreateContact(contact); err != nil {
-		ShowToast(w, "Erro ao cadastar contato", "error")
+		form.Errors.Add("general", "Erro ao cadastrar contato. Tente novamente.")
 		_ = Render(templates.ContactForm(form, false, priceTables), r, w)
 		return
 	}
 
 	ShowToast(w, "Contato Cadastrado", "success")
 	form.Set("ID", strconv.Itoa(int(contact.ID)))
-	_ = Render(templates.ProductForm(form, true), r, w)
+	_ = Render(templates.ContactForm(form, true, priceTables), r, w)
 }
 
 func (c ContactHandler) GetContactsForm(w http.ResponseWriter, r *http.Request) {
@@ -252,12 +250,12 @@ func (c ContactHandler) GetContactsPage(w http.ResponseWriter, r *http.Request) 
 		ContactType: r.URL.Query().Get("contact_type"),
 	})
 
-	pagination.TotalPages = int(math.Floor(float64(results.Count) / float64(pagination.PerPage)))
-
 	if err != nil {
 		http.Error(w, "Error listing contacts", http.StatusInternalServerError)
 		return
 	}
+
+	pagination.TotalPages = int(math.Floor(float64(results.Count) / float64(pagination.PerPage)))
 
 	err = Render(templates.ContactPage(store.ListResults[store.Contact]{
 		Pagination: pagination,
@@ -285,7 +283,6 @@ func (h *ContactHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !form.Valid() {
-		ShowToast(w, "Erro ao salvar contato", "error")
 		_ = Render(templates.ContactForm(form, true, priceTables), r, w)
 		return
 	}
@@ -311,7 +308,7 @@ func (h *ContactHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	err = h.contactStore.UpdateById(uint(id), sess.TenantID, fields)
 	if err != nil {
-		ShowToast(w, "Erro ao salvar contato", "error")
+		form.Errors.Add("general", "Erro ao salvar contato. Tente novamente.")
 		_ = Render(templates.ContactForm(form, true, priceTables), r, w)
 		return
 	}

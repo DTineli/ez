@@ -36,12 +36,13 @@ func PriceTableForm(errors map[string]string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"price-table-form\"><div class=\"card bg-base-100 shadow-sm border border-base-300\"><div class=\"card-body\"><h2 class=\"card-title text-base\">Nova Tabela de Preço</h2><form hx-post=\"/admin/produtos/pricetable\" hx-target=\"#table-body\" hx-swap=\"beforebegin\" hx-on::after-request=\"if(event.detail.successful) this.reset()\" class=\"flex flex-wrap items-end gap-4\"><div class=\"flex-1 min-w-[180px]\"><label class=\"label py-1\"><span class=\"label-text text-sm font-medium\">Nome <span class=\"text-error\">*</span></span></label> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"price-table-form\"><div class=\"bg-white shadow-sm border border-gray-200 rounded-xl\"><div class=\"p-6\"><h2 class=\"text-base font-bold mb-4\">Nova Tabela de Preço</h2><form hx-post=\"/admin/produtos/pricetable\" hx-target=\"#table-body\" hx-swap=\"beforebegin\" hx-on::after-request=\"if(event.detail.successful) this.reset()\" class=\"flex flex-wrap items-end gap-4\"><div class=\"flex-1 min-w-[180px]\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Nome <span class=\"text-red-600\">*</span></span></label> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var2 = []any{"input input-bordered input-sm w-full",
-			templ.KV("border-error", errors["name"] != ""),
+		var templ_7745c5c3_Var2 = []any{"block w-full border rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50",
+			templ.KV("border-red-600", errors["name"] != ""),
+			templ.KV("border-gray-300", errors["name"] == ""),
 		}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
@@ -65,14 +66,14 @@ func PriceTableForm(errors map[string]string) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if errors["name"] != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<p class=\"text-error text-xs mt-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<p class=\"text-red-600 text-xs mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(errors["name"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 37, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 38, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -83,18 +84,19 @@ func PriceTableForm(errors map[string]string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div class=\"w-36\"><label class=\"label py-1\"><span class=\"label-text text-sm font-medium\">Margem (%) <span class=\"text-error\">*</span></span></label> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div class=\"w-36\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Margem (%) <span class=\"text-red-600\">*</span></span></label>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var5 = []any{"input input-bordered input-sm flex items-center gap-1",
-			templ.KV("border-error", errors["percentage"] != ""),
+		var templ_7745c5c3_Var5 = []any{"flex items-center gap-1 border rounded-field bg-white px-3 py-1.5 text-sm",
+			templ.KV("border-red-600", errors["percentage"] != ""),
+			templ.KV("border-gray-300", errors["percentage"] == ""),
 		}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<label class=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -107,19 +109,19 @@ func PriceTableForm(errors map[string]string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"><input name=\"percentage\" type=\"number\" min=\"0\" step=\"0.01\" placeholder=\"10\" required class=\"w-full\"> <span class=\"text-base-content/50 text-sm\">%</span></label> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"><input name=\"percentage\" type=\"number\" min=\"0\" step=\"0.01\" placeholder=\"10\" required class=\"w-full bg-transparent outline-none\"> <span class=\"text-gray-400 text-sm\">%</span></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if errors["percentage"] != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p class=\"text-error text-xs mt-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<p class=\"text-red-600 text-xs mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(errors["percentage"])
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 60, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 62, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -130,7 +132,7 @@ func PriceTableForm(errors map[string]string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div class=\"pb-0.5\"><button type=\"submit\" class=\"btn btn-primary btn-sm\">Criar Tabela</button></div></form></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div class=\"pb-0.5\"><button type=\"submit\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm\">Criar Tabela</button></div></form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -159,81 +161,81 @@ func TableRow(table store.PriceTable) templ.Component {
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<tr class=\"hover\" id=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<tr class=\"hover:bg-gray-50\" id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("pricetable-row-%d", table.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 75, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 77, Col: 77}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\"><td class=\"text-sm text-base-content/50 font-mono\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\"><td class=\"px-4 py-3 text-sm text-gray-400 font-mono\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(int(table.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 76, Col: 82}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 78, Col: 85}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</td><td class=\"font-medium\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</td><td class=\"px-4 py-3 font-medium\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(table.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 77, Col: 38}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 79, Col: 48}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</td><td>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</td><td class=\"px-4 py-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", table.Percentage))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 78, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 80, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "%</td><td>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "%</td><td class=\"px-4 py-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if table.Status {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"badge badge-success badge-sm\">Ativo</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-green-100 text-green-800\">Ativo</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"badge badge-ghost badge-sm\">Inativo</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-gray-100 text-gray-700\">Inativo</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</td><td><div class=\"flex justify-center gap-2\"><button type=\"button\" class=\"btn btn-ghost btn-xs\">Editar</button> <button type=\"button\" hx-delete=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</td><td class=\"px-4 py-3\"><div class=\"flex justify-center gap-2\"><button type=\"button\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs\">Editar</button> <button type=\"button\" hx-delete=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/produtos/pricetable/%d", table.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 91, Col: 71}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 93, Col: 71}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -246,7 +248,7 @@ func TableRow(table store.PriceTable) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#pricetable-row-%d", table.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 92, Col: 60}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 94, Col: 60}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -259,13 +261,13 @@ func TableRow(table store.PriceTable) templ.Component {
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("Excluir a tabela \"%s\"? Esta ação não pode ser desfeita.", table.Name))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 94, Col: 105}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 96, Col: 105}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" class=\"btn btn-ghost btn-xs text-error\">Excluir</button></div></td></tr>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs text-red-600\">Excluir</button></div></td></tr>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -294,14 +296,14 @@ func PriceTablePage(tables []store.PriceTable) templ.Component {
 			templ_7745c5c3_Var16 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"space-y-6\"><div class=\"flex items-center justify-between\"><div><h1 class=\"text-2xl font-bold\">Tabelas de Preço</h1><p class=\"text-base-content/60 text-sm mt-0.5\">Gerencie as tabelas de margem aplicadas aos produtos.</p></div><span class=\"badge badge-outline\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"space-y-6\"><div class=\"flex items-center justify-between\"><div><h1 class=\"text-2xl font-bold\">Tabelas de Preço</h1><p class=\"text-gray-400 text-sm mt-0.5\">Gerencie as tabelas de margem aplicadas aos produtos.</p></div><span class=\"inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full border border-current bg-transparent\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(len(tables)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 111, Col: 64}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/priceTable.templ`, Line: 113, Col: 151}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -315,12 +317,12 @@ func PriceTablePage(tables []store.PriceTable) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"card bg-base-100 shadow-sm border border-base-300\"><div class=\"card-body p-0\"><div class=\"overflow-x-auto\"><table class=\"table table-zebra\"><thead><tr><th>ID</th><th>Nome</th><th>Margem</th><th>Status</th><th class=\"text-center\">Ações</th></tr></thead> <tbody id=\"table-body\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"bg-white shadow-sm border border-gray-200 rounded-xl\"><div class=\"p-0\"><div class=\"overflow-x-auto\"><table class=\"w-full text-sm text-left\"><thead><tr><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">ID</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Nome</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Margem</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Status</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-center\">Ações</th></tr></thead> <tbody id=\"table-body\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(tables) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<tr><td colspan=\"5\" class=\"text-center text-base-content/50 py-8\">Nenhuma tabela cadastrada ainda.</td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<tr><td colspan=\"5\" class=\"text-center text-gray-400 py-8 px-4\">Nenhuma tabela cadastrada ainda.</td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

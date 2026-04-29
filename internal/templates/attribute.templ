@@ -1,0 +1,250 @@
+package templates
+
+import (
+	"strconv"
+
+	"github.com/DTineli/ez/internal/store"
+)
+
+templ AttributeManagementSection(attrs []store.Attribute) {
+	<div id="attribute-management" class="bg-white shadow-sm border border-gray-200 rounded-xl p-5">
+		<div class="flex items-center justify-between mb-3">
+			<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400">Atributos</h2>
+			<button
+				type="button"
+				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-content px-3 py-1.5 text-sm"
+				hx-get="/admin/atributos/form"
+				hx-target="#attribute-management"
+				hx-swap="outerHTML"
+			>
+				+ Novo Atributo
+			</button>
+		</div>
+		if len(attrs) == 0 {
+			<p class="text-sm text-gray-400 italic">Nenhum atributo cadastrado.</p>
+		} else {
+			<div class="flex flex-wrap gap-2">
+				for _, attr := range attrs {
+					<span class="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">
+						{ attr.Name }
+						<span class="text-gray-400 ml-1">({ strconv.Itoa(len(attr.Values)) })</span>
+					</span>
+				}
+			</div>
+		}
+	</div>
+}
+
+templ AttributeManagementSectionWithForm(attrs []store.Attribute) {
+	<div id="attribute-management" class="bg-white shadow-sm border border-gray-200 rounded-xl p-5">
+		<div class="flex items-center justify-between mb-4">
+			<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400">Atributos</h2>
+		</div>
+		<form
+			class="flex gap-2 items-center mb-4"
+			hx-post="/admin/atributos"
+			hx-target="#attribute-management"
+			hx-swap="outerHTML"
+		>
+			<input
+				type="text"
+				name="name"
+				placeholder="Ex: Cor, Tamanho..."
+				class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 w-52"
+				required
+				autofocus
+			/>
+			<button
+				type="submit"
+				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm"
+			>
+				Criar
+			</button>
+			<button
+				type="button"
+				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
+				hx-get="/admin/atributos/form/cancel"
+				hx-target="#attribute-management"
+				hx-swap="outerHTML"
+			>
+				Cancelar
+			</button>
+		</form>
+		if len(attrs) > 0 {
+			<div class="flex flex-wrap gap-2">
+				for _, attr := range attrs {
+					<span class="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">
+						{ attr.Name }
+						<span class="text-gray-400 ml-1">({ strconv.Itoa(len(attr.Values)) })</span>
+					</span>
+				}
+			</div>
+		}
+	</div>
+}
+
+// ─── PÁGINA DEDICADA DE ATRIBUTOS ──────────────────────────────────────────
+templ AttributesPage(attrs []store.Attribute) {
+	<div id="attrs-page" class="space-y-6 max-w-[900px] mx-auto">
+		<div class="flex items-end justify-between pt-1">
+			<div>
+				<h1 class="text-2xl font-bold" style="font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-.03em">Atributos</h1>
+				<p class="text-xs text-gray-400 mt-1.5">Gerencie os atributos de variação dos produtos</p>
+			</div>
+		</div>
+		<div class="bg-white shadow-sm border border-gray-200 rounded-xl p-5">
+			<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-3">Novo Atributo</p>
+			<form
+				class="flex gap-2 items-center"
+				hx-post="/admin/atributos"
+				hx-target="#attrs-page"
+				hx-swap="outerHTML"
+			>
+				<input type="hidden" name="ctx" value="page"/>
+				<input
+					type="text"
+					name="name"
+					placeholder="Ex: Cor, Tamanho..."
+					class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 w-52"
+					required
+				/>
+				<button
+					type="submit"
+					class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm"
+				>
+					Criar Atributo
+				</button>
+			</form>
+		</div>
+		if len(attrs) == 0 {
+			<div class="bg-white shadow-sm border border-gray-200 rounded-xl p-8 text-center">
+				<p class="text-sm text-gray-400 italic">Nenhum atributo cadastrado. Crie o primeiro acima.</p>
+			</div>
+		} else {
+			<div class="grid gap-4">
+				for _, attr := range attrs {
+					<div class="bg-white shadow-sm border border-gray-200 rounded-xl p-5">
+						<div class="flex items-center justify-between mb-3">
+							<h3 class="text-sm font-semibold text-gray-700">{ attr.Name }</h3>
+							<div class="flex items-center gap-3">
+								<span class="text-xs text-gray-400">{ strconv.Itoa(len(attr.Values)) } valores</span>
+								<button
+									type="button"
+									class="inline-flex items-center justify-center cursor-pointer text-gray-400 hover:text-red-500 transition-colors"
+									hx-delete={ "/admin/atributos/" + strconv.Itoa(int(attr.ID)) }
+									hx-target="#attrs-page"
+									hx-swap="outerHTML"
+									hx-confirm={ "Deletar atributo \"" + attr.Name + "\"? Esta ação não pode ser desfeita." }
+									title="Deletar atributo"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<polyline points="3 6 5 6 21 6"></polyline>
+										<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+										<path d="M10 11v6"></path>
+										<path d="M14 11v6"></path>
+										<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+									</svg>
+								</button>
+							</div>
+						</div>
+						<div class="flex flex-wrap gap-2 mb-3">
+							if len(attr.Values) == 0 {
+								<p class="text-xs text-gray-400 italic">Nenhum valor cadastrado.</p>
+							}
+							for _, val := range attr.Values {
+								<span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">
+									{ val.Value }
+								</span>
+							}
+						</div>
+						<form
+							class="flex gap-2 items-center"
+							hx-post={ "/admin/atributos/" + strconv.Itoa(int(attr.ID)) + "/values" }
+							hx-target="#attrs-page"
+							hx-swap="outerHTML"
+						>
+							<input type="hidden" name="ctx" value="page"/>
+							<input
+								type="text"
+								name="value"
+								placeholder="Novo valor..."
+								class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/50 w-40"
+							/>
+							<button
+								type="submit"
+								class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-primary text-primary bg-transparent hover:bg-primary hover:text-primary-content px-2.5 py-1.5 text-xs"
+							>
+								+ Valor
+							</button>
+						</form>
+					</div>
+				}
+			</div>
+		}
+	</div>
+}
+
+// ─── ATRIBUTO ───────────────────────────────────────────────────────────────
+templ AttributeSelect(attrs []store.Attribute, formID string) {
+	<select
+		name="attribute_id"
+		form={ formID }
+		class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-64"
+	>
+		<option value="">— Atributo —</option>
+		for _, attr := range attrs {
+			<option value={ strconv.Itoa(int(attr.ID)) }>{ attr.Name }</option>
+		}
+	</select>
+}
+
+templ NewAttributeForm() {
+	<form
+		id="new-attribute-form"
+		class="flex gap-2 items-end"
+		hx-post="/admin/atributos"
+		hx-target="#attributes-section"
+		hx-swap="outerHTML"
+	>
+		<input
+			type="text"
+			name="name"
+			class="block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-48"
+			placeholder="Ex: Cor, Tamanho..."
+			required
+			autofocus
+		/>
+		<button
+			type="submit"
+			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm"
+		>
+			Criar
+		</button>
+		<button
+			type="button"
+			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm"
+			hx-get="/admin/atributos/form/cancel"
+			hx-target="#new-attribute-form"
+			hx-swap="outerHTML"
+		>
+			Cancelar
+		</button>
+	</form>
+}
+
+templ AttributesSection(attrs []store.Attribute) {
+	<div id="attributes-section" class="flex flex-col gap-2">
+		<div class="flex gap-2 items-center">
+			@AttributeSelect(attrs, "")
+			<button
+				type="button"
+				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all border border-dashed border-gray-300 text-gray-500 bg-transparent hover:bg-gray-50 px-3 py-1.5 text-sm"
+				hx-get="/admin/atributos/form"
+				hx-target="#attributes-section"
+				hx-swap="afterend"
+			>
+				+ Novo atributo
+			</button>
+		</div>
+	</div>
+}

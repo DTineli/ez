@@ -43,7 +43,7 @@ func (c *ClientHandler) PostAddToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	price := product.CostPrice * (1 + priceTable.Percentage/100)
+	price := product.DefaultCostPrice() * (1 + priceTable.Percentage/100)
 
 	cart, err := c.resolveOpenCart(r, w, sess)
 	if err != nil {

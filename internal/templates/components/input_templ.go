@@ -42,14 +42,14 @@ func BasicInput(p BasicInputParams) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"form-control\" x-data><label class=\"label\"><span class=\"label-text\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"flex flex-col gap-1\" x-data><label class=\"flex items-center gap-2\"><span class=\"text-sm font-medium text-gray-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(p.Label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/input.templ`, Line: 19, Col: 37}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/input.templ`, Line: 19, Col: 60}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -164,12 +164,12 @@ func BasicInput(p BasicInputParams) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if len(p.ErrorMessages) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " class=\"input input-bordered w-full border-red-600\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " class=\"block w-full border border-red-600 rounded-field bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " class=\"input input-bordered w-full\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

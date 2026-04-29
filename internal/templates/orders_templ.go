@@ -37,61 +37,61 @@ func AdminOrdersPage(orders []store.AdminOrderListItem) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\"><div class=\"flex items-center justify-between\"><div><h1 class=\"text-2xl font-bold\">Pedidos</h1><p class=\"text-base-content/60 text-sm mt-0.5\">Histórico de pedidos confirmados do tenant.</p></div><button hx-get=\"/admin/pedidos/novo\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"btn btn-primary btn-sm\">+ Novo Pedido</button></div><div class=\"card bg-base-100 shadow-sm border border-base-300\"><div class=\"card-body p-0\"><div class=\"overflow-x-auto\"><table class=\"table table-zebra\"><thead><tr><th>Nº</th><th>Contato</th><th>Status</th><th>Total</th><th>Data</th><th class=\"text-center\">Ações</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"space-y-6\"><div class=\"flex items-center justify-between\"><div><h1 class=\"text-2xl font-bold\">Pedidos</h1><p class=\"text-gray-400 text-sm mt-0.5\">Histórico de pedidos confirmados do tenant.</p></div><button hx-get=\"/admin/pedidos/novo\" hx-target=\"#main-content\" hx-push-url=\"true\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm\">+ Novo Pedido</button></div><div class=\"bg-white shadow-sm border border-gray-200 rounded-xl\"><div class=\"p-0\"><div class=\"overflow-x-auto\"><table class=\"w-full text-sm text-left\"><thead><tr><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Nº</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Contato</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Status</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Total</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Data</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-center\">Ações</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(orders) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<tr><td colspan=\"6\" class=\"text-center text-base-content/50 py-8\">Nenhum pedido confirmado ainda.</td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<tr><td colspan=\"6\" class=\"text-center text-gray-400 py-8 px-4\">Nenhum pedido confirmado ainda.</td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
 		for _, o := range orders {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<tr class=\"hover\"><td class=\"font-mono text-sm text-base-content/60\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<tr class=\"hover:bg-gray-50\"><td class=\"px-4 py-3 font-mono text-sm text-gray-400\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#%d", o.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 51, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 51, Col: 89}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</td><td class=\"font-medium\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</td><td class=\"px-4 py-3 font-medium\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(o.ContactName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 52, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 52, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</td><td>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</td><td class=\"px-4 py-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if o.Status == store.OrderStatusConfirmed {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span class=\"badge badge-success badge-sm\">Confirmado</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span class=\"inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-green-100 text-green-800\">Confirmado</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span class=\"badge badge-ghost badge-sm\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span class=\"inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-gray-100 text-gray-700\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(string(o.Status))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 57, Col: 70}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 57, Col: 146}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -102,33 +102,33 @@ func AdminOrdersPage(orders []store.AdminOrderListItem) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</td><td class=\"font-semibold\">R$ ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</td><td class=\"px-4 py-3 font-semibold\">R$ ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", o.TotalAmount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 60, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 60, Col: 84}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</td><td class=\"text-base-content/60 text-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</td><td class=\"px-4 py-3 text-gray-400 text-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(o.CreatedAt.Format("02/01/2006 15:04"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 61, Col: 90}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 61, Col: 93}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</td><td class=\"text-center\"><a class=\"btn btn-ghost btn-xs\" hx-get=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</td><td class=\"px-4 py-3 text-center\"><a class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs\" hx-get=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -188,7 +188,7 @@ func AdminOrderDetailPage(order *store.OrderDetail) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</h2><a class=\"btn btn-ghost btn-sm\" hx-get=\"/admin/pedidos/\" hx-target=\"#main-content\" hx-push-url=\"true\">← Voltar</a></div><div class=\"card bg-base-100 shadow-md\"><div class=\"card-body\"><h3 class=\"card-title text-base\">Informações</h3><div class=\"grid grid-cols-2 md:grid-cols-4 gap-4 text-sm\"><div><p class=\"text-base-content/60\">Contato</p><p class=\"font-medium\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</h2><a class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm\" hx-get=\"/admin/pedidos/\" hx-target=\"#main-content\" hx-push-url=\"true\">← Voltar</a></div><div class=\"bg-white shadow-md rounded-xl\"><div class=\"p-6\"><h3 class=\"text-base font-bold mb-4\">Informações</h3><div class=\"grid grid-cols-2 md:grid-cols-4 gap-4 text-sm\"><div><p class=\"text-gray-400\">Contato</p><p class=\"font-medium\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -201,7 +201,7 @@ func AdminOrderDetailPage(order *store.OrderDetail) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</p></div><div><p class=\"text-base-content/60\">Status</p><p class=\"font-medium\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</p></div><div><p class=\"text-gray-400\">Status</p><p class=\"font-medium\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -214,7 +214,7 @@ func AdminOrderDetailPage(order *store.OrderDetail) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</p></div><div><p class=\"text-base-content/60\">Total</p><p class=\"font-medium\">R$ ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</p></div><div><p class=\"text-gray-400\">Total</p><p class=\"font-medium\">R$ ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -227,7 +227,7 @@ func AdminOrderDetailPage(order *store.OrderDetail) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</p></div><div><p class=\"text-base-content/60\">Criado em</p><p class=\"font-medium\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</p></div><div><p class=\"text-gray-400\">Criado em</p><p class=\"font-medium\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -240,58 +240,58 @@ func AdminOrderDetailPage(order *store.OrderDetail) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</p></div></div></div></div><div class=\"card bg-base-100 shadow-md\"><div class=\"card-body\"><h3 class=\"card-title text-base\">Itens</h3><div class=\"overflow-x-auto\"><table class=\"table table-zebra\"><thead><tr><th>Produto</th><th class=\"text-right\">Qtd</th><th class=\"text-right\">Preço Unit.</th><th class=\"text-right\">Subtotal</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</p></div></div></div></div><div class=\"bg-white shadow-md rounded-xl\"><div class=\"p-6\"><h3 class=\"text-base font-bold mb-4\">Itens</h3><div class=\"overflow-x-auto\"><table class=\"w-full text-sm text-left\"><thead><tr><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Produto</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-right\">Qtd</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-right\">Preço Unit.</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-right\">Subtotal</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, item := range order.Items {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<tr><td>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<tr class=\"hover:bg-gray-50\"><td class=\"px-4 py-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 134, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 134, Col: 42}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</td><td class=\"text-right\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</td><td class=\"px-4 py-3 text-right\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", item.Quantity))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 135, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 135, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td><td class=\"text-right\">R$ ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td><td class=\"px-4 py-3 text-right\">R$ ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.UnitPrice))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 136, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 136, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</td><td class=\"text-right\">R$ ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</td><td class=\"px-4 py-3 text-right\">R$ ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.Subtotal))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 137, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 137, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -302,14 +302,14 @@ func AdminOrderDetailPage(order *store.OrderDetail) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</tbody><tfoot><tr><td colspan=\"3\" class=\"text-right font-semibold\">Total</td><td class=\"text-right font-bold\">R$ ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</tbody><tfoot><tr class=\"border-t border-gray-200\"><td colspan=\"3\" class=\"px-4 py-3 text-right font-semibold\">Total</td><td class=\"px-4 py-3 text-right font-bold\">R$ ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", order.TotalAmount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 144, Col: 84}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 144, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
@@ -345,13 +345,13 @@ func ProductSearchResults(products []store.Product) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if len(products) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<p class=\"px-4 py-3 text-sm text-base-content/50\">Nenhum produto encontrado.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<p class=\"px-4 py-3 text-sm text-gray-400\">Nenhum produto encontrado.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
 		for _, p := range products {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<button type=\"button\" class=\"flex w-full items-center justify-between px-4 py-2.5 hover:bg-base-200 border-b border-base-200 last:border-0 text-left\" data-product-id=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<button type=\"button\" class=\"flex w-full items-center justify-between px-4 py-2.5 hover:bg-gray-50 border-b border-gray-100 last:border-0 text-left\" data-product-id=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -395,9 +395,9 @@ func ProductSearchResults(products []store.Product) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var23 string
-			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%f", p.CostPrice))
+			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%f", p.DefaultCostPrice()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 165, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 165, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
@@ -416,27 +416,27 @@ func ProductSearchResults(products []store.Product) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</p><p class=\"text-xs text-base-content/50\">SKU: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</p><p class=\"text-xs text-gray-400\">SKU: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var25 string
 			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(p.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 169, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 169, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</p></div><span class=\"text-xs font-semibold text-base-content/60\">R$ ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</p></div><span class=\"text-xs font-semibold text-gray-500\">R$ ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var26 string
-			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", p.CostPrice))
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", p.DefaultCostPrice()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 171, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/orders.templ`, Line: 171, Col: 99}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
@@ -541,7 +541,7 @@ func AdminNewOrderPage(contacts []store.Contact) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\"><div class=\"flex items-center justify-between mb-6\"><h2 class=\"text-xl font-semibold\">Novo Pedido</h2><a class=\"btn btn-ghost btn-sm\" hx-get=\"/admin/pedidos/\" hx-target=\"#main-content\" hx-push-url=\"true\">← Voltar</a></div><form hx-post=\"/admin/pedidos\" hx-target=\"#main-content\" class=\"space-y-6\"><div class=\"card bg-base-100 shadow-sm border border-base-300 overflow-visible\"><div class=\"card-body space-y-3 overflow-visible\"><h3 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40\">Cliente</h3><div class=\"relative\" x-on:click.outside=\"showContactDropdown = false\"><label class=\"label py-1\"><span class=\"label-text text-sm font-medium\">Buscar por nome ou CNPJ/CPF <span class=\"text-error\">*</span></span></label> <input type=\"text\" x-model=\"contactSearch\" @focus=\"showContactDropdown = true\" @input=\"showContactDropdown = true; selectedContactId = 0\" placeholder=\"Digite nome fantasia, razão social ou documento...\" class=\"input input-bordered input-sm w-full\" autocomplete=\"off\"> <input type=\"hidden\" name=\"contact_id\" :value=\"selectedContactId\"><div x-show=\"showContactDropdown\" x-transition:enter=\"transition ease-out duration-100\" x-transition:enter-start=\"opacity-0 -translate-y-1\" x-transition:enter-end=\"opacity-100 translate-y-0\" class=\"absolute z-20 w-full bg-base-100 border border-base-300 rounded-lg shadow-lg mt-1 max-h-56 overflow-y-auto\"><template x-if=\"filteredContacts().length === 0\"><p class=\"px-4 py-3 text-sm text-base-content/50\">Nenhum contato encontrado.</p></template><template x-for=\"c in filteredContacts()\" :key=\"c.id\"><div @click=\"selectContact(c)\" class=\"flex items-center justify-between px-4 py-2.5 hover:bg-base-200 cursor-pointer border-b border-base-200 last:border-0\"><div><p class=\"text-sm font-medium\" x-text=\"c.trade_name || c.name\"></p><p class=\"text-xs text-base-content/50\" x-text=\"c.name\" x-show=\"c.trade_name && c.trade_name !== c.name\"></p></div><span class=\"text-xs font-mono text-base-content/40\" x-text=\"c.document\"></span></div></template></div></div><div x-show=\"selectedContactId > 0\" class=\"flex items-center gap-2 text-sm text-success\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-4 w-4\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg> <span x-text=\"selectedContactLabel\"></span></div></div></div><div class=\"card bg-base-100 shadow-sm border border-base-300 overflow-visible\"><div class=\"card-body space-y-4 overflow-visible\"><h3 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40\">Produtos</h3><div class=\"relative\"><input type=\"text\" name=\"q\" placeholder=\"Buscar por nome ou SKU...\" autocomplete=\"off\" class=\"input input-bordered input-sm w-full\" hx-get=\"/admin/pedidos/produtos\" hx-trigger=\"input changed delay:300ms\" hx-target=\"#product-search-results\"><div id=\"product-search-results\" class=\"absolute z-20 w-full bg-base-100 border border-base-300 rounded-lg shadow-lg mt-1 max-h-56 overflow-y-auto empty:hidden\"></div></div></div></div><div class=\"card bg-base-100 shadow-sm border border-base-300\"><div class=\"card-body space-y-4\"><h3 class=\"text-sm font-semibold uppercase tracking-wider text-base-content/40\">Itens</h3><div class=\"overflow-x-auto\"><table class=\"table\"><thead><tr><th>Produto</th><th class=\"w-24\">Qtd</th><th class=\"w-32\">Preço Unit. (R$)</th><th class=\"w-32 text-right\">Subtotal</th><th class=\"w-10\"></th></tr></thead> <tbody><template x-for=\"(item, i) in items\" :key=\"i\"><tr><td><input type=\"hidden\" :name=\"'product_id[]'\" :value=\"item.product_id\"><p class=\"text-sm font-medium\" x-text=\"item.name\"></p><p class=\"text-xs text-base-content/50\" x-text=\"'SKU: ' + item.sku\"></p></td><td><input type=\"number\" :name=\"'quantity[]'\" x-model.number=\"item.quantity\" @input=\"calcSubtotal(i)\" min=\"1\" class=\"input input-bordered input-sm w-20\"></td><td><input type=\"number\" :name=\"'unit_price[]'\" x-model.number=\"item.unit_price\" @input=\"calcSubtotal(i)\" min=\"0\" step=\"0.01\" class=\"input input-bordered input-sm w-28\"></td><td class=\"text-right font-semibold\" x-text=\"'R$ ' + item.subtotal.toFixed(2)\"></td><td><button type=\"button\" class=\"btn btn-ghost btn-xs text-error\" @click=\"removeItem(i)\">✕</button></td></tr></template><tr x-show=\"items.length === 0\"><td colspan=\"5\" class=\"text-center text-base-content/50 py-6 text-sm\">Use a busca acima para adicionar produtos.</td></tr></tbody><tfoot x-show=\"items.length > 0\"><tr><td colspan=\"3\" class=\"text-right font-semibold\">Total</td><td class=\"text-right font-bold\" x-text=\"'R$ ' + total.toFixed(2)\"></td><td></td></tr></tfoot></table></div></div></div><div class=\"flex justify-end gap-3\"><button type=\"button\" class=\"btn btn-ghost\" hx-get=\"/admin/pedidos/\" hx-target=\"#main-content\" hx-push-url=\"true\">Cancelar</button> <button type=\"submit\" class=\"btn btn-primary\" :disabled=\"items.length === 0\">Confirmar Pedido</button></div></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\"><div class=\"flex items-center justify-between mb-6\"><h2 class=\"text-xl font-semibold\">Novo Pedido</h2><a class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm\" hx-get=\"/admin/pedidos/\" hx-target=\"#main-content\" hx-push-url=\"true\">← Voltar</a></div><form hx-post=\"/admin/pedidos\" hx-target=\"#main-content\" class=\"space-y-6\"><div class=\"bg-white shadow-sm border border-gray-200 rounded-xl overflow-visible\"><div class=\"p-6 space-y-3 overflow-visible\"><h3 class=\"text-sm font-semibold uppercase tracking-wider text-gray-400\">Cliente</h3><div class=\"relative\" x-on:click.outside=\"showContactDropdown = false\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Buscar por nome ou CNPJ/CPF <span class=\"text-red-600\">*</span></span></label> <input type=\"text\" x-model=\"contactSearch\" @focus=\"showContactDropdown = true\" @input=\"showContactDropdown = true; selectedContactId = 0\" placeholder=\"Digite nome fantasia, razão social ou documento...\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\" autocomplete=\"off\"> <input type=\"hidden\" name=\"contact_id\" :value=\"selectedContactId\"><div x-show=\"showContactDropdown\" x-transition:enter=\"transition ease-out duration-100\" x-transition:enter-start=\"opacity-0 -translate-y-1\" x-transition:enter-end=\"opacity-100 translate-y-0\" class=\"absolute z-20 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-56 overflow-y-auto\"><template x-if=\"filteredContacts().length === 0\"><p class=\"px-4 py-3 text-sm text-gray-400\">Nenhum contato encontrado.</p></template><template x-for=\"c in filteredContacts()\" :key=\"c.id\"><div @click=\"selectContact(c)\" class=\"flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0\"><div><p class=\"text-sm font-medium\" x-text=\"c.trade_name || c.name\"></p><p class=\"text-xs text-gray-400\" x-text=\"c.name\" x-show=\"c.trade_name && c.trade_name !== c.name\"></p></div><span class=\"text-xs font-mono text-gray-300\" x-text=\"c.document\"></span></div></template></div></div><div x-show=\"selectedContactId > 0\" class=\"flex items-center gap-2 text-sm text-green-600\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-4 w-4\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20 6 9 17 4 12\"></polyline></svg> <span x-text=\"selectedContactLabel\"></span></div></div></div><div class=\"bg-white shadow-sm border border-gray-200 rounded-xl overflow-visible\"><div class=\"p-6 space-y-4 overflow-visible\"><h3 class=\"text-sm font-semibold uppercase tracking-wider text-gray-400\">Produtos</h3><div class=\"relative\"><input type=\"text\" name=\"q\" placeholder=\"Buscar por nome ou SKU...\" autocomplete=\"off\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\" hx-get=\"/admin/pedidos/produtos\" hx-trigger=\"input changed delay:300ms\" hx-target=\"#product-search-results\"><div id=\"product-search-results\" class=\"absolute z-20 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-56 overflow-y-auto empty:hidden\"></div></div></div></div><div class=\"bg-white shadow-sm border border-gray-200 rounded-xl\"><div class=\"p-6 space-y-4\"><h3 class=\"text-sm font-semibold uppercase tracking-wider text-gray-400\">Itens</h3><div class=\"overflow-x-auto\"><table class=\"w-full text-sm text-left\"><thead><tr><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200\">Produto</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 w-24\">Qtd</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 w-32\">Preço Unit. (R$)</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 w-32 text-right\">Subtotal</th><th class=\"px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 w-10\"></th></tr></thead> <tbody><template x-for=\"(item, i) in items\" :key=\"i\"><tr class=\"hover:bg-gray-50\"><td class=\"px-4 py-3\"><input type=\"hidden\" :name=\"'product_id[]'\" :value=\"item.product_id\"><p class=\"text-sm font-medium\" x-text=\"item.name\"></p><p class=\"text-xs text-gray-400\" x-text=\"'SKU: ' + item.sku\"></p></td><td class=\"px-4 py-3\"><input type=\"number\" :name=\"'quantity[]'\" x-model.number=\"item.quantity\" @input=\"calcSubtotal(i)\" min=\"1\" class=\"block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-20\"></td><td class=\"px-4 py-3\"><input type=\"number\" :name=\"'unit_price[]'\" x-model.number=\"item.unit_price\" @input=\"calcSubtotal(i)\" min=\"0\" step=\"0.01\" class=\"block border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none w-28\"></td><td class=\"px-4 py-3 text-right font-semibold\" x-text=\"'R$ ' + item.subtotal.toFixed(2)\"></td><td class=\"px-4 py-3\"><button type=\"button\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs text-red-600\" @click=\"removeItem(i)\">✕</button></td></tr></template><tr x-show=\"items.length === 0\"><td colspan=\"5\" class=\"text-center text-gray-400 py-6 px-4 text-sm\">Use a busca acima para adicionar produtos.</td></tr></tbody><tfoot x-show=\"items.length > 0\"><tr class=\"border-t border-gray-200\"><td colspan=\"3\" class=\"px-4 py-3 text-right font-semibold\">Total</td><td class=\"px-4 py-3 text-right font-bold\" x-text=\"'R$ ' + total.toFixed(2)\"></td><td></td></tr></tfoot></table></div></div></div><div class=\"flex justify-end gap-3\"><a href=\"/admin/pedidos/\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-4 py-2\">Cancelar</a> <button type=\"submit\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-4 py-2\" :disabled=\"items.length === 0\">Confirmar Pedido</button></div></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
