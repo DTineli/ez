@@ -30,6 +30,10 @@ func MustOpen(dbName string) *gorm.DB {
 		panic(err)
 	}
 
+	// Drop stale cart data before migrating CartItem schema (variant_id index change)
+	db.Exec("DELETE FROM cart_items WHERE variant_id = 0 OR variant_id IS NULL")
+	db.Exec("DROP INDEX IF EXISTS idx_cart_product")
+
 	err = db.AutoMigrate(
 		&store.Tenant{},
 		&store.User{},

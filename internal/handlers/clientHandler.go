@@ -109,6 +109,7 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 			}
 
 			variants = append(variants, store.VariantData{
+				ID:    v.ID,
 				Price: vPrice,
 				Attrs: attrs,
 			})

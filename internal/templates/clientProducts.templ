@@ -1,11 +1,46 @@
 package templates
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/DTineli/ez/internal/store"
 )
+
+type variantJS struct {
+	ID    uint    `json:"id"`
+	Price float64 `json:"price"`
+	Label string  `json:"label"`
+}
+
+func variantLabel(v store.VariantData) string {
+	if len(v.Attrs) == 0 {
+		return "Padrão"
+	}
+	parts := make([]string, 0, len(v.Attrs))
+	for _, a := range v.Attrs {
+		parts = append(parts, a.Value)
+	}
+	return strings.Join(parts, " / ")
+}
+
+func buildVariantsJS(variants []store.VariantData) string {
+	if len(variants) == 0 {
+		return `[{"id":0,"price":0,"label":"Padrão"}]`
+	}
+	items := make([]variantJS, 0, len(variants))
+	for _, v := range variants {
+		items = append(items, variantJS{
+			ID:    v.ID,
+			Price: v.Price,
+			Label: variantLabel(v),
+		})
+	}
+	b, _ := json.Marshal(items)
+	return string(b)
+}
 
 templ ClientProductsPage(products []store.CardData, nextPage int, query string) {
 	<div class="mb-4">
@@ -62,22 +97,35 @@ templ ClientProductsChunk(products []store.CardData, nextPage int, query string)
 
 templ ProductCard(info store.CardData) {
 	<div
-		class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-		x-data="{ qty: 1, confirming: false }"
+		class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+		x-data={ fmt.Sprintf(`{ qty: 1, confirming: false, sel: 0, variants: %s }`, buildVariantsJS(info.Variants)) }
 	>
-		<!-- ESTADO NORMAL -->
-		<div x-show="!confirming" class="flex items-center gap-3">
-			<div class="min-w-0 flex-1">
-				<p class="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{ info.Name }</p>
-				<p class="mt-0.5 text-base font-extrabold text-emerald-600 dark:text-emerald-400">
-					R$ { fmt.Sprintf("%.2f", info.Price) }
-				</p>
+		<!-- Nome -->
+		<p class="mb-2.5 truncate font-['Manrope'] text-sm font-extrabold leading-tight text-slate-800 dark:text-slate-100">{ info.Name }</p>
+		<!-- Chips de variação (só quando há mais de uma) -->
+		if len(info.Variants) > 1 {
+			<div class="mb-3 flex flex-wrap gap-1.5">
+				for i, v := range info.Variants {
+					<button
+						type="button"
+						@click={ fmt.Sprintf("sel = %d", i) }
+						:class={ fmt.Sprintf("sel === %d ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'", i) }
+						class="rounded-full border px-3 py-1 text-xs font-semibold transition-colors"
+					>{ variantLabel(v) }</button>
+				}
 			</div>
+		}
+		<!-- Estado normal -->
+		<div x-show="!confirming" class="flex items-center justify-between gap-2">
+			<span
+				class="text-base font-extrabold text-emerald-600 dark:text-emerald-400"
+				x-text={ "`R$ ${variants[sel].price.toFixed(2).replace('.',',')}`" }
+			></span>
 			<div class="flex shrink-0 items-center gap-2">
 				<div class="flex items-center rounded-lg border border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
-					<button type="button" class="px-2.5 py-2 text-base leading-none" @click="qty = Math.max(1, qty - 1)">−</button>
+					<button type="button" class="px-2.5 py-2 text-base leading-none select-none" @click="qty = Math.max(1, qty - 1)">−</button>
 					<input type="number" min="1" x-model="qty" class="w-8 bg-transparent text-center text-sm font-bold outline-none"/>
-					<button type="button" class="px-2.5 py-2 text-base leading-none" @click="qty++">+</button>
+					<button type="button" class="px-2.5 py-2 text-base leading-none select-none" @click="qty++">+</button>
 				</div>
 				<button
 					type="button"
@@ -86,10 +134,10 @@ templ ProductCard(info store.CardData) {
 				>+</button>
 			</div>
 		</div>
-		<!-- CONFIRMAÇÃO -->
-		<div x-show="confirming" x-cloak>
+		<!-- Confirmação -->
+		<div x-show="confirming" x-cloak x-transition.opacity>
 			<p class="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
-				Adicionar <span class="font-extrabold text-emerald-600" x-text="qty"></span> un. ao carrinho?
+				Adicionar <span class="font-extrabold text-emerald-600" x-text="qty"></span> un. de <span class="font-extrabold" x-text="variants[sel].label"></span>?
 			</p>
 			<div class="flex gap-2">
 				<button
@@ -101,9 +149,9 @@ templ ProductCard(info store.CardData) {
 					type="button"
 					hx-post="/client/cart/items"
 					hx-swap="none"
-					:hx-vals={ fmt.Sprintf("JSON.stringify({product_id: %d, qty: qty})", info.ID) }
+					:hx-vals={ fmt.Sprintf("JSON.stringify({product_id: %d, variant_id: variants[sel].id, qty: qty})", info.ID) }
 					@click="confirming = false"
-					class="flex-1 rounded-lg bg-emerald-600 py-2 text-xs font-bold text-white transition hover:bg-emerald-700"
+					class="flex-1 rounded-lg bg-emerald-600 py-2 text-xs font-bold text-white transition hover:bg-emerald-700 active:scale-95"
 				>Sim, adicionar</button>
 			</div>
 		</div>

@@ -24,6 +24,12 @@ func (c *ClientHandler) PostAddToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	variantID, err := strconv.ParseUint(r.FormValue("variant_id"), 10, 64)
+	if err != nil || variantID == 0 {
+		ShowToast(w, "Variacao invalida", "error")
+		return
+	}
+
 	qty, err := strconv.Atoi(r.FormValue("qty"))
 	if err != nil || qty <= 0 {
 		ShowToast(w, "Quantidade invalida", "error")
@@ -37,13 +43,19 @@ func (c *ClientHandler) PostAddToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	variant, err := c.productStore.GetVariant(uint(variantID), sess.TenantID)
+	if err != nil || variant == nil || variant.ProductID != product.ID {
+		ShowToast(w, "Variacao invalida", "error")
+		return
+	}
+
 	priceTable, err := c.priceTableStore.GetOne(sess.ContactInfo.PriceTable, sess.TenantID)
 	if err != nil {
 		ShowToast(w, "Tabela de preço não encontrada", "error")
 		return
 	}
 
-	price := product.DefaultCostPrice() * (1 + priceTable.Percentage/100)
+	price := variant.CostPrice * (1 + priceTable.Percentage/100)
 
 	cart, err := c.resolveOpenCart(r, w, sess)
 	if err != nil {
@@ -51,7 +63,7 @@ func (c *ClientHandler) PostAddToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.cartStore.AddOrIncrementItem(cart.ID, product.ID, qty, price); err != nil {
+	if err := c.cartStore.AddOrIncrementItem(cart.ID, product.ID, variant.ID, qty, price); err != nil {
 		ShowToast(w, "Erro ao adicionar item", "error")
 		return
 	}

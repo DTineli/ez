@@ -24,18 +24,18 @@ templ ClientOrdersPage(orders []store.ClientOrderListItem) {
 							href={ templ.SafeURL(fmt.Sprintf("/client/pedidos/%d", o.ID)) }
 							class="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition hover:shadow-md active:scale-[0.99]"
 						>
-							<div class="space-y-0.5">
+							<div class="min-w-0 flex-1 space-y-1">
 								<p class="font-body text-sm font-semibold text-on-surface">
 									{ fmt.Sprintf("Pedido #%d", o.ID) }
 								</p>
 								<p class="font-body text-xs text-slate-400">
 									{ o.CreatedAt.Format("02/01/2006") }
 								</p>
-							</div>
-							<div class="flex items-center gap-3">
-								<span class="rounded-full bg-emerald-100 px-2.5 py-0.5 font-label text-xs font-semibold text-emerald-700">
+								<span class="inline-block rounded-full bg-emerald-100 px-2.5 py-0.5 font-label text-xs font-semibold text-emerald-700">
 									Confirmado
 								</span>
+							</div>
+							<div class="ml-3 flex flex-shrink-0 items-center gap-1.5">
 								<p class="font-body text-sm font-bold text-primary">
 									{ fmt.Sprintf("R$ %.2f", o.TotalAmount) }
 								</p>
@@ -81,14 +81,14 @@ templ ClientOrderDetailPage(order *store.OrderDetail) {
 			</div>
 			<ul class="divide-y divide-slate-100">
 				for _, item := range order.Items {
-					<li class="flex items-center justify-between px-4 py-3">
-						<div class="space-y-0.5">
-							<p class="font-body text-sm font-medium text-on-surface">{ item.Name }</p>
+					<li class="flex items-center gap-3 px-4 py-3">
+						<div class="min-w-0 flex-1 space-y-0.5">
+							<p class="font-body text-sm font-medium text-on-surface break-words">{ item.Name }</p>
 							<p class="font-body text-xs text-slate-400">
 								{ fmt.Sprintf("%d × R$ %.2f", item.Quantity, item.UnitPrice) }
 							</p>
 						</div>
-						<p class="font-body text-sm font-semibold text-on-surface">
+						<p class="flex-shrink-0 font-body text-sm font-semibold text-on-surface">
 							{ fmt.Sprintf("R$ %.2f", item.Subtotal) }
 						</p>
 					</li>

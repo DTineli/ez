@@ -49,6 +49,8 @@ func (p *ProductStore) FindAllByUserWithFilters(
 	var products []store.Product
 	query := p.db.Model(&store.Product{}).
 		Preload("Variants").
+		Preload("Variants.Attributes").
+		Preload("Variants.Attributes.AttributeValue").
 		Where("tenant_id = ?", id)
 
 	if filters.Search != "" {

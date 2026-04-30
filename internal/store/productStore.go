@@ -25,6 +25,7 @@ type CardData struct {
 }
 
 type VariantData struct {
+	ID    uint
 	Price float64
 	Attrs []AttrData
 }

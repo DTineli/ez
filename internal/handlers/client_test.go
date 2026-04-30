@@ -18,7 +18,7 @@ type mockCartStore struct {
 	findOpenByID      func(id, tenantID, contactID uint) (*store.Cart, error)
 	findOpenByContact func(tenantID, contactID uint) (*store.Cart, error)
 	create            func(*store.Cart) error
-	addOrIncrementItem func(cartID, productID uint, quantity int, unitPrice float64) error
+	addOrIncrementItem func(cartID, productID, variantID uint, quantity int, unitPrice float64) error
 	countItems        func(cartID uint) (int64, error)
 	listCheckoutItems func(cartID, tenantID uint) ([]store.CartCheckoutItem, error)
 	removeItem        func(cartID, productID uint) error
@@ -44,9 +44,9 @@ func (s *mockCartStore) Create(c *store.Cart) error {
 	c.ID = 1
 	return nil
 }
-func (s *mockCartStore) AddOrIncrementItem(cartID, productID uint, quantity int, unitPrice float64) error {
+func (s *mockCartStore) AddOrIncrementItem(cartID, productID, variantID uint, quantity int, unitPrice float64) error {
 	if s.addOrIncrementItem != nil {
-		return s.addOrIncrementItem(cartID, productID, quantity, unitPrice)
+		return s.addOrIncrementItem(cartID, productID, variantID, quantity, unitPrice)
 	}
 	return nil
 }
@@ -209,8 +209,10 @@ func TestPostAddToCart_Sucesso(t *testing.T) {
 			return &store.Product{
 				ID:       id,
 				TenantID: 1,
-				Variants: []store.Variant{{CostPrice: 50.0}},
 			}, nil
+		},
+		getVariant: func(id, tenantID uint) (*store.Variant, error) {
+			return &store.Variant{ID: id, TenantID: tenantID, ProductID: 1, CostPrice: 50.0}, nil
 		},
 	}
 	pts := &mockPriceTableStoreExt{
@@ -220,14 +222,14 @@ func TestPostAddToCart_Sucesso(t *testing.T) {
 	}
 	var itemAdicionado bool
 	cs := &mockCartStore{
-		addOrIncrementItem: func(cartID, productID uint, quantity int, unitPrice float64) error {
+		addOrIncrementItem: func(cartID, productID, variantID uint, quantity int, unitPrice float64) error {
 			itemAdicionado = true
 			return nil
 		},
 	}
 	h := newClientHandler(ps, cs, nil, &mockSessionStore{}, pts)
 
-	body := url.Values{"product_id": {"1"}, "qty": {"2"}}
+	body := url.Values{"product_id": {"1"}, "variant_id": {"5"}, "qty": {"2"}}
 	r := httptest.NewRequest(http.MethodPost, "/client/cart/items", strings.NewReader(body.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r = htmxRequest(withSession(r, newClientSession()))

@@ -41,10 +41,10 @@ func (c *CartStore) Create(cart *store.Cart) error {
 	return c.db.Create(cart).Error
 }
 
-func (c *CartStore) AddOrIncrementItem(cartID, productID uint, quantity int, unitPrice float64) error {
+func (c *CartStore) AddOrIncrementItem(cartID, productID, variantID uint, quantity int, unitPrice float64) error {
 	return c.db.Transaction(func(tx *gorm.DB) error {
 		var item store.CartItem
-		err := tx.Where("cart_id = ? AND product_id = ?", cartID, productID).First(&item).Error
+		err := tx.Where("cart_id = ? AND variant_id = ?", cartID, variantID).First(&item).Error
 		if err == nil {
 			return tx.Model(&store.CartItem{}).
 				Where("id = ?", item.ID).
@@ -57,6 +57,7 @@ func (c *CartStore) AddOrIncrementItem(cartID, productID uint, quantity int, uni
 
 		return tx.Create(&store.CartItem{
 			CartID:    cartID,
+			VariantID: variantID,
 			ProductID: productID,
 			Quantity:  quantity,
 			UnitPrice: unitPrice,
@@ -79,19 +80,23 @@ func (c *CartStore) CountItems(cartID uint) (int64, error) {
 
 func (c *CartStore) ListCheckoutItems(cartID, tenantID uint) ([]store.CartCheckoutItem, error) {
 	type checkoutRow struct {
-		ID        uint
-		ProductID uint
-		Name      string
-		Quantity  int
-		UnitPrice float64
+		ID           uint
+		ProductID    uint
+		Name         string
+		VariantLabel string
+		Quantity     int
+		UnitPrice    float64
 	}
 
 	var rows []checkoutRow
 	err := c.db.
 		Table("cart_items ci").
-		Select("ci.id, ci.product_id, p.name, ci.quantity, ci.unit_price").
+		Select("ci.id, ci.product_id, p.name, ci.quantity, ci.unit_price, GROUP_CONCAT(av.value, ' / ') as variant_label").
 		Joins("JOIN products p ON p.id = ci.product_id").
+		Joins("LEFT JOIN variant_attributes va ON va.variant_id = ci.variant_id").
+		Joins("LEFT JOIN attribute_values av ON av.id = va.attribute_value_id").
 		Where("ci.cart_id = ? AND p.tenant_id = ?", cartID, tenantID).
+		Group("ci.id").
 		Order("ci.id ASC").
 		Scan(&rows).Error
 	if err != nil {
@@ -101,12 +106,13 @@ func (c *CartStore) ListCheckoutItems(cartID, tenantID uint) ([]store.CartChecko
 	items := make([]store.CartCheckoutItem, 0, len(rows))
 	for _, row := range rows {
 		items = append(items, store.CartCheckoutItem{
-			CartItemID: row.ID,
-			ProductID:  row.ProductID,
-			Name:       row.Name,
-			Quantity:   row.Quantity,
-			UnitPrice:  row.UnitPrice,
-			Subtotal:   float64(row.Quantity) * row.UnitPrice,
+			CartItemID:   row.ID,
+			ProductID:    row.ProductID,
+			Name:         row.Name,
+			VariantLabel: row.VariantLabel,
+			Quantity:     row.Quantity,
+			UnitPrice:    row.UnitPrice,
+			Subtotal:     float64(row.Quantity) * row.UnitPrice,
 		})
 	}
 
