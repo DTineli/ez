@@ -58,7 +58,7 @@ templ ClientCheckoutPage(items []store.CartCheckoutItem, totalAmount float64) {
 							<!-- bottom: qty form + subtotal -->
 							<div class="mt-2 flex items-center justify-between">
 								<form
-									hx-patch={ fmt.Sprintf("/client/cart/items/%d", item.ProductID) }
+									hx-patch={ fmt.Sprintf("/client/cart/items/%d/%d", item.ProductID, item.VariantID) }
 									hx-swap="none"
 									class="flex items-center gap-1"
 								>
@@ -83,14 +83,12 @@ templ ClientCheckoutPage(items []store.CartCheckoutItem, totalAmount float64) {
 						</div>
 					}
 				</div>
-
 				<div class="mt-6 flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-700">
 					<p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Total</p>
 					<p class="text-xl font-extrabold text-slate-900 dark:text-slate-100">
 						R$ { fmt.Sprintf("%.2f", totalAmount) }
 					</p>
 				</div>
-
 				<div x-data="{ confirming: false }" class="mt-5">
 					<button
 						x-show="!confirming"

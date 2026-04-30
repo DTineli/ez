@@ -49,7 +49,10 @@ func (c *ClientHandler) PostAddToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	priceTable, err := c.priceTableStore.GetOne(sess.ContactInfo.PriceTable, sess.TenantID)
+	priceTable, err := c.priceTableStore.GetOne(
+		sess.ContactInfo.PriceTable,
+		sess.TenantID,
+	)
 	if err != nil {
 		ShowToast(w, "Tabela de preço não encontrada", "error")
 		return
@@ -86,9 +89,17 @@ func (c *ClientHandler) PostAddToCart(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (c *ClientHandler) resolveOpenCart(r *http.Request, w http.ResponseWriter, sess *store.Session) (*store.Cart, error) {
+func (c *ClientHandler) resolveOpenCart(
+	r *http.Request,
+	w http.ResponseWriter,
+	sess *store.Session,
+) (*store.Cart, error) {
 	if sess.CartID != 0 {
-		cart, err := c.cartStore.FindOpenByID(sess.CartID, sess.TenantID, sess.ContactInfo.ID)
+		cart, err := c.cartStore.FindOpenByID(
+			sess.CartID,
+			sess.TenantID,
+			sess.ContactInfo.ID,
+		)
 		if err == nil {
 			return cart, nil
 		}
@@ -97,9 +108,10 @@ func (c *ClientHandler) resolveOpenCart(r *http.Request, w http.ResponseWriter, 
 		}
 	}
 
-	fmt.Println(sess.ContactInfo.ID)
-
-	cart, err := c.cartStore.FindOpenByContact(sess.TenantID, sess.ContactInfo.ID)
+	cart, err := c.cartStore.FindOpenByContact(
+		sess.TenantID,
+		sess.ContactInfo.ID,
+	)
 	if err == nil {
 		if setErr := c.sessionStore.SetCartID(r, w, cart.ID); setErr != nil {
 			return nil, setErr
@@ -150,9 +162,19 @@ func (c *ClientHandler) DeleteCartItem(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (c *ClientHandler) PatchCartItemQty(w http.ResponseWriter, r *http.Request) {
+func (c *ClientHandler) PatchCartItemQty(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	productIDStr := chi.URLParam(r, "productID")
 	productID, err := strconv.ParseUint(productIDStr, 10, 64)
+	if err != nil || productID == 0 {
+		ShowToast(w, "Item invalido", "error")
+		return
+	}
+
+	variantIDStr := chi.URLParam(r, "variantID")
+	variantID, err := strconv.ParseUint(variantIDStr, 10, 64)
 	if err != nil || productID == 0 {
 		ShowToast(w, "Item invalido", "error")
 		return
@@ -176,7 +198,11 @@ func (c *ClientHandler) PatchCartItemQty(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := c.cartStore.UpdateItemQty(cart.ID, uint(productID), qty); err != nil {
+	if err := c.cartStore.UpdateItemQty(
+		cart.ID,
+		uint(productID),
+		uint(variantID),
+		qty); err != nil {
 		ShowToast(w, "Erro ao atualizar quantidade", "error")
 		return
 	}
@@ -185,14 +211,21 @@ func (c *ClientHandler) PatchCartItemQty(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusOK)
 }
 
-func (c *ClientHandler) PostConfirmOrder(w http.ResponseWriter, r *http.Request) {
+func (c *ClientHandler) PostConfirmOrder(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	sess := middleware.GetSessionFromContext(r)
 
 	var cart *store.Cart
 	var err error
 
 	if sess.CartID != 0 {
-		cart, err = c.cartStore.FindOpenByID(sess.CartID, sess.TenantID, sess.ContactInfo.ID)
+		cart, err = c.cartStore.FindOpenByID(
+			sess.CartID,
+			sess.TenantID,
+			sess.ContactInfo.ID,
+		)
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			ShowToast(w, "Erro ao preparar carrinho", "error")
 			return
@@ -200,7 +233,10 @@ func (c *ClientHandler) PostConfirmOrder(w http.ResponseWriter, r *http.Request)
 	}
 
 	if cart == nil {
-		cart, err = c.cartStore.FindOpenByContact(sess.TenantID, sess.ContactInfo.ID)
+		cart, err = c.cartStore.FindOpenByContact(
+			sess.TenantID,
+			sess.ContactInfo.ID,
+		)
 		if err != nil {
 			ShowToast(w, "Carrinho vazio", "error")
 			return
@@ -208,7 +244,11 @@ func (c *ClientHandler) PostConfirmOrder(w http.ResponseWriter, r *http.Request)
 		_ = c.sessionStore.SetCartID(r, w, cart.ID)
 	}
 
-	_, err = c.orderStore.ConfirmFromCart(cart.ID, sess.TenantID, sess.ContactInfo.ID)
+	_, err = c.orderStore.ConfirmFromCart(
+		cart.ID,
+		sess.TenantID,
+		sess.ContactInfo.ID,
+	)
 	if err != nil {
 		ShowToast(w, "Erro ao confirmar pedido", "error")
 		return
