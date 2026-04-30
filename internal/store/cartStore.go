@@ -46,6 +46,6 @@ type CartStore interface {
 	) error
 	CountItems(cartID uint) (int64, error)
 	ListCheckoutItems(cartID, tenantID uint) ([]CartCheckoutItem, error)
-	RemoveItem(cartID, productID uint) error
+	RemoveItem(cartID, productID, variantID uint) error
 	UpdateItemQty(cartID, productID uint, variantID uint, quantity int) error
 }

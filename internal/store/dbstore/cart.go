@@ -144,9 +144,14 @@ func (c *CartStore) ListCheckoutItems(
 	return items, nil
 }
 
-func (c *CartStore) RemoveItem(cartID, productID uint) error {
+func (c *CartStore) RemoveItem(cartID, productID, variantID uint) error {
 	return c.db.
-		Where("cart_id = ? AND product_id = ?", cartID, productID).
+		Where(
+			"cart_id = ? AND product_id = ? AND variant_id = ? ",
+			cartID,
+			productID,
+			variantID,
+		).
 		Delete(&store.CartItem{}).Error
 }
 
