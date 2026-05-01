@@ -22,37 +22,50 @@ func (o *OrderStore) ConfirmFromCart(
 
 	err := o.db.Transaction(func(tx *gorm.DB) error {
 		var cart store.Cart
-		if err := tx.Where("id = ? AND tenant_id = ? AND contact_id = ? AND status = ?", cartID, tenantID, contactID, store.CartStatusOpen).First(&cart).Error; err != nil {
+		if err := tx.Where(
+			"id = ? AND tenant_id = ? AND contact_id = ? AND status = ?",
+			cartID,
+			tenantID,
+			contactID,
+			store.CartStatusOpen,
+		).First(&cart).Error; err != nil {
 			return err
 		}
 
 		var cartItems []store.CartItem
-		if err := tx.Where("cart_id = ?", cartID).Find(&cartItems).Error; err != nil {
+		if err := tx.Where(
+			"cart_id = ?",
+			cartID,
+		).Find(&cartItems).Error; err != nil {
 			return err
 		}
 		if len(cartItems) == 0 {
 			return errors.New("cart is empty")
 		}
 
-		productIDs := make([]uint, 0, len(cartItems))
+		variantIDs := make([]uint, 0, len(cartItems))
 		for _, item := range cartItems {
-			productIDs = append(productIDs, item.ProductID)
+			variantIDs = append(variantIDs, item.VariantID)
 		}
 
-		var products []store.Product
-		if err := tx.Where("tenant_id = ? AND id IN ?", tenantID, productIDs).Find(&products).Error; err != nil {
+		var variants []store.Variant
+		if err := tx.Preload("Product").Where(
+			"tenant_id = ? AND id IN ?",
+			tenantID,
+			variantIDs,
+		).Find(&variants).Error; err != nil {
 			return err
 		}
 
-		productNameByID := make(map[uint]string, len(products))
-		for _, p := range products {
-			productNameByID[p.ID] = p.Name
+		productNameByVariantID := make(map[uint]string, len(variants))
+		for _, p := range variants {
+			productNameByVariantID[p.ID] = p.Product.Name
 		}
 
 		total := 0.0
 		orderItems := make([]store.OrderItem, 0, len(cartItems))
 		for _, item := range cartItems {
-			name := productNameByID[item.ProductID]
+			name := productNameByVariantID[item.VariantID]
 			if name == "" {
 				return errors.New("product not found for cart item")
 			}
@@ -62,6 +75,7 @@ func (o *OrderStore) ConfirmFromCart(
 
 			orderItems = append(orderItems, store.OrderItem{
 				ProductID: item.ProductID,
+				VariantID: item.VariantID,
 				Name:      name,
 				Quantity:  item.Quantity,
 				UnitPrice: item.UnitPrice,
@@ -166,7 +180,10 @@ func (o *OrderStore) Create(
 		}
 
 		var products []store.Product
-		if err := tx.Where("tenant_id = ? AND id IN ?", tenantID, productIDs).Find(&products).Error; err != nil {
+		if err := tx.Where("tenant_id = ? AND id IN ?",
+			tenantID,
+			productIDs,
+		).Joins("variants").Find(&products).Error; err != nil {
 			return err
 		}
 

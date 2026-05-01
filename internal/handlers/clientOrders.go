@@ -12,7 +12,10 @@ import (
 func (c *ClientHandler) GetOrdersPage(w http.ResponseWriter, r *http.Request) {
 	sess := middleware.GetSessionFromContext(r)
 
-	orders, err := c.orderStore.ListByContact(sess.TenantID, sess.ContactInfo.ID)
+	orders, err := c.orderStore.ListByContact(
+		sess.TenantID,
+		sess.ContactInfo.ID,
+	)
 	if err != nil {
 		ShowToast(w, "Erro ao buscar pedidos", "error")
 		return
@@ -25,7 +28,13 @@ func (c *ClientHandler) GetOrdersPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	RenderClientWithLayout(templates.ClientOrdersPage(orders), w, r, cartCount, "pedidos")
+	RenderClientWithLayout(
+		templates.ClientOrdersPage(orders),
+		w,
+		r,
+		cartCount,
+		"pedidos",
+	)
 }
 
 func (c *ClientHandler) GetOrderDetail(w http.ResponseWriter, r *http.Request) {
@@ -56,5 +65,11 @@ func (c *ClientHandler) GetOrderDetail(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	RenderClientWithLayout(templates.ClientOrderDetailPage(order), w, r, cartCount, "pedidos")
+	RenderClientWithLayout(
+		templates.ClientOrderDetailPage(order),
+		w,
+		r,
+		cartCount,
+		"pedidos",
+	)
 }
