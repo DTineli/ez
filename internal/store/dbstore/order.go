@@ -143,7 +143,11 @@ func (o *OrderStore) ListByContact(
 
 func (o *OrderStore) GetByID(id, tenantID uint) (*store.OrderDetail, error) {
 	var order store.Order
-	if err := o.db.Preload("Items").Where("id = ? AND tenant_id = ?", id, tenantID).First(&order).Error; err != nil {
+	if err := o.db.Preload("Items.Variant.Attributes.AttributeValue").Where(
+		"id = ? AND tenant_id = ?",
+		id,
+		tenantID,
+	).First(&order).Error; err != nil {
 		return nil, err
 	}
 

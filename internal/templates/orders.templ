@@ -131,7 +131,7 @@ templ AdminOrderDetailPage(order *store.OrderDetail) {
 						<tbody>
 							for _, item := range order.Items {
 								<tr class="hover:bg-gray-50">
-									<td class="px-4 py-3">{ item.Name }</td>
+									<td class="px-4 py-3">{ item.Name } - { item.Variant.ID }</td>
 									<td class="px-4 py-3 text-right">{ fmt.Sprintf("%d", item.Quantity) }</td>
 									<td class="px-4 py-3 text-right">R$ { fmt.Sprintf("%.2f", item.UnitPrice) }</td>
 									<td class="px-4 py-3 text-right">R$ { fmt.Sprintf("%.2f", item.Subtotal) }</td>

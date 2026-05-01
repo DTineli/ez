@@ -19,14 +19,16 @@ type Order struct {
 }
 
 type OrderItem struct {
-	ID        uint    `gorm:"primaryKey"     json:"id"`
-	OrderID   uint    `gorm:"not null;index" json:"order_id"`
-	ProductID uint    `gorm:"not null"       json:"product_id"`
+	ID        uint    `gorm:"primaryKey"         json:"id"`
+	OrderID   uint    `gorm:"not null;index"     json:"order_id"`
+	ProductID uint    `gorm:"not null"           json:"product_id"`
 	VariantID uint    `gorm:"not null;default:0" json:"variant_id"`
-	Name      string  `gorm:"not null"       json:"name"`
-	Quantity  int     `gorm:"not null"       json:"quantity"`
-	UnitPrice float64 `gorm:"not null"       json:"unit_price"`
-	Subtotal  float64 `gorm:"not null"       json:"subtotal"`
+	Name      string  `gorm:"not null"           json:"name"`
+	Quantity  int     `gorm:"not null"           json:"quantity"`
+	UnitPrice float64 `gorm:"not null"           json:"unit_price"`
+	Subtotal  float64 `gorm:"not null"           json:"subtotal"`
+
+	Variant Variant `gorm:"foreignKey:VariantID"`
 }
 
 type AdminOrderListItem struct {

@@ -37,10 +37,10 @@ func MustOpen(dbName string) *gorm.DB {
 	db.Exec(
 		"DELETE FROM order_items WHERE variant_id IS NULL OR variant_id = 0",
 	)
-	// Drop typo column from old migration (varianr_id → variant_id)
-	db.Exec("ALTER TABLE order_items DROP COLUMN IF EXISTS varianr_id")
 	// Remove orders with no items
-	db.Exec("DELETE FROM orders WHERE id NOT IN (SELECT DISTINCT order_id FROM order_items)")
+	db.Exec(
+		"DELETE FROM orders WHERE id NOT IN (SELECT DISTINCT order_id FROM order_items)",
+	)
 
 	err = db.AutoMigrate(
 		&store.Tenant{},
