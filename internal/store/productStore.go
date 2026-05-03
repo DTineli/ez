@@ -20,8 +20,19 @@ func (p Product) DefaultCostPrice() float64 {
 type CardData struct {
 	ID         uint
 	Name       string
-	Price      float64
+	Variants   []VariantData
 	Photo_Link string
+}
+
+type VariantData struct {
+	ID    uint
+	Price float64
+	Attrs []AttrData
+}
+
+type AttrData struct {
+	Name  string
+	Value string
 }
 
 type GetProductPageParams struct {
@@ -46,10 +57,10 @@ const (
 
 // Atributo representa uma característica de variação (ex: Cor, Tamanho)
 type Attribute struct {
-	ID   uint   `gorm:"primaryKey"                                                              json:"id"`
+	ID   uint   `gorm:"primaryKey"                                                             json:"id"`
 	Name string `gorm:"type:varchar(100);not null;uniqueIndex:idx_attr_tenant_name,priority:2" json:"name"`
 
-	Values   []AttributeValue `gorm:"foreignKey:AttributeID" json:"values,omitempty"`
+	Values   []AttributeValue `gorm:"foreignKey:AttributeID"                               json:"values,omitempty"`
 	TenantID uint             `gorm:"not null;uniqueIndex:idx_attr_tenant_name,priority:1" json:"tenant_id"`
 }
 
@@ -71,7 +82,7 @@ type VariantAttribute struct {
 }
 
 type Variant struct {
-	ID  uint   `gorm:"primaryKey"                                                               json:"id"`
+	ID  uint   `gorm:"primaryKey"                                                                                       json:"id"`
 	SKU string `gorm:"type:varchar(50);not null;uniqueIndex:idx_variant_tenant_sku,where:deleted_at is null,priority:2" json:"sku"`
 
 	CostPrice    float64 `json:"cost_price"`
@@ -92,7 +103,7 @@ type Variant struct {
 	Product   Product `gorm:"foreignKey:ProductID" json:"product,omitempty"`
 
 	TenantID  uint           `gorm:"not null;uniqueIndex:idx_variant_tenant_sku,priority:1" json:"tenant_id"`
-	DeletedAt gorm.DeletedAt `gorm:"index"                                            json:"deleted_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index"                                                  json:"deleted_at"`
 }
 
 type Product struct {

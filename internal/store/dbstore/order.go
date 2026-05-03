@@ -15,42 +15,57 @@ func NewOrderStore(db *gorm.DB) *OrderStore {
 	return &OrderStore{db: db}
 }
 
-func (o *OrderStore) ConfirmFromCart(cartID, tenantID, contactID uint) (*store.Order, error) {
+func (o *OrderStore) ConfirmFromCart(
+	cartID, tenantID, contactID uint,
+) (*store.Order, error) {
 	var created store.Order
 
 	err := o.db.Transaction(func(tx *gorm.DB) error {
 		var cart store.Cart
-		if err := tx.Where("id = ? AND tenant_id = ? AND contact_id = ? AND status = ?", cartID, tenantID, contactID, store.CartStatusOpen).First(&cart).Error; err != nil {
+		if err := tx.Where(
+			"id = ? AND tenant_id = ? AND contact_id = ? AND status = ?",
+			cartID,
+			tenantID,
+			contactID,
+			store.CartStatusOpen,
+		).First(&cart).Error; err != nil {
 			return err
 		}
 
 		var cartItems []store.CartItem
-		if err := tx.Where("cart_id = ?", cartID).Find(&cartItems).Error; err != nil {
+		if err := tx.Where(
+			"cart_id = ?",
+			cartID,
+		).Find(&cartItems).Error; err != nil {
 			return err
 		}
 		if len(cartItems) == 0 {
 			return errors.New("cart is empty")
 		}
 
-		productIDs := make([]uint, 0, len(cartItems))
+		variantIDs := make([]uint, 0, len(cartItems))
 		for _, item := range cartItems {
-			productIDs = append(productIDs, item.ProductID)
+			variantIDs = append(variantIDs, item.VariantID)
 		}
 
-		var products []store.Product
-		if err := tx.Where("tenant_id = ? AND id IN ?", tenantID, productIDs).Find(&products).Error; err != nil {
+		var variants []store.Variant
+		if err := tx.Preload("Product").Where(
+			"tenant_id = ? AND id IN ?",
+			tenantID,
+			variantIDs,
+		).Find(&variants).Error; err != nil {
 			return err
 		}
 
-		productNameByID := make(map[uint]string, len(products))
-		for _, p := range products {
-			productNameByID[p.ID] = p.Name
+		productNameByVariantID := make(map[uint]string, len(variants))
+		for _, p := range variants {
+			productNameByVariantID[p.ID] = p.Product.Name
 		}
 
 		total := 0.0
 		orderItems := make([]store.OrderItem, 0, len(cartItems))
 		for _, item := range cartItems {
-			name := productNameByID[item.ProductID]
+			name := productNameByVariantID[item.VariantID]
 			if name == "" {
 				return errors.New("product not found for cart item")
 			}
@@ -60,6 +75,7 @@ func (o *OrderStore) ConfirmFromCart(cartID, tenantID, contactID uint) (*store.O
 
 			orderItems = append(orderItems, store.OrderItem{
 				ProductID: item.ProductID,
+				VariantID: item.VariantID,
 				Name:      name,
 				Quantity:  item.Quantity,
 				UnitPrice: item.UnitPrice,
@@ -93,7 +109,9 @@ func (o *OrderStore) ConfirmFromCart(cartID, tenantID, contactID uint) (*store.O
 	return &created, nil
 }
 
-func (o *OrderStore) ListByTenant(tenantID uint) ([]store.AdminOrderListItem, error) {
+func (o *OrderStore) ListByTenant(
+	tenantID uint,
+) ([]store.AdminOrderListItem, error) {
 	var modelRows []store.AdminOrderListItem
 	err := o.db.Table("orders o").
 		Select("o.id, c.name as contact_name, o.status, o.total_amount, o.created_at").
@@ -108,7 +126,9 @@ func (o *OrderStore) ListByTenant(tenantID uint) ([]store.AdminOrderListItem, er
 	return modelRows, nil
 }
 
-func (o *OrderStore) ListByContact(tenantID, contactID uint) ([]store.ClientOrderListItem, error) {
+func (o *OrderStore) ListByContact(
+	tenantID, contactID uint,
+) ([]store.ClientOrderListItem, error) {
 	var rows []store.ClientOrderListItem
 	err := o.db.Table("orders").
 		Select("id, status, total_amount, created_at").
@@ -123,7 +143,11 @@ func (o *OrderStore) ListByContact(tenantID, contactID uint) ([]store.ClientOrde
 
 func (o *OrderStore) GetByID(id, tenantID uint) (*store.OrderDetail, error) {
 	var order store.Order
-	if err := o.db.Preload("Items").Where("id = ? AND tenant_id = ?", id, tenantID).First(&order).Error; err != nil {
+	if err := o.db.Preload("Items.Variant.Attributes.AttributeValue").Where(
+		"id = ? AND tenant_id = ?",
+		id,
+		tenantID,
+	).First(&order).Error; err != nil {
 		return nil, err
 	}
 
@@ -143,7 +167,10 @@ func (o *OrderStore) GetByID(id, tenantID uint) (*store.OrderDetail, error) {
 	}, nil
 }
 
-func (o *OrderStore) Create(tenantID, contactID uint, items []store.NewOrderItem) (*store.Order, error) {
+func (o *OrderStore) Create(
+	tenantID, contactID uint,
+	items []store.NewOrderItem,
+) (*store.Order, error) {
 	var created store.Order
 
 	err := o.db.Transaction(func(tx *gorm.DB) error {
@@ -157,7 +184,10 @@ func (o *OrderStore) Create(tenantID, contactID uint, items []store.NewOrderItem
 		}
 
 		var products []store.Product
-		if err := tx.Where("tenant_id = ? AND id IN ?", tenantID, productIDs).Find(&products).Error; err != nil {
+		if err := tx.Where("tenant_id = ? AND id IN ?",
+			tenantID,
+			productIDs,
+		).Joins("variants").Find(&products).Error; err != nil {
 			return err
 		}
 

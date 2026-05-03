@@ -24,6 +24,12 @@ func (c *ClientHandler) PostAddToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	variantID, err := strconv.ParseUint(r.FormValue("variant_id"), 10, 64)
+	if err != nil || variantID == 0 {
+		ShowToast(w, "Variacao invalida", "error")
+		return
+	}
+
 	qty, err := strconv.Atoi(r.FormValue("qty"))
 	if err != nil || qty <= 0 {
 		ShowToast(w, "Quantidade invalida", "error")
@@ -37,13 +43,22 @@ func (c *ClientHandler) PostAddToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	priceTable, err := c.priceTableStore.GetOne(sess.ContactInfo.PriceTable, sess.TenantID)
+	variant, err := c.productStore.GetVariant(uint(variantID), sess.TenantID)
+	if err != nil || variant == nil || variant.ProductID != product.ID {
+		ShowToast(w, "Variacao invalida", "error")
+		return
+	}
+
+	priceTable, err := c.priceTableStore.GetOne(
+		sess.ContactInfo.PriceTable,
+		sess.TenantID,
+	)
 	if err != nil {
 		ShowToast(w, "Tabela de preço não encontrada", "error")
 		return
 	}
 
-	price := product.DefaultCostPrice() * (1 + priceTable.Percentage/100)
+	price := variant.CostPrice * (1 + priceTable.Percentage/100)
 
 	cart, err := c.resolveOpenCart(r, w, sess)
 	if err != nil {
@@ -51,7 +66,7 @@ func (c *ClientHandler) PostAddToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.cartStore.AddOrIncrementItem(cart.ID, product.ID, qty, price); err != nil {
+	if err := c.cartStore.AddOrIncrementItem(cart.ID, product.ID, variant.ID, qty, price); err != nil {
 		ShowToast(w, "Erro ao adicionar item", "error")
 		return
 	}
@@ -74,9 +89,17 @@ func (c *ClientHandler) PostAddToCart(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (c *ClientHandler) resolveOpenCart(r *http.Request, w http.ResponseWriter, sess *store.Session) (*store.Cart, error) {
+func (c *ClientHandler) resolveOpenCart(
+	r *http.Request,
+	w http.ResponseWriter,
+	sess *store.Session,
+) (*store.Cart, error) {
 	if sess.CartID != 0 {
-		cart, err := c.cartStore.FindOpenByID(sess.CartID, sess.TenantID, sess.ContactInfo.ID)
+		cart, err := c.cartStore.FindOpenByID(
+			sess.CartID,
+			sess.TenantID,
+			sess.ContactInfo.ID,
+		)
 		if err == nil {
 			return cart, nil
 		}
@@ -85,9 +108,10 @@ func (c *ClientHandler) resolveOpenCart(r *http.Request, w http.ResponseWriter, 
 		}
 	}
 
-	fmt.Println(sess.ContactInfo.ID)
-
-	cart, err := c.cartStore.FindOpenByContact(sess.TenantID, sess.ContactInfo.ID)
+	cart, err := c.cartStore.FindOpenByContact(
+		sess.TenantID,
+		sess.ContactInfo.ID,
+	)
 	if err == nil {
 		if setErr := c.sessionStore.SetCartID(r, w, cart.ID); setErr != nil {
 			return nil, setErr
@@ -115,10 +139,13 @@ func (c *ClientHandler) resolveOpenCart(r *http.Request, w http.ResponseWriter, 
 }
 
 func (c *ClientHandler) DeleteCartItem(w http.ResponseWriter, r *http.Request) {
-	productIDStr := chi.URLParam(r, "productID")
-	productID, err := strconv.ParseUint(productIDStr, 10, 64)
-	if err != nil || productID == 0 {
-		ShowToast(w, "Item invalido", "error")
+	productID, ok := parseURLParamUint(w, r, "productID", "Item invalido")
+	if !ok {
+		return
+	}
+
+	variantID, ok := parseURLParamUint(w, r, "variantID", "Item invalido")
+	if !ok {
 		return
 	}
 
@@ -129,7 +156,7 @@ func (c *ClientHandler) DeleteCartItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.cartStore.RemoveItem(cart.ID, uint(productID)); err != nil {
+	if err := c.cartStore.RemoveItem(cart.ID, uint(productID), uint(variantID)); err != nil {
 		ShowToast(w, "Erro ao remover item", "error")
 		return
 	}
@@ -138,11 +165,17 @@ func (c *ClientHandler) DeleteCartItem(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (c *ClientHandler) PatchCartItemQty(w http.ResponseWriter, r *http.Request) {
-	productIDStr := chi.URLParam(r, "productID")
-	productID, err := strconv.ParseUint(productIDStr, 10, 64)
-	if err != nil || productID == 0 {
-		ShowToast(w, "Item invalido", "error")
+func (c *ClientHandler) PatchCartItemQty(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	productID, ok := parseURLParamUint(w, r, "productID", "Item invalido")
+	if !ok {
+		return
+	}
+
+	variantID, ok := parseURLParamUint(w, r, "variantID", "Item invalido")
+	if !ok {
 		return
 	}
 
@@ -164,7 +197,11 @@ func (c *ClientHandler) PatchCartItemQty(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := c.cartStore.UpdateItemQty(cart.ID, uint(productID), qty); err != nil {
+	if err := c.cartStore.UpdateItemQty(
+		cart.ID,
+		uint(productID),
+		uint(variantID),
+		qty); err != nil {
 		ShowToast(w, "Erro ao atualizar quantidade", "error")
 		return
 	}
@@ -173,14 +210,21 @@ func (c *ClientHandler) PatchCartItemQty(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusOK)
 }
 
-func (c *ClientHandler) PostConfirmOrder(w http.ResponseWriter, r *http.Request) {
+func (c *ClientHandler) PostConfirmOrder(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	sess := middleware.GetSessionFromContext(r)
 
 	var cart *store.Cart
 	var err error
 
 	if sess.CartID != 0 {
-		cart, err = c.cartStore.FindOpenByID(sess.CartID, sess.TenantID, sess.ContactInfo.ID)
+		cart, err = c.cartStore.FindOpenByID(
+			sess.CartID,
+			sess.TenantID,
+			sess.ContactInfo.ID,
+		)
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			ShowToast(w, "Erro ao preparar carrinho", "error")
 			return
@@ -188,7 +232,10 @@ func (c *ClientHandler) PostConfirmOrder(w http.ResponseWriter, r *http.Request)
 	}
 
 	if cart == nil {
-		cart, err = c.cartStore.FindOpenByContact(sess.TenantID, sess.ContactInfo.ID)
+		cart, err = c.cartStore.FindOpenByContact(
+			sess.TenantID,
+			sess.ContactInfo.ID,
+		)
 		if err != nil {
 			ShowToast(w, "Carrinho vazio", "error")
 			return
@@ -196,7 +243,11 @@ func (c *ClientHandler) PostConfirmOrder(w http.ResponseWriter, r *http.Request)
 		_ = c.sessionStore.SetCartID(r, w, cart.ID)
 	}
 
-	_, err = c.orderStore.ConfirmFromCart(cart.ID, sess.TenantID, sess.ContactInfo.ID)
+	_, err = c.orderStore.ConfirmFromCart(
+		cart.ID,
+		sess.TenantID,
+		sess.ContactInfo.ID,
+	)
 	if err != nil {
 		ShowToast(w, "Erro ao confirmar pedido", "error")
 		return
@@ -205,4 +256,17 @@ func (c *ClientHandler) PostConfirmOrder(w http.ResponseWriter, r *http.Request)
 	_ = c.sessionStore.SetCartID(r, w, 0)
 	w.Header().Set(HXRedirect, "/client/items")
 	w.WriteHeader(http.StatusOK)
+}
+
+func parseURLParamUint(
+	w http.ResponseWriter,
+	r *http.Request,
+	paramName, errorMsg string,
+) (uint64, bool) {
+	val, err := strconv.ParseUint(chi.URLParam(r, paramName), 10, 64)
+	if err != nil || val == 0 {
+		ShowToast(w, errorMsg, "error")
+		return 0, false
+	}
+	return val, true
 }

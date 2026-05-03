@@ -1,6 +1,44 @@
 package templates
 
-import "github.com/DTineli/ez/internal/store"
+import (
+	"encoding/json"
+	"strings"
+
+	"github.com/DTineli/ez/internal/store"
+)
+
+type variantJS struct {
+	ID    uint    `json:"id"`
+	Price float64 `json:"price"`
+	Label string  `json:"label"`
+}
+
+func VariantLabel(v store.VariantData) string {
+	if len(v.Attrs) == 0 {
+		return "Padrão"
+	}
+	parts := make([]string, 0, len(v.Attrs))
+	for _, a := range v.Attrs {
+		parts = append(parts, a.Value)
+	}
+	return strings.Join(parts, " / ")
+}
+
+func BuildVariantsJS(variants []store.VariantData) string {
+	if len(variants) == 0 {
+		return `[{"id":0,"price":0,"label":"Padrão"}]`
+	}
+	items := make([]variantJS, 0, len(variants))
+	for _, v := range variants {
+		items = append(items, variantJS{
+			ID:    v.ID,
+			Price: v.Price,
+			Label: VariantLabel(v),
+		})
+	}
+	b, _ := json.Marshal(items)
+	return string(b)
+}
 
 type VariationCardData struct {
 	Name    string                `json:"name"`

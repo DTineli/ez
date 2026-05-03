@@ -24,62 +24,71 @@ templ ClientCheckoutPage(items []store.CartCheckoutItem, totalAmount float64) {
 			} else {
 				<div class="mt-6 space-y-3">
 					for _, item := range items {
-						<div class="flex items-center gap-4 rounded-xl border border-slate-200/80 bg-slate-50/80 px-4 py-3 dark:border-slate-700/80 dark:bg-slate-800/70">
-							<div class="min-w-0 flex-1">
-								<p class="font-semibold text-slate-900 dark:text-slate-100">{ item.Name }</p>
-								<p class="text-xs text-slate-500 dark:text-slate-400">
-									R$ { fmt.Sprintf("%.2f", item.UnitPrice) } / un
+						<div class="rounded-xl border border-slate-200/80 bg-slate-50/80 px-4 py-3 dark:border-slate-700/80 dark:bg-slate-800/70">
+							<!-- top: name + delete -->
+							<div class="flex items-start justify-between gap-2">
+								<div class="min-w-0 flex-1">
+									<p class="break-words font-semibold text-slate-900 dark:text-slate-100">
+										{ item.Name }
+										if item.VariantLabel != "" {
+											<span class="ml-1 font-normal text-slate-500 dark:text-slate-400">{ item.VariantLabel }</span>
+										}
+									</p>
+									<p class="text-xs text-slate-500 dark:text-slate-400">
+										R$ { fmt.Sprintf("%.2f", item.UnitPrice) } / un
+									</p>
+								</div>
+								<button
+									type="button"
+									hx-delete={ fmt.Sprintf("/client/cart/items/%d/%d", item.ProductID, item.VariantID) }
+									hx-swap="none"
+									hx-confirm="Remover este item?"
+									class="flex-shrink-0 rounded-lg p-1.5 text-slate-400 transition hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+									title="Remover item"
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+										<polyline points="3 6 5 6 21 6"></polyline>
+										<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+										<path d="M10 11v6"></path>
+										<path d="M14 11v6"></path>
+										<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+									</svg>
+								</button>
+							</div>
+							<!-- bottom: qty form + subtotal -->
+							<div class="mt-2 flex items-center justify-between">
+								<form
+									hx-patch={ fmt.Sprintf("/client/cart/items/%d/%d", item.ProductID, item.VariantID) }
+									hx-swap="none"
+									class="flex items-center gap-1"
+								>
+									<input
+										type="number"
+										name="qty"
+										value={ strconv.Itoa(item.Quantity) }
+										min="1"
+										class="w-16 rounded-lg border border-slate-300 bg-white px-2 py-1 text-center text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+									/>
+									<button
+										type="submit"
+										class="rounded-lg bg-slate-200 px-2 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+									>
+										OK
+									</button>
+								</form>
+								<p class="flex-shrink-0 text-sm font-bold text-slate-900 dark:text-slate-100">
+									R$ { fmt.Sprintf("%.2f", item.Subtotal) }
 								</p>
 							</div>
-							<form
-								hx-patch={ fmt.Sprintf("/client/cart/items/%d", item.ProductID) }
-								hx-swap="none"
-								class="flex items-center gap-1"
-							>
-								<input
-									type="number"
-									name="qty"
-									value={ strconv.Itoa(item.Quantity) }
-									min="1"
-									class="w-16 rounded-lg border border-slate-300 bg-white px-2 py-1 text-center text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
-								/>
-								<button
-									type="submit"
-									class="rounded-lg bg-slate-200 px-2 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
-								>
-									OK
-								</button>
-							</form>
-							<p class="w-20 text-right text-sm font-bold text-slate-900 dark:text-slate-100">
-								R$ { fmt.Sprintf("%.2f", item.Subtotal) }
-							</p>
-							<button
-								type="button"
-								hx-delete={ fmt.Sprintf("/client/cart/items/%d", item.ProductID) }
-								hx-swap="none"
-								hx-confirm="Remover este item?"
-								class="rounded-lg p-1.5 text-slate-400 transition hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
-								title="Remover item"
-							>
-								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-									<polyline points="3 6 5 6 21 6"></polyline>
-									<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-									<path d="M10 11v6"></path>
-									<path d="M14 11v6"></path>
-									<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-								</svg>
-							</button>
 						</div>
 					}
 				</div>
-
 				<div class="mt-6 flex items-center justify-between border-t border-slate-200 pt-4 dark:border-slate-700">
 					<p class="text-sm font-semibold text-slate-600 dark:text-slate-300">Total</p>
 					<p class="text-xl font-extrabold text-slate-900 dark:text-slate-100">
 						R$ { fmt.Sprintf("%.2f", totalAmount) }
 					</p>
 				</div>
-
 				<div x-data="{ confirming: false }" class="mt-5">
 					<button
 						x-show="!confirming"

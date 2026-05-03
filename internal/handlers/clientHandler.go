@@ -37,15 +37,13 @@ func NewClientHandler(
 	}
 }
 
-func RenderClient(c templ.Component, w http.ResponseWriter, r *http.Request) error {
-	return RenderClientWithLayout(c, w, r, 0, "produtos")
-}
-
-func RenderClientWithCartCount(c templ.Component, w http.ResponseWriter, r *http.Request, cartCount int64) error {
-	return RenderClientWithLayout(c, w, r, cartCount, "produtos")
-}
-
-func RenderClientWithLayout(c templ.Component, w http.ResponseWriter, r *http.Request, cartCount int64, activeTab string) error {
+func RenderClientWithLayout(
+	c templ.Component,
+	w http.ResponseWriter,
+	r *http.Request,
+	cartCount int64,
+	activeTab string,
+) error {
 	if r.Header.Get("HX-Request") == "true" {
 		return c.Render(r.Context(), w)
 	}
@@ -69,29 +67,58 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 
 	query := r.URL.Query().Get("q")
 
-	products, err := c.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
-		Page:    page,
-		PerPage: perPage,
-		Search:  query,
-	})
+	products, err := c.productStore.FindAllByUserWithFilters(
+		sess.TenantID,
+		store.ProductFilters{
+			Page:    page,
+			PerPage: perPage,
+			Search:  query,
+		},
+	)
 	if err != nil {
 		ShowToast(w, "Erro ao buscar produtos", "error")
 		return
 	}
 
-	priceTable, err := c.priceTableStore.GetOne(sess.ContactInfo.PriceTable, sess.TenantID)
+	priceTable, err := c.priceTableStore.GetOne(
+		sess.ContactInfo.PriceTable,
+		sess.TenantID,
+	)
 	if err != nil {
-		http.Error(w, "Tabela de preço não encontrada. Contate o administrador.", http.StatusUnprocessableEntity)
+		http.Error(
+			w,
+			"Tabela de preço não encontrada. Contate o administrador.",
+			http.StatusUnprocessableEntity,
+		)
 		return
 	}
 
 	var cards []store.CardData
 	for _, p := range products.Results {
-		price := p.DefaultCostPrice() * (1 + priceTable.Percentage/100)
+
+		variants := make([]store.VariantData, 0, len(p.Variants))
+		for _, v := range p.Variants {
+			vPrice := v.CostPrice * (1 + priceTable.Percentage/100)
+
+			attrs := make([]store.AttrData, 0, len(v.Attributes))
+			for _, a := range v.Attributes {
+				attrs = append(attrs, store.AttrData{
+					Name:  a.AttributeValue.Attribute.Name,
+					Value: a.AttributeValue.Value,
+				})
+			}
+
+			variants = append(variants, store.VariantData{
+				ID:    v.ID,
+				Price: vPrice,
+				Attrs: attrs,
+			})
+		}
+
 		cards = append(cards, store.CardData{
-			ID:    p.ID,
-			Name:  p.Name,
-			Price: price,
+			ID:       p.ID,
+			Name:     p.Name,
+			Variants: variants,
 		})
 	}
 
@@ -103,7 +130,8 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 
 	// HTMX: scroll infinito (page > 1) → só o chunk; busca (page == 1) → conteúdo do grid
 	if isHX {
-		_ = templates.ClientProductsChunk(cards, nextPage, query).Render(r.Context(), w)
+		_ = templates.ClientProductsChunk(cards, nextPage, query).
+			Render(r.Context(), w)
 		return
 	}
 
@@ -114,10 +142,19 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	RenderClientWithLayout(templates.ClientProductsPage(cards, nextPage, query), w, r, cartCount, "produtos")
+	RenderClientWithLayout(
+		templates.ClientProductsPage(cards, nextPage, query),
+		w,
+		r,
+		cartCount,
+		"produtos",
+	)
 }
 
-func (c *ClientHandler) GetCheckoutPage(w http.ResponseWriter, r *http.Request) {
+func (c *ClientHandler) GetCheckoutPage(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	sess := middleware.GetSessionFromContext(r)
 
 	cartCount := int64(0)
@@ -128,7 +165,11 @@ func (c *ClientHandler) GetCheckoutPage(w http.ResponseWriter, r *http.Request) 
 	var err error
 
 	if sess.CartID != 0 {
-		openCart, err = c.cartStore.FindOpenByID(sess.CartID, sess.TenantID, sess.ContactInfo.ID)
+		openCart, err = c.cartStore.FindOpenByID(
+			sess.CartID,
+			sess.TenantID,
+			sess.ContactInfo.ID,
+		)
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			ShowToast(w, "Erro ao carregar carrinho", "error")
 			return
@@ -136,7 +177,10 @@ func (c *ClientHandler) GetCheckoutPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if openCart == nil {
-		openCart, err = c.cartStore.FindOpenByContact(sess.TenantID, sess.ContactInfo.ID)
+		openCart, err = c.cartStore.FindOpenByContact(
+			sess.TenantID,
+			sess.ContactInfo.ID,
+		)
 		if err == nil {
 			_ = c.sessionStore.SetCartID(r, w, openCart.ID)
 		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -161,5 +205,11 @@ func (c *ClientHandler) GetCheckoutPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	RenderClientWithLayout(templates.ClientCheckoutPage(items, totalAmount), w, r, cartCount, "carrinho")
+	RenderClientWithLayout(
+		templates.ClientCheckoutPage(items, totalAmount),
+		w,
+		r,
+		cartCount,
+		"carrinho",
+	)
 }

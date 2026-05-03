@@ -17,7 +17,11 @@ type AdminOrderHandler struct {
 	productStore store.ProductStore
 }
 
-func NewAdminOrderHandler(orderStore store.OrderStore, contactStore store.ContactStore, productStore store.ProductStore) *AdminOrderHandler {
+func NewAdminOrderHandler(
+	orderStore store.OrderStore,
+	contactStore store.ContactStore,
+	productStore store.ProductStore,
+) *AdminOrderHandler {
 	return &AdminOrderHandler{
 		orderStore:   orderStore,
 		contactStore: contactStore,
@@ -25,7 +29,10 @@ func NewAdminOrderHandler(orderStore store.OrderStore, contactStore store.Contac
 	}
 }
 
-func (h *AdminOrderHandler) GetOrdersPage(w http.ResponseWriter, r *http.Request) {
+func (h *AdminOrderHandler) GetOrdersPage(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	sess := m.GetSessionFromContext(r)
 
 	orders, err := h.orderStore.ListByTenant(sess.TenantID)
@@ -35,11 +42,18 @@ func (h *AdminOrderHandler) GetOrdersPage(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := Render(templates.AdminOrdersPage(orders), r, w); err != nil {
-		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		http.Error(
+			w,
+			"Error rendering template",
+			http.StatusInternalServerError,
+		)
 	}
 }
 
-func (h *AdminOrderHandler) GetOrderPage(w http.ResponseWriter, r *http.Request) {
+func (h *AdminOrderHandler) GetOrderPage(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	sess := m.GetSessionFromContext(r)
 
 	idStr := chi.URLParam(r, "id")
@@ -56,11 +70,18 @@ func (h *AdminOrderHandler) GetOrderPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err := Render(templates.AdminOrderDetailPage(order), r, w); err != nil {
-		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		http.Error(
+			w,
+			"Error rendering template",
+			http.StatusInternalServerError,
+		)
 	}
 }
 
-func (h *AdminOrderHandler) GetNewOrderPage(w http.ResponseWriter, r *http.Request) {
+func (h *AdminOrderHandler) GetNewOrderPage(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	sess := m.GetSessionFromContext(r)
 
 	contacts, err := h.contactStore.FindAll(sess.TenantID, store.ContactFilters{
@@ -73,11 +94,18 @@ func (h *AdminOrderHandler) GetNewOrderPage(w http.ResponseWriter, r *http.Reque
 	}
 
 	if err := Render(templates.AdminNewOrderPage(contacts.Results), r, w); err != nil {
-		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		http.Error(
+			w,
+			"Error rendering template",
+			http.StatusInternalServerError,
+		)
 	}
 }
 
-func (h *AdminOrderHandler) SearchProductsForOrder(w http.ResponseWriter, r *http.Request) {
+func (h *AdminOrderHandler) SearchProductsForOrder(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	sess := m.GetSessionFromContext(r)
 
 	q := r.URL.Query().Get("q")
@@ -86,11 +114,14 @@ func (h *AdminOrderHandler) SearchProductsForOrder(w http.ResponseWriter, r *htt
 		return
 	}
 
-	results, err := h.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
-		Page:    1,
-		PerPage: 10,
-		Name:    q,
-	})
+	results, err := h.productStore.FindAllByUserWithFilters(
+		sess.TenantID,
+		store.ProductFilters{
+			Page:    1,
+			PerPage: 10,
+			Name:    q,
+		},
+	)
 	if err != nil {
 		http.Error(w, "Erro ao buscar produtos", http.StatusInternalServerError)
 		return
@@ -98,13 +129,20 @@ func (h *AdminOrderHandler) SearchProductsForOrder(w http.ResponseWriter, r *htt
 
 	// Se não achou por nome, tenta por SKU exato
 	if len(results.Results) == 0 {
-		results, err = h.productStore.FindAllByUserWithFilters(sess.TenantID, store.ProductFilters{
-			Page:    1,
-			PerPage: 10,
-			SKU:     q,
-		})
+		results, err = h.productStore.FindAllByUserWithFilters(
+			sess.TenantID,
+			store.ProductFilters{
+				Page:    1,
+				PerPage: 10,
+				SKU:     q,
+			},
+		)
 		if err != nil {
-			http.Error(w, "Erro ao buscar produtos", http.StatusInternalServerError)
+			http.Error(
+				w,
+				"Erro ao buscar produtos",
+				http.StatusInternalServerError,
+			)
 			return
 		}
 	}
@@ -112,7 +150,10 @@ func (h *AdminOrderHandler) SearchProductsForOrder(w http.ResponseWriter, r *htt
 	templates.ProductSearchResults(results.Results).Render(r.Context(), w)
 }
 
-func (h *AdminOrderHandler) PostNewOrder(w http.ResponseWriter, r *http.Request) {
+func (h *AdminOrderHandler) PostNewOrder(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	sess := m.GetSessionFromContext(r)
 
 	if err := r.ParseForm(); err != nil {
@@ -128,10 +169,13 @@ func (h *AdminOrderHandler) PostNewOrder(w http.ResponseWriter, r *http.Request)
 	}
 
 	productIDs := r.Form["product_id[]"]
+	variantIDs := r.Form["variant_id[]"]
+
 	quantities := r.Form["quantity[]"]
 	unitPrices := r.Form["unit_price[]"]
 
-	if len(productIDs) == 0 || len(productIDs) != len(quantities) || len(productIDs) != len(unitPrices) {
+	if len(productIDs) == 0 || len(productIDs) != len(quantities) ||
+		len(productIDs) != len(unitPrices) {
 		http.Error(w, "Itens inválidos", http.StatusBadRequest)
 		return
 	}
@@ -142,6 +186,12 @@ func (h *AdminOrderHandler) PostNewOrder(w http.ResponseWriter, r *http.Request)
 		if err != nil || pid == 0 {
 			continue
 		}
+
+		varID, err := strconv.ParseUint(variantIDs[i], 10, 64)
+		if err != nil || varID == 0 {
+			continue
+		}
+
 		qty, err := strconv.Atoi(quantities[i])
 		if err != nil || qty <= 0 {
 			continue
@@ -152,6 +202,7 @@ func (h *AdminOrderHandler) PostNewOrder(w http.ResponseWriter, r *http.Request)
 		}
 		items = append(items, store.NewOrderItem{
 			ProductID: uint(pid),
+			VariantID: uint(varID),
 			Quantity:  qty,
 			UnitPrice: price,
 		})

@@ -30,6 +30,18 @@ func MustOpen(dbName string) *gorm.DB {
 		panic(err)
 	}
 
+	// Drop stale cart data before migrating CartItem schema (variant_id index change)
+	db.Exec("DELETE FROM cart_items WHERE variant_id = 0 OR variant_id IS NULL")
+	db.Exec("DROP INDEX IF EXISTS idx_cart_product")
+	// SQLite cannot add NOT NULL column to existing rows with NULL value
+	db.Exec(
+		"DELETE FROM order_items WHERE variant_id IS NULL OR variant_id = 0",
+	)
+	// Remove orders with no items
+	db.Exec(
+		"DELETE FROM orders WHERE id NOT IN (SELECT DISTINCT order_id FROM order_items)",
+	)
+
 	err = db.AutoMigrate(
 		&store.Tenant{},
 		&store.User{},

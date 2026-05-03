@@ -445,7 +445,7 @@ func TestGetProductPage_ErroStore(t *testing.T) {
 func TestGetVariantForm_Sucesso(t *testing.T) {
 	h := newHandler()
 
-	r := httptest.NewRequest(http.MethodGet, "/admin/produtos/1/variants/form", nil)
+	r := httptest.NewRequest(http.MethodGet, "/admin/produtos/1/variants/form?sku=PROD-01", nil)
 	r = htmxRequest(withSession(r, newSession(1)))
 	r = withChiParam(r, "id", "1")
 	w := httptest.NewRecorder()
@@ -492,7 +492,8 @@ func TestPostVariant_Sucesso(t *testing.T) {
 		"cost_price":    {"19.90"},
 		"current_stock": {"5"},
 		"minimum_stock": {"1"},
-		"attr_typed_1":  {"Vermelho"},
+		"attr_name_1":   {"Cor"},
+		"attr_value_1":  {"Vermelho"},
 	}
 	r := httptest.NewRequest(http.MethodPost, "/admin/produtos/1/variants", strings.NewReader(body.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")

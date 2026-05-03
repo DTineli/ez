@@ -189,8 +189,14 @@ func registerClientRoutes(
 			r.Get("/items", client.GetItemsPage)
 			r.Get("/confirmacao", client.GetCheckoutPage)
 			r.Post("/cart/items", client.PostAddToCart)
-			r.Delete("/cart/items/{productID}", client.DeleteCartItem)
-			r.Patch("/cart/items/{productID}", client.PatchCartItemQty)
+			r.Delete(
+				"/cart/items/{productID}/{variantID}",
+				client.DeleteCartItem,
+			)
+			r.Patch(
+				"/cart/items/{productID}/{variantID}",
+				client.PatchCartItemQty,
+			)
 			r.Post("/confirmacao", client.PostConfirmOrder)
 			r.Get("/pedidos", client.GetOrdersPage)
 			r.Get("/pedidos/{id}", client.GetOrderDetail)
