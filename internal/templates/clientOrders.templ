@@ -83,7 +83,7 @@ templ ClientOrderDetailPage(order *store.OrderDetail) {
 				for _, item := range order.Items {
 					<li class="flex items-center gap-3 px-4 py-3">
 						<div class="min-w-0 flex-1 space-y-0.5">
-							<p class="font-body text-sm font-medium text-on-surface break-words">{ item.Name }</p>
+							<p class="font-body text-sm font-medium text-on-surface break-words">{ item.Name } - { ConcatAttributeName(item.Variant.Attributes) }</p>
 							<p class="font-body text-xs text-slate-400">
 								{ fmt.Sprintf("%d × R$ %.2f", item.Quantity, item.UnitPrice) }
 							</p>
