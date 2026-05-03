@@ -21,8 +21,8 @@ type mockCartStore struct {
 	addOrIncrementItem func(cartID, productID, variantID uint, quantity int, unitPrice float64) error
 	countItems        func(cartID uint) (int64, error)
 	listCheckoutItems func(cartID, tenantID uint) ([]store.CartCheckoutItem, error)
-	removeItem        func(cartID, productID uint) error
-	updateItemQty     func(cartID, productID uint, quantity int) error
+	removeItem        func(cartID, productID, variantID uint) error
+	updateItemQty     func(cartID, productID, variantID uint, quantity int) error
 }
 
 func (s *mockCartStore) FindOpenByID(id, tenantID, contactID uint) (*store.Cart, error) {
@@ -62,15 +62,15 @@ func (s *mockCartStore) ListCheckoutItems(cartID, tenantID uint) ([]store.CartCh
 	}
 	return nil, nil
 }
-func (s *mockCartStore) RemoveItem(cartID, productID uint) error {
+func (s *mockCartStore) RemoveItem(cartID, productID, variantID uint) error {
 	if s.removeItem != nil {
-		return s.removeItem(cartID, productID)
+		return s.removeItem(cartID, productID, variantID)
 	}
 	return nil
 }
-func (s *mockCartStore) UpdateItemQty(cartID, productID uint, quantity int) error {
+func (s *mockCartStore) UpdateItemQty(cartID, productID, variantID uint, quantity int) error {
 	if s.updateItemQty != nil {
-		return s.updateItemQty(cartID, productID, quantity)
+		return s.updateItemQty(cartID, productID, variantID, quantity)
 	}
 	return nil
 }
@@ -268,7 +268,7 @@ func TestDeleteCartItem_Sucesso(t *testing.T) {
 		findOpenByContact: func(tenantID, contactID uint) (*store.Cart, error) {
 			return &store.Cart{ID: 1}, nil
 		},
-		removeItem: func(cartID, productID uint) error {
+		removeItem: func(cartID, productID, variantID uint) error {
 			removido = true
 			return nil
 		},
@@ -277,7 +277,7 @@ func TestDeleteCartItem_Sucesso(t *testing.T) {
 
 	r := httptest.NewRequest(http.MethodDelete, "/client/cart/items/10", nil)
 	r = htmxRequest(withSession(r, newClientSession()))
-	r = withChiParam(r, "productID", "10")
+	r = withChiParams(r, map[string]string{"productID": "10", "variantID": "3"})
 	w := httptest.NewRecorder()
 
 	h.DeleteCartItem(w, r)
@@ -299,7 +299,7 @@ func TestPatchCartItemQty_QuantidadeInvalida(t *testing.T) {
 	r := httptest.NewRequest(http.MethodPatch, "/client/cart/items/1", strings.NewReader(body.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r = htmxRequest(withSession(r, newClientSession()))
-	r = withChiParam(r, "productID", "1")
+	r = withChiParams(r, map[string]string{"productID": "1", "variantID": "3"})
 	w := httptest.NewRecorder()
 
 	h.PatchCartItemQty(w, r)
@@ -315,7 +315,7 @@ func TestPatchCartItemQty_Sucesso(t *testing.T) {
 		findOpenByContact: func(tenantID, contactID uint) (*store.Cart, error) {
 			return &store.Cart{ID: 1}, nil
 		},
-		updateItemQty: func(cartID, productID uint, quantity int) error {
+		updateItemQty: func(cartID, productID, variantID uint, quantity int) error {
 			atualizado = true
 			return nil
 		},
@@ -326,7 +326,7 @@ func TestPatchCartItemQty_Sucesso(t *testing.T) {
 	r := httptest.NewRequest(http.MethodPatch, "/client/cart/items/1", strings.NewReader(body.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r = htmxRequest(withSession(r, newClientSession()))
-	r = withChiParam(r, "productID", "1")
+	r = withChiParams(r, map[string]string{"productID": "1", "variantID": "3"})
 	w := httptest.NewRecorder()
 
 	h.PatchCartItemQty(w, r)

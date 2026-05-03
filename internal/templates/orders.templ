@@ -3,10 +3,19 @@ package templates
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/DTineli/ez/internal/store"
 )
+
+func ConcatAttributeName(attrs []store.VariantAttribute) string {
+	parts := make([]string, 0, len(attrs))
+	for _, attr := range attrs {
+		parts = append(parts, attr.AttributeValue.Value)
+	}
+	return strings.Join(parts, " / ")
+}
 
 templ AdminOrdersPage(orders []store.AdminOrderListItem) {
 	<div class="space-y-6">
@@ -131,7 +140,7 @@ templ AdminOrderDetailPage(order *store.OrderDetail) {
 						<tbody>
 							for _, item := range order.Items {
 								<tr class="hover:bg-gray-50">
-									<td class="px-4 py-3">{ item.Name } - { item.Variant.ID }</td>
+									<td class="px-4 py-3">{ item.Name } - { ConcatAttributeName(item.Variant.Attributes) }</td>
 									<td class="px-4 py-3 text-right">{ fmt.Sprintf("%d", item.Quantity) }</td>
 									<td class="px-4 py-3 text-right">R$ { fmt.Sprintf("%.2f", item.UnitPrice) }</td>
 									<td class="px-4 py-3 text-right">R$ { fmt.Sprintf("%.2f", item.Subtotal) }</td>

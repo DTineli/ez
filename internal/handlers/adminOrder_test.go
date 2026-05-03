@@ -21,38 +21,57 @@ type mockOrderStore struct {
 	create          func(tenantID, contactID uint, items []store.NewOrderItem) (*store.Order, error)
 }
 
-func (s *mockOrderStore) ConfirmFromCart(cartID, tenantID, contactID uint) (*store.Order, error) {
+func (s *mockOrderStore) ConfirmFromCart(
+	cartID, tenantID, contactID uint,
+) (*store.Order, error) {
 	if s.confirmFromCart != nil {
 		return s.confirmFromCart(cartID, tenantID, contactID)
 	}
 	return &store.Order{}, nil
 }
-func (s *mockOrderStore) ListByTenant(tenantID uint) ([]store.AdminOrderListItem, error) {
+
+func (s *mockOrderStore) ListByTenant(
+	tenantID uint,
+) ([]store.AdminOrderListItem, error) {
 	if s.listByTenant != nil {
 		return s.listByTenant(tenantID)
 	}
 	return nil, nil
 }
-func (s *mockOrderStore) ListByContact(tenantID, contactID uint) ([]store.ClientOrderListItem, error) {
+
+func (s *mockOrderStore) ListByContact(
+	tenantID, contactID uint,
+) ([]store.ClientOrderListItem, error) {
 	if s.listByContact != nil {
 		return s.listByContact(tenantID, contactID)
 	}
 	return nil, nil
 }
-func (s *mockOrderStore) GetByID(id, tenantID uint) (*store.OrderDetail, error) {
+
+func (s *mockOrderStore) GetByID(
+	id, tenantID uint,
+) (*store.OrderDetail, error) {
 	if s.getByID != nil {
 		return s.getByID(id, tenantID)
 	}
 	return &store.OrderDetail{}, nil
 }
-func (s *mockOrderStore) Create(tenantID, contactID uint, items []store.NewOrderItem) (*store.Order, error) {
+
+func (s *mockOrderStore) Create(
+	tenantID, contactID uint,
+	items []store.NewOrderItem,
+) (*store.Order, error) {
 	if s.create != nil {
 		return s.create(tenantID, contactID, items)
 	}
 	return &store.Order{ID: 99}, nil
 }
 
-func newAdminOrderHandler(os *mockOrderStore, cs *mockContactStore, ps *mockProductStore) *AdminOrderHandler {
+func newAdminOrderHandler(
+	os *mockOrderStore,
+	cs *mockContactStore,
+	ps *mockProductStore,
+) *AdminOrderHandler {
 	if os == nil {
 		os = &mockOrderStore{}
 	}
@@ -186,7 +205,11 @@ func TestAdminGetNewOrderPage_ErroContatos(t *testing.T) {
 func TestSearchProductsForOrder_QueryCurta(t *testing.T) {
 	h := newAdminOrderHandler(nil, nil, nil)
 
-	r := httptest.NewRequest(http.MethodGet, "/admin/pedidos/busca?q=a", nil) // < 2 chars
+	r := httptest.NewRequest(
+		http.MethodGet,
+		"/admin/pedidos/busca?q=a",
+		nil,
+	) // < 2 chars
 	r = htmxRequest(withSession(r, newSession(1)))
 	w := httptest.NewRecorder()
 
@@ -223,7 +246,11 @@ func TestAdminPostNewOrder_ContatoInvalido(t *testing.T) {
 	h := newAdminOrderHandler(nil, nil, nil)
 
 	body := url.Values{"contact_id": {"abc"}}
-	r := httptest.NewRequest(http.MethodPost, "/admin/pedidos", strings.NewReader(body.Encode()))
+	r := httptest.NewRequest(
+		http.MethodPost,
+		"/admin/pedidos",
+		strings.NewReader(body.Encode()),
+	)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r = htmxRequest(withSession(r, newSession(1)))
 	w := httptest.NewRecorder()
@@ -239,7 +266,11 @@ func TestAdminPostNewOrder_ItensFaltando(t *testing.T) {
 	h := newAdminOrderHandler(nil, nil, nil)
 
 	body := url.Values{"contact_id": {"1"}} // sem product_id[]
-	r := httptest.NewRequest(http.MethodPost, "/admin/pedidos", strings.NewReader(body.Encode()))
+	r := httptest.NewRequest(
+		http.MethodPost,
+		"/admin/pedidos",
+		strings.NewReader(body.Encode()),
+	)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r = htmxRequest(withSession(r, newSession(1)))
 	w := httptest.NewRecorder()
@@ -264,10 +295,15 @@ func TestAdminPostNewOrder_Sucesso(t *testing.T) {
 	body := url.Values{
 		"contact_id":   {"1"},
 		"product_id[]": {"10"},
+		"variant_id[]": {"5"},
 		"quantity[]":   {"2"},
 		"unit_price[]": {"49.90"},
 	}
-	r := httptest.NewRequest(http.MethodPost, "/admin/pedidos", strings.NewReader(body.Encode()))
+	r := httptest.NewRequest(
+		http.MethodPost,
+		"/admin/pedidos",
+		strings.NewReader(body.Encode()),
+	)
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r = htmxRequest(withSession(r, newSession(1)))
 	w := httptest.NewRecorder()
@@ -280,7 +316,10 @@ func TestAdminPostNewOrder_Sucesso(t *testing.T) {
 	if !pedidoCriado {
 		t.Error("Create não foi chamado")
 	}
-	if !strings.Contains(w.Header().Get("HX-Redirect"), "/admin/pedidos/42") {
-		t.Errorf("esperado redirect para pedido 42, obteve %q", w.Header().Get("HX-Redirect"))
+	if !strings.Contains(w.Header().Get("HX-Location"), "/admin/pedidos/42") {
+		t.Errorf(
+			"esperado redirect para pedido 42, obteve %q",
+			w.Header().Get("HX-Location"),
+		)
 	}
 }
