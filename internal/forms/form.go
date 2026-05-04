@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/DTineli/ez/internal/validate"
 )
 
 type Form struct {
@@ -28,7 +30,10 @@ func New(data url.Values) *Form {
 func (f *Form) Required(fields ...string) {
 	for _, field := range fields {
 		if strings.TrimSpace(f.Get(field)) == "" {
-			f.Errors[field] = append(f.Errors[field], "Esse valor não pode ser vazio.")
+			f.Errors[field] = append(
+				f.Errors[field],
+				"Esse valor não pode ser vazio.",
+			)
 		}
 	}
 }
@@ -42,13 +47,26 @@ func (f *Form) IsEmail(field string) {
 
 	_, err := mail.ParseAddress(email)
 	if err != nil {
-		f.Errors[field] = append(f.Errors[field], fmt.Sprintf("%v deve ser um email valido", field))
+		f.Errors[field] = append(
+			f.Errors[field],
+			fmt.Sprintf("%v deve ser um email valido", field),
+		)
+	}
+}
+
+func (f *Form) IsEAN(field string) {
+	_, err := validate.EAN(f.Get(field))
+	if err != nil {
+		f.Errors[field] = append(f.Errors[field], err.Error())
 	}
 }
 
 func (f *Form) MaxLength(field string, length int) {
 	if utf8.RuneCountInString(f.Get(field)) > length {
-		f.Errors[field] = append(f.Errors[field], fmt.Sprintf("%v deve ter no maximo %v caracteres", field, length))
+		f.Errors[field] = append(
+			f.Errors[field],
+			fmt.Sprintf("%v deve ter no maximo %v caracteres", field, length),
+		)
 	}
 }
 
@@ -59,7 +77,10 @@ func (f *Form) MinLength(field string, length int) {
 	}
 
 	if utf8.RuneCountInString(value) < length {
-		f.Errors[field] = append(f.Errors[field], fmt.Sprintf("%v deve ter no minimo %v caracteres", field, length))
+		f.Errors[field] = append(
+			f.Errors[field],
+			fmt.Sprintf("%v deve ter no minimo %v caracteres", field, length),
+		)
 	}
 }
 
@@ -88,7 +109,10 @@ func (f *Form) IsInt(field string) int {
 
 	val, err := strconv.Atoi(value)
 	if err != nil {
-		f.Errors[field] = append(f.Errors[field], "Deve ser um número inteiro válido")
+		f.Errors[field] = append(
+			f.Errors[field],
+			"Deve ser um número inteiro válido",
+		)
 	}
 
 	return val

@@ -87,8 +87,11 @@ type Variant struct {
 
 	CostPrice    float64 `json:"cost_price"`
 	CurrentStock int     `json:"current_stock" gorm:"default:0"`
-	MinimumStock int     `json:"minimum_stock" gorm:"default:0"`
+	// MinimumStock int     `json:"minimum_stock" gorm:"default:0"`
 
+	EAN string `gorm:"type:varchar(20);" json:"ean"`
+
+	// TODO: Remover ???
 	Weight   float64 `gorm:"type:decimal(10,3)" json:"weight"`
 	HeightCm float64 `gorm:"type:decimal(10,2)" json:"height_cm"`
 	WidthCm  float64 `gorm:"type:decimal(10,2)" json:"width_cm"`
@@ -116,7 +119,6 @@ type Product struct {
 	//TODO: FOTOS ??
 
 	UOM UOM    `gorm:"type:varchar(10);default:'UN'" json:"uom"`
-	EAN string `gorm:"type:varchar(20);"             json:"ean"`
 	NCM string `gorm:"type:varchar(20);"             json:"ncm"`
 
 	Weight float64 `gorm:"type:decimal(10,3);default:0" json:"weight"`

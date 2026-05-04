@@ -481,82 +481,92 @@ func ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants [
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div><div class=\"basis-[20%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
-			Name:          "ean",
-			Label:         "EAN",
-			InputType:     "text",
-			Value:         form.Get("ean"),
-			ErrorMessages: form.Errors.Get("ean"),
-			Mask:          "9999999999999",
-			Placeholder:   "0000000000000",
-		}).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if !isUpdate {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<div class=\"basis-[20%] grow\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
+				Name:          "ean",
+				Label:         "EAN",
+				InputType:     "text",
+				Value:         form.Get("ean"),
+				ErrorMessages: form.Errors.Get("ean"),
+				Mask:          "9999999999999",
+				Placeholder:   "0000000000000",
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div></div><div class=\"flex flex-col gap-1 mb-5\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Descrição</span></label> <textarea name=\"description\" rows=\"3\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-y\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div><div class=\"flex flex-col gap-1 mb-5\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Descrição</span></label> <textarea name=\"description\" rows=\"3\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-y\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(form.Get("description"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 423, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 425, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</textarea></div><div class=\"flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200\"></div><!-- CLASSIFICAÇÃO --><p class=\"text-xs font-bold tracking-widest uppercase text-gray-400 mb-4\">Classificação</p><div class=\"flex flex-wrap gap-3 mb-4\"><div class=\"basis-[30%] grow\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Unidade de Medida</span></label> <select name=\"uom\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</textarea></div><div class=\"flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200\"></div><!-- CLASSIFICAÇÃO --><p class=\"text-xs font-bold tracking-widest uppercase text-gray-400 mb-4\">Classificação</p><div class=\"flex flex-wrap gap-3 mb-4\"><div class=\"basis-[30%] grow\"><label class=\"flex items-center gap-2 py-1\"><span class=\"text-sm font-medium\">Unidade de Medida</span></label> <select name=\"uom\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, u := range uoms {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<option value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<option value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(u.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 436, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 438, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if form.Get("uom") == u.Value {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, " selected")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, " selected")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, ">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, ">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(u.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 441, Col: 19}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/product.templ`, Line: 443, Col: 19}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</option>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</option>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</select></div><div class=\"basis-[20%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</select></div><div class=\"basis-[20%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -571,12 +581,12 @@ func ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants [
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if !isUpdate {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200\"></div><!-- ESTOQUE & CUSTOS --> <p class=\"text-xs font-bold tracking-widest uppercase text-gray-400 mb-4\">Estoque &amp; Custos</p><div class=\"flex flex-wrap gap-3 mb-4\"><div class=\"basis-[25%] grow\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<div class=\"flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200\"></div><!-- ESTOQUE & CUSTOS --> <p class=\"text-xs font-bold tracking-widest uppercase text-gray-400 mb-4\">Estoque &amp; Custos</p><div class=\"flex flex-wrap gap-3 mb-4\"><div class=\"basis-[25%] grow\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -590,7 +600,7 @@ func ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants [
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div><div class=\"basis-[25%] grow\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div><div class=\"basis-[25%] grow\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -603,7 +613,7 @@ func ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants [
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</div><div class=\"basis-[25%] grow\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div><div class=\"basis-[25%] grow\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -616,12 +626,12 @@ func ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants [
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<div class=\"flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200\"></div><!-- DIMENSÕES --><p class=\"text-xs font-bold tracking-widest uppercase text-gray-400 mb-4\">Dimensões</p><div class=\"flex flex-wrap gap-3 mb-4\"><div class=\"basis-[18%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<div class=\"flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200\"></div><!-- DIMENSÕES --><p class=\"text-xs font-bold tracking-widest uppercase text-gray-400 mb-4\">Dimensões</p><div class=\"flex flex-wrap gap-3 mb-4\"><div class=\"basis-[18%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -635,7 +645,7 @@ func ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants [
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</div><div class=\"basis-[18%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div><div class=\"basis-[18%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -649,7 +659,7 @@ func ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants [
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div><div class=\"basis-[18%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div><div class=\"basis-[18%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -663,7 +673,7 @@ func ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants [
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div><div class=\"basis-[18%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div><div class=\"basis-[18%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -677,7 +687,7 @@ func ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants [
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div></div><div class=\"flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200\"></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div></div><div class=\"flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -685,22 +695,22 @@ func ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants [
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<div class=\"flex justify-end gap-3 pt-2\"><a href=\"/admin/produtos\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm\">Cancelar</a> <button type=\"submit\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<div class=\"flex justify-end gap-3 pt-2\"><a href=\"/admin/produtos\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm\">Cancelar</a> <button type=\"submit\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if isUpdate {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "Salvar Alterações")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "Salvar Alterações")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "Cadastrar Produto")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "Cadastrar Produto")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</button></div></form></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</button></div></form></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -710,7 +720,7 @@ func ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants [
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

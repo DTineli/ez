@@ -8,6 +8,7 @@ import (
 	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
+	"github.com/DTineli/ez/internal/validate"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -25,9 +26,21 @@ func (p *ProductHandler) GetVariantForm(
 		return
 	}
 
-	defaultCostPrice, _ := strconv.ParseFloat(r.URL.Query().Get("default_cost_price"), 64)
+	defaultCostPrice, _ := strconv.ParseFloat(
+		r.URL.Query().Get("default_cost_price"),
+		64,
+	)
 
-	Render(templates.NewVariantForm(productID, productSKU, attrs, defaultCostPrice), r, w)
+	Render(
+		templates.NewVariantForm(
+			productID,
+			productSKU,
+			attrs,
+			defaultCostPrice,
+		),
+		r,
+		w,
+	)
 }
 
 func (p *ProductHandler) CancelVariantForm(
@@ -90,26 +103,38 @@ func (p *ProductHandler) UpdateVariant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	existing, err := p.productStore.GetVariant(uint(variantID), sess.TenantID)
+	if err != nil {
+		http.Error(w, "variação não encontrada", http.StatusNotFound)
+		return
+	}
+
 	costPrice, _ := strconv.ParseFloat(r.FormValue("cost_price"), 64)
 	currentStock, _ := strconv.Atoi(r.FormValue("current_stock"))
-	minimumStock, _ := strconv.Atoi(r.FormValue("minimum_stock"))
+	ean, err := validate.EAN(r.FormValue("ean"))
+	if err != nil {
+		ShowToast(w, err.Error(), "error")
+		Render(templates.VariantEditRow(*existing, chi.URLParam(r, "id")), r, w)
+		return
+	}
 
 	fields := map[string]any{
 		"cost_price":    costPrice,
 		"current_stock": currentStock,
-		"minimum_stock": minimumStock,
+		"ean":           ean,
 	}
 
 	if err := p.productStore.UpdateVariantFields(uint(variantID), sess.TenantID, fields); err != nil {
 		ShowToast(w, "Erro ao salvar variação", "error")
-		variant, _ := p.productStore.GetVariant(uint(variantID), sess.TenantID)
-		Render(templates.VariantEditRow(*variant, chi.URLParam(r, "id")), r, w)
+		Render(templates.VariantEditRow(*existing, chi.URLParam(r, "id")), r, w)
 		return
 	}
 
+	existing.CostPrice = costPrice
+	existing.CurrentStock = currentStock
+	existing.EAN = ean
 	ShowToast(w, "Variação salva", "success")
-	variant, _ := p.productStore.GetVariant(uint(variantID), sess.TenantID)
-	Render(templates.VariantRow(*variant, chi.URLParam(r, "id")), r, w)
+	Render(templates.VariantRow(*existing, chi.URLParam(r, "id")), r, w)
 }
 
 func (p *ProductHandler) BulkUpdateVariants(
@@ -130,10 +155,9 @@ func (p *ProductHandler) BulkUpdateVariants(
 	}
 
 	addStockStr := r.FormValue("add_stock")
-	setMinStockStr := r.FormValue("add_min_stock")
 	setPriceStr := r.FormValue("set_price")
 
-	if addStockStr == "" && setPriceStr == "" && setMinStockStr == "" {
+	if addStockStr == "" && setPriceStr == "" {
 		variants, _ := p.productStore.FindVariantsByProduct(
 			uint(productID),
 			sess.TenantID,
@@ -147,12 +171,15 @@ func (p *ProductHandler) BulkUpdateVariants(
 		sess.TenantID,
 	)
 	if err != nil {
-		http.Error(w, "erro ao buscar variações", http.StatusInternalServerError)
+		http.Error(
+			w,
+			"erro ao buscar variações",
+			http.StatusInternalServerError,
+		)
 		return
 	}
 
 	setStock, _ := strconv.Atoi(addStockStr)
-	setMinStock, _ := strconv.Atoi(setMinStockStr)
 	setPrice, _ := strconv.ParseFloat(setPriceStr, 64)
 
 	for _, v := range variants {
@@ -162,9 +189,6 @@ func (p *ProductHandler) BulkUpdateVariants(
 		}
 		if setPriceStr != "" {
 			fields["cost_price"] = setPrice
-		}
-		if setMinStockStr != "" {
-			fields["minimum_stock"] = setMinStock
 		}
 		if len(fields) > 0 {
 			_ = p.productStore.UpdateVariantFields(v.ID, sess.TenantID, fields)
@@ -211,13 +235,22 @@ func (p *ProductHandler) PostVariant(w http.ResponseWriter, r *http.Request) {
 			prod != nil {
 			parentSku = prod.SKU
 		}
-		variants, _ := p.productStore.FindVariantsByProduct(uint(productID), sess.TenantID)
+		variants, _ := p.productStore.FindVariantsByProduct(
+			uint(productID),
+			sess.TenantID,
+		)
 		var defaultCostPrice float64
 		if len(variants) > 0 {
 			defaultCostPrice = variants[0].CostPrice
 		}
 		Render(
-			templates.VariantsSectionWithNewForm(variants, chi.URLParam(r, "id"), parentSku, attrs, defaultCostPrice),
+			templates.VariantsSectionWithNewForm(
+				variants,
+				chi.URLParam(r, "id"),
+				parentSku,
+				attrs,
+				defaultCostPrice,
+			),
 			r,
 			w,
 		)
@@ -241,7 +274,11 @@ func (p *ProductHandler) PostVariant(w http.ResponseWriter, r *http.Request) {
 
 	costPrice, _ := strconv.ParseFloat(r.FormValue("cost_price"), 64)
 	currentStock, _ := strconv.Atoi(r.FormValue("current_stock"))
-	minimumStock, _ := strconv.Atoi(r.FormValue("minimum_stock"))
+	ean, err := validate.EAN(r.FormValue("ean"))
+	if err != nil {
+		renderVariantForm(err.Error())
+		return
+	}
 
 	if defaultVariant, err := p.productStore.FindDefaultVariant(uint(productID), sess.TenantID); err == nil &&
 		defaultVariant != nil {
@@ -252,7 +289,7 @@ func (p *ProductHandler) PostVariant(w http.ResponseWriter, r *http.Request) {
 		SKU:          sku,
 		CostPrice:    costPrice,
 		CurrentStock: currentStock,
-		MinimumStock: minimumStock,
+		EAN:          ean,
 		ProductID:    uint(productID),
 		TenantID:     sess.TenantID,
 	}
@@ -269,7 +306,10 @@ func (p *ProductHandler) PostVariant(w http.ResponseWriter, r *http.Request) {
 
 	var attributeValueIDs []uint
 	for _, ai := range attrInputs {
-		attr, err := p.productStore.FindOrCreateAttribute(ai.Name, sess.TenantID)
+		attr, err := p.productStore.FindOrCreateAttribute(
+			ai.Name,
+			sess.TenantID,
+		)
 		if err != nil {
 			continue
 		}

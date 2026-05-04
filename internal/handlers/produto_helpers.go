@@ -32,6 +32,8 @@ func validateProductForm(r *http.Request) (*forms.Form, error) {
 	form.Set("ncm", strings.ReplaceAll(form.Get("ncm"), ".", ""))
 	form.IsInt("ncm")
 
+	form.IsEAN("ean")
+
 	form.IsFloat("weight")
 	form.IsFloat("height")
 	form.IsFloat("width")
@@ -39,7 +41,6 @@ func validateProductForm(r *http.Request) (*forms.Form, error) {
 
 	return form, nil
 }
-
 
 func mapProductToForm(p *store.Product) *forms.Form {
 	form := forms.New(nil)
@@ -49,7 +50,6 @@ func mapProductToForm(p *store.Product) *forms.Form {
 	form.Set("sku", p.SKU)
 	form.Set("uom", string(p.UOM))
 	form.Set("description", p.FullDescription)
-	form.Set("ean", p.EAN)
 	form.Set("weight", strconv.FormatFloat(p.Weight, 'f', 3, 64))
 	form.Set("height", strconv.FormatFloat(p.Height, 'f', 3, 64))
 	form.Set("width", strconv.FormatFloat(p.Width, 'f', 3, 64))

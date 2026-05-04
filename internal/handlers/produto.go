@@ -67,7 +67,6 @@ func (p *ProductHandler) PostNewProduct(
 		FullDescription: form.Get("description"),
 		Status:          true,
 		UOM:             store.UOM(form.Get("uom")),
-		EAN:             form.Get("ean"),
 		NCM:             form.Get("ncm"),
 		Weight:          form.IsFloat("weight"),
 		Height:          form.IsFloat("height"),
@@ -88,14 +87,14 @@ func (p *ProductHandler) PostNewProduct(
 
 	costPrice, _ := strconv.ParseFloat(form.Get("cost_price"), 64)
 	currentStock, _ := strconv.Atoi(form.Get("current_stock"))
-	minimumStock, _ := strconv.Atoi(form.Get("minimum_stock"))
+	ean := form.Get("ean")
 
 	defaultVariant := &store.Variant{
 		SKU:          product.SKU,
 		ProductID:    product.ID,
 		CostPrice:    costPrice,
 		CurrentStock: currentStock,
-		MinimumStock: minimumStock,
+		EAN:          ean,
 		TenantID:     sess.TenantID,
 		IsDefault:    true,
 	}
