@@ -32,6 +32,11 @@ func validateProductForm(r *http.Request) (*forms.Form, error) {
 	form.Set("ncm", strings.ReplaceAll(form.Get("ncm"), ".", ""))
 	form.IsInt("ncm")
 
+	form.IsFloat("weight")
+	form.IsFloat("height")
+	form.IsFloat("width")
+	form.IsFloat("length")
+
 	return form, nil
 }
 
@@ -45,6 +50,10 @@ func mapProductToForm(p *store.Product) *forms.Form {
 	form.Set("uom", string(p.UOM))
 	form.Set("description", p.FullDescription)
 	form.Set("ean", p.EAN)
+	form.Set("weight", strconv.FormatFloat(p.Weight, 'f', 3, 64))
+	form.Set("height", strconv.FormatFloat(p.Height, 'f', 3, 64))
+	form.Set("width", strconv.FormatFloat(p.Width, 'f', 3, 64))
+	form.Set("length", strconv.FormatFloat(p.Length, 'f', 3, 64))
 
 	ncm := p.NCM
 	if len(ncm) == 8 {

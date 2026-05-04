@@ -119,6 +119,11 @@ type Product struct {
 	EAN string `gorm:"type:varchar(20);"             json:"ean"`
 	NCM string `gorm:"type:varchar(20);"             json:"ncm"`
 
+	Weight float64 `gorm:"type:decimal(10,3);default:0" json:"weight"`
+	Height float64 `gorm:"type:decimal(10,3);default:0" json:"height"`
+	Width  float64 `gorm:"type:decimal(10,3);default:0" json:"width"`
+	Length float64 `gorm:"type:decimal(10,3);default:0" json:"length"`
+
 	Variants []Variant `gorm:"foreignKey:ProductID" json:"variants,omitempty"`
 
 	TenantID uint `gorm:"not null;index:idx_tenant_sku,priority:1" json:"tenant_id"`

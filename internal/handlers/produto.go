@@ -69,6 +69,10 @@ func (p *ProductHandler) PostNewProduct(
 		UOM:             store.UOM(form.Get("uom")),
 		EAN:             form.Get("ean"),
 		NCM:             form.Get("ncm"),
+		Weight:          form.IsFloat("weight"),
+		Height:          form.IsFloat("height"),
+		Width:           form.IsFloat("width"),
+		Length:          form.IsFloat("length"),
 	}
 
 	if err := p.productStore.CreateProduct(product); err != nil {
@@ -136,6 +140,10 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		"uom":              store.UOM(form.Get("uom")),
 		"ean":              form.Get("ean"),
 		"ncm":              form.Get("ncm"),
+		"weight":           form.IsFloat("weight"),
+		"height":           form.IsFloat("height"),
+		"width":            form.IsFloat("width"),
+		"length":           form.IsFloat("length"),
 	}
 
 	err = p.productStore.UpdateFields(uint(id), sess.TenantID, fields)
