@@ -1,0 +1,38 @@
+package components
+
+type CheckboxState struct {
+	Name string
+
+	CanCheck bool
+	ID       string
+	Label    string
+	Checked  bool
+	FormID   string
+}
+
+templ Checkbox(state CheckboxState) {
+	<div class="inline-flex items-center gap-2 select-none">
+		<input
+			type="checkbox"
+			name={ state.Name }
+			id={ state.ID }
+			value="true"
+			if state.FormID != "" {
+				form={ state.FormID }
+			}
+			if state.CanCheck {
+				class="w-4 h-4 rounded border-gray-300 accent-green-500 "
+			} else {
+				class="w-4 h-4 rounded border-gray-300 accent-green-500 
+					pointer-events-none
+					"
+			}
+			if state.Checked {
+				checked
+			}
+		/>
+		if state.Label != "" {
+			<span class="text-sm font-medium text-gray-700">{ state.Label }</span>
+		}
+	</div>
+}

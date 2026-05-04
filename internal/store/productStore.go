@@ -82,7 +82,9 @@ type VariantAttribute struct {
 }
 
 type Variant struct {
-	ID  uint   `gorm:"primaryKey"                                                                                       json:"id"`
+	ID     uint `gorm:"primaryKey"   json:"id"`
+	Status bool `gorm:"default:true" json:"status"`
+
 	SKU string `gorm:"type:varchar(50);not null;uniqueIndex:idx_variant_tenant_sku,where:deleted_at is null,priority:2" json:"sku"`
 
 	CostPrice    float64 `json:"cost_price"`

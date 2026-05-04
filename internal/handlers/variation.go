@@ -112,6 +112,8 @@ func (p *ProductHandler) UpdateVariant(w http.ResponseWriter, r *http.Request) {
 	costPrice, _ := strconv.ParseFloat(r.FormValue("cost_price"), 64)
 	currentStock, _ := strconv.Atoi(r.FormValue("current_stock"))
 	ean, err := validate.EAN(r.FormValue("ean"))
+	status := r.FormValue("status") == "true"
+
 	if err != nil {
 		ShowToast(w, err.Error(), "error")
 		Render(templates.VariantEditRow(*existing, chi.URLParam(r, "id")), r, w)
@@ -122,6 +124,7 @@ func (p *ProductHandler) UpdateVariant(w http.ResponseWriter, r *http.Request) {
 		"cost_price":    costPrice,
 		"current_stock": currentStock,
 		"ean":           ean,
+		"status":        status,
 	}
 
 	if err := p.productStore.UpdateVariantFields(uint(variantID), sess.TenantID, fields); err != nil {
@@ -133,6 +136,7 @@ func (p *ProductHandler) UpdateVariant(w http.ResponseWriter, r *http.Request) {
 	existing.CostPrice = costPrice
 	existing.CurrentStock = currentStock
 	existing.EAN = ean
+	existing.Status = status
 	ShowToast(w, "Variação salva", "success")
 	Render(templates.VariantRow(*existing, chi.URLParam(r, "id")), r, w)
 }
