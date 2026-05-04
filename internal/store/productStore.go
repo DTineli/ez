@@ -193,6 +193,8 @@ type ProductStore interface {
 	FindDefaultVariant(productID uint, tenantID uint) (*Variant, error)
 	SetVariantAttributes(variantID uint, attributeValueIDs []uint) error
 
+	RecalcularStatusProduto(productID uint, tenantID uint) error
+
 	// Attribute
 	CreateAttribute(*Attribute) error
 	GetAttribute(id uint, tenantID uint) (*Attribute, error)

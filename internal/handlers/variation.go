@@ -133,6 +133,8 @@ func (p *ProductHandler) UpdateVariant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	p.productStore.RecalcularStatusProduto(existing.ProductID, sess.TenantID)
+
 	existing.CostPrice = costPrice
 	existing.CurrentStock = currentStock
 	existing.EAN = ean

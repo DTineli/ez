@@ -160,6 +160,10 @@ func (s *mockProductStore) FindOrCreateAttributeValue(value string, attrID uint)
 	return &store.AttributeValue{Value: value, AttributeID: attrID}, nil
 }
 
+func (s *mockProductStore) RecalcularStatusProduto(productID, tenantID uint) error {
+	return nil
+}
+
 type mockPriceTableStore struct{}
 
 func (s *mockPriceTableStore) CreatePriceTable(p *store.PriceTable) error  { return nil }

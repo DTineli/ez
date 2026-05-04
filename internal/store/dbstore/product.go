@@ -51,9 +51,7 @@ func (p *ProductStore) FindAllByUserWithFilters(
 		Preload("Variants", "status = ?", true).
 		Preload("Variants.Attributes").
 		Preload("Variants.Attributes.AttributeValue").
-		Joins("INNER JOIN variants ON variants.product_id = products.id AND variants.status = 1 AND variants.deleted_at IS NULL").
-		Where("products.tenant_id = ?", id).
-		Distinct("products.*")
+		Where("products.tenant_id = ? AND products.status = ?", id, true)
 
 	if filters.Search != "" {
 		like := "%" + filters.Search + "%"
@@ -134,6 +132,17 @@ func (p *ProductStore) AdminFindAllByUserWithFilters(
 		Count:   count,
 		Results: products,
 	}, nil
+}
+
+func (p *ProductStore) RecalcularStatusProduto(productID uint, tenantID uint) error {
+	var count int64
+	p.db.Model(&store.Variant{}).
+		Where("product_id = ? AND tenant_id = ? AND status = ? AND deleted_at IS NULL", productID, tenantID, true).
+		Count(&count)
+
+	return p.db.Model(&store.Product{}).
+		Where("id = ? AND tenant_id = ?", productID, tenantID).
+		Update("status", count > 0).Error
 }
 
 func (p *ProductStore) UpdateFields(
