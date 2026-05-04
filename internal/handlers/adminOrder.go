@@ -114,7 +114,7 @@ func (h *AdminOrderHandler) SearchProductsForOrder(
 		return
 	}
 
-	results, err := h.productStore.FindAllByUserWithFilters(
+	results, err := h.productStore.AdminFindAllByUserWithFilters(
 		sess.TenantID,
 		store.ProductFilters{
 			Page:    1,
@@ -129,7 +129,7 @@ func (h *AdminOrderHandler) SearchProductsForOrder(
 
 	// Se não achou por nome, tenta por SKU exato
 	if len(results.Results) == 0 {
-		results, err = h.productStore.FindAllByUserWithFilters(
+		results, err = h.productStore.AdminFindAllByUserWithFilters(
 			sess.TenantID,
 			store.ProductFilters{
 				Page:    1,

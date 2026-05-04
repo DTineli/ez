@@ -25,9 +25,10 @@ type CardData struct {
 }
 
 type VariantData struct {
-	ID    uint
-	Price float64
-	Attrs []AttrData
+	ID        uint
+	Price     float64
+	IsDefault bool
+	Attrs     []AttrData
 }
 
 type AttrData struct {
@@ -174,6 +175,10 @@ type ProductStore interface {
 	UpdateFields(id uint, tenantID uint, fields map[string]any) error
 	GetProduct(id uint) (*Product, error)
 	FindAllByUserWithFilters(
+		id uint,
+		filters ProductFilters,
+	) (*FindResults[Product], error)
+	AdminFindAllByUserWithFilters(
 		id uint,
 		filters ProductFilters,
 	) (*FindResults[Product], error)

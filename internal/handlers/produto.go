@@ -199,7 +199,7 @@ func (p *ProductHandler) GetProductPage(
 		}
 	}
 
-	results, err := p.productStore.FindAllByUserWithFilters(
+	results, err := p.productStore.AdminFindAllByUserWithFilters(
 		sess.TenantID,
 		store.ProductFilters{
 			Page:    page,
