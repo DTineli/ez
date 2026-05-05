@@ -68,7 +68,7 @@ templ ProductCard(info store.CardData) {
 		<!-- Nome -->
 		<p class="mb-2.5 truncate font-['Manrope'] text-sm font-extrabold leading-tight text-slate-800 dark:text-slate-100">{ info.Name }</p>
 		<!-- Chips de variação (só quando há mais de uma) -->
-		if len(info.Variants) > 1 {
+		if len(info.Variants) >= 1  && !info.Variants[0].IsDefault {
 			<div class="mb-3 flex flex-wrap gap-1.5">
 				for i, v := range info.Variants {
 					<button

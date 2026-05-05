@@ -400,17 +400,19 @@ templ ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants 
 								Disabled:      isUpdate,
 							})
 						</div>
-						<div class="basis-[20%] grow">
-							@components.BasicInput(components.BasicInputParams{
-								Name:          "ean",
-								Label:         "EAN",
-								InputType:     "text",
-								Value:         form.Get("ean"),
-								ErrorMessages: form.Errors.Get("ean"),
-								Mask:          "9999999999999",
-								Placeholder:   "0000000000000",
-							})
-						</div>
+						if !isUpdate {
+							<div class="basis-[20%] grow">
+								@components.BasicInput(components.BasicInputParams{
+									Name:          "ean",
+									Label:         "EAN",
+									InputType:     "text",
+									Value:         form.Get("ean"),
+									ErrorMessages: form.Errors.Get("ean"),
+									Mask:          "9999999999999",
+									Placeholder:   "0000000000000",
+								})
+							</div>
+						}
 					</div>
 					<div class="flex flex-col gap-1 mb-5">
 						<label class="flex items-center gap-2 py-1">
@@ -455,9 +457,9 @@ templ ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants 
 						</div>
 					</div>
 					if !isUpdate {
-					<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
-					<!-- ESTOQUE & CUSTOS -->
-					<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Estoque &amp; Custos</p>
+						<div class="flex items-center gap-2 my-1 before:flex-1 before:border-t before:border-gray-200 after:flex-1 after:border-t after:border-gray-200"></div>
+						<!-- ESTOQUE & CUSTOS -->
+						<p class="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">Estoque &amp; Custos</p>
 						<div class="flex flex-wrap gap-3 mb-4">
 							<div class="basis-[25%] grow">
 								@components.BasicInput(components.BasicInputParams{

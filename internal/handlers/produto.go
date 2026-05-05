@@ -67,8 +67,11 @@ func (p *ProductHandler) PostNewProduct(
 		FullDescription: form.Get("description"),
 		Status:          true,
 		UOM:             store.UOM(form.Get("uom")),
-		EAN:             form.Get("ean"),
 		NCM:             form.Get("ncm"),
+		Weight:          form.IsFloat("weight"),
+		Height:          form.IsFloat("height"),
+		Width:           form.IsFloat("width"),
+		Length:          form.IsFloat("length"),
 	}
 
 	if err := p.productStore.CreateProduct(product); err != nil {
@@ -84,14 +87,14 @@ func (p *ProductHandler) PostNewProduct(
 
 	costPrice, _ := strconv.ParseFloat(form.Get("cost_price"), 64)
 	currentStock, _ := strconv.Atoi(form.Get("current_stock"))
-	minimumStock, _ := strconv.Atoi(form.Get("minimum_stock"))
+	ean := form.Get("ean")
 
 	defaultVariant := &store.Variant{
 		SKU:          product.SKU,
 		ProductID:    product.ID,
 		CostPrice:    costPrice,
 		CurrentStock: currentStock,
-		MinimumStock: minimumStock,
+		EAN:          ean,
 		TenantID:     sess.TenantID,
 		IsDefault:    true,
 	}
@@ -132,10 +135,13 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	fields := map[string]any{
 		"name":             form.Get("name"),
 		"full_description": form.Get("description"),
-		"status":           true,
 		"uom":              store.UOM(form.Get("uom")),
 		"ean":              form.Get("ean"),
 		"ncm":              form.Get("ncm"),
+		"weight":           form.IsFloat("weight"),
+		"height":           form.IsFloat("height"),
+		"width":            form.IsFloat("width"),
+		"length":           form.IsFloat("length"),
 	}
 
 	err = p.productStore.UpdateFields(uint(id), sess.TenantID, fields)
@@ -192,7 +198,7 @@ func (p *ProductHandler) GetProductPage(
 		}
 	}
 
-	results, err := p.productStore.FindAllByUserWithFilters(
+	results, err := p.productStore.AdminFindAllByUserWithFilters(
 		sess.TenantID,
 		store.ProductFilters{
 			Page:    page,

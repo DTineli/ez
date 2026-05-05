@@ -25,9 +25,10 @@ type CardData struct {
 }
 
 type VariantData struct {
-	ID    uint
-	Price float64
-	Attrs []AttrData
+	ID        uint
+	Price     float64
+	IsDefault bool
+	Attrs     []AttrData
 }
 
 type AttrData struct {
@@ -82,13 +83,18 @@ type VariantAttribute struct {
 }
 
 type Variant struct {
-	ID  uint   `gorm:"primaryKey"                                                                                       json:"id"`
+	ID     uint `gorm:"primaryKey"   json:"id"`
+	Status bool `gorm:"default:true" json:"status"`
+
 	SKU string `gorm:"type:varchar(50);not null;uniqueIndex:idx_variant_tenant_sku,where:deleted_at is null,priority:2" json:"sku"`
 
 	CostPrice    float64 `json:"cost_price"`
 	CurrentStock int     `json:"current_stock" gorm:"default:0"`
-	MinimumStock int     `json:"minimum_stock" gorm:"default:0"`
+	// MinimumStock int     `json:"minimum_stock" gorm:"default:0"`
 
+	EAN string `gorm:"type:varchar(20);" json:"ean"`
+
+	// TODO: Remover ???
 	Weight   float64 `gorm:"type:decimal(10,3)" json:"weight"`
 	HeightCm float64 `gorm:"type:decimal(10,2)" json:"height_cm"`
 	WidthCm  float64 `gorm:"type:decimal(10,2)" json:"width_cm"`
@@ -116,8 +122,12 @@ type Product struct {
 	//TODO: FOTOS ??
 
 	UOM UOM    `gorm:"type:varchar(10);default:'UN'" json:"uom"`
-	EAN string `gorm:"type:varchar(20);"             json:"ean"`
 	NCM string `gorm:"type:varchar(20);"             json:"ncm"`
+
+	Weight float64 `gorm:"type:decimal(10,3);default:0" json:"weight"`
+	Height float64 `gorm:"type:decimal(10,3);default:0" json:"height"`
+	Width  float64 `gorm:"type:decimal(10,3);default:0" json:"width"`
+	Length float64 `gorm:"type:decimal(10,3);default:0" json:"length"`
 
 	Variants []Variant `gorm:"foreignKey:ProductID" json:"variants,omitempty"`
 
@@ -168,6 +178,10 @@ type ProductStore interface {
 		id uint,
 		filters ProductFilters,
 	) (*FindResults[Product], error)
+	AdminFindAllByUserWithFilters(
+		id uint,
+		filters ProductFilters,
+	) (*FindResults[Product], error)
 	FindAllByUser(userID uint) ([]Product, error)
 
 	// Variant
@@ -178,6 +192,8 @@ type ProductStore interface {
 	DeleteVariant(id uint, tenantID uint) error
 	FindDefaultVariant(productID uint, tenantID uint) (*Variant, error)
 	SetVariantAttributes(variantID uint, attributeValueIDs []uint) error
+
+	RecalcularStatusProduto(productID uint, tenantID uint) error
 
 	// Attribute
 	CreateAttribute(*Attribute) error

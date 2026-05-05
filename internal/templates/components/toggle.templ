@@ -1,0 +1,24 @@
+package components
+
+type ToggleState struct {
+	Name  string
+	ID    string
+	Label string
+	State bool
+}
+
+templ Toggle(state ToggleState) {
+	<label class="inline-flex items-center gap-2 cursor-pointer select-none">
+		<input
+			name={ state.Name }
+			id={ state.ID }
+			class="sr-only peer"
+			type="checkbox"
+			if state.State {
+				checked
+			}
+		/>
+		<span class="relative w-10 h-5 bg-gray-300 rounded-full transition-colors duration-200 peer-checked:bg-indigo-400 peer-focus:ring-2 peer-focus:ring-indigo-300 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-4 after:h-4 after:bg-white after:rounded-full after:shadow after:transition-transform after:duration-200 peer-checked:after:translate-x-5"></span>
+		<span class="text-sm font-medium">{ state.Label }</span>
+	</label>
+}

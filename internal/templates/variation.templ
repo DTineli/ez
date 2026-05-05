@@ -21,13 +21,20 @@ templ VariantsSectionWithNewForm(variants []store.Variant, productID string, par
 	</div>
 }
 
+func newVariantFormURL(productID string, variants []store.Variant) string {
+	if len(variants) > 0 {
+		return fmt.Sprintf("/admin/produtos/%s/variants/form?default_cost_price=%.2f", productID, variants[0].CostPrice)
+	}
+	return fmt.Sprintf("/admin/produtos/%s/variants/form", productID)
+}
+
 templ VariantsSection(variants []store.Variant, productID string) {
 	<div id="variants-section" class="space-y-3">
 		<div class="flex items-center justify-between">
 			<h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400">Variações</h2>
 			<button
 				type="button"
-				hx-get={ func() string { if len(variants) > 0 { return fmt.Sprintf("/admin/produtos/%s/variants/form?default_cost_price=%.2f", productID, variants[0].CostPrice) }; return fmt.Sprintf("/admin/produtos/%s/variants/form", productID) }() }
+				hx-get={ newVariantFormURL(productID, variants) }
 				hx-include="[name='sku']"
 				hx-target="#new-variant-area"
 				hx-swap="innerHTML"
@@ -77,16 +84,6 @@ templ VariantsSection(variants []store.Variant, productID string) {
 							class="px-3 py-1.5 w-24 border border-gray-200 rounded-field bg-gray-50 text-xs focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 focus:bg-white transition-colors"
 						/>
 					</div>
-					<div class="flex flex-col gap-1.5">
-						<label class="text-[0.65rem] font-semibold text-gray-400 uppercase tracking-wider">Estoque Mínimo</label>
-						<input
-							type="number"
-							name="add_min_stock"
-							placeholder="0"
-							min="0"
-							class="px-3 py-1.5 w-24 border border-gray-200 rounded-field bg-gray-50 text-xs focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 focus:bg-white transition-colors"
-						/>
-					</div>
 					<button
 						type="submit"
 						class="inline-flex items-center justify-center gap-1.5 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-4 py-1.5 text-xs shrink-0 ml-auto"
@@ -101,11 +98,12 @@ templ VariantsSection(variants []store.Variant, productID string) {
 				<table class="w-full text-sm text-left">
 					<thead>
 						<tr class="border-b border-gray-200 bg-gray-50/60">
+							<th class="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
 							<th class="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">SKU</th>
 							<th class="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Atributos</th>
 							<th class="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Preço de Custo</th>
 							<th class="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estoque Atual</th>
-							<th class="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estoque Mín.</th>
+							<th class="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">EAN</th>
 							<th class="px-4 py-2.5"></th>
 						</tr>
 					</thead>
@@ -129,6 +127,15 @@ templ VariantsSection(variants []store.Variant, productID string) {
 
 templ VariantRow(v store.Variant, productID string) {
 	<tr id={ fmt.Sprintf("variant-row-%v", v.ID) } class="hover:bg-gray-50 transition-colors">
+		<td class="px-4 py-2.5 font-mono text-xs text-gray-700 bg-gray-50/40">
+			@components.Checkbox(components.CheckboxState{
+				Name:     "status",
+				ID:       "status",
+				Label:    "",
+				Checked:  v.Status,
+				CanCheck: false,
+			})
+		</td>
 		<td class="px-4 py-2.5 font-mono text-xs text-gray-700 bg-gray-50/40">{ v.SKU }</td>
 		<td class="px-4 py-2.5">
 			<div class="flex flex-wrap gap-1">
@@ -144,7 +151,7 @@ templ VariantRow(v store.Variant, productID string) {
 		</td>
 		<td class="px-4 py-2.5 text-sm">R$ { fmt.Sprintf("%.2f", v.CostPrice) }</td>
 		<td class="px-4 py-2.5 text-sm">{ strconv.Itoa(v.CurrentStock) }</td>
-		<td class="px-4 py-2.5 text-sm text-gray-500">{ strconv.Itoa(v.MinimumStock) }</td>
+		<td class="px-4 py-2.5 text-sm text-gray-500">{ v.EAN }</td>
 		<td class="px-4 py-2.5 text-right">
 			<div class="flex items-center justify-end gap-2">
 				<button
@@ -171,6 +178,16 @@ templ VariantRow(v store.Variant, productID string) {
 
 templ VariantEditRow(v store.Variant, productID string) {
 	<tr id={ fmt.Sprintf("variant-row-%v", v.ID) } class="bg-primary/5">
+		<td class="px-4 py-2.5 font-mono text-xs text-gray-700 bg-gray-50/40">
+			@components.Checkbox(components.CheckboxState{
+				Name:     "status",
+				ID:       fmt.Sprintf("status-%v", v.ID),
+				Label:    "",
+				Checked:  v.Status,
+				CanCheck: true,
+				FormID:   fmt.Sprintf("variant-edit-form-%v", v.ID),
+			})
+		</td>
 		<td class="px-4 py-2 font-mono text-xs text-gray-700">{ v.SKU }</td>
 		<td class="px-4 py-2">
 			<div class="flex flex-wrap gap-1">
@@ -205,10 +222,10 @@ templ VariantEditRow(v store.Variant, productID string) {
 		<td class="px-4 py-2">
 			<input
 				type="number"
-				name="minimum_stock"
+				name="ean"
 				form={ fmt.Sprintf("variant-edit-form-%v", v.ID) }
 				class="block border border-gray-300 rounded-field bg-white px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-primary/40 w-20"
-				value={ strconv.Itoa(v.MinimumStock) }
+				value={ v.EAN }
 				min="0"
 			/>
 		</td>
@@ -299,7 +316,12 @@ templ NewVariantForm(productID string, parentSku string, attrs []store.Attribute
 							InputType:   "number",
 							Placeholder: "0.00",
 							Step:        "0.01",
-							Value:       func() string { if defaultCostPrice > 0 { return fmt.Sprintf("%.2f", defaultCostPrice) }; return "" }(),
+							Value: func() string {
+								if defaultCostPrice > 0 {
+									return fmt.Sprintf("%.2f", defaultCostPrice)
+								}
+								return ""
+							}(),
 						})
 					</div>
 					<div class="basis-[20%] grow">
@@ -312,8 +334,8 @@ templ NewVariantForm(productID string, parentSku string, attrs []store.Attribute
 					</div>
 					<div class="basis-[20%] grow">
 						@components.BasicInput(components.BasicInputParams{
-							Name:        "minimum_stock",
-							Label:       "Estoque Mínimo",
+							Name:        "ean",
+							Label:       "EAN",
 							InputType:   "number",
 							Placeholder: "0",
 						})

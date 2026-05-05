@@ -60,6 +60,12 @@ func (s *mockProductStore) FindAllByUserWithFilters(id uint, f store.ProductFilt
 	}
 	return &store.FindResults[store.Product]{Count: 0, Results: nil}, nil
 }
+func (s *mockProductStore) AdminFindAllByUserWithFilters(id uint, f store.ProductFilters) (*store.FindResults[store.Product], error) {
+	if s.findAllByUserFilters != nil {
+		return s.findAllByUserFilters(id, f)
+	}
+	return &store.FindResults[store.Product]{Count: 0, Results: nil}, nil
+}
 func (s *mockProductStore) FindAllByUser(userID uint) ([]store.Product, error) {
 	if s.findAllByUser != nil {
 		return s.findAllByUser(userID)
@@ -152,6 +158,10 @@ func (s *mockProductStore) FindOrCreateAttribute(name string, tenantID uint) (*s
 
 func (s *mockProductStore) FindOrCreateAttributeValue(value string, attrID uint) (*store.AttributeValue, error) {
 	return &store.AttributeValue{Value: value, AttributeID: attrID}, nil
+}
+
+func (s *mockProductStore) RecalcularStatusProduto(productID, tenantID uint) error {
+	return nil
 }
 
 type mockPriceTableStore struct{}
