@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -14,74 +12,12 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-var ErrInvalidForm = errors.New("invalid form")
-
-type priceTableDTO struct {
-	Name       string
-	Percentage float64
-}
-
-func formToPriceTable(r *http.Request) (*priceTableDTO, map[string]string) {
-	errs := make(map[string]string)
-
-	if err := r.ParseForm(); err != nil {
-		errs["tec"] = err.Error() // erro técnico
-		return nil, errs
-	}
-
-	name := r.FormValue("name")
-	if name == "" {
-		errs["name"] = fmt.Errorf("%w: nome vazio", ErrInvalidForm).Error()
-	}
-
-	percentageStr := r.FormValue("percentage")
-	percentage, err := strconv.ParseFloat(percentageStr, 64)
-	if err != nil {
-		errs["percentage"] = fmt.Errorf("%w: percentage inválido", ErrInvalidForm).
-			Error()
-	}
-
-	if percentage < 0 {
-		errs["percentage"] = fmt.Errorf("%w: percentage negativo", ErrInvalidForm).
-			Error()
-	}
-
-	return &priceTableDTO{
-		Name:       name,
-		Percentage: percentage,
-	}, errs
-
-}
-
-func createMultSelectParams(
-	tables []store.PriceTable,
-	selected []string,
-) components.MultiSelectParams {
-	values := make([]components.MultiSelectOption, 0, len(tables))
-
-	for _, table := range tables {
-		values = append(values, components.MultiSelectOption{
-			Value: strconv.Itoa(int(table.ID)),
-			Label: table.Name,
-		})
-	}
-
-	component := components.MultiSelectParams{
-		Placeholder: "Selecione uma ou mais tabelas",
-		Label:       "Tabelas de Preço",
-		Name:        "price_table",
-		Selected:    selected,
-		Options:     values,
-	}
-
-	return component
-}
-
 func (p *ProductHandler) RenderMultiSelectTables(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
 	sess := m.GetSessionFromContext(r)
+
 	tables, err := p.priceTableStore.FindAllActiveByTenant(sess.TenantID)
 	if err != nil {
 		ShowToast(w, "Erro ao recuperar dados", "error")
@@ -89,9 +25,28 @@ func (p *ProductHandler) RenderMultiSelectTables(
 		return
 	}
 
-	selected_tables := strings.Split(r.URL.Query().Get("selected_tables"), ",")
-	component := createMultSelectParams(tables, selected_tables)
-	Render(components.MultiSelect(component), r, w)
+	values := make([]components.MultiSelectOption, 0, len(tables))
+	for _, table := range tables {
+		values = append(values, components.MultiSelectOption{
+			Value: strconv.Itoa(int(table.ID)),
+			Label: table.Name,
+		})
+	}
+
+	var selected_tables []string
+	// limpa o elemento vazio
+	if selectedParam := r.URL.Query().Get("selected_tables"); selectedParam != "" {
+		selected_tables = strings.Split(selectedParam, ",")
+	}
+	componentParams := components.MultiSelectParams{
+		Placeholder: "Selecione uma ou mais tabelas",
+		Label:       "Tabelas de Preço",
+		Name:        "price_table",
+		Selected:    selected_tables,
+		Options:     values,
+	}
+
+	Render(components.MultiSelect(componentParams), r, w)
 }
 
 func (p *ProductHandler) GetTablePage(w http.ResponseWriter, r *http.Request) {

@@ -8,6 +8,10 @@ import (
 	"github.com/DTineli/ez/internal/templates/components"
 )
 
+func priceTableURL(tables string) string {
+	return fmt.Sprintf("/admin/components/price-tables?selected_tables=%s", tables)
+}
+
 templ ContactFilter() {
 	<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
 		<div class="p-6 py-4">
@@ -235,7 +239,7 @@ templ InviteLink(id, link string) {
 	</div>
 }
 
-templ ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTable) {
+templ ContactForm(form *forms.Form, isUpdate bool) {
 	{{
 		var action string
 		if isUpdate {
@@ -333,10 +337,9 @@ templ ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTabl
 									}
 								</select>
 							</div>
-							// no seu templ pai
 							<div
 								class="basis-[25%] grow"
-								hx-get="/admin/components/price-tables?selected_tables=5,6,7"
+								hx-get={ priceTableURL(form.Get("price_table")) }
 								hx-trigger="load"
 								hx-target="this"
 								hx-swap="innerHTML"

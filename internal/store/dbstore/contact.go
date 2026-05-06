@@ -25,11 +25,15 @@ func (c *ContactStore) CreateContact(contact *store.Contact) error {
 
 func (c *ContactStore) GetOne(id uint) (*store.Contact, error) {
 	var contact = &store.Contact{}
-	err := c.db.Where("id = ?", id).Find(&contact).Error
+	err := c.db.Preload("PriceTables").Where("id = ?", id).Find(&contact).Error
 	return contact, err
 }
 
-func (c *ContactStore) UpdateById(id uint, tenantID uint, fields map[string]any) error {
+func (c *ContactStore) UpdateById(
+	id uint,
+	tenantID uint,
+	fields map[string]any,
+) error {
 	if len(fields) == 0 {
 		return errors.New("no fields to update")
 	}
@@ -49,7 +53,10 @@ func (c *ContactStore) UpdateById(id uint, tenantID uint, fields map[string]any)
 	return result.Error
 }
 
-func (c *ContactStore) FindAll(tenantID uint, filters store.ContactFilters) (*store.FindResults[store.Contact], error) {
+func (c *ContactStore) FindAll(
+	tenantID uint,
+	filters store.ContactFilters,
+) (*store.FindResults[store.Contact], error) {
 	var contacts []store.Contact
 	query := c.db.Model(&store.Contact{}).Where("tenant_id = ?", tenantID)
 
@@ -61,7 +68,9 @@ func (c *ContactStore) FindAll(tenantID uint, filters store.ContactFilters) (*st
 	}
 
 	// Paginação + Ordenação
-	query = query.Order("id DESC").Offset((filters.Page - 1) * filters.PerPage).Limit(filters.PerPage)
+	query = query.Order("id DESC").
+		Offset((filters.Page - 1) * filters.PerPage).
+		Limit(filters.PerPage)
 
 	if err := query.Find(&contacts).Error; err != nil {
 		return nil, err
