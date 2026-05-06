@@ -35,25 +35,41 @@ func NewLoginHandler(params LoginHandlerParams) *LoginHandler {
 	}
 }
 
-func (h *LoginHandler) GetClientLoginPage(w http.ResponseWriter, r *http.Request) {
+func (h *LoginHandler) GetClientLoginPage(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	err := templates.ClientLoginPage().Render(r.Context(), w)
 
 	if err != nil {
-		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		http.Error(
+			w,
+			"Error rendering template",
+			http.StatusInternalServerError,
+		)
 		return
 	}
 }
 
-func (h *LoginHandler) GetAdminLoginPage(w http.ResponseWriter, r *http.Request) {
+func (h *LoginHandler) GetAdminLoginPage(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	err := templates.AdminLoginPage().Render(r.Context(), w)
 
 	if err != nil {
-		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		http.Error(
+			w,
+			"Error rendering template",
+			http.StatusInternalServerError,
+		)
 		return
 	}
 }
 
-func (h *LoginHandler) PostLoginHandler(accessType store.AccessType) http.HandlerFunc {
+func (h *LoginHandler) PostLoginHandler(
+	accessType store.AccessType,
+) http.HandlerFunc {
 	switch accessType {
 	case store.AccessAdmin:
 		return h.adminLogin
@@ -75,7 +91,8 @@ func (h *LoginHandler) customerLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	phone_number := strings.TrimSpace(r.FormValue("phone_number"))
-	phone_number = strings.NewReplacer(")", "", "(", "", "-", "", " ", "").Replace(phone_number)
+	phone_number = strings.NewReplacer(")", "", "(", "", "-", "", " ", "").
+		Replace(phone_number)
 
 	fmt.Println(phone_number)
 
@@ -117,7 +134,7 @@ func (h *LoginHandler) customerLogin(w http.ResponseWriter, r *http.Request) {
 	for _, c := range user.Contacts {
 		if c.TenantID == tenant.ID {
 			contactId = c.ID
-			contactPriceTable = c.PriceTableID
+			// contactPriceTable = c.PriceTableID
 		}
 	}
 

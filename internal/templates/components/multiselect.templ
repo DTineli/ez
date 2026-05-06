@@ -1,0 +1,118 @@
+package components
+
+import "strings"
+
+type MultiSelectOption struct {
+	Value string
+	Label string
+}
+
+type MultiSelectParams struct {
+	Label         string
+	Name          string
+	Options       []MultiSelectOption
+	Selected      []string
+	ErrorMessages []string
+	Placeholder   string
+}
+
+func multiSelectIsSelected(value string, selected []string) bool {
+	for _, s := range selected {
+		if s == value {
+			return true
+		}
+	}
+	return false
+}
+
+func multiSelectPlaceholder(p string) string {
+	if p == "" {
+		return "Selecione..."
+	}
+	return p
+}
+
+func multiSelectInitialLabel(p MultiSelectParams) string {
+	var labels []string
+	for _, opt := range p.Options {
+		if multiSelectIsSelected(opt.Value, p.Selected) {
+			labels = append(labels, opt.Label)
+		}
+	}
+	if len(labels) == 0 {
+		return multiSelectPlaceholder(p.Placeholder)
+	}
+	return strings.Join(labels, ", ")
+}
+
+script multiSelectInit(id string, placeholder string) {
+	var el = document.getElementById(id);
+	var lbl = document.getElementById("ms-label-" + id.substring(3));
+	el.addEventListener("change", function() {
+		var checked = el.querySelectorAll("input[type=checkbox]:checked");
+		if (checked.length === 0) {
+			lbl.textContent = placeholder;
+			lbl.classList.remove("text-gray-700");
+			lbl.classList.add("text-gray-400");
+		} else {
+			lbl.textContent = Array.from(checked).map(function(c) {
+				return c.closest("label").querySelector("span:last-child").textContent.trim();
+			}).join(", ");
+			lbl.classList.remove("text-gray-400");
+			lbl.classList.add("text-gray-700");
+		}
+	});
+}
+
+templ MultiSelect(p MultiSelectParams) {
+	<div class="flex flex-col gap-1">
+		if p.Label != "" {
+			<span class="text-sm font-medium text-gray-700">{ p.Label }</span>
+		}
+		<details class="relative group" id={ "ms-" + p.Name }>
+			<summary
+				class={
+					"flex items-center justify-between w-full border rounded-field bg-white px-3 py-2 text-sm cursor-pointer list-none focus:outline-none focus:ring-2 focus:ring-primary/50",
+					templ.KV("border-red-600", len(p.ErrorMessages) > 0),
+					templ.KV("border-gray-300", len(p.ErrorMessages) == 0),
+				}
+			>
+				<span
+					id={ "ms-label-" + p.Name }
+					class={
+						templ.KV("text-gray-400", len(p.Selected) == 0),
+						templ.KV("text-gray-700", len(p.Selected) > 0),
+					}
+				>{ multiSelectInitialLabel(p) }</span>
+				<svg class="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+					<path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"></path>
+				</svg>
+			</summary>
+			<div class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-field shadow-lg max-h-60 overflow-y-auto">
+				for _, opt := range p.Options {
+					<label class="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-gray-50 select-none">
+						<input
+							type="checkbox"
+							name={ p.Name }
+							value={ opt.Value }
+							class="peer hidden"
+							if multiSelectIsSelected(opt.Value, p.Selected) {
+								checked
+							}
+						/>
+						<span class="flex items-center justify-center w-4 h-4 rounded border border-gray-300 bg-white shrink-0 transition-colors peer-checked:bg-green-500 peer-checked:border-green-500">
+							<svg class="w-3 h-3 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+								<path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z" clip-rule="evenodd"></path>
+							</svg>
+						</span>
+						<span class="text-sm text-gray-700">{ opt.Label }</span>
+					</label>
+				}
+			</div>
+		</details>
+		@multiSelectInit("ms-"+p.Name, multiSelectPlaceholder(p.Placeholder))
+		for _, e := range p.ErrorMessages {
+			<span class="text-red-600 text-sm">{ e }</span>
+		}
+	</div>
+}

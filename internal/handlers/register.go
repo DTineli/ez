@@ -48,7 +48,10 @@ func NewRegisterHandlerWithService() *RegisterHandler {
 	return &RegisterHandler{userStore: nil}
 }
 
-func (h *RegisterHandler) GetRegisterClientPage(w http.ResponseWriter, r *http.Request) {
+func (h *RegisterHandler) GetRegisterClientPage(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	token := r.URL.Query().Get("token")
 	if token == "" {
 		RenderErrorPage(w, "Token de convite Invalido")
@@ -90,7 +93,10 @@ func parseClientInput(r *http.Request) (*ClientRegisterInput, error) {
 	}
 
 	if len(password) < MIN_LEN_PASSWD {
-		return nil, fmt.Errorf("Senha deve ter no mínimo %d caracteres", MIN_LEN_PASSWD)
+		return nil, fmt.Errorf(
+			"Senha deve ter no mínimo %d caracteres",
+			MIN_LEN_PASSWD,
+		)
 	}
 
 	name := strings.TrimSpace(r.FormValue("name"))
@@ -114,7 +120,8 @@ func parseClientInput(r *http.Request) (*ClientRegisterInput, error) {
 	}
 
 	phone := strings.TrimSpace(r.FormValue("phone"))
-	phone = strings.NewReplacer(")", "", "(", "", "-", "", " ", "").Replace(phone)
+	phone = strings.NewReplacer(")", "", "(", "", "-", "", " ", "").
+		Replace(phone)
 
 	return &ClientRegisterInput{
 		Name:      name,
@@ -155,7 +162,10 @@ func redirect(w http.ResponseWriter, r *http.Request, path string) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *RegisterHandler) PostRegisterClient(w http.ResponseWriter, r *http.Request) {
+func (h *RegisterHandler) PostRegisterClient(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	if err := r.ParseForm(); err != nil {
 		writeRegisterError(r, w, "Dados inválidos.")
 		return
@@ -224,8 +234,8 @@ func (h *RegisterHandler) PostRegisterClient(w http.ResponseWriter, r *http.Requ
 		TenantID:       tenant.ID,
 		TenantSlug:     tenant.Slug,
 		ContactInfo: &store.ContactInfo{
-			ID:         contact.ID,
-			PriceTable: contact.PriceTableID,
+			ID: contact.ID,
+			// PriceTable: contact.PriceTableID,
 		},
 	}); err != nil {
 		writeRegisterError(r, w, "Erro ao criar sessão.")
@@ -236,18 +246,29 @@ func (h *RegisterHandler) PostRegisterClient(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusOK)
 }
 
-func (h *RegisterHandler) GetRegisterPage(w http.ResponseWriter, r *http.Request) {
+func (h *RegisterHandler) GetRegisterPage(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	err := templates.RegisterPage().Render(r.Context(), w)
 
 	if err != nil {
-		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		http.Error(
+			w,
+			"Error rendering template",
+			http.StatusInternalServerError,
+		)
 		return
 	}
 }
 
 func (h *RegisterHandler) PostRegister(w http.ResponseWriter, r *http.Request) {
 	if h.userStore == nil {
-		http.Error(w, "user store not configured", http.StatusInternalServerError)
+		http.Error(
+			w,
+			"user store not configured",
+			http.StatusInternalServerError,
+		)
 		return
 	}
 
@@ -283,7 +304,14 @@ func (h *RegisterHandler) PostRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(password) < MIN_LEN_PASSWD {
-		writeRegisterError(r, w, fmt.Sprintf("Senha deve ter no mínimo %v caracteres.", MIN_LEN_PASSWD))
+		writeRegisterError(
+			r,
+			w,
+			fmt.Sprintf(
+				"Senha deve ter no mínimo %v caracteres.",
+				MIN_LEN_PASSWD,
+			),
+		)
 		return
 	}
 
@@ -293,7 +321,8 @@ func (h *RegisterHandler) PostRegister(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		if strings.Contains(err.Error(), "UNIQUE constraint failed") || strings.Contains(err.Error(), "Duplicate") {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") ||
+			strings.Contains(err.Error(), "Duplicate") {
 			writeRegisterError(r, w, "Este Slug já está em uso.")
 			return
 		}
@@ -309,7 +338,8 @@ func (h *RegisterHandler) PostRegister(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		if strings.Contains(err.Error(), "UNIQUE constraint failed") || strings.Contains(err.Error(), "Duplicate") {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") ||
+			strings.Contains(err.Error(), "Duplicate") {
 			writeRegisterError(r, w, "Este email já está em uso.")
 			return
 		}
@@ -323,7 +353,11 @@ func (h *RegisterHandler) PostRegister(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func writeRegisterError(r *http.Request, w http.ResponseWriter, message string) {
+func writeRegisterError(
+	r *http.Request,
+	w http.ResponseWriter,
+	message string,
+) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	// w.WriteHeader(http.StatusUnprocessableEntity)
 

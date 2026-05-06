@@ -228,6 +228,10 @@ func registerAdminRoutes(
 
 			r.Get("/", handlers.NewHomeHandler(sessionStore).ServeHTTP)
 
+			r.Route("/components", func(r chi.Router) {
+				r.Get("/price-tables", product.RenderMultiSelectTables)
+			})
+
 			r.Route("/produtos", func(r chi.Router) {
 				r.Get("/", product.GetProductPage)
 				r.Get("/novo", product.GetProductForm)

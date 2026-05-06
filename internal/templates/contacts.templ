@@ -2,11 +2,10 @@ package templates
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/DTineli/ez/internal/forms"
-	"github.com/DTineli/ez/internal/templates/components"
 	"github.com/DTineli/ez/internal/store"
+	"github.com/DTineli/ez/internal/templates/components"
 )
 
 templ ContactFilter() {
@@ -334,26 +333,16 @@ templ ContactForm(form *forms.Form, isUpdate bool, priceTables []store.PriceTabl
 									}
 								</select>
 							</div>
-							<div class="basis-[25%] grow">
-								<label class="flex items-center gap-2 py-1">
-									<span class="text-sm font-medium">Tabela de Preço <span class="text-red-600">*</span></span>
-								</label>
-								<select name="price_table_id" class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" required>
-									<option value="">Selecione uma tabela</option>
-									for _, pt := range priceTables {
-										<option
-											value={ strconv.Itoa(int(pt.ID)) }
-											if form.Get("price_table_id") == strconv.Itoa(int(pt.ID)) {
-												selected
-											}
-										>
-											{ pt.Name }
-										</option>
-									}
-								</select>
-								if len(form.Errors.Get("price_table_id")) > 0 {
-									<p class="text-red-600 text-xs mt-1">{ form.Errors.Get("price_table_id")[0] }</p>
-								}
+							// no seu templ pai
+							<div
+								class="basis-[25%] grow"
+								hx-get="/admin/components/price-tables?selected_tables=5,6,7"
+								hx-trigger="load"
+								hx-target="this"
+								hx-swap="innerHTML"
+							>
+								// spinner enquanto carrega
+								<div class="animate-spin">...</div>
 							</div>
 						</div>
 					</div>

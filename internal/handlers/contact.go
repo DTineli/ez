@@ -60,7 +60,7 @@ func mapContactToForm(c *store.Contact) *forms.Form {
 
 	form.Set("invite_link", c.InviteLink)
 
-	form.Set("price_table_id", strconv.Itoa(int(c.PriceTableID)))
+	// form.Set("price_table_id", strconv.Itoa(int(c.PriceTableID)))
 
 	return form
 }
@@ -72,8 +72,16 @@ func validateContactForm(r *http.Request) (*forms.Form, error) {
 
 	form := forms.New(r.PostForm)
 
-	form.Set("document", strings.NewReplacer(".", "", "/", "", "-", "").Replace(form.Get("document")))
-	form.Set("phone", strings.NewReplacer("(", "", ")", "", " ", "", "-", "").Replace(form.Get("phone")))
+	form.Set(
+		"document",
+		strings.NewReplacer(".", "", "/", "", "-", "").
+			Replace(form.Get("document")),
+	)
+	form.Set(
+		"phone",
+		strings.NewReplacer("(", "", ")", "", " ", "", "-", "").
+			Replace(form.Get("phone")),
+	)
 
 	form.Required(
 		"name",
@@ -127,11 +135,19 @@ func (c *ContactHandler) CreateLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url := fmt.Sprintf("https://%v/client/register?token=%v", r.Host, link.ID.String())
+	url := fmt.Sprintf(
+		"https://%v/client/register?token=%v",
+		r.Host,
+		link.ID.String(),
+	)
 
-	err = c.contactStore.UpdateById(uint(contact.ID), sess.TenantID, map[string]any{
-		"invite_link": url,
-	})
+	err = c.contactStore.UpdateById(
+		uint(contact.ID),
+		sess.TenantID,
+		map[string]any{
+			"invite_link": url,
+		},
+	)
 
 	if err != nil {
 		ShowToast(w, "Erro ao salvar contato", "error")
@@ -141,7 +157,10 @@ func (c *ContactHandler) CreateLink(w http.ResponseWriter, r *http.Request) {
 	Render(templates.InviteLink(strconv.FormatUint(id, 10), url), r, w)
 }
 
-func (c ContactHandler) fetchPriceTables(w http.ResponseWriter, tenantID uint) []store.PriceTable {
+func (c ContactHandler) fetchPriceTables(
+	w http.ResponseWriter,
+	tenantID uint,
+) []store.PriceTable {
 	tables, err := c.priceTableStore.FindAllByTenant(tenantID)
 	if err != nil {
 		return nil
@@ -184,11 +203,14 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 		City:         form.Get("city"),
 		UF:           form.Get("uf"),
 
-		PriceTableID: uint(form.IsInt("price_table_id")),
+		// PriceTableID: uint(form.IsInt("price_table_id")),
 	}
 
 	if err := c.contactStore.CreateContact(contact); err != nil {
-		form.Errors.Add("general", "Erro ao cadastrar contato. Tente novamente.")
+		form.Errors.Add(
+			"general",
+			"Erro ao cadastrar contato. Tente novamente.",
+		)
 		_ = Render(templates.ContactForm(form, false, priceTables), r, w)
 		return
 	}
@@ -198,7 +220,10 @@ func (c ContactHandler) PostNewContact(w http.ResponseWriter, r *http.Request) {
 	_ = Render(templates.ContactForm(form, true, priceTables), r, w)
 }
 
-func (c ContactHandler) GetContactsForm(w http.ResponseWriter, r *http.Request) {
+func (c ContactHandler) GetContactsForm(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	sess := m.GetSessionFromContext(r)
 	priceTables := c.fetchPriceTables(w, sess.TenantID)
 	Render(templates.ContactForm(forms.New(nil), false, priceTables), r, w)
@@ -236,7 +261,10 @@ func GetPagination(r *http.Request) store.Pagination {
 	return store.Pagination{Page: page, PerPage: perPage}
 }
 
-func (c ContactHandler) GetContactsPage(w http.ResponseWriter, r *http.Request) {
+func (c ContactHandler) GetContactsPage(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	sess := m.GetSessionFromContext(r)
 
 	pagination := GetPagination(r)
@@ -255,7 +283,9 @@ func (c ContactHandler) GetContactsPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	pagination.TotalPages = int(math.Floor(float64(results.Count) / float64(pagination.PerPage)))
+	pagination.TotalPages = int(
+		math.Floor(float64(results.Count) / float64(pagination.PerPage)),
+	)
 
 	err = Render(templates.ContactPage(store.ListResults[store.Contact]{
 		Pagination: pagination,
@@ -263,7 +293,11 @@ func (c ContactHandler) GetContactsPage(w http.ResponseWriter, r *http.Request) 
 	}), r, w)
 
 	if err != nil {
-		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		http.Error(
+			w,
+			"Error rendering template",
+			http.StatusInternalServerError,
+		)
 	}
 }
 
