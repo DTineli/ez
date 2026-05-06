@@ -110,3 +110,20 @@ func convertPriceTable(tables []string) []store.PriceTable {
 
 	return priceTables
 }
+
+// parsePriceTableIDs converte "1,2,3" → []uint{1,2,3}
+func parsePriceTableIDs(s string) []uint {
+	var ids []uint
+	for _, part := range strings.Split(s, ",") {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		id, err := strconv.ParseUint(part, 10, 64)
+		if err != nil {
+			continue
+		}
+		ids = append(ids, uint(id))
+	}
+	return ids
+}

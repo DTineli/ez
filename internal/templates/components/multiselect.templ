@@ -62,6 +62,11 @@ script multiSelectInit(id string, placeholder string) {
 			lbl.classList.add("text-gray-700");
 		}
 	});
+	document.addEventListener("click", function(e) {
+		if (!el.contains(e.target)) {
+			el.removeAttribute("open");
+		}
+	});
 }
 
 templ MultiSelect(p MultiSelectParams) {

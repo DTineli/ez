@@ -55,8 +55,8 @@ func multiSelectInitialLabel(p MultiSelectParams) string {
 
 func multiSelectInit(id string, placeholder string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_multiSelectInit_30ea`,
-		Function: `function __templ_multiSelectInit_30ea(id, placeholder){var el = document.getElementById(id);
+		Name: `__templ_multiSelectInit_e942`,
+		Function: `function __templ_multiSelectInit_e942(id, placeholder){var el = document.getElementById(id);
 	var lbl = document.getElementById("ms-label-" + id.substring(3));
 	el.addEventListener("change", function() {
 		var checked = el.querySelectorAll("input[type=checkbox]:checked");
@@ -72,9 +72,14 @@ func multiSelectInit(id string, placeholder string) templ.ComponentScript {
 			lbl.classList.add("text-gray-700");
 		}
 	});
+	document.addEventListener("click", function(e) {
+		if (!el.contains(e.target)) {
+			el.removeAttribute("open");
+		}
+	});
 }`,
-		Call:       templ.SafeScript(`__templ_multiSelectInit_30ea`, id, placeholder),
-		CallInline: templ.SafeScriptInline(`__templ_multiSelectInit_30ea`, id, placeholder),
+		Call:       templ.SafeScript(`__templ_multiSelectInit_e942`, id, placeholder),
+		CallInline: templ.SafeScriptInline(`__templ_multiSelectInit_e942`, id, placeholder),
 	}
 }
 
@@ -111,7 +116,7 @@ func MultiSelect(p MultiSelectParams) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(p.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 70, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 75, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -129,7 +134,7 @@ func MultiSelect(p MultiSelectParams) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs("ms-" + p.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 72, Col: 53}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 77, Col: 53}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -178,7 +183,7 @@ func MultiSelect(p MultiSelectParams) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs("ms-label-" + p.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 81, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 86, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -204,7 +209,7 @@ func MultiSelect(p MultiSelectParams) templ.Component {
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(multiSelectInitialLabel(p))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 86, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 91, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -222,7 +227,7 @@ func MultiSelect(p MultiSelectParams) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 96, Col: 20}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 101, Col: 20}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -235,7 +240,7 @@ func MultiSelect(p MultiSelectParams) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(opt.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 97, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 102, Col: 24}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -258,7 +263,7 @@ func MultiSelect(p MultiSelectParams) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(opt.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 108, Col: 53}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 113, Col: 53}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -285,7 +290,7 @@ func MultiSelect(p MultiSelectParams) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(e)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 115, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/components/multiselect.templ`, Line: 120, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {

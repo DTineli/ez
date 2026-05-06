@@ -41,16 +41,44 @@ func (c *ContactStore) UpdateById(
 	delete(fields, "id")
 	delete(fields, "tenant_id")
 
-	result := c.db.
-		Model(&store.Contact{}).
-		Where("id = ? AND tenant_id = ?", id, tenantID).
-		Updates(fields)
-
-	if result.RowsAffected == 0 {
-		return errors.New("contact not found")
+	// Extract price_table_ids before scalar update
+	var priceTableIDs []uint
+	if raw, ok := fields["price_table_ids"]; ok {
+		delete(fields, "price_table_ids")
+		if ids, ok := raw.([]uint); ok {
+			priceTableIDs = ids
+		}
 	}
 
-	return result.Error
+	if len(fields) > 0 {
+		result := c.db.
+			Model(&store.Contact{}).
+			Where("id = ? AND tenant_id = ?", id, tenantID).
+			Updates(fields)
+
+		if result.RowsAffected == 0 {
+			return errors.New("contact not found")
+		}
+		if result.Error != nil {
+			return result.Error
+		}
+	}
+
+	if priceTableIDs != nil {
+		var priceTables []store.PriceTable
+		if len(priceTableIDs) > 0 {
+			if err := c.db.Where("id IN ? AND tenant_id = ?", priceTableIDs, tenantID).Find(&priceTables).Error; err != nil {
+				return err
+			}
+		}
+		contact := &store.Contact{}
+		contact.ID = id
+		if err := c.db.Model(contact).Association("PriceTables").Replace(priceTables); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (c *ContactStore) FindAll(

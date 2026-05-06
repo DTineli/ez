@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/DTineli/ez/internal/forms"
 	m "github.com/DTineli/ez/internal/middleware"
@@ -222,26 +223,32 @@ func (h *ContactHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	tableJoin := strings.Join(r.Form["price_table"], ",")
+	tableIds := parsePriceTableIDs(tableJoin)
+
 	fields := map[string]any{
-		"name":           form.Get("name"),
-		"trade_name":     form.Get("trade_name"),
-		"contact_type":   form.Get("contact_type"),
-		"document_type":  form.Get("document_type"),
-		"document":       form.Get("document"),
-		"ie":             form.Get("ie"),
-		"email":          form.Get("email"),
-		"phone":          form.Get("phone"),
-		"zip_code":       form.Get("zipcode"),
-		"street":         form.Get("street"),
-		"number":         form.Get("number"),
-		"complement":     form.Get("complement"),
-		"neighborhood":   form.Get("neighborhood"),
-		"city":           form.Get("city"),
-		"uf":             form.Get("uf"),
-		"price_table_id": form.IsInt("price_table_id"),
+		"name":          form.Get("name"),
+		"trade_name":    form.Get("trade_name"),
+		"contact_type":  form.Get("contact_type"),
+		"document_type": form.Get("document_type"),
+		"document":      form.Get("document"),
+		"ie":            form.Get("ie"),
+		"email":         form.Get("email"),
+		"phone":         form.Get("phone"),
+		"zip_code":      form.Get("zipcode"),
+		"street":        form.Get("street"),
+		"number":        form.Get("number"),
+		"complement":    form.Get("complement"),
+		"neighborhood":  form.Get("neighborhood"),
+		"city":          form.Get("city"),
+		"uf":            form.Get("uf"),
+
+		"price_table_ids": tableIds,
 	}
 
 	err = h.contactStore.UpdateById(uint(id), sess.TenantID, fields)
+
+	form.Set("price_table", tableJoin)
 	if err != nil {
 		form.Errors.Add("general", "Erro ao salvar contato. Tente novamente.")
 		_ = Render(templates.ContactForm(form, true), r, w)
@@ -249,5 +256,6 @@ func (h *ContactHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ShowToast(w, "Alterações salvas", "success")
+
 	_ = Render(templates.ContactForm(form, true), r, w)
 }
