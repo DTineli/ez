@@ -8,7 +8,6 @@ import (
 
 	"github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
-	"github.com/go-chi/chi/v5"
 	"gorm.io/gorm"
 )
 
@@ -258,15 +257,3 @@ func (c *ClientHandler) PostConfirmOrder(
 	w.WriteHeader(http.StatusOK)
 }
 
-func parseURLParamUint(
-	w http.ResponseWriter,
-	r *http.Request,
-	paramName, errorMsg string,
-) (uint64, bool) {
-	val, err := strconv.ParseUint(chi.URLParam(r, paramName), 10, 64)
-	if err != nil || val == 0 {
-		ShowToast(w, errorMsg, "error")
-		return 0, false
-	}
-	return val, true
-}

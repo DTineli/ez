@@ -9,7 +9,6 @@ import (
 	"github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
-	"github.com/a-h/templ"
 	"gorm.io/gorm"
 )
 
@@ -35,22 +34,6 @@ func NewClientHandler(
 		sessionStore:    sStore,
 		priceTableStore: ptStore,
 	}
-}
-
-func RenderClientWithLayout(
-	c templ.Component,
-	w http.ResponseWriter,
-	r *http.Request,
-	cartCount int64,
-	activeTab string,
-) error {
-	if r.Header.Get("HX-Request") == "true" {
-		return c.Render(r.Context(), w)
-	}
-
-	return templates.
-		Layout_Client(c, cartCount, activeTab).
-		Render(r.Context(), w)
 }
 
 func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
@@ -95,7 +78,6 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 
 	var cards []store.CardData
 	for _, p := range products.Results {
-
 		variants := make([]store.VariantData, 0, len(p.Variants))
 		for _, v := range p.Variants {
 			vPrice := v.CostPrice * (1 + priceTable.Percentage/100)
@@ -129,36 +111,24 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 		nextPage = page + 1
 	}
 
-	// HTMX: scroll infinito (page > 1) → só o chunk; busca (page == 1) → conteúdo do grid
 	if isHX {
 		_ = templates.ClientProductsChunk(cards, nextPage, query).
 			Render(r.Context(), w)
 		return
 	}
 
-	cartCount := int64(0)
-	if sess.CartID != 0 {
-		if total, err := c.cartStore.CountItems(sess.CartID); err == nil {
-			cartCount = total
-		}
-	}
-
 	RenderClientWithLayout(
 		templates.ClientProductsPage(cards, nextPage, query),
 		w,
 		r,
-		cartCount,
+		c.getCartCount(sess),
 		"produtos",
 	)
 }
 
-func (c *ClientHandler) GetCheckoutPage(
-	w http.ResponseWriter,
-	r *http.Request,
-) {
+func (c *ClientHandler) GetCheckoutPage(w http.ResponseWriter, r *http.Request) {
 	sess := middleware.GetSessionFromContext(r)
 
-	cartCount := int64(0)
 	items := []store.CartCheckoutItem{}
 	totalAmount := 0.0
 
@@ -191,10 +161,6 @@ func (c *ClientHandler) GetCheckoutPage(
 	}
 
 	if openCart != nil {
-		if total, err := c.cartStore.CountItems(openCart.ID); err == nil {
-			cartCount = total
-		}
-
 		items, err = c.cartStore.ListCheckoutItems(openCart.ID, sess.TenantID)
 		if err != nil {
 			ShowToast(w, "Erro ao carregar itens", "error")
@@ -210,7 +176,7 @@ func (c *ClientHandler) GetCheckoutPage(
 		templates.ClientCheckoutPage(items, totalAmount),
 		w,
 		r,
-		cartCount,
+		c.getCartCount(sess),
 		"carrinho",
 	)
 }

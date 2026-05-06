@@ -21,18 +21,11 @@ func (c *ClientHandler) GetOrdersPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cartCount := int64(0)
-	if sess.CartID != 0 {
-		if total, err := c.cartStore.CountItems(sess.CartID); err == nil {
-			cartCount = total
-		}
-	}
-
 	RenderClientWithLayout(
 		templates.ClientOrdersPage(orders),
 		w,
 		r,
-		cartCount,
+		c.getCartCount(sess),
 		"pedidos",
 	)
 }
@@ -58,18 +51,11 @@ func (c *ClientHandler) GetOrderDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cartCount := int64(0)
-	if sess.CartID != 0 {
-		if total, err := c.cartStore.CountItems(sess.CartID); err == nil {
-			cartCount = total
-		}
-	}
-
 	RenderClientWithLayout(
 		templates.ClientOrderDetailPage(order),
 		w,
 		r,
-		cartCount,
+		c.getCartCount(sess),
 		"pedidos",
 	)
 }
