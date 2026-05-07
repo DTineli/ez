@@ -1,0 +1,103 @@
+package components
+
+type SelectOption struct {
+	Value string
+	Label string
+}
+
+type SelectParams struct {
+	Label         string
+	Name          string
+	Options       []SelectOption
+	Selected      string
+	ErrorMessages []string
+	Placeholder   string
+}
+
+func selectPlaceholder(p string) string {
+	if p == "" {
+		return "Selecione..."
+	}
+	return p
+}
+
+func selectInitialLabel(p SelectParams) string {
+	for _, opt := range p.Options {
+		if opt.Value == p.Selected {
+			return opt.Label
+		}
+	}
+	return selectPlaceholder(p.Placeholder)
+}
+
+script selectInit(id string, placeholder string) {
+	var el = document.getElementById(id);
+	var lbl = document.getElementById("sel-label-" + id.substring(4));
+	var hidden = document.getElementById("sel-hidden-" + id.substring(4));
+	el.querySelectorAll("button[data-value]").forEach(function(btn) {
+		btn.addEventListener("click", function() {
+			var val = btn.getAttribute("data-value");
+			var label = btn.getAttribute("data-label");
+			hidden.value = val;
+			lbl.textContent = label;
+			lbl.classList.remove("text-gray-400");
+			lbl.classList.add("text-gray-700");
+			el.removeAttribute("open");
+			el.querySelectorAll("button[data-value]").forEach(function(b) {
+				b.classList.remove("bg-green-50", "font-medium");
+			});
+			btn.classList.add("bg-green-50", "font-medium");
+		});
+	});
+	document.addEventListener("click", function(e) {
+		if (!el.contains(e.target)) {
+			el.removeAttribute("open");
+		}
+	});
+}
+
+templ Select(p SelectParams) {
+	<div class="flex flex-col gap-1">
+		if p.Label != "" {
+			<span class="text-sm font-medium text-gray-700">{ p.Label }</span>
+		}
+		<input type="hidden" id={ "sel-hidden-" + p.Name } name={ p.Name } value={ p.Selected }/>
+		<details class="relative group" id={ "sel-" + p.Name }>
+			<summary
+				class={
+					"flex items-center justify-between w-full border rounded-field bg-white px-3 py-2 text-sm cursor-pointer list-none focus:outline-none focus:ring-2 focus:ring-primary/50",
+					templ.KV("border-red-600", len(p.ErrorMessages) > 0),
+					templ.KV("border-gray-300", len(p.ErrorMessages) == 0),
+				}
+			>
+				<span
+					id={ "sel-label-" + p.Name }
+					class={
+						templ.KV("text-gray-400", p.Selected == ""),
+						templ.KV("text-gray-700", p.Selected != ""),
+					}
+				>{ selectInitialLabel(p) }</span>
+				<svg class="w-4 h-4 text-gray-400 transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+					<path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd"></path>
+				</svg>
+			</summary>
+			<div class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-field shadow-lg max-h-60 overflow-y-auto">
+				for _, opt := range p.Options {
+					<button
+						type="button"
+						data-value={ opt.Value }
+						data-label={ opt.Label }
+						class={
+							"flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer",
+							templ.KV("bg-green-50 font-medium", opt.Value == p.Selected),
+						}
+					>{ opt.Label }</button>
+				}
+			</div>
+		</details>
+		@selectInit("sel-"+p.Name, selectPlaceholder(p.Placeholder))
+		for _, e := range p.ErrorMessages {
+			<span class="text-red-600 text-sm">{ e }</span>
+		}
+	</div>
+}

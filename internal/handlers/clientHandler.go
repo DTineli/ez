@@ -9,6 +9,7 @@ import (
 	"github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
+	"github.com/DTineli/ez/internal/templates/components"
 	"gorm.io/gorm"
 )
 
@@ -34,6 +35,38 @@ func NewClientHandler(
 		sessionStore:    sStore,
 		priceTableStore: ptStore,
 	}
+}
+
+func (c *ClientHandler) RenderSelectTableByClient(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	sess := middleware.GetSessionFromContext(r)
+	tables, err := c.priceTableStore.FindAllActiveByTenantAndClient(
+		sess.TenantID,
+		sess.ContactInfo.ID,
+	)
+	if err != nil {
+		ShowToast(w, "Erro ao recuperar dados", "error")
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	options := make([]components.SelectOption, 0, len(tables))
+	for _, table := range tables {
+		options = append(options, components.SelectOption{
+			Value: strconv.Itoa(int(table.ID)),
+			Label: table.Name,
+		})
+	}
+
+	Render(components.Select(components.SelectParams{
+		Placeholder: "Selecione uma tabela",
+		Label:       "Tabela de Preço",
+		Name:        "price_table",
+		Selected:    r.URL.Query().Get("selected"),
+		Options:     options,
+	}), r, w)
 }
 
 func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +97,7 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	priceTable, err := c.priceTableStore.GetOne(
-		sess.ContactInfo.PriceTable,
+		5,
 		sess.TenantID,
 	)
 	if err != nil {
@@ -126,7 +159,10 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
-func (c *ClientHandler) GetCheckoutPage(w http.ResponseWriter, r *http.Request) {
+func (c *ClientHandler) GetCheckoutPage(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	sess := middleware.GetSessionFromContext(r)
 
 	items := []store.CartCheckoutItem{}

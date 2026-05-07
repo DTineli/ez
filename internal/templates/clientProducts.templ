@@ -12,6 +12,13 @@ templ ClientProductsPage(products []store.CardData, nextPage int, query string) 
 		<h2 class="font-['Manrope'] text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100">Produtos</h2>
 		<p class="text-sm text-slate-400 dark:text-slate-500">Ajuste a quantidade e adicione ao carrinho.</p>
 	</div>
+	<div
+		class="mb-4"
+		hx-trigger="load"
+		hx-target="this"
+		hx-swap="innerHTML"
+		hx-get="/client/components/price-tables"
+	></div>
 	<!-- BUSCA -->
 	<div class="mb-4">
 		<input

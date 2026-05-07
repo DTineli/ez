@@ -200,6 +200,11 @@ func registerClientRoutes(
 			r.Post("/confirmacao", client.PostConfirmOrder)
 			r.Get("/pedidos", client.GetOrdersPage)
 			r.Get("/pedidos/{id}", client.GetOrderDetail)
+
+			r.Route("/components", func(r chi.Router) {
+				r.Get("/price-tables", client.RenderSelectTableByClient)
+			})
+
 		})
 	})
 }

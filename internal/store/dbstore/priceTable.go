@@ -19,6 +19,23 @@ func (p PriceTableDB) CreatePriceTable(table *store.PriceTable) error {
 	return p.db.Create(table).Error
 }
 
+func (p PriceTableDB) FindAllActiveByTenantAndClient(
+	tenantID, clientID uint,
+) ([]store.PriceTable, error) {
+	var priceTables []store.PriceTable
+
+	err := p.db.
+		Joins("JOIN contact_price_tables cpt ON cpt.price_table_id = price_tables.id").
+		Where("price_tables.status = true AND price_tables.tenant_id = ? AND cpt.contact_id = ?", tenantID, clientID).
+		Find(&priceTables).
+		Error
+	if err != nil {
+		return nil, err
+	}
+
+	return priceTables, nil
+}
+
 func (p PriceTableDB) FindAllActiveByTenant(
 	id uint,
 ) ([]store.PriceTable, error) {
