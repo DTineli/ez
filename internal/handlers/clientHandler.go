@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"net/http"
 	"strconv"
@@ -51,9 +50,6 @@ func (c *ClientHandler) RenderSelectTableByClient(
 		sess.ContactInfo.ID,
 		sess.TenantID,
 	)
-
-	fmt.Println("___TABELAS___", tables)
-	fmt.Println("INFOS", sess.ContactInfo.ID, sess.TenantID)
 
 	if err != nil {
 		ShowToast(w, "Erro ao recuperar dados", "error")
