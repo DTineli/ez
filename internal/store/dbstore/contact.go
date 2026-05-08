@@ -29,6 +29,20 @@ func (c *ContactStore) GetOne(id uint) (*store.Contact, error) {
 	return contact, err
 }
 
+func (c *ContactStore) FindContactPriceTables(
+	contactID,
+	tenantID uint,
+) ([]store.PriceTable, error) {
+	var pricetables []store.PriceTable
+
+	c.db.Joins("JOIN contact_price_tables cpt ON price_tables.id = cpt.price_table_id").
+		Where("cpt.contact_id = ? AND price_tables.status is true", contactID).
+		Where("price_tables.tenant_id = ?", tenantID).
+		Find(&pricetables)
+
+	return pricetables, nil
+}
+
 func (c *ContactStore) UpdateById(
 	id uint,
 	tenantID uint,

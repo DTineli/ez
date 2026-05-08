@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
 	"strconv"
@@ -19,6 +20,7 @@ type ClientHandler struct {
 	orderStore      store.OrderStore
 	sessionStore    store.SessionStore
 	priceTableStore store.PriceTableStore
+	contactStore    store.ContactStore
 }
 
 func NewClientHandler(
@@ -27,6 +29,7 @@ func NewClientHandler(
 	oStore store.OrderStore,
 	sStore store.SessionStore,
 	ptStore store.PriceTableStore,
+	ccStore store.ContactStore,
 ) *ClientHandler {
 	return &ClientHandler{
 		productStore:    pStore,
@@ -34,6 +37,7 @@ func NewClientHandler(
 		orderStore:      oStore,
 		sessionStore:    sStore,
 		priceTableStore: ptStore,
+		contactStore:    ccStore,
 	}
 }
 
@@ -42,10 +46,15 @@ func (c *ClientHandler) RenderSelectTableByClient(
 	r *http.Request,
 ) {
 	sess := middleware.GetSessionFromContext(r)
-	tables, err := c.priceTableStore.FindAllActiveByTenantAndClient(
-		sess.TenantID,
+
+	tables, err := c.contactStore.FindContactPriceTables(
 		sess.ContactInfo.ID,
+		sess.TenantID,
 	)
+
+	fmt.Println("___TABELAS___", tables)
+	fmt.Println("INFOS", sess.ContactInfo.ID, sess.TenantID)
+
 	if err != nil {
 		ShowToast(w, "Erro ao recuperar dados", "error")
 		http.Error(w, "internal error", http.StatusInternalServerError)

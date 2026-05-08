@@ -86,6 +86,7 @@ func main() {
 		orderStore,
 		clientSessionStore,
 		priceTableStore,
+		contactStore,
 	)
 	adminOrderHandler := handlers.NewAdminOrderHandler(
 		orderStore,
