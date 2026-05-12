@@ -191,6 +191,7 @@ type ProductStore interface {
 	// Variant
 	CreateVariant(*Variant) error
 	GetVariant(id uint, tenantID uint) (*Variant, error)
+	GetVariantForCart(variantID, productID, tenantID uint) (*Variant, error)
 	FindVariantsByProduct(productID uint, tenantID uint) ([]Variant, error)
 	UpdateVariantFields(id uint, tenantID uint, fields map[string]any) error
 	DeleteVariant(id uint, tenantID uint) error

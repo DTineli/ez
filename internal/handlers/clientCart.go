@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
@@ -17,55 +16,43 @@ func (c *ClientHandler) PostAddToCart(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	productID, err := strconv.ParseUint(r.FormValue("product_id"), 10, 64)
-	if err != nil || productID == 0 {
+	productID, err := formUint(r, "product_id")
+	if err != nil {
 		ShowToast(w, "Produto invalido", "error")
 		return
 	}
 
-	variantID, err := strconv.ParseUint(r.FormValue("variant_id"), 10, 64)
-	if err != nil || variantID == 0 {
+	variantID, err := formUint(r, "variant_id")
+	if err != nil {
 		ShowToast(w, "Variacao invalida", "error")
 		return
 	}
 
-	qty, err := strconv.Atoi(r.FormValue("qty"))
-	if err != nil || qty <= 0 {
+	qty, err := formPosInt(r, "qty")
+	if err != nil {
 		ShowToast(w, "Quantidade invalida", "error")
 		return
 	}
 
 	sess := middleware.GetSessionFromContext(r)
-	product, err := c.productStore.GetProduct(uint(productID))
-	if err != nil || product == nil || product.TenantID != sess.TenantID {
-		ShowToast(w, "Produto nao encontrado", "error")
-		return
-	}
-
-	variant, err := c.productStore.GetVariant(uint(variantID), sess.TenantID)
-	if err != nil || variant == nil || variant.ProductID != product.ID {
-		ShowToast(w, "Variacao invalida", "error")
-		return
-	}
-
-	priceTable, err := c.priceTableStore.GetOne(
-		sess.ContactInfo.PriceTable,
+	variant, err := c.productStore.GetVariantForCart(
+		uint(variantID),
+		uint(productID),
 		sess.TenantID,
 	)
 	if err != nil {
-		ShowToast(w, "Tabela de preço não encontrada", "error")
+		ShowToast(w, "Produto ou variacao invalida", "error")
 		return
 	}
 
-	price := variant.CostPrice * (1 + priceTable.Percentage/100)
-
+	price := variant.CostPrice
 	cart, err := c.resolveOpenCart(r, w, sess)
 	if err != nil {
 		ShowToast(w, "Erro ao preparar carrinho", "error")
 		return
 	}
 
-	if err := c.cartStore.AddOrIncrementItem(cart.ID, product.ID, variant.ID, qty, price); err != nil {
+	if err := c.cartStore.AddOrIncrementItem(cart.ID, variant.ProductID, variant.ID, qty, price); err != nil {
 		ShowToast(w, "Erro ao adicionar item", "error")
 		return
 	}
@@ -93,6 +80,7 @@ func (c *ClientHandler) resolveOpenCart(
 	w http.ResponseWriter,
 	sess *store.Session,
 ) (*store.Cart, error) {
+	// tentei achar o carrinho
 	if sess.CartID != 0 {
 		cart, err := c.cartStore.FindOpenByID(
 			sess.CartID,
@@ -107,20 +95,24 @@ func (c *ClientHandler) resolveOpenCart(
 		}
 	}
 
+	// dai eu procuro por contato
 	cart, err := c.cartStore.FindOpenByContact(
 		sess.TenantID,
 		sess.ContactInfo.ID,
 	)
+	// crio carrinho na sessao
 	if err == nil {
 		if setErr := c.sessionStore.SetCartID(r, w, cart.ID); setErr != nil {
 			return nil, setErr
 		}
 		return cart, nil
 	}
+
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
 
+	//se nao eu crio um novo
 	newCart := &store.Cart{
 		TenantID:  sess.TenantID,
 		ContactID: sess.ContactInfo.ID,
@@ -183,8 +175,8 @@ func (c *ClientHandler) PatchCartItemQty(
 		return
 	}
 
-	qty, err := strconv.Atoi(r.FormValue("qty"))
-	if err != nil || qty <= 0 {
+	qty, err := formPosInt(r, "qty")
+	if err != nil {
 		ShowToast(w, "Quantidade invalida", "error")
 		return
 	}
@@ -256,4 +248,3 @@ func (c *ClientHandler) PostConfirmOrder(
 	w.Header().Set(HXRedirect, "/client/items")
 	w.WriteHeader(http.StatusOK)
 }
-

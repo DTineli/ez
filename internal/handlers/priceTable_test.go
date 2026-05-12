@@ -244,3 +244,11 @@ func (s *mockPriceTableStoreExt) Delete(id, tenantID uint) error {
 	}
 	return nil
 }
+
+func (s *mockPriceTableStoreExt) FindAllActiveByTenant(id uint) ([]store.PriceTable, error) {
+	return nil, nil
+}
+
+func (s *mockPriceTableStoreExt) FindAllActiveByTenantAndClient(tenantID, clientID uint) ([]store.PriceTable, error) {
+	return nil, nil
+}

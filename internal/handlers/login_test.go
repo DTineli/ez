@@ -383,7 +383,7 @@ func TestClientLogin_Sucesso(t *testing.T) {
 				Phone:    phone,
 				Password: hashedPassword(t, senha),
 				Contacts: []store.Contact{
-					{ID: 5, TenantID: 1, PriceTableID: 2},
+					{ID: 5, TenantID: 1},
 				},
 			}, nil
 		},

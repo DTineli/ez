@@ -91,7 +91,7 @@ func newClientHandler(ps *mockProductStore, cs *mockCartStore, os *mockOrderStor
 	if pts == nil {
 		pts = &mockPriceTableStoreExt{}
 	}
-	return NewClientHandler(ps, cs, os, ss, pts)
+	return NewClientHandler(ps, cs, os, ss, pts, &mockContactStore{})
 }
 
 func newClientSession() *store.Session {
@@ -129,7 +129,7 @@ func TestGetItemsPage_Sucesso(t *testing.T) {
 	}
 }
 
-func TestGetItemsPage_TabelaPrecoNaoEncontrada(t *testing.T) {
+func TestFetchItems_TabelaPrecoNaoEncontrada(t *testing.T) {
 	pts := &mockPriceTableStoreExt{
 		getOne: func(id, tenantID uint) (*store.PriceTable, error) {
 			return nil, errors.New("not found")
@@ -137,11 +137,11 @@ func TestGetItemsPage_TabelaPrecoNaoEncontrada(t *testing.T) {
 	}
 	h := newClientHandler(nil, nil, nil, nil, pts)
 
-	r := httptest.NewRequest(http.MethodGet, "/client/items", nil)
+	r := httptest.NewRequest(http.MethodGet, "/client/items/fetch?price_table=1", nil)
 	r = htmxRequest(withSession(r, newClientSession()))
 	w := httptest.NewRecorder()
 
-	h.GetItemsPage(w, r)
+	h.FetchItems(w, r)
 
 	if w.Code != http.StatusUnprocessableEntity {
 		t.Errorf("esperado 422, obteve %d", w.Code)

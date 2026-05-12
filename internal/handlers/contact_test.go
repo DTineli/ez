@@ -46,6 +46,10 @@ func (s *mockContactStore) UpdateById(id, tenantID uint, fields map[string]any) 
 	return nil
 }
 
+func (s *mockContactStore) FindContactPriceTables(contactID, tenantID uint) ([]store.PriceTable, error) {
+	return nil, nil
+}
+
 type mockInviteStore struct {
 	create    func(*store.Invite) error
 	findByID  func(uuid.UUID) (*store.Invite, error)

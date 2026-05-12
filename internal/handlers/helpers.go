@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	m "github.com/DTineli/ez/internal/middleware"
@@ -55,6 +56,22 @@ func isDuplicateError(err error) bool {
 	return strings.Contains(msg, "UNIQUE constraint failed") || // SQLite
 		strings.Contains(msg, "Duplicate") || // MySQL
 		strings.Contains(msg, "duplicate key value violates unique constraint") // PostgreSQL
+}
+
+func formUint(r *http.Request, key string) (uint64, error) {
+	v, err := strconv.ParseUint(r.FormValue(key), 10, 64)
+	if err != nil || v == 0 {
+		return 0, fmt.Errorf("%s inválido", key)
+	}
+	return v, nil
+}
+
+func formPosInt(r *http.Request, key string) (int, error) {
+	v, err := strconv.Atoi(r.FormValue(key))
+	if err != nil || v <= 0 {
+		return 0, fmt.Errorf("%s inválido", key)
+	}
+	return v, nil
 }
 
 type variantAttrInput struct {
