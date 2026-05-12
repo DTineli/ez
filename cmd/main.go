@@ -188,6 +188,7 @@ func registerClientRoutes(
 
 			r.Post("/logout", login.PostLogout)
 			r.Get("/items", client.GetItemsPage)
+			r.Get("/items/fetch", client.FetchItems)
 			r.Get("/confirmacao", client.GetCheckoutPage)
 			r.Post("/cart/items", client.PostAddToCart)
 			r.Delete(

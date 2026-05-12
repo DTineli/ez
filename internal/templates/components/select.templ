@@ -47,6 +47,7 @@ script selectInit(id string, placeholder string) {
 				b.classList.remove("bg-green-50", "font-medium");
 			});
 			btn.classList.add("bg-green-50", "font-medium");
+			hidden.dispatchEvent(new Event("change", { bubbles: true }));
 		});
 	});
 	document.addEventListener("click", function(e) {

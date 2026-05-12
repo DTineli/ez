@@ -5,39 +5,44 @@ import (
 	"net/url"
 
 	"github.com/DTineli/ez/internal/store"
+	"github.com/DTineli/ez/internal/templates/components"
 )
 
-templ ClientProductsPage(products []store.CardData, nextPage int, query string) {
+templ ClientProductsPage(query string, selectParams components.SelectParams) {
 	<div class="mb-4">
 		<h2 class="font-['Manrope'] text-xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100">Produtos</h2>
 		<p class="text-sm text-slate-400 dark:text-slate-500">Ajuste a quantidade e adicione ao carrinho.</p>
 	</div>
-	<div
-		class="mb-4"
-		hx-trigger="load"
-		hx-target="this"
-		hx-swap="innerHTML"
-		hx-get="/client/components/price-tables"
-	></div>
+	<div class="mb-4">
+		@components.Select(selectParams)
+	</div>
 	<!-- BUSCA -->
 	<div class="mb-4">
 		<input
 			type="search"
 			name="q"
+			id="q"
 			value={ query }
 			placeholder="Buscar por nome ou SKU..."
 			autocomplete="off"
 			class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm outline-none placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-			hx-get="/client/items"
+			hx-get="/client/items/fetch"
 			hx-trigger="input changed delay:350ms, search"
 			hx-target="#products-grid"
 			hx-swap="innerHTML"
+			hx-include="#sel-hidden-price_table"
 		/>
 	</div>
 	<!-- GRID -->
-	<div id="products-grid" class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-		@ClientProductsChunk(products, nextPage, query)
-	</div>
+	<div
+		id="products-grid"
+		class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+		hx-trigger="change from:#sel-hidden-price_table"
+		hx-target="this"
+		hx-swap="innerHTML"
+		hx-get="/client/items/fetch"
+		hx-include="#sel-hidden-price_table, #q"
+	></div>
 }
 
 templ ClientProductsChunk(products []store.CardData, nextPage int, query string) {
@@ -51,7 +56,7 @@ templ ClientProductsChunk(products []store.CardData, nextPage int, query string)
 	}
 	if nextPage > 0 {
 		{{
-			nextURL := fmt.Sprintf("/client/items?page=%d", nextPage)
+			nextURL := fmt.Sprintf("/client/items/fetch?page=%d", nextPage)
 			if query != "" {
 				nextURL += "&q=" + url.QueryEscape(query)
 			}
@@ -60,7 +65,9 @@ templ ClientProductsChunk(products []store.CardData, nextPage int, query string)
 			class="col-span-full flex items-center justify-center py-4 text-sm text-slate-400"
 			hx-get={ nextURL }
 			hx-trigger="revealed"
+			hx-target="this"
 			hx-swap="outerHTML"
+			hx-include="#sel-hidden-price_table, #q"
 		>
 			Carregando...
 		</div>

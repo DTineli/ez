@@ -76,7 +76,45 @@ func (c *ClientHandler) RenderSelectTableByClient(
 
 func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 	sess := middleware.GetSessionFromContext(r)
-	isHX := r.Header.Get("HX-Request") == "true"
+	query := r.URL.Query().Get("q")
+
+	tables, err := c.contactStore.FindContactPriceTables(
+		sess.ContactInfo.ID,
+		sess.TenantID,
+	)
+	if err != nil {
+		ShowToast(w, "Erro ao recuperar tabelas", "error")
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	options := make([]components.SelectOption, 0, len(tables))
+	for _, t := range tables {
+		options = append(options, components.SelectOption{
+			Value: strconv.Itoa(int(t.ID)),
+			Label: t.Name,
+		})
+	}
+
+	selectParams := components.SelectParams{
+		Placeholder: "Selecione uma tabela",
+		Label:       "Tabela de Preço",
+		Name:        "price_table",
+		Options:     options,
+	}
+
+	RenderClientWithLayout(
+		templates.ClientProductsPage(query, selectParams),
+		w,
+		r,
+		c.getCartCount(sess),
+		"produtos",
+	)
+
+}
+
+func (c *ClientHandler) FetchItems(w http.ResponseWriter, r *http.Request) {
+	sess := middleware.GetSessionFromContext(r)
 	const perPage = 9
 
 	page := 1
@@ -87,6 +125,17 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := r.URL.Query().Get("q")
+	price_table := r.URL.Query().Get("price_table")
+	if price_table == "" {
+		w.Write([]byte("<p>Selecione uma tabela de preco<p>"))
+		return
+	}
+
+	priceTable := 0
+	if priceTableParsed, err := strconv.Atoi(price_table); err == nil &&
+		priceTableParsed > 0 {
+		priceTable = priceTableParsed
+	}
 
 	products, err := c.productStore.FindAllByUserWithFilters(
 		sess.TenantID,
@@ -101,8 +150,8 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	priceTable, err := c.priceTableStore.GetOne(
-		5,
+	prices, err := c.priceTableStore.GetOne(
+		uint(priceTable),
 		sess.TenantID,
 	)
 	if err != nil {
@@ -114,49 +163,15 @@ func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var cards []store.CardData
-	for _, p := range products.Results {
-		variants := make([]store.VariantData, 0, len(p.Variants))
-		for _, v := range p.Variants {
-			vPrice := v.CostPrice * (1 + priceTable.Percentage/100)
-
-			attrs := make([]store.AttrData, 0, len(v.Attributes))
-			for _, a := range v.Attributes {
-				attrs = append(attrs, store.AttrData{
-					Name:  a.AttributeValue.Attribute.Name,
-					Value: a.AttributeValue.Value,
-				})
-			}
-
-			variants = append(variants, store.VariantData{
-				ID:        v.ID,
-				Price:     vPrice,
-				IsDefault: v.IsDefault,
-				Attrs:     attrs,
-			})
-		}
-
-		cards = append(cards, store.CardData{
-			ID:       p.ID,
-			Name:     p.Name,
-			Variants: variants,
-		})
-	}
-
-	totalPages := int(math.Ceil(float64(products.Count) / float64(perPage)))
+	cards := makeCardData(products.Results, prices.Percentage)
 	nextPage := 0
+	totalPages := int(math.Ceil(float64(products.Count) / float64(perPage)))
 	if page < totalPages {
 		nextPage = page + 1
 	}
 
-	if isHX {
-		_ = templates.ClientProductsChunk(cards, nextPage, query).
-			Render(r.Context(), w)
-		return
-	}
-
 	RenderClientWithLayout(
-		templates.ClientProductsPage(cards, nextPage, query),
+		templates.ClientProductsChunk(cards, nextPage, query),
 		w,
 		r,
 		c.getCartCount(sess),
@@ -220,4 +235,35 @@ func (c *ClientHandler) GetCheckoutPage(
 		c.getCartCount(sess),
 		"carrinho",
 	)
+}
+
+func makeCardData(
+	products []store.Product,
+	pricePercentage float64,
+) []store.CardData {
+	cards := make([]store.CardData, 0, len(products))
+	for _, p := range products {
+		variants := make([]store.VariantData, 0, len(p.Variants))
+		for _, v := range p.Variants {
+			attrs := make([]store.AttrData, 0, len(v.Attributes))
+			for _, a := range v.Attributes {
+				attrs = append(attrs, store.AttrData{
+					Name:  a.AttributeValue.Attribute.Name,
+					Value: a.AttributeValue.Value,
+				})
+			}
+			variants = append(variants, store.VariantData{
+				ID:        v.ID,
+				Price:     v.CostPrice * (1 + pricePercentage/100),
+				IsDefault: v.IsDefault,
+				Attrs:     attrs,
+			})
+		}
+		cards = append(cards, store.CardData{
+			ID:       p.ID,
+			Name:     p.Name,
+			Variants: variants,
+		})
+	}
+	return cards
 }
