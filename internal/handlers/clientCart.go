@@ -197,7 +197,7 @@ func (c *ClientHandler) PatchCartItemQty(
 		return
 	}
 
-	w.Header().Set(HXRedirect, "/client/confirmacao")
+	w.Header().Set("HX-Trigger", "cartUpdated")
 	w.WriteHeader(http.StatusOK)
 }
 

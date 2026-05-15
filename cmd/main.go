@@ -205,6 +205,7 @@ func registerClientRoutes(
 
 			r.Route("/components", func(r chi.Router) {
 				r.Get("/price-tables", client.RenderSelectTableByClient)
+				r.Get("/cart-content", client.RenderCheckoutContent)
 			})
 
 		})

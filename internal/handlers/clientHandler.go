@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
 	"strconv"
@@ -38,6 +39,63 @@ func NewClientHandler(
 		priceTableStore: ptStore,
 		contactStore:    ccStore,
 	}
+}
+
+func (c *ClientHandler) RenderCheckoutContent(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	sess := middleware.GetSessionFromContext(r)
+
+	items := []store.CartCheckoutItem{}
+	totalAmount := 0.0
+
+	var openCart *store.Cart
+	var err error
+
+	price_table := queryParamUintOrZero(r, "price_table")
+
+	if sess.CartID != 0 {
+		openCart, err = c.cartStore.FindOpenByID(
+			sess.CartID,
+			sess.TenantID,
+			sess.ContactInfo.ID,
+		)
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			ShowToast(w, "Erro ao carregar carrinho", "error")
+			return
+		}
+	}
+
+	if openCart == nil {
+		openCart, err = c.cartStore.FindOpenByContact(
+			sess.TenantID,
+			sess.ContactInfo.ID,
+		)
+		if err == nil {
+			_ = c.sessionStore.SetCartID(r, w, openCart.ID)
+		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+			ShowToast(w, "Erro ao carregar carrinho", "error")
+			return
+		}
+	}
+
+	if openCart != nil {
+		items, err = c.cartStore.ListCheckoutItems(openCart.ID, sess.TenantID)
+		if err != nil {
+			ShowToast(w, "Erro ao carregar itens", "error")
+			return
+		}
+
+		for _, item := range items {
+			totalAmount += item.Subtotal
+		}
+	}
+
+	fmt.Println("TABELA DE PRECO - ", price_table)
+
+	showPrice := price_table != 0
+	Render(templates.ClientCartContent(items, totalAmount, showPrice), r, w)
 }
 
 func (c *ClientHandler) RenderSelectTableByClient(
@@ -125,16 +183,14 @@ func (c *ClientHandler) FetchItems(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := r.URL.Query().Get("q")
-	price_table := r.URL.Query().Get("price_table")
-	if price_table == "" {
-		w.Write([]byte("<p>Selecione uma tabela de preco<p>"))
+	priceTable, ok := parseQueryParamUint(
+		w,
+		r,
+		"price_table",
+		"Selecione uma tabela de preço",
+	)
+	if !ok {
 		return
-	}
-
-	priceTable := 0
-	if priceTableParsed, err := strconv.Atoi(price_table); err == nil &&
-		priceTableParsed > 0 {
-		priceTable = priceTableParsed
 	}
 
 	products, err := c.productStore.FindAllByUserWithFilters(
@@ -163,7 +219,7 @@ func (c *ClientHandler) FetchItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cards := makeCardData(products.Results, prices.Percentage)
+	cards := makeCardData(products.Results, *prices)
 	nextPage := 0
 	totalPages := int(math.Ceil(float64(products.Count) / float64(perPage)))
 	if page < totalPages {
@@ -185,51 +241,8 @@ func (c *ClientHandler) GetCheckoutPage(
 ) {
 	sess := middleware.GetSessionFromContext(r)
 
-	items := []store.CartCheckoutItem{}
-	totalAmount := 0.0
-
-	var openCart *store.Cart
-	var err error
-
-	if sess.CartID != 0 {
-		openCart, err = c.cartStore.FindOpenByID(
-			sess.CartID,
-			sess.TenantID,
-			sess.ContactInfo.ID,
-		)
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-			ShowToast(w, "Erro ao carregar carrinho", "error")
-			return
-		}
-	}
-
-	if openCart == nil {
-		openCart, err = c.cartStore.FindOpenByContact(
-			sess.TenantID,
-			sess.ContactInfo.ID,
-		)
-		if err == nil {
-			_ = c.sessionStore.SetCartID(r, w, openCart.ID)
-		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
-			ShowToast(w, "Erro ao carregar carrinho", "error")
-			return
-		}
-	}
-
-	if openCart != nil {
-		items, err = c.cartStore.ListCheckoutItems(openCart.ID, sess.TenantID)
-		if err != nil {
-			ShowToast(w, "Erro ao carregar itens", "error")
-			return
-		}
-
-		for _, item := range items {
-			totalAmount += item.Subtotal
-		}
-	}
-
 	RenderClientWithLayout(
-		templates.ClientCheckoutPage(items, totalAmount),
+		templates.ClientCheckoutPage(c.getCartCount(sess) == 0),
 		w,
 		r,
 		c.getCartCount(sess),
@@ -239,7 +252,7 @@ func (c *ClientHandler) GetCheckoutPage(
 
 func makeCardData(
 	products []store.Product,
-	pricePercentage float64,
+	table store.PriceTable,
 ) []store.CardData {
 	cards := make([]store.CardData, 0, len(products))
 	for _, p := range products {
@@ -254,7 +267,7 @@ func makeCardData(
 			}
 			variants = append(variants, store.VariantData{
 				ID:        v.ID,
-				Price:     v.CostPrice * (1 + pricePercentage/100),
+				Price:     applyPrice(table, v),
 				IsDefault: v.IsDefault,
 				Attrs:     attrs,
 			})
