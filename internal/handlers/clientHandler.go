@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"net/http"
 	"strconv"
@@ -53,7 +52,8 @@ func (c *ClientHandler) RenderCheckoutContent(
 	var openCart *store.Cart
 	var err error
 
-	price_table := queryParamUintOrZero(r, "price_table")
+	// buscar tabela no banco
+	price_tableID := queryParamUintOrZero(r, "price_table")
 
 	if sess.CartID != 0 {
 		openCart, err = c.cartStore.FindOpenByID(
@@ -82,19 +82,28 @@ func (c *ClientHandler) RenderCheckoutContent(
 
 	if openCart != nil {
 		items, err = c.cartStore.ListCheckoutItems(openCart.ID, sess.TenantID)
+
 		if err != nil {
 			ShowToast(w, "Erro ao carregar itens", "error")
 			return
 		}
 
-		for _, item := range items {
-			totalAmount += item.Subtotal
+		var pt *store.PriceTable
+		if price_tableID != 0 {
+			fetched, err := c.priceTableStore.GetOne(uint(price_tableID), sess.TenantID)
+			if err == nil {
+				pt = fetched
+			}
+		}
+
+		for i := range items {
+			items[i].UnitPrice = applyCheckoutPrice(items[i].CostPrice, pt)
+			items[i].Subtotal = items[i].UnitPrice * float64(items[i].Quantity)
+			totalAmount += items[i].Subtotal
 		}
 	}
 
-	fmt.Println("TABELA DE PRECO - ", price_table)
-
-	showPrice := price_table != 0
+	showPrice := price_tableID != 0
 	Render(templates.ClientCartContent(items, totalAmount, showPrice), r, w)
 }
 

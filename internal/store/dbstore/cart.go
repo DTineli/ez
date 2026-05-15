@@ -59,7 +59,7 @@ func (c *CartStore) Create(cart *store.Cart) error {
 func (c *CartStore) AddOrIncrementItem(
 	cartID, productID, variantID uint,
 	quantity int,
-	unitPrice float64,
+	costPrice float64,
 ) error {
 	return c.db.Transaction(func(tx *gorm.DB) error {
 		var item store.CartItem
@@ -81,7 +81,7 @@ func (c *CartStore) AddOrIncrementItem(
 			VariantID: variantID,
 			ProductID: productID,
 			Quantity:  quantity,
-			UnitPrice: unitPrice,
+			CostPrice: costPrice,
 		}).Error
 	})
 }
@@ -109,13 +109,13 @@ func (c *CartStore) ListCheckoutItems(
 		VariantLabel string
 		VariantID    uint
 		Quantity     int
-		UnitPrice    float64
+		CostPrice    float64
 	}
 
 	var rows []checkoutRow
 	err := c.db.
 		Table("cart_items ci").
-		Select("ci.id, ci.product_id, p.name, ci.quantity, ci.unit_price, ci.variant_id, GROUP_CONCAT(av.value, ' / ') as variant_label").
+		Select("ci.id, ci.product_id, p.name, ci.quantity, ci.cost_price, ci.variant_id, GROUP_CONCAT(av.value, ' / ') as variant_label").
 		Joins("JOIN products p ON p.id = ci.product_id").
 		Joins("LEFT JOIN variant_attributes va ON va.variant_id = ci.variant_id").
 		Joins("LEFT JOIN attribute_values av ON av.id = va.attribute_value_id").
@@ -136,8 +136,7 @@ func (c *CartStore) ListCheckoutItems(
 			Name:         row.Name,
 			VariantLabel: row.VariantLabel,
 			Quantity:     row.Quantity,
-			UnitPrice:    row.UnitPrice,
-			Subtotal:     float64(row.Quantity) * row.UnitPrice,
+			CostPrice:    row.CostPrice,
 		})
 	}
 

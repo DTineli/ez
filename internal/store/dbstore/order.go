@@ -70,7 +70,7 @@ func (o *OrderStore) ConfirmFromCart(
 				return errors.New("product not found for cart item")
 			}
 
-			subtotal := float64(item.Quantity) * item.UnitPrice
+			subtotal := float64(item.Quantity) * item.CostPrice
 			total += subtotal
 
 			orderItems = append(orderItems, store.OrderItem{
@@ -78,7 +78,7 @@ func (o *OrderStore) ConfirmFromCart(
 				VariantID: item.VariantID,
 				Name:      name,
 				Quantity:  item.Quantity,
-				UnitPrice: item.UnitPrice,
+				UnitPrice: item.CostPrice,
 				Subtotal:  subtotal,
 			})
 		}

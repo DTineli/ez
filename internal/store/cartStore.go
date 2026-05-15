@@ -20,7 +20,7 @@ type CartItem struct {
 	VariantID uint    `gorm:"not null;default:0;uniqueIndex:idx_cart_variant,priority:2" json:"variant_id"`
 	ProductID uint    `gorm:"not null"                                                   json:"product_id"`
 	Quantity  int     `gorm:"not null"                                                   json:"quantity"`
-	UnitPrice float64 `gorm:"not null"                                                   json:"unit_price"`
+	CostPrice float64 `gorm:"not null;default:0"                                         json:"cost_price"`
 }
 
 type CartCheckoutItem struct {
@@ -30,6 +30,7 @@ type CartCheckoutItem struct {
 	VariantLabel string
 	VariantID    uint
 	Quantity     int
+	CostPrice    float64
 	UnitPrice    float64
 	Subtotal     float64
 }
@@ -42,7 +43,7 @@ type CartStore interface {
 		cartID, productID,
 		variantID uint,
 		quantity int,
-		unitPrice float64,
+		costPrice float64,
 	) error
 	CountItems(cartID uint) (int64, error)
 	ListCheckoutItems(cartID, tenantID uint) ([]CartCheckoutItem, error)
