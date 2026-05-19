@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
@@ -197,7 +198,7 @@ func (c *ClientHandler) PatchCartItemQty(
 		return
 	}
 
-	w.Header().Set("HX-Trigger", "cartUpdated")
+	w.Header().Set(HXRedirect, "/client/confirmacao")
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -205,6 +206,16 @@ func (c *ClientHandler) PostConfirmOrder(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
+	if err := r.ParseForm(); err != nil {
+		ShowToast(w, "Dados invalidos", "error")
+		return
+	}
+
+	var priceTableID uint
+	if v, err := strconv.ParseUint(r.FormValue("price_table"), 10, 64); err == nil {
+		priceTableID = uint(v)
+	}
+
 	sess := middleware.GetSessionFromContext(r)
 
 	var cart *store.Cart
@@ -238,7 +249,9 @@ func (c *ClientHandler) PostConfirmOrder(
 		cart.ID,
 		sess.TenantID,
 		sess.ContactInfo.ID,
+		priceTableID,
 	)
+
 	if err != nil {
 		ShowToast(w, "Erro ao confirmar pedido", "error")
 		return

@@ -368,7 +368,7 @@ func TestPostConfirmOrder_Sucesso(t *testing.T) {
 		},
 	}
 	os := &mockOrderStore{
-		confirmFromCart: func(cartID, tenantID, contactID uint) (*store.Order, error) {
+		confirmFromCart: func(cartID, tenantID, contactID, priceTableID uint) (*store.Order, error) {
 			confirmado = true
 			return &store.Order{ID: 10}, nil
 		},

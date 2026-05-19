@@ -72,7 +72,9 @@ func main() {
 		invite,
 		contactStore,
 		clientSessionStore)
+
 	productHandler := handlers.NewProductHandler(pStore, priceTableStore)
+
 	contactHandler := handlers.NewContactHandler(
 		handlers.NewContactHandlerParams{
 			Contact:    contactStore,

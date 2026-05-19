@@ -130,14 +130,14 @@ func ClientCartContent(items []store.CartCheckoutItem, totalAmount float64, show
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" hx-swap=\"none\" class=\"flex items-center gap-1\"><input type=\"number\" hx-trigger=\"change from:#sel-hidden-price_table\" name=\"qty\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" hx-swap=\"none\" class=\"flex items-center gap-1\"><input type=\"number\" name=\"qty\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(item.Quantity))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 58, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 57, Col: 42}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -155,7 +155,7 @@ func ClientCartContent(items []store.CartCheckoutItem, totalAmount float64, show
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.Subtotal))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 71, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 70, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -184,7 +184,7 @@ func ClientCartContent(items []store.CartCheckoutItem, totalAmount float64, show
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", totalAmount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 84, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 83, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -196,20 +196,30 @@ func ClientCartContent(items []store.CartCheckoutItem, totalAmount float64, show
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</p></div><div x-data=\"{ confirming: false }\" class=\"mt-5\"><button x-show=\"!confirming\" type=\"button\" @click=\"confirming = true\" class=\"w-full rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white transition hover:bg-emerald-700\">Confirmar pedido</button><div x-show=\"confirming\" x-cloak class=\"rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4\"><p class=\"mb-3 text-center text-sm font-semibold text-emerald-800\">Confirmar o pedido de <span class=\"font-extrabold\">R$ ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</p></div><div x-data=\"{ confirming: false }\" class=\"mt-5\"><button x-show=\"!confirming\" type=\"button\" @click=\"confirming = true\" class=\"w-full rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white transition hover:bg-emerald-700\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if !showPrice {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " disabled")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, ">Confirmar pedido</button><div x-show=\"confirming\" x-cloak class=\"rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-4\"><p class=\"mb-3 text-center text-sm font-semibold text-emerald-800\">Confirmar o pedido de <span class=\"font-extrabold\">R$ ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", totalAmount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 101, Col: 92}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 103, Col: 92}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span>?</p><div class=\"flex gap-3\"><button type=\"button\" @click=\"confirming = false\" class=\"flex-1 rounded-xl border border-slate-300 bg-white py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50\">Cancelar</button> <button type=\"button\" hx-post=\"/client/confirmacao\" hx-swap=\"none\" class=\"flex-1 rounded-xl bg-emerald-600 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700\">Sim, confirmar</button></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span>?</p><div class=\"flex gap-3\"><button type=\"button\" @click=\"confirming = false\" class=\"flex-1 rounded-xl border border-slate-300 bg-white py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50\">Cancelar</button> <button type=\"button\" hx-post=\"/client/confirmacao\" hx-swap=\"none\" hx-include=\"#sel-hidden-price_table\" class=\"flex-1 rounded-xl bg-emerald-600 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700\">Sim, confirmar</button></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -238,22 +248,22 @@ func ClientCheckoutPage(isEmpty bool) templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<section class=\"mx-auto w-full max-w-3xl\"><div class=\"overflow-hidden rounded-2xl border border-slate-200/70 bg-white/95 p-6 shadow-sm dark:border-slate-700/70 dark:bg-slate-900/95\"><p class=\"text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400\">Carrinho</p><h2 class=\"mt-2 font-['Manrope'] text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100\">Confirmacao de pedido</h2><p class=\"mt-3 text-sm text-slate-600 dark:text-slate-300\">Revise os itens adicionados e finalize o pedido.</p>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<section class=\"mx-auto w-full max-w-3xl\"><div class=\"overflow-hidden rounded-2xl border border-slate-200/70 bg-white/95 p-6 shadow-sm dark:border-slate-700/70 dark:bg-slate-900/95\"><p class=\"text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400\">Carrinho</p><h2 class=\"mt-2 font-['Manrope'] text-2xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100\">Confirmacao de pedido</h2><p class=\"mt-3 text-sm text-slate-600 dark:text-slate-300\">Revise os itens adicionados e finalize o pedido.</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if isEmpty {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"mt-6 rounded-xl border border-dashed border-slate-300/80 bg-slate-50/70 p-5 text-sm text-slate-600 dark:border-slate-600/80 dark:bg-slate-800/70 dark:text-slate-300\">Seu carrinho esta vazio.</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"mt-6 rounded-xl border border-dashed border-slate-300/80 bg-slate-50/70 p-5 text-sm text-slate-600 dark:border-slate-600/80 dark:bg-slate-800/70 dark:text-slate-300\">Seu carrinho esta vazio.</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div id=\"price_table\" hx-get=\"/client/components/price-tables\" hx-trigger=\"load\" hx-swap=\"innerHTML\" hx-target=\"this\"></div><div id=\"cart_content\" hx-get=\"/client/components/cart-content\" hx-trigger=\"htmx:afterSettle from:#price_table, change from:#price_table, cartUpdated from:body\" hx-swap=\"innerHTML\" hx-target=\"this\" hx-include=\"#sel-hidden-price_table\"></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div id=\"price_table\" hx-get=\"/client/components/price-tables\" hx-trigger=\"load\" hx-swap=\"innerHTML\" hx-target=\"this\"></div><div id=\"cart_content\" hx-get=\"/client/components/cart-content\" hx-trigger=\"htmx:afterSettle from:#price_table, change from:#price_table, cartUpdated from:body\" hx-swap=\"innerHTML\" hx-target=\"this\" hx-include=\"#sel-hidden-price_table\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

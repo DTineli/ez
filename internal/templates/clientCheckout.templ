@@ -53,7 +53,6 @@ templ ClientCartContent(items []store.CartCheckoutItem, totalAmount float64, sho
 					>
 						<input
 							type="number"
-							hx-trigger="change from:#sel-hidden-price_table"
 							name="qty"
 							value={ strconv.Itoa(item.Quantity) }
 							min="1"
@@ -93,6 +92,9 @@ templ ClientCartContent(items []store.CartCheckoutItem, totalAmount float64, sho
 			type="button"
 			@click="confirming = true"
 			class="w-full rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white transition hover:bg-emerald-700"
+			if !showPrice {
+				disabled
+			}
 		>
 			Confirmar pedido
 		</button>
@@ -112,6 +114,7 @@ templ ClientCartContent(items []store.CartCheckoutItem, totalAmount float64, sho
 					type="button"
 					hx-post="/client/confirmacao"
 					hx-swap="none"
+					hx-include="#sel-hidden-price_table"
 					class="flex-1 rounded-xl bg-emerald-600 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700"
 				>
 					Sim, confirmar

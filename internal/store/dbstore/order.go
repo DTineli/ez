@@ -16,12 +16,13 @@ func NewOrderStore(db *gorm.DB) *OrderStore {
 }
 
 func (o *OrderStore) ConfirmFromCart(
-	cartID, tenantID, contactID uint,
+	cartID, tenantID, contactID, priceTableID uint,
 ) (*store.Order, error) {
 	var created store.Order
 
 	err := o.db.Transaction(func(tx *gorm.DB) error {
 		var cart store.Cart
+
 		if err := tx.Where(
 			"id = ? AND tenant_id = ? AND contact_id = ? AND status = ?",
 			cartID,
@@ -62,6 +63,14 @@ func (o *OrderStore) ConfirmFromCart(
 			productNameByVariantID[p.ID] = p.Product.Name
 		}
 
+		var priceTable *store.PriceTable
+		if priceTableID != 0 {
+			var pt store.PriceTable
+			if err := tx.Where("id = ? AND tenant_id = ?", priceTableID, tenantID).First(&pt).Error; err == nil {
+				priceTable = &pt
+			}
+		}
+
 		total := 0.0
 		orderItems := make([]store.OrderItem, 0, len(cartItems))
 		for _, item := range cartItems {
@@ -70,7 +79,11 @@ func (o *OrderStore) ConfirmFromCart(
 				return errors.New("product not found for cart item")
 			}
 
-			subtotal := float64(item.Quantity) * item.CostPrice
+			unitPrice := item.CostPrice
+			if priceTable != nil {
+				unitPrice = item.CostPrice * (1 + priceTable.Percentage/100)
+			}
+			subtotal := float64(item.Quantity) * unitPrice
 			total += subtotal
 
 			orderItems = append(orderItems, store.OrderItem{
@@ -78,7 +91,7 @@ func (o *OrderStore) ConfirmFromCart(
 				VariantID: item.VariantID,
 				Name:      name,
 				Quantity:  item.Quantity,
-				UnitPrice: item.CostPrice,
+				UnitPrice: unitPrice,
 				Subtotal:  subtotal,
 			})
 		}
