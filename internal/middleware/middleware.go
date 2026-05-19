@@ -12,8 +12,17 @@ func GetSessionFromContext(r *http.Request) *store.Session {
 	return r.Context().Value(SessionInfoKey).(*store.Session)
 }
 
-func ResolveSlug(r *http.Request) {
-
+func ResolveSlug(next http.Handler) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			host := r.Host                      // "company.localhost:4000"
+			slug := strings.Split(host, ".")[0] // "company"
+			if slug == r.Host {
+				slug = " "
+			}
+			ctx := context.WithValue(r.Context(), "slug", slug)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
 }
 
 func parseUrl(url string) store.AccessType {
