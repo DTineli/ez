@@ -15,7 +15,7 @@ Documento gerado a partir das decisões de produto. Cada seção descreve o comp
 - Se não estiver logado, exibe landing page genérica com campo de login.
 
 **Implementação:**
-- [ ] Middleware de resolução de slug: ao receber requisição em subdomínio, buscar admin pelo slug
+- [X] Middleware de resolução de slug: ao receber requisição em subdomínio, buscar admin pelo slug
 - [ ] Criar rota `/` no frontend
 - [ ] Se autenticado: buscar `customers` do user logado via API → listar lojas (nome, slug, logo)
 - [ ] Landing Page Publica com um bem vindo e btn para ir para login ou criar conta
