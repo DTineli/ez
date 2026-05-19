@@ -1,53 +1,52 @@
 package handlers
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
 
-	"github.com/go-chi/chi/v5"
 	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
+	"github.com/DTineli/ez/internal/templates/components"
+	"github.com/go-chi/chi/v5"
 )
 
-var ErrInvalidForm = errors.New("invalid form")
+func (p *ProductHandler) RenderMultiSelectTables(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	sess := m.GetSessionFromContext(r)
 
-type priceTableDTO struct {
-	Name       string
-	Percentage float64
-}
-
-func formToPriceTable(r *http.Request) (*priceTableDTO, map[string]string) {
-	errs := make(map[string]string)
-
-	if err := r.ParseForm(); err != nil {
-		errs["tec"] = err.Error() // erro técnico
-		return nil, errs
-	}
-
-	name := r.FormValue("name")
-	if name == "" {
-		errs["name"] = fmt.Errorf("%w: nome vazio", ErrInvalidForm).Error()
-	}
-
-	percentageStr := r.FormValue("percentage")
-	percentage, err := strconv.ParseFloat(percentageStr, 64)
+	tables, err := p.priceTableStore.FindAllActiveByTenant(sess.TenantID)
 	if err != nil {
-		errs["percentage"] = fmt.Errorf("%w: percentage inválido", ErrInvalidForm).Error()
+		ShowToast(w, "Erro ao recuperar dados", "error")
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
 	}
 
-	if percentage < 0 {
-		errs["percentage"] = fmt.Errorf("%w: percentage negativo", ErrInvalidForm).Error()
+	values := make([]components.MultiSelectOption, 0, len(tables))
+	for _, table := range tables {
+		values = append(values, components.MultiSelectOption{
+			Value: strconv.Itoa(int(table.ID)),
+			Label: table.Name,
+		})
 	}
 
-	return &priceTableDTO{
-		Name:       name,
-		Percentage: percentage,
-	}, errs
+	var selected_tables []string
+	// limpa o elemento vazio
+	if selectedParam := r.URL.Query().Get("selected_tables"); selectedParam != "" {
+		selected_tables = strings.Split(selectedParam, ",")
+	}
+	componentParams := components.MultiSelectParams{
+		Placeholder: "Selecione uma ou mais tabelas",
+		Label:       "Tabelas de Preço",
+		Name:        "price_table",
+		Selected:    selected_tables,
+		Options:     values,
+	}
 
+	Render(components.MultiSelect(componentParams), r, w)
 }
 
 func (p *ProductHandler) GetTablePage(w http.ResponseWriter, r *http.Request) {
@@ -63,7 +62,10 @@ func (p *ProductHandler) GetTablePage(w http.ResponseWriter, r *http.Request) {
 	Render(templates.PriceTablePage(tables), r, w)
 }
 
-func (p *ProductHandler) CreatePriceTable(w http.ResponseWriter, r *http.Request) {
+func (p *ProductHandler) CreatePriceTable(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	sess := m.GetSessionFromContext(r)
 
 	dto, errorMap := formToPriceTable(r)
@@ -102,7 +104,10 @@ func (p *ProductHandler) CreatePriceTable(w http.ResponseWriter, r *http.Request
 	templates.TableRow(table).Render(r.Context(), w)
 }
 
-func (p *ProductHandler) DeletePriceTable(w http.ResponseWriter, r *http.Request) {
+func (p *ProductHandler) DeletePriceTable(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
 	sess := m.GetSessionFromContext(r)
 
 	idStr := chi.URLParam(r, "id")
@@ -118,7 +123,11 @@ func (p *ProductHandler) DeletePriceTable(w http.ResponseWriter, r *http.Request
 		return
 	}
 	if hasContacts {
-		ShowToast(w, "Tabela possui clientes vinculados e não pode ser excluída", "error")
+		ShowToast(
+			w,
+			"Tabela possui clientes vinculados e não pode ser excluída",
+			"error",
+		)
 		return
 	}
 
@@ -130,4 +139,5 @@ func (p *ProductHandler) DeletePriceTable(w http.ResponseWriter, r *http.Request
 	ShowToast(w, "Tabela excluída", "success")
 	w.Header().Set("HX-Trigger", `{"priceTableDeleted": {}}`)
 	w.WriteHeader(http.StatusOK)
+
 }

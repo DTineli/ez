@@ -238,7 +238,7 @@ func TestPostRegisterClient_UsuarioNovo_Sucesso(t *testing.T) {
 	}
 	cs := &mockContactStore{
 		getOne: func(id uint) (*store.Contact, error) {
-			return &store.Contact{ID: id, TenantID: 1, PriceTableID: 2}, nil
+			return &store.Contact{ID: id, TenantID: 1}, nil
 		},
 	}
 	h := newRegisterHandler(us, nil, nil, cs, nil)
@@ -272,7 +272,7 @@ func TestPostRegisterClient_UsuarioExistente_Sucesso(t *testing.T) {
 	}
 	cs := &mockContactStore{
 		getOne: func(id uint) (*store.Contact, error) {
-			return &store.Contact{ID: id, TenantID: 1, PriceTableID: 2}, nil
+			return &store.Contact{ID: id, TenantID: 1}, nil
 		},
 	}
 	h := newRegisterHandler(us, nil, nil, cs, nil)

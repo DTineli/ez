@@ -24,13 +24,13 @@ type ContactFilters struct {
 
 type Contact struct {
 	ID          uint        `gorm:"primaryKey" json:"id"`
-	Name        string      `json:"name"`
-	TradeName   string      `json:"trade_name"`
-	ContactType ContactType `json:"contact_type"`
+	Name        string      `                  json:"name"`
+	TradeName   string      `                  json:"trade_name"`
+	ContactType ContactType `                  json:"contact_type"`
 
-	DocumentType string `gorm:"type:varchar(12);default:'p_juridica'" json:"document_type"`
+	DocumentType string `gorm:"type:varchar(12);default:'p_juridica'"                                 json:"document_type"`
 	Document     string `gorm:"type:varchar(50);not null;index:idx_tenant_document,unique,priority:2" json:"document"`
-	IE           string `gorm:"type:varchar(20)" json:"ie"`
+	IE           string `gorm:"type:varchar(20)"                                                      json:"ie"`
 
 	Email string `json:"email"`
 	Phone string `json:"phone"`
@@ -38,15 +38,15 @@ type Contact struct {
 	InviteLink string
 
 	// Endereço completo
-	ZipCode      string `gorm:"type:varchar(20)" json:"zipcode"`
+	ZipCode      string `gorm:"type:varchar(20)"  json:"zipcode"`
 	Street       string `gorm:"type:varchar(100)" json:"street"`
-	Number       string `gorm:"type:varchar(20)" json:"number"`
-	Complement   string `gorm:"type:varchar(50)" json:"complement"`
-	Neighborhood string `gorm:"type:varchar(50)" json:"neighborhood"`
-	City         string `gorm:"type:varchar(50)" json:"city"`
-	UF           string `gorm:"type:varchar(2)" json:"uf"` // Estado sigla
+	Number       string `gorm:"type:varchar(20)"  json:"number"`
+	Complement   string `gorm:"type:varchar(50)"  json:"complement"`
+	Neighborhood string `gorm:"type:varchar(50)"  json:"neighborhood"`
+	City         string `gorm:"type:varchar(50)"  json:"city"`
+	UF           string `gorm:"type:varchar(2)"   json:"uf"` // Estado sigla
 
-	PriceTableID uint `gorm:"type:int" json:"price_table"`
+	PriceTables []PriceTable `gorm:"many2many:contact_price_tables;" json:"price_tables"`
 
 	UserID   *uint
 	User     *User
@@ -58,5 +58,6 @@ type ContactStore interface {
 	FindAll(uint, ContactFilters) (*FindResults[Contact], error)
 	GetOne(uint) (*Contact, error)
 	UpdateById(id, tenantID uint, fields map[string]any) error
+	FindContactPriceTables(contactID, tenantID uint) ([]PriceTable, error)
 	// GetOneByPhone(phone string) (*Contact, error)
 }

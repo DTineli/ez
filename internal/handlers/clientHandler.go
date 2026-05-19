@@ -9,7 +9,7 @@ import (
 	"github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
-	"github.com/a-h/templ"
+	"github.com/DTineli/ez/internal/templates/components"
 	"gorm.io/gorm"
 )
 
@@ -19,6 +19,7 @@ type ClientHandler struct {
 	orderStore      store.OrderStore
 	sessionStore    store.SessionStore
 	priceTableStore store.PriceTableStore
+	contactStore    store.ContactStore
 }
 
 func NewClientHandler(
@@ -27,6 +28,7 @@ func NewClientHandler(
 	oStore store.OrderStore,
 	sStore store.SessionStore,
 	ptStore store.PriceTableStore,
+	ccStore store.ContactStore,
 ) *ClientHandler {
 	return &ClientHandler{
 		productStore:    pStore,
@@ -34,136 +36,24 @@ func NewClientHandler(
 		orderStore:      oStore,
 		sessionStore:    sStore,
 		priceTableStore: ptStore,
+		contactStore:    ccStore,
 	}
 }
 
-func RenderClientWithLayout(
-	c templ.Component,
-	w http.ResponseWriter,
-	r *http.Request,
-	cartCount int64,
-	activeTab string,
-) error {
-	if r.Header.Get("HX-Request") == "true" {
-		return c.Render(r.Context(), w)
-	}
-
-	return templates.
-		Layout_Client(c, cartCount, activeTab).
-		Render(r.Context(), w)
-}
-
-func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
-	sess := middleware.GetSessionFromContext(r)
-	isHX := r.Header.Get("HX-Request") == "true"
-	const perPage = 9
-
-	page := 1
-	if p := r.URL.Query().Get("page"); p != "" {
-		if parsed, err := strconv.Atoi(p); err == nil && parsed > 0 {
-			page = parsed
-		}
-	}
-
-	query := r.URL.Query().Get("q")
-
-	products, err := c.productStore.FindAllByUserWithFilters(
-		sess.TenantID,
-		store.ProductFilters{
-			Page:    page,
-			PerPage: perPage,
-			Search:  query,
-		},
-	)
-	if err != nil {
-		ShowToast(w, "Erro ao buscar produtos", "error")
-		return
-	}
-
-	priceTable, err := c.priceTableStore.GetOne(
-		sess.ContactInfo.PriceTable,
-		sess.TenantID,
-	)
-	if err != nil {
-		http.Error(
-			w,
-			"Tabela de preço não encontrada. Contate o administrador.",
-			http.StatusUnprocessableEntity,
-		)
-		return
-	}
-
-	var cards []store.CardData
-	for _, p := range products.Results {
-
-		variants := make([]store.VariantData, 0, len(p.Variants))
-		for _, v := range p.Variants {
-			vPrice := v.CostPrice * (1 + priceTable.Percentage/100)
-
-			attrs := make([]store.AttrData, 0, len(v.Attributes))
-			for _, a := range v.Attributes {
-				attrs = append(attrs, store.AttrData{
-					Name:  a.AttributeValue.Attribute.Name,
-					Value: a.AttributeValue.Value,
-				})
-			}
-
-			variants = append(variants, store.VariantData{
-				ID:        v.ID,
-				Price:     vPrice,
-				IsDefault: v.IsDefault,
-				Attrs:     attrs,
-			})
-		}
-
-		cards = append(cards, store.CardData{
-			ID:       p.ID,
-			Name:     p.Name,
-			Variants: variants,
-		})
-	}
-
-	totalPages := int(math.Ceil(float64(products.Count) / float64(perPage)))
-	nextPage := 0
-	if page < totalPages {
-		nextPage = page + 1
-	}
-
-	// HTMX: scroll infinito (page > 1) → só o chunk; busca (page == 1) → conteúdo do grid
-	if isHX {
-		_ = templates.ClientProductsChunk(cards, nextPage, query).
-			Render(r.Context(), w)
-		return
-	}
-
-	cartCount := int64(0)
-	if sess.CartID != 0 {
-		if total, err := c.cartStore.CountItems(sess.CartID); err == nil {
-			cartCount = total
-		}
-	}
-
-	RenderClientWithLayout(
-		templates.ClientProductsPage(cards, nextPage, query),
-		w,
-		r,
-		cartCount,
-		"produtos",
-	)
-}
-
-func (c *ClientHandler) GetCheckoutPage(
+func (c *ClientHandler) RenderCheckoutContent(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
 	sess := middleware.GetSessionFromContext(r)
 
-	cartCount := int64(0)
 	items := []store.CartCheckoutItem{}
 	totalAmount := 0.0
 
 	var openCart *store.Cart
 	var err error
+
+	// buscar tabela no banco
+	price_tableID := queryParamUintOrZero(r, "price_table")
 
 	if sess.CartID != 0 {
 		openCart, err = c.cartStore.FindOpenByID(
@@ -191,26 +81,211 @@ func (c *ClientHandler) GetCheckoutPage(
 	}
 
 	if openCart != nil {
-		if total, err := c.cartStore.CountItems(openCart.ID); err == nil {
-			cartCount = total
-		}
-
 		items, err = c.cartStore.ListCheckoutItems(openCart.ID, sess.TenantID)
+
 		if err != nil {
 			ShowToast(w, "Erro ao carregar itens", "error")
 			return
 		}
 
-		for _, item := range items {
-			totalAmount += item.Subtotal
+		var pt *store.PriceTable
+		if price_tableID != 0 {
+			fetched, err := c.priceTableStore.GetOne(uint(price_tableID), sess.TenantID)
+			if err == nil {
+				pt = fetched
+			}
+		}
+
+		for i := range items {
+			items[i].UnitPrice = applyCheckoutPrice(items[i].CostPrice, pt)
+			items[i].Subtotal = items[i].UnitPrice * float64(items[i].Quantity)
+			totalAmount += items[i].Subtotal
 		}
 	}
 
+	showPrice := price_tableID != 0
+	Render(templates.ClientCartContent(items, totalAmount, showPrice), r, w)
+}
+
+func (c *ClientHandler) RenderSelectTableByClient(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	sess := middleware.GetSessionFromContext(r)
+
+	tables, err := c.contactStore.FindContactPriceTables(
+		sess.ContactInfo.ID,
+		sess.TenantID,
+	)
+
+	if err != nil {
+		ShowToast(w, "Erro ao recuperar dados", "error")
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	options := make([]components.SelectOption, 0, len(tables))
+	for _, table := range tables {
+		options = append(options, components.SelectOption{
+			Value: strconv.Itoa(int(table.ID)),
+			Label: table.Name,
+		})
+	}
+
+	Render(components.Select(components.SelectParams{
+		Placeholder: "Selecione uma tabela",
+		Label:       "Tabela de Preço",
+		Name:        "price_table",
+		Selected:    r.URL.Query().Get("selected"),
+		Options:     options,
+	}), r, w)
+}
+
+func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
+	sess := middleware.GetSessionFromContext(r)
+	query := r.URL.Query().Get("q")
+
+	tables, err := c.contactStore.FindContactPriceTables(
+		sess.ContactInfo.ID,
+		sess.TenantID,
+	)
+	if err != nil {
+		ShowToast(w, "Erro ao recuperar tabelas", "error")
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	options := make([]components.SelectOption, 0, len(tables))
+	for _, t := range tables {
+		options = append(options, components.SelectOption{
+			Value: strconv.Itoa(int(t.ID)),
+			Label: t.Name,
+		})
+	}
+
+	selectParams := components.SelectParams{
+		Placeholder: "Selecione uma tabela",
+		Label:       "Tabela de Preço",
+		Name:        "price_table",
+		Options:     options,
+	}
+
 	RenderClientWithLayout(
-		templates.ClientCheckoutPage(items, totalAmount),
+		templates.ClientProductsPage(query, selectParams),
 		w,
 		r,
-		cartCount,
+		c.getCartCount(sess),
+		"produtos",
+	)
+
+}
+
+func (c *ClientHandler) FetchItems(w http.ResponseWriter, r *http.Request) {
+	sess := middleware.GetSessionFromContext(r)
+	const perPage = 9
+
+	page := 1
+	if p := r.URL.Query().Get("page"); p != "" {
+		if parsed, err := strconv.Atoi(p); err == nil && parsed > 0 {
+			page = parsed
+		}
+	}
+
+	query := r.URL.Query().Get("q")
+	priceTable, ok := parseQueryParamUint(
+		w,
+		r,
+		"price_table",
+		"Selecione uma tabela de preço",
+	)
+	if !ok {
+		return
+	}
+
+	products, err := c.productStore.FindAllByUserWithFilters(
+		sess.TenantID,
+		store.ProductFilters{
+			Page:    page,
+			PerPage: perPage,
+			Search:  query,
+		},
+	)
+	if err != nil {
+		ShowToast(w, "Erro ao buscar produtos", "error")
+		return
+	}
+
+	prices, err := c.priceTableStore.GetOne(
+		uint(priceTable),
+		sess.TenantID,
+	)
+	if err != nil {
+		http.Error(
+			w,
+			"Tabela de preço não encontrada. Contate o administrador.",
+			http.StatusUnprocessableEntity,
+		)
+		return
+	}
+
+	cards := makeCardData(products.Results, *prices)
+	nextPage := 0
+	totalPages := int(math.Ceil(float64(products.Count) / float64(perPage)))
+	if page < totalPages {
+		nextPage = page + 1
+	}
+
+	RenderClientWithLayout(
+		templates.ClientProductsChunk(cards, nextPage, query),
+		w,
+		r,
+		c.getCartCount(sess),
+		"produtos",
+	)
+}
+
+func (c *ClientHandler) GetCheckoutPage(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	sess := middleware.GetSessionFromContext(r)
+
+	RenderClientWithLayout(
+		templates.ClientCheckoutPage(c.getCartCount(sess) == 0),
+		w,
+		r,
+		c.getCartCount(sess),
 		"carrinho",
 	)
+}
+
+func makeCardData(
+	products []store.Product,
+	table store.PriceTable,
+) []store.CardData {
+	cards := make([]store.CardData, 0, len(products))
+	for _, p := range products {
+		variants := make([]store.VariantData, 0, len(p.Variants))
+		for _, v := range p.Variants {
+			attrs := make([]store.AttrData, 0, len(v.Attributes))
+			for _, a := range v.Attributes {
+				attrs = append(attrs, store.AttrData{
+					Name:  a.AttributeValue.Attribute.Name,
+					Value: a.AttributeValue.Value,
+				})
+			}
+			variants = append(variants, store.VariantData{
+				ID:        v.ID,
+				Price:     applyPrice(table, v),
+				IsDefault: v.IsDefault,
+				Attrs:     attrs,
+			})
+		}
+		cards = append(cards, store.CardData{
+			ID:       p.ID,
+			Name:     p.Name,
+			Variants: variants,
+		})
+	}
+	return cards
 }

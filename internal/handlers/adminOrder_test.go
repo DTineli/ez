@@ -14,7 +14,7 @@ import (
 // --- mocks ---
 
 type mockOrderStore struct {
-	confirmFromCart func(cartID, tenantID, contactID uint) (*store.Order, error)
+	confirmFromCart func(cartID, tenantID, contactID, priceTableID uint) (*store.Order, error)
 	listByTenant    func(tenantID uint) ([]store.AdminOrderListItem, error)
 	listByContact   func(tenantID, contactID uint) ([]store.ClientOrderListItem, error)
 	getByID         func(id, tenantID uint) (*store.OrderDetail, error)
@@ -22,10 +22,10 @@ type mockOrderStore struct {
 }
 
 func (s *mockOrderStore) ConfirmFromCart(
-	cartID, tenantID, contactID uint,
+	cartID, tenantID, contactID, priceTableID uint,
 ) (*store.Order, error) {
 	if s.confirmFromCart != nil {
-		return s.confirmFromCart(cartID, tenantID, contactID)
+		return s.confirmFromCart(cartID, tenantID, contactID, priceTableID)
 	}
 	return &store.Order{}, nil
 }

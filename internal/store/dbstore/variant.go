@@ -27,6 +27,17 @@ func (p *ProductStore) GetVariant(
 	return &variant, nil
 }
 
+func (p *ProductStore) GetVariantForCart(variantID, productID, tenantID uint) (*store.Variant, error) {
+	var v store.Variant
+	err := p.db.
+		Where("id = ? AND product_id = ? AND tenant_id = ?", variantID, productID, tenantID).
+		First(&v).Error
+	if err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
 func (p *ProductStore) FindVariantsByProduct(
 	productID uint,
 	tenantID uint,

@@ -72,7 +72,9 @@ func main() {
 		invite,
 		contactStore,
 		clientSessionStore)
+
 	productHandler := handlers.NewProductHandler(pStore, priceTableStore)
+
 	contactHandler := handlers.NewContactHandler(
 		handlers.NewContactHandlerParams{
 			Contact:    contactStore,
@@ -86,6 +88,7 @@ func main() {
 		orderStore,
 		clientSessionStore,
 		priceTableStore,
+		contactStore,
 	)
 	adminOrderHandler := handlers.NewAdminOrderHandler(
 		orderStore,
@@ -187,6 +190,7 @@ func registerClientRoutes(
 
 			r.Post("/logout", login.PostLogout)
 			r.Get("/items", client.GetItemsPage)
+			r.Get("/items/fetch", client.FetchItems)
 			r.Get("/confirmacao", client.GetCheckoutPage)
 			r.Post("/cart/items", client.PostAddToCart)
 			r.Delete(
@@ -200,6 +204,12 @@ func registerClientRoutes(
 			r.Post("/confirmacao", client.PostConfirmOrder)
 			r.Get("/pedidos", client.GetOrdersPage)
 			r.Get("/pedidos/{id}", client.GetOrderDetail)
+
+			r.Route("/components", func(r chi.Router) {
+				r.Get("/price-tables", client.RenderSelectTableByClient)
+				r.Get("/cart-content", client.RenderCheckoutContent)
+			})
+
 		})
 	})
 }
@@ -228,6 +238,10 @@ func registerAdminRoutes(
 
 			r.Get("/", handlers.NewHomeHandler(sessionStore).ServeHTTP)
 
+			r.Route("/components", func(r chi.Router) {
+				r.Get("/price-tables", product.RenderMultiSelectTables)
+			})
+
 			r.Route("/produtos", func(r chi.Router) {
 				r.Get("/", product.GetProductPage)
 				r.Get("/novo", product.GetProductForm)
@@ -246,10 +260,12 @@ func registerAdminRoutes(
 					r.Post("/{variantID}", product.UpdateVariant)
 					r.Delete("/{variantID}", product.DeleteVariant)
 				})
+			})
 
-				r.Get("/pricetable", product.GetTablePage)
-				r.Post("/pricetable", product.CreatePriceTable)
-				r.Delete("/pricetable/{id}", product.DeletePriceTable)
+			r.Route("/pricetable", func(r chi.Router) {
+				r.Get("/", product.GetTablePage)
+				r.Post("/", product.CreatePriceTable)
+				r.Delete("/{id}", product.DeletePriceTable)
 			})
 
 			r.Route("/atributos", func(r chi.Router) {

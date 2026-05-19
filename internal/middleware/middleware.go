@@ -12,6 +12,10 @@ func GetSessionFromContext(r *http.Request) *store.Session {
 	return r.Context().Value(SessionInfoKey).(*store.Session)
 }
 
+func ResolveSlug(r *http.Request) {
+
+}
+
 func parseUrl(url string) store.AccessType {
 	if strings.HasPrefix(url, "/admin") {
 		return store.AccessAdmin
@@ -20,7 +24,11 @@ func parseUrl(url string) store.AccessType {
 	return store.AccessCustomer
 }
 
-func redirectTo(w http.ResponseWriter, r *http.Request, ambiente store.AccessType) {
+func redirectTo(
+	w http.ResponseWriter,
+	r *http.Request,
+	ambiente store.AccessType,
+) {
 	if ambiente == store.AccessCustomer {
 		http.Redirect(w, r, "/client/login", http.StatusFound)
 	} else {
@@ -28,7 +36,9 @@ func redirectTo(w http.ResponseWriter, r *http.Request, ambiente store.AccessTyp
 	}
 }
 
-func SessionAuthMiddleware(sessionStore store.SessionStore) func(http.Handler) http.Handler {
+func SessionAuthMiddleware(
+	sessionStore store.SessionStore,
+) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			sess, err := sessionStore.GetSessionInfo(r)

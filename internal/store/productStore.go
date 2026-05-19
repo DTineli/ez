@@ -157,6 +157,10 @@ type ProductPrice struct {
 type PriceTableStore interface {
 	CreatePriceTable(*PriceTable) error
 	FindAllByTenant(id uint) ([]PriceTable, error)
+	FindAllActiveByTenant(id uint) ([]PriceTable, error)
+	FindAllActiveByTenantAndClient(
+		tenantID, clientID uint,
+	) ([]PriceTable, error)
 	GetOne(id uint, tenantID uint) (*PriceTable, error)
 	HasContacts(priceTableID, tenantID uint) (bool, error)
 	Delete(id, tenantID uint) error
@@ -187,6 +191,7 @@ type ProductStore interface {
 	// Variant
 	CreateVariant(*Variant) error
 	GetVariant(id uint, tenantID uint) (*Variant, error)
+	GetVariantForCart(variantID, productID, tenantID uint) (*Variant, error)
 	FindVariantsByProduct(productID uint, tenantID uint) ([]Variant, error)
 	UpdateVariantFields(id uint, tenantID uint, fields map[string]any) error
 	DeleteVariant(id uint, tenantID uint) error

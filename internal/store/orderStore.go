@@ -64,7 +64,7 @@ type ClientOrderListItem struct {
 }
 
 type OrderStore interface {
-	ConfirmFromCart(cartID, tenantID, contactID uint) (*Order, error)
+	ConfirmFromCart(cartID, tenantID, contactID, priceTableID uint) (*Order, error)
 	ListByTenant(tenantID uint) ([]AdminOrderListItem, error)
 	ListByContact(tenantID, contactID uint) ([]ClientOrderListItem, error)
 	GetByID(id, tenantID uint) (*OrderDetail, error)

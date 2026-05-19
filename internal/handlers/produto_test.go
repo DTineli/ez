@@ -84,6 +84,10 @@ func (s *mockProductStore) GetVariant(id, tenantID uint) (*store.Variant, error)
 	}
 	return &store.Variant{ID: id, SKU: "VAR-01", TenantID: tenantID}, nil
 }
+func (s *mockProductStore) GetVariantForCart(variantID, productID, tenantID uint) (*store.Variant, error) {
+	return &store.Variant{ID: variantID, ProductID: productID, TenantID: tenantID}, nil
+}
+
 func (s *mockProductStore) FindVariantsByProduct(productID, tenantID uint) ([]store.Variant, error) {
 	if s.findVariantsByProduct != nil {
 		return s.findVariantsByProduct(productID, tenantID)
@@ -166,8 +170,14 @@ func (s *mockProductStore) RecalcularStatusProduto(productID, tenantID uint) err
 
 type mockPriceTableStore struct{}
 
-func (s *mockPriceTableStore) CreatePriceTable(p *store.PriceTable) error  { return nil }
+func (s *mockPriceTableStore) CreatePriceTable(p *store.PriceTable) error { return nil }
 func (s *mockPriceTableStore) FindAllByTenant(id uint) ([]store.PriceTable, error) {
+	return nil, nil
+}
+func (s *mockPriceTableStore) FindAllActiveByTenant(id uint) ([]store.PriceTable, error) {
+	return nil, nil
+}
+func (s *mockPriceTableStore) FindAllActiveByTenantAndClient(tenantID, clientID uint) ([]store.PriceTable, error) {
 	return nil, nil
 }
 func (s *mockPriceTableStore) GetOne(id, tenantID uint) (*store.PriceTable, error) {
