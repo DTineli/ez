@@ -119,7 +119,7 @@ func (c *CartStore) ListCheckoutItems(
 		Joins("LEFT JOIN variant_attributes va ON va.variant_id = ci.variant_id").
 		Joins("LEFT JOIN attribute_values av ON av.id = va.attribute_value_id").
 		Where("ci.cart_id = ? AND p.tenant_id = ?", cartID, tenantID).
-		Group("ci.id").
+		Group("ci.id, p.name").
 		Order("ci.id ASC").
 		Scan(&rows).Error
 	if err != nil {

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
 	"strconv"
@@ -90,7 +91,10 @@ func (c *ClientHandler) RenderCheckoutContent(
 
 		var pt *store.PriceTable
 		if price_tableID != 0 {
-			fetched, err := c.priceTableStore.GetOne(uint(price_tableID), sess.TenantID)
+			fetched, err := c.priceTableStore.GetOne(
+				uint(price_tableID),
+				sess.TenantID,
+			)
 			if err == nil {
 				pt = fetched
 			}
@@ -102,6 +106,8 @@ func (c *ClientHandler) RenderCheckoutContent(
 			totalAmount += items[i].Subtotal
 		}
 	}
+
+	fmt.Println(items)
 
 	showPrice := price_tableID != 0
 	Render(templates.ClientCartContent(items, totalAmount, showPrice), r, w)
