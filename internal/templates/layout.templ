@@ -79,6 +79,7 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 	<html lang="pt-BR" data-theme="light">
 		@header(title)
 		<body style="overflow:hidden;height:100vh;margin:0;padding:0;">
+			<div id="htmx-progress-bar"></div>
 			<div class="cs-shell" x-data={ xData }>
 				<!-- ═══ SIDEBAR ═══ -->
 				<aside class="cs-sidebar" :class="{ 'collapsed': collapsed }">
@@ -112,6 +113,7 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 							hx-target="#main-content"
 							hx-push-url="true"
 							hx-swap="innerHTML"
+							hx-indicator="#main-content"
 							@click="active = 'dashboard'"
 						>
 							<span class="cs-nav-item-icon">
@@ -130,6 +132,7 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 							hx-target="#main-content"
 							hx-push-url="true"
 							hx-swap="innerHTML"
+							hx-indicator="#main-content"
 							@click="active = 'orders'"
 						>
 							<span class="cs-nav-item-icon">
@@ -149,6 +152,7 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 							hx-target="#main-content"
 							hx-push-url="true"
 							hx-swap="innerHTML"
+							hx-indicator="#main-content"
 							@click="active = 'clients'"
 						>
 							<span class="cs-nav-item-icon">
@@ -168,6 +172,7 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 							hx-target="#main-content"
 							hx-push-url="true"
 							hx-swap="innerHTML"
+							hx-indicator="#main-content"
 							@click="active = 'products'"
 						>
 							<span class="cs-nav-item-icon">
@@ -184,6 +189,7 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 							hx-target="#main-content"
 							hx-push-url="true"
 							hx-swap="innerHTML"
+							hx-indicator="#main-content"
 							@click="active = 'attributes'"
 						>
 							<span class="cs-nav-item-icon">
@@ -200,6 +206,7 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 							hx-target="#main-content"
 							hx-push-url="true"
 							hx-swap="innerHTML"
+							hx-indicator="#main-content"
 							@click="active = 'priceTable'"
 						>
 							<span class="cs-nav-item-icon">
@@ -306,6 +313,19 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 			<div id="toast-container" class="fixed top-6 right-6 z-50 space-y-4 w-80"></div>
 		</body>
 		<script>
+			(function() {
+				const bar = document.getElementById('htmx-progress-bar');
+				document.addEventListener('htmx:beforeRequest', function() {
+					document.body.classList.remove('htmx-done');
+					document.body.classList.add('htmx-loading');
+				});
+				document.addEventListener('htmx:afterRequest', function() {
+					document.body.classList.remove('htmx-loading');
+					document.body.classList.add('htmx-done');
+					setTimeout(function() { document.body.classList.remove('htmx-done'); }, 500);
+				});
+			})();
+
 			document.body.addEventListener("showToast", function (event) {
 				const { type, message } = event.detail;
 				const container = document.getElementById("toast-container");
