@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -42,8 +43,14 @@ func SessionAuthMiddleware(
 			sess, err := sessionStore.GetSessionInfo(r)
 			ambiente := parseUrl(r.URL.Path)
 
+			slug := GetSlugFromContext(r)
+			if slug == "" {
+				http.Redirect(w, r, "/", http.StatusFound)
+				return
+			}
+
 			if err != nil {
-				redirectTo(w, r, ambiente)
+				http.Redirect(w, r, "/ops", http.StatusFound)
 				return
 			}
 
@@ -80,9 +87,12 @@ func redirectTo(
 	r *http.Request,
 	ambiente store.AccessType,
 ) {
-	if ambiente == store.AccessCustomer {
+	switch ambiente {
+	case store.AccessCustomer:
 		http.Redirect(w, r, "/client/login", http.StatusFound)
-	} else {
+	case store.AccessAdmin:
 		http.Redirect(w, r, "/admin/login", http.StatusFound)
+	default:
+		http.Redirect(w, r, "/", http.StatusFound)
 	}
 }

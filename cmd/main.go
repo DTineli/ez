@@ -102,9 +102,8 @@ func main() {
 	fileServer := http.FileServer(http.Dir("./static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/client/login", http.StatusFound)
-	})
+	r.Get("/", handlers.NewRootHandler().ServeHTTP)
+
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		backURL := "/"
 		if strings.HasPrefix(r.URL.Path, "/admin") {
