@@ -285,11 +285,13 @@ button.htmx-request::after {
 }
 
 /* Main content overlay during navigation */
-#main-content.htmx-request {
+#main-content.htmx-request,
+#client-content.htmx-request {
   opacity: 0.45;
   pointer-events: none;
   transition: opacity 0.15s ease;
 }
-#main-content {
+#main-content,
+#client-content {
   transition: opacity 0.1s ease;
 }
