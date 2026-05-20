@@ -123,12 +123,25 @@ templ Layout_Client(content templ.Component, cartCount int64, activeTab string) 
 	<html lang="pt-br">
 		@client_header("ez - client")
 		<body class="min-h-dvh bg-slate-50 text-on-surface font-body antialiased dark:bg-slate-950">
+			<div id="htmx-progress-bar"></div>
 			@client_topBar("Sistema", cartCount)
 			<main class="mx-auto w-full max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pt-8">
 				@content
 			</main>
 			@bottonNavBar(activeTab)
 			<script>
+				(function() {
+					document.addEventListener('htmx:beforeRequest', function() {
+						document.body.classList.remove('htmx-done');
+						document.body.classList.add('htmx-loading');
+					});
+					document.addEventListener('htmx:afterRequest', function() {
+						document.body.classList.remove('htmx-loading');
+						document.body.classList.add('htmx-done');
+						setTimeout(function() { document.body.classList.remove('htmx-done'); }, 500);
+					});
+				})();
+
 				document.body.addEventListener("cartCountUpdated", function (event) {
 					const badge = document.getElementById("cart-count-badge");
 					if (!badge) return;

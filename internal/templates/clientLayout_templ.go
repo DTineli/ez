@@ -252,7 +252,7 @@ func Layout_Client(content templ.Component, cartCount int64, activeTab string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<body class=\"min-h-dvh bg-slate-50 text-on-surface font-body antialiased dark:bg-slate-950\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<body class=\"min-h-dvh bg-slate-50 text-on-surface font-body antialiased dark:bg-slate-950\"><div id=\"htmx-progress-bar\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -276,7 +276,7 @@ func Layout_Client(content templ.Component, cartCount int64, activeTab string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<script>\n\t\t\t\tdocument.body.addEventListener(\"cartCountUpdated\", function (event) {\n\t\t\t\t\tconst badge = document.getElementById(\"cart-count-badge\");\n\t\t\t\t\tif (!badge) return;\n\t\t\t\t\tconst count = Number(event.detail?.count || 0);\n\t\t\t\t\tbadge.textContent = String(count);\n\t\t\t\t\tif (count > 0) {\n\t\t\t\t\t\tbadge.classList.remove(\"hidden\");\n\t\t\t\t\t} else {\n\t\t\t\t\t\tbadge.classList.add(\"hidden\");\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t</script></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<script>\n\t\t\t\t(function() {\n\t\t\t\t\tdocument.addEventListener('htmx:beforeRequest', function() {\n\t\t\t\t\t\tdocument.body.classList.remove('htmx-done');\n\t\t\t\t\t\tdocument.body.classList.add('htmx-loading');\n\t\t\t\t\t});\n\t\t\t\t\tdocument.addEventListener('htmx:afterRequest', function() {\n\t\t\t\t\t\tdocument.body.classList.remove('htmx-loading');\n\t\t\t\t\t\tdocument.body.classList.add('htmx-done');\n\t\t\t\t\t\tsetTimeout(function() { document.body.classList.remove('htmx-done'); }, 500);\n\t\t\t\t\t});\n\t\t\t\t})();\n\n\t\t\t\tdocument.body.addEventListener(\"cartCountUpdated\", function (event) {\n\t\t\t\t\tconst badge = document.getElementById(\"cart-count-badge\");\n\t\t\t\t\tif (!badge) return;\n\t\t\t\t\tconst count = Number(event.detail?.count || 0);\n\t\t\t\t\tbadge.textContent = String(count);\n\t\t\t\t\tif (count > 0) {\n\t\t\t\t\t\tbadge.classList.remove(\"hidden\");\n\t\t\t\t\t} else {\n\t\t\t\t\t\tbadge.classList.add(\"hidden\");\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
