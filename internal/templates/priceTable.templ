@@ -13,7 +13,7 @@ templ PriceTableForm(errors map[string]string) {
 			<div class="p-6">
 				<h2 class="text-base font-bold mb-4">Nova Tabela de Preço</h2>
 				<form
-					hx-post="/admin/produtos/pricetable"
+					hx-post="/admin/pricetable"
 					hx-target="#table-body"
 					hx-swap="beforebegin"
 					hx-on::after-request="if(event.detail.successful) this.reset()"
@@ -42,11 +42,13 @@ templ PriceTableForm(errors map[string]string) {
 						<label class="flex items-center gap-2 py-1">
 							<span class="text-sm font-medium">Margem (%) <span class="text-red-600">*</span></span>
 						</label>
-						<div class={
-							"flex items-center gap-1 border rounded-field bg-white px-3 py-1.5 text-sm",
-							templ.KV("border-red-600", errors["percentage"] != ""),
-							templ.KV("border-gray-300", errors["percentage"] == ""),
-						}>
+						<div
+							class={
+								"flex items-center gap-1 border rounded-field bg-white px-3 py-1.5 text-sm",
+								templ.KV("border-red-600", errors["percentage"] != ""),
+								templ.KV("border-gray-300", errors["percentage"] == ""),
+							}
+						>
 							<input
 								name="percentage"
 								type="number"
@@ -87,10 +89,15 @@ templ TableRow(table store.PriceTable) {
 		</td>
 		<td class="px-4 py-3">
 			<div class="flex justify-center gap-2">
-				<button type="button" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs">Editar</button>
 				<button
 					type="button"
-					hx-delete={ fmt.Sprintf("/admin/produtos/pricetable/%d", table.ID) }
+					class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs"
+				>
+					Editar
+				</button>
+				<button
+					type="button"
+					hx-delete={ fmt.Sprintf("/admin/pricetable/%d", table.ID) }
 					hx-target={ fmt.Sprintf("#pricetable-row-%d", table.ID) }
 					hx-swap="delete"
 					hx-confirm={ fmt.Sprintf("Excluir a tabela \"%s\"? Esta ação não pode ser desfeita.", table.Name) }

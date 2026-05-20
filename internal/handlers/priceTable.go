@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -69,6 +70,9 @@ func (p *ProductHandler) CreatePriceTable(
 	sess := m.GetSessionFromContext(r)
 
 	dto, errorMap := formToPriceTable(r)
+
+	fmt.Println("VAI CORINTHIANS")
+	fmt.Println(errorMap)
 
 	if len(errorMap) > 0 {
 		w.Header().Set("HX-Retarget", "#price-table-form")

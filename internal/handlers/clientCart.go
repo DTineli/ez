@@ -41,6 +41,7 @@ func (c *ClientHandler) PostAddToCart(w http.ResponseWriter, r *http.Request) {
 		uint(productID),
 		sess.TenantID,
 	)
+
 	if err != nil {
 		ShowToast(w, "Produto ou variacao invalida", "error")
 		return

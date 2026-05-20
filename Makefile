@@ -30,7 +30,7 @@ templ-generate:
 	
 .PHONY: dev
 dev:
-	go build -o ./tmp/main ./cmd/main.go && air
+	set -a && . ./.env && set +a && go build -o ./tmp/main ./cmd/main.go && air
 
 .PHONY: build
 build:

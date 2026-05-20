@@ -67,8 +67,7 @@ func (c *CartStore) AddOrIncrementItem(
 			First(&item).
 			Error
 		if err == nil {
-			return tx.Model(&store.CartItem{}).
-				Where("id = ?", item.ID).
+			return tx.Model(&item).
 				Update("quantity", item.Quantity+quantity).Error
 		}
 
@@ -115,12 +114,12 @@ func (c *CartStore) ListCheckoutItems(
 	var rows []checkoutRow
 	err := c.db.
 		Table("cart_items ci").
-		Select("ci.id, ci.product_id, p.name, ci.quantity, ci.cost_price, ci.variant_id, GROUP_CONCAT(av.value, ' / ') as variant_label").
+		Select("ci.id, ci.product_id, p.name, ci.quantity, ci.cost_price, ci.variant_id, STRING_AGG(av.value, ' / ') as variant_label").
 		Joins("JOIN products p ON p.id = ci.product_id").
 		Joins("LEFT JOIN variant_attributes va ON va.variant_id = ci.variant_id").
 		Joins("LEFT JOIN attribute_values av ON av.id = va.attribute_value_id").
 		Where("ci.cart_id = ? AND p.tenant_id = ?", cartID, tenantID).
-		Group("ci.id").
+		Group("ci.id, p.name").
 		Order("ci.id ASC").
 		Scan(&rows).Error
 	if err != nil {

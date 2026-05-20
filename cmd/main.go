@@ -39,7 +39,10 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	cfg := config.MustLoadConfig()
 
-	db := database.MustOpen(cfg.DatabaseName)
+	db := database.MustOpen(cfg.ActiveDatabaseURL())
+	if !cfg.SkipMigrate {
+		database.MustMigrate(db)
+	}
 
 	// stores
 	userStore := dbstore.NewUserStore(db)
@@ -189,10 +192,11 @@ func registerClientRoutes(
 			r.Use(m.SessionAuthMiddleware(sessionStore))
 
 			r.Post("/logout", login.PostLogout)
+
+			// TELA DE PRODUTOS
 			r.Get("/items", client.GetItemsPage)
 			r.Get("/items/fetch", client.FetchItems)
-			r.Get("/confirmacao", client.GetCheckoutPage)
-			r.Post("/cart/items", client.PostAddToCart)
+
 			r.Delete(
 				"/cart/items/{productID}/{variantID}",
 				client.DeleteCartItem,
@@ -201,7 +205,14 @@ func registerClientRoutes(
 				"/cart/items/{productID}/{variantID}",
 				client.PatchCartItemQty,
 			)
+
+			// ADICIONA NO CARRINHO
+			r.Post("/cart/items", client.PostAddToCart)
+
+			//TELA DE CHECKOUT VULGO CARRINHO
+			r.Get("/confirmacao", client.GetCheckoutPage)
 			r.Post("/confirmacao", client.PostConfirmOrder)
+
 			r.Get("/pedidos", client.GetOrdersPage)
 			r.Get("/pedidos/{id}", client.GetOrderDetail)
 

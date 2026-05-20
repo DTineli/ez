@@ -41,5 +41,19 @@ Cookies: `ez_admin_session`, `ez_client_session`. Secret hardcoded `"VERYSECRETK
 ## UI
 Templ + HTMX (partial updates, `HX-Redirect` after POSTs). Tailwind CLI only — no npm.
 
+## Pricing Rules
+- Price stored in cart = **cost price** (base for calculation)
+- Final price calculated at checkout (`POST /client/confirmacao`)
+- Client selects price table → system applies multiplier → order saved with final price
+- Never use cart price as sale price; always recalculate at confirmation
+
 ## Env Defaults
 `PORT=:4000` · `DATABASE_NAME=ez.db` · `SESSION_COOKIE_NAME=session`
+
+## Migrations
+`SKIP_MIGRATE=true` no env dev — evita AutoMigrate a cada restart do Air.
+**Tabela não reflete struct?** Roda uma vez sem o flag:
+```bash
+SKIP_MIGRATE=false go run ./cmd/main.go
+```
+Toda nova struct com tags gorm deve ser adicionada ao `MustMigrate` em `internal/store/db/db.go`.
