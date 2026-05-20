@@ -31,20 +31,20 @@ func client_header(title string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<head><title>SistemName - ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<head><title>ConnSale - ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 7, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 7, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><meta charset=\"UTF-8\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"/static/script/response-targets.js\"></script><link rel=\"stylesheet\" href=\"/static/css/style.min.css\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><!-- Alpine Plugins --><script defer src=\"https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js\"></script><!-- Alpine Core --><script defer src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js\"></script><link href=\"https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap\" rel=\"stylesheet\"><link href=\"https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block\" rel=\"stylesheet\"><style>\n        .material-symbols-outlined {\n            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;\n        }\n        .glass-fab {\n            background: rgba(243, 244, 245, 0.8);\n            backdrop-filter: blur(20px);\n        }\n    </style><style>\n    body {\n      min-height: max(884px, 100dvh);\n    }\n    [x-cloak] { display: none !important; }\n  </style></head>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</title><meta charset=\"UTF-8\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"/static/script/response-targets.js\"></script><link rel=\"stylesheet\" href=\"/static/css/style.min.css\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><!-- Alpine Plugins --><script defer src=\"https://cdn.jsdelivr.net/npm/@alpinejs/mask@3.x.x/dist/cdn.min.js\"></script><!-- Alpine Core --><script defer src=\"https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js\"></script><link href=\"https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap\" rel=\"stylesheet\"><style>\n        [x-cloak] { display: none !important; }\n        body { min-height: max(884px, 100dvh); }\n    </style></head>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -52,7 +52,7 @@ func client_header(title string) templ.Component {
 	})
 }
 
-func client_topBar(titulo string, cartCount int64) templ.Component {
+func client_topBar(cartCount int64) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -73,48 +73,35 @@ func client_topBar(titulo string, cartCount int64) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<header class=\"sticky top-0 z-40 w-full border-b border-slate-200/60 bg-white/85 backdrop-blur-lg dark:border-slate-700/60 dark:bg-slate-900/85\"><div class=\"mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6\"><!-- esquerda --><button type=\"button\" hx-post=\"/client/logout\" hx-swap=\"none\" class=\"flex items-center justify-center text-slate-400 transition hover:text-red-500 active:scale-95\" title=\"Sair\"><span class=\"material-symbols-outlined\">logout</span></button><!-- titulo --><h1 class=\"flex h-full items-center justify-center truncate font-['Manrope'] text-base font-extrabold tracking-tight text-cyan-900 dark:text-cyan-50 sm:text-lg\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(titulo)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 52, Col: 12}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</h1><!-- direita --><div class=\"flex w-8 items-center justify-end gap-4\"><a href=\"/client/confirmacao\" hx-get=\"/client/confirmacao\" hx-target=\"#client-content\" hx-swap=\"innerHTML\" hx-push-url=\"true\" hx-indicator=\"#client-content\" class=\"relative flex items-center justify-center text-cyan-900 transition-transform duration-200 active:scale-95 dark:text-cyan-100\"><span class=\"material-symbols-outlined\">shopping_cart</span> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<header style=\"height:52px;background:#fff;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;padding:0 20px;gap:12px;position:sticky;top:0;z-index:40;flex-shrink:0;\"><!-- logout --><button type=\"button\" hx-post=\"/client/logout\" hx-swap=\"none\" title=\"Sair\" style=\"width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#6B7280;transition:background .15s,color .15s;border:none;background:none;flex-shrink:0;\" onmouseover=\"this.style.background='#F3F4F6';this.style.color='#EF4444'\" onmouseout=\"this.style.background='none';this.style.color='#6B7280'\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4\"></path> <polyline points=\"16 17 21 12 16 7\"></polyline> <line x1=\"21\" y1=\"12\" x2=\"9\" y2=\"12\"></line></svg></button><!-- spacer --><div style=\"flex:1;\"></div><!-- logo ConnSale --><div style=\"display:flex;align-items:center;gap:10px;position:absolute;left:50%;transform:translateX(-50%);\"><div style=\"width:28px;height:28px;background:linear-gradient(135deg,#7C3AED,#6B21A8);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;box-shadow:0 2px 8px rgba(107,33,168,.5);flex-shrink:0;\">C</div><div style=\"font-size:17px;font-weight:800;color:#1C1C2E;letter-spacing:-0.3px;white-space:nowrap;\">Conn<span style=\"color:#C4B5FD;\">Sale</span></div></div><!-- spacer --><div style=\"flex:1;\"></div><!-- carrinho --><div style=\"position:relative;flex-shrink:0;\"><a href=\"/client/confirmacao\" hx-get=\"/client/confirmacao\" hx-target=\"#client-content\" hx-swap=\"innerHTML\" hx-push-url=\"true\" hx-indicator=\"#client-content\" style=\"width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#6B7280;transition:background .15s,color .15s;text-decoration:none;\" onmouseover=\"this.style.background='#F3F4F6';this.style.color='#1C1C2E'\" onmouseout=\"this.style.background='none';this.style.color='#6B7280'\"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z\"></path> <line x1=\"3\" y1=\"6\" x2=\"21\" y2=\"6\"></line> <path d=\"M16 10a4 4 0 01-8 0\"></path></svg> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if cartCount > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span id=\"cart-count-badge\" class=\"absolute -right-2 -top-2 inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span id=\"cart-count-badge\" style=\"position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;background:#DC2626;border-radius:9999px;padding:0 4px;font-size:10px;font-weight:700;color:#fff;display:inline-flex;align-items:center;justify-content:center;line-height:1;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(cartCount)
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", cartCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 71, Col: 18}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 75, Col: 36}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span id=\"cart-count-badge\" class=\"absolute -right-2 -top-2 hidden min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white\">0</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span id=\"cart-count-badge\" style=\"position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;background:#DC2626;border-radius:9999px;padding:0 4px;font-size:10px;font-weight:700;color:#fff;display:none;align-items:center;justify-content:center;line-height:1;\">0</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</a></div></div></header>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</a></div></header>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -138,26 +125,26 @@ func bottonNavBar(activeTab string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var6 == nil {
-			templ_7745c5c3_Var6 = templ.NopComponent
+		templ_7745c5c3_Var5 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var5 == nil {
+			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		xData := fmt.Sprintf(`{active:'%s',getTab(){const p=window.location.pathname;if(p.startsWith('/client/items'))return'produtos';if(p.startsWith('/client/confirmacao'))return'carrinho';if(p.startsWith('/client/pedidos'))return'pedidos';return'';},init(){this.active=this.getTab();document.addEventListener('htmx:afterSettle',()=>{this.active=this.getTab();});}}`, activeTab)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<nav x-data=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<nav x-data=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(xData)
+		var templ_7745c5c3_Var6 string
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(xData)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 92, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientLayout.templ`, Line: 95, Col: 16}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\" class=\"fixed bottom-0 left-0 z-50 w-full border-t border-slate-200/70 bg-white/90 px-2 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-4px_24px_rgba(0,0,0,0.06)] backdrop-blur-xl dark:border-slate-700/70 dark:bg-slate-900/90\"><div class=\"mx-auto flex w-full max-w-md items-center justify-around\"><a href=\"/client/items\" hx-get=\"/client/items\" hx-target=\"#client-content\" hx-swap=\"innerHTML\" hx-push-url=\"true\" hx-indicator=\"#client-content\" :class=\"active === 'produtos' ? 'flex min-w-24 flex-col items-center justify-center rounded-xl bg-cyan-900 px-4 py-2 text-white transition-all duration-200 dark:bg-cyan-200 dark:text-cyan-900' : 'flex min-w-24 flex-col items-center justify-center px-4 py-2 text-slate-500 transition-opacity hover:opacity-80 dark:text-slate-400'\"><span class=\"material-symbols-outlined\" data-icon=\"grid_view\">grid_view</span> <span class=\"mt-1 font-['Inter'] text-[11px] font-semibold uppercase tracking-wider\">Produtos</span></a> <a href=\"/client/confirmacao\" hx-get=\"/client/confirmacao\" hx-target=\"#client-content\" hx-swap=\"innerHTML\" hx-push-url=\"true\" hx-indicator=\"#client-content\" :class=\"active === 'carrinho' ? 'flex min-w-24 flex-col items-center justify-center rounded-xl bg-cyan-900 px-4 py-2 text-white transition-all duration-200 dark:bg-cyan-200 dark:text-cyan-900' : 'flex min-w-24 flex-col items-center justify-center px-4 py-2 text-slate-500 transition-opacity hover:opacity-80 dark:text-slate-400'\"><span class=\"material-symbols-outlined\" data-icon=\"shopping_bag\">shopping_bag</span> <span class=\"mt-1 font-['Inter'] text-[11px] font-semibold uppercase tracking-wider\">Carrinho</span></a> <a href=\"/client/pedidos\" hx-get=\"/client/pedidos\" hx-target=\"#client-content\" hx-swap=\"innerHTML\" hx-push-url=\"true\" hx-indicator=\"#client-content\" :class=\"active === 'pedidos' ? 'flex min-w-24 flex-col items-center justify-center rounded-xl bg-cyan-900 px-4 py-2 text-white transition-all duration-200 dark:bg-cyan-200 dark:text-cyan-900' : 'flex min-w-24 flex-col items-center justify-center px-4 py-2 text-slate-500 transition-opacity hover:opacity-80 dark:text-slate-400'\"><span class=\"material-symbols-outlined\" data-icon=\"receipt_long\">receipt_long</span> <span class=\"mt-1 font-['Inter'] text-[11px] font-semibold uppercase tracking-wider\">Pedidos</span></a></div></nav>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\" style=\"position:fixed;bottom:0;left:0;z-index:50;width:100%;background:#1C1C2E;border-top:1px solid rgba(255,255,255,0.06);padding:8px 8px max(8px,env(safe-area-inset-bottom));box-shadow:0 -4px 24px rgba(0,0,0,0.18);\"><div style=\"margin:0 auto;max-width:28rem;display:flex;align-items:center;justify-content:space-around;\"><a href=\"/client/items\" hx-get=\"/client/items\" hx-target=\"#client-content\" hx-swap=\"innerHTML\" hx-push-url=\"true\" hx-indicator=\"#client-content\" :style=\"active === 'produtos' ? 'display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:80px;padding:8px 16px;border-radius:6px;background:rgba(107,33,168,0.85);color:#fff;text-decoration:none;transition:all .2s;' : 'display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:80px;padding:8px 16px;color:rgba(255,255,255,0.55);text-decoration:none;transition:all .2s;'\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z\"></path></svg> <span style=\"margin-top:4px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;\">Produtos</span></a> <a href=\"/client/confirmacao\" hx-get=\"/client/confirmacao\" hx-target=\"#client-content\" hx-swap=\"innerHTML\" hx-push-url=\"true\" hx-indicator=\"#client-content\" :style=\"active === 'carrinho' ? 'display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:80px;padding:8px 16px;border-radius:6px;background:rgba(107,33,168,0.85);color:#fff;text-decoration:none;transition:all .2s;' : 'display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:80px;padding:8px 16px;color:rgba(255,255,255,0.55);text-decoration:none;transition:all .2s;'\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z\"></path> <line x1=\"3\" y1=\"6\" x2=\"21\" y2=\"6\"></line> <path d=\"M16 10a4 4 0 01-8 0\"></path></svg> <span style=\"margin-top:4px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;\">Carrinho</span></a> <a href=\"/client/pedidos\" hx-get=\"/client/pedidos\" hx-target=\"#client-content\" hx-swap=\"innerHTML\" hx-push-url=\"true\" hx-indicator=\"#client-content\" :style=\"active === 'pedidos' ? 'display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:80px;padding:8px 16px;border-radius:6px;background:rgba(107,33,168,0.85);color:#fff;text-decoration:none;transition:all .2s;' : 'display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:80px;padding:8px 16px;color:rgba(255,255,255,0.55);text-decoration:none;transition:all .2s;'\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2\"></path> <path d=\"M9 5a2 2 0 002 2h2a2 2 0 002-2\"></path> <path d=\"M9 5a2 2 0 012-2h2a2 2 0 012 2\"></path> <line x1=\"9\" y1=\"12\" x2=\"15\" y2=\"12\"></line> <line x1=\"9\" y1=\"16\" x2=\"12\" y2=\"16\"></line></svg> <span style=\"margin-top:4px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;\">Pedidos</span></a></div></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -181,12 +168,12 @@ func VaiCorinthians() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var8 == nil {
-			templ_7745c5c3_Var8 = templ.NopComponent
+		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var7 == nil {
+			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<h1>Vai Corinthians</h1>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<h1>Vai Corinthians</h1>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -210,28 +197,28 @@ func Layout_Client(content templ.Component, cartCount int64, activeTab string) t
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var9 == nil {
-			templ_7745c5c3_Var9 = templ.NopComponent
+		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var8 == nil {
+			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<!doctype html><html lang=\"pt-br\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<!doctype html><html lang=\"pt-br\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = client_header("ez - client").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = client_header("client").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<body class=\"min-h-dvh bg-slate-50 text-on-surface font-body antialiased dark:bg-slate-950\"><div id=\"htmx-progress-bar\"></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<body style=\"min-height:100dvh;background:#F4F4F7;font-family:'Inter',ui-sans-serif,system-ui,sans-serif;color:#191c1d;-webkit-font-smoothing:antialiased;margin:0;padding:0;\"><div id=\"htmx-progress-bar\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = client_topBar("Sistema", cartCount).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = client_topBar(cartCount).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<main id=\"client-content\" class=\"mx-auto w-full max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pt-8\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<main id=\"client-content\" class=\"mx-auto w-full max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pt-8\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -239,7 +226,7 @@ func Layout_Client(content templ.Component, cartCount int64, activeTab string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</main>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -247,7 +234,7 @@ func Layout_Client(content templ.Component, cartCount int64, activeTab string) t
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<script>\n\t\t\t\t(function() {\n\t\t\t\t\tdocument.addEventListener('htmx:beforeRequest', function() {\n\t\t\t\t\t\tdocument.body.classList.remove('htmx-done');\n\t\t\t\t\t\tdocument.body.classList.add('htmx-loading');\n\t\t\t\t\t});\n\t\t\t\t\tdocument.addEventListener('htmx:afterRequest', function() {\n\t\t\t\t\t\tdocument.body.classList.remove('htmx-loading');\n\t\t\t\t\t\tdocument.body.classList.add('htmx-done');\n\t\t\t\t\t\tsetTimeout(function() { document.body.classList.remove('htmx-done'); }, 500);\n\t\t\t\t\t});\n\t\t\t\t})();\n\n\t\t\t\tdocument.body.addEventListener(\"cartCountUpdated\", function (event) {\n\t\t\t\t\tconst badge = document.getElementById(\"cart-count-badge\");\n\t\t\t\t\tif (!badge) return;\n\t\t\t\t\tconst count = Number(event.detail?.count || 0);\n\t\t\t\t\tbadge.textContent = String(count);\n\t\t\t\t\tif (count > 0) {\n\t\t\t\t\t\tbadge.classList.remove(\"hidden\");\n\t\t\t\t\t} else {\n\t\t\t\t\t\tbadge.classList.add(\"hidden\");\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t</script></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<script>\n\t\t\t\t(function() {\n\t\t\t\t\tdocument.addEventListener('htmx:beforeRequest', function() {\n\t\t\t\t\t\tdocument.body.classList.remove('htmx-done');\n\t\t\t\t\t\tdocument.body.classList.add('htmx-loading');\n\t\t\t\t\t});\n\t\t\t\t\tdocument.addEventListener('htmx:afterRequest', function() {\n\t\t\t\t\t\tdocument.body.classList.remove('htmx-loading');\n\t\t\t\t\t\tdocument.body.classList.add('htmx-done');\n\t\t\t\t\t\tsetTimeout(function() { document.body.classList.remove('htmx-done'); }, 500);\n\t\t\t\t\t});\n\t\t\t\t})();\n\n\t\t\t\tdocument.body.addEventListener(\"cartCountUpdated\", function (event) {\n\t\t\t\t\tconst badge = document.getElementById(\"cart-count-badge\");\n\t\t\t\t\tif (!badge) return;\n\t\t\t\t\tconst count = Number(event.detail?.count || 0);\n\t\t\t\t\tbadge.textContent = String(count);\n\t\t\t\t\tif (count > 0) {\n\t\t\t\t\t\tbadge.style.display = 'inline-flex';\n\t\t\t\t\t} else {\n\t\t\t\t\t\tbadge.style.display = 'none';\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
