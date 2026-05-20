@@ -67,8 +67,7 @@ func (c *CartStore) AddOrIncrementItem(
 			First(&item).
 			Error
 		if err == nil {
-			return tx.Model(&store.CartItem{}).
-				Where("id = ?", item.ID).
+			return tx.Model(&item).
 				Update("quantity", item.Quantity+quantity).Error
 		}
 
