@@ -1,6 +1,8 @@
 package db
 
 import (
+	"time"
+
 	"github.com/DTineli/ez/internal/store"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -11,6 +13,15 @@ func MustOpen(dsn string) *gorm.DB {
 	if err != nil {
 		panic(err)
 	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		panic(err)
+	}
+	sqlDB.SetMaxOpenConns(10)
+	sqlDB.SetMaxIdleConns(5)
+	sqlDB.SetConnMaxLifetime(5 * time.Minute)
+
 	return db
 }
 
