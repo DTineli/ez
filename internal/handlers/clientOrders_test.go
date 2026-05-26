@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/DTineli/ez/internal/store"
+	"github.com/DTineli/ez/internal/orders"
 )
 
 func TestClientGetOrdersPage_Sucesso(t *testing.T) {
@@ -25,7 +25,7 @@ func TestClientGetOrdersPage_Sucesso(t *testing.T) {
 
 func TestClientGetOrdersPage_ErroStore(t *testing.T) {
 	os := &mockOrderStore{
-		listByContact: func(tenantID, contactID uint) ([]store.ClientOrderListItem, error) {
+		listByContact: func(tenantID, contactID uint) ([]orders.ClientOrderListItem, error) {
 			return nil, errors.New("db error")
 		},
 	}
@@ -60,7 +60,7 @@ func TestClientGetOrderDetail_IDInvalido(t *testing.T) {
 
 func TestClientGetOrderDetail_NaoEncontrado(t *testing.T) {
 	os := &mockOrderStore{
-		getByID: func(id, tenantID uint) (*store.OrderDetail, error) {
+		getByID: func(id, tenantID uint) (*orders.OrderDetail, error) {
 			return nil, errors.New("not found")
 		},
 	}
@@ -81,8 +81,8 @@ func TestClientGetOrderDetail_NaoEncontrado(t *testing.T) {
 func TestClientGetOrderDetail_ContatoErrado(t *testing.T) {
 	// pedido pertence a outro contato
 	os := &mockOrderStore{
-		getByID: func(id, tenantID uint) (*store.OrderDetail, error) {
-			return &store.OrderDetail{ContactID: 999}, nil // diferente do session contact 5
+		getByID: func(id, tenantID uint) (*orders.OrderDetail, error) {
+			return &orders.OrderDetail{ContactID: 999}, nil // diferente do session contact 5
 		},
 	}
 	h := newClientHandler(nil, nil, os, &mockSessionStore{}, nil)
@@ -101,8 +101,8 @@ func TestClientGetOrderDetail_ContatoErrado(t *testing.T) {
 
 func TestClientGetOrderDetail_Sucesso(t *testing.T) {
 	os := &mockOrderStore{
-		getByID: func(id, tenantID uint) (*store.OrderDetail, error) {
-			return &store.OrderDetail{ContactID: 5}, nil // mesmo contact do session
+		getByID: func(id, tenantID uint) (*orders.OrderDetail, error) {
+			return &orders.OrderDetail{ContactID: 5}, nil // mesmo contact do session
 		},
 	}
 	h := newClientHandler(nil, nil, os, &mockSessionStore{}, nil)

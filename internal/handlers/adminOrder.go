@@ -6,19 +6,20 @@ import (
 	"strconv"
 
 	m "github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/orders"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/go-chi/chi/v5"
 )
 
 type AdminOrderHandler struct {
-	orderStore   store.OrderStore
+	orderStore   orders.Repository
 	contactStore store.ContactStore
 	productStore store.ProductStore
 }
 
 func NewAdminOrderHandler(
-	orderStore store.OrderStore,
+	orderStore orders.Repository,
 	contactStore store.ContactStore,
 	productStore store.ProductStore,
 ) *AdminOrderHandler {
@@ -180,7 +181,7 @@ func (h *AdminOrderHandler) PostNewOrder(
 		return
 	}
 
-	items := make([]store.NewOrderItem, 0, len(productIDs))
+	items := make([]orders.NewOrderItem, 0, len(productIDs))
 	for i := range productIDs {
 		pid, err := strconv.ParseUint(productIDs[i], 10, 64)
 		if err != nil || pid == 0 {
@@ -200,7 +201,7 @@ func (h *AdminOrderHandler) PostNewOrder(
 		if err != nil || price < 0 {
 			continue
 		}
-		items = append(items, store.NewOrderItem{
+		items = append(items, orders.NewOrderItem{
 			ProductID: uint(pid),
 			VariantID: uint(varID),
 			Quantity:  qty,

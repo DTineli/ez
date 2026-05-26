@@ -8,31 +8,33 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/DTineli/ez/internal/orders"
 	"github.com/DTineli/ez/internal/store"
 )
 
 // --- mocks ---
 
 type mockOrderStore struct {
-	confirmFromCart func(cartID, tenantID, contactID, priceTableID uint) (*store.Order, error)
-	listByTenant    func(tenantID uint) ([]store.AdminOrderListItem, error)
-	listByContact   func(tenantID, contactID uint) ([]store.ClientOrderListItem, error)
-	getByID         func(id, tenantID uint) (*store.OrderDetail, error)
-	create          func(tenantID, contactID uint, items []store.NewOrderItem) (*store.Order, error)
+	confirmFromCart func(cartID, tenantID, contactID, priceTableID uint) (*orders.Order, error)
+	listByTenant    func(tenantID uint) ([]orders.AdminOrderListItem, error)
+	listByContact   func(tenantID, contactID uint) ([]orders.ClientOrderListItem, error)
+	getByID         func(id, tenantID uint) (*orders.OrderDetail, error)
+	create          func(tenantID, contactID uint, items []orders.NewOrderItem) (*orders.Order, error)
+	salvar          func(order *orders.OrderDetail) error
 }
 
 func (s *mockOrderStore) ConfirmFromCart(
 	cartID, tenantID, contactID, priceTableID uint,
-) (*store.Order, error) {
+) (*orders.Order, error) {
 	if s.confirmFromCart != nil {
 		return s.confirmFromCart(cartID, tenantID, contactID, priceTableID)
 	}
-	return &store.Order{}, nil
+	return &orders.Order{}, nil
 }
 
 func (s *mockOrderStore) ListByTenant(
 	tenantID uint,
-) ([]store.AdminOrderListItem, error) {
+) ([]orders.AdminOrderListItem, error) {
 	if s.listByTenant != nil {
 		return s.listByTenant(tenantID)
 	}
@@ -41,7 +43,7 @@ func (s *mockOrderStore) ListByTenant(
 
 func (s *mockOrderStore) ListByContact(
 	tenantID, contactID uint,
-) ([]store.ClientOrderListItem, error) {
+) ([]orders.ClientOrderListItem, error) {
 	if s.listByContact != nil {
 		return s.listByContact(tenantID, contactID)
 	}
@@ -50,21 +52,28 @@ func (s *mockOrderStore) ListByContact(
 
 func (s *mockOrderStore) GetByID(
 	id, tenantID uint,
-) (*store.OrderDetail, error) {
+) (*orders.OrderDetail, error) {
 	if s.getByID != nil {
 		return s.getByID(id, tenantID)
 	}
-	return &store.OrderDetail{}, nil
+	return &orders.OrderDetail{}, nil
 }
 
 func (s *mockOrderStore) Create(
 	tenantID, contactID uint,
-	items []store.NewOrderItem,
-) (*store.Order, error) {
+	items []orders.NewOrderItem,
+) (*orders.Order, error) {
 	if s.create != nil {
 		return s.create(tenantID, contactID, items)
 	}
-	return &store.Order{ID: 99}, nil
+	return &orders.Order{ID: 99}, nil
+}
+
+func (s *mockOrderStore) Salvar(order *orders.OrderDetail) error {
+	if s.salvar != nil {
+		return s.salvar(order)
+	}
+	return nil
 }
 
 func newAdminOrderHandler(
@@ -102,7 +111,7 @@ func TestAdminGetOrdersPage_Sucesso(t *testing.T) {
 
 func TestAdminGetOrdersPage_ErroStore(t *testing.T) {
 	os := &mockOrderStore{
-		listByTenant: func(tenantID uint) ([]store.AdminOrderListItem, error) {
+		listByTenant: func(tenantID uint) ([]orders.AdminOrderListItem, error) {
 			return nil, errors.New("db error")
 		},
 	}
@@ -136,7 +145,7 @@ func TestAdminGetOrderPage_IDInvalido(t *testing.T) {
 
 func TestAdminGetOrderPage_NaoEncontrado(t *testing.T) {
 	os := &mockOrderStore{
-		getByID: func(id, tenantID uint) (*store.OrderDetail, error) {
+		getByID: func(id, tenantID uint) (*orders.OrderDetail, error) {
 			return nil, errors.New("not found")
 		},
 	}
@@ -285,9 +294,9 @@ func TestAdminPostNewOrder_ItensFaltando(t *testing.T) {
 func TestAdminPostNewOrder_Sucesso(t *testing.T) {
 	var pedidoCriado bool
 	os := &mockOrderStore{
-		create: func(tenantID, contactID uint, items []store.NewOrderItem) (*store.Order, error) {
+		create: func(tenantID, contactID uint, items []orders.NewOrderItem) (*orders.Order, error) {
 			pedidoCriado = true
-			return &store.Order{ID: 42}, nil
+			return &orders.Order{ID: 42}, nil
 		},
 	}
 	h := newAdminOrderHandler(os, nil, nil)

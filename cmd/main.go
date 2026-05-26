@@ -15,6 +15,7 @@ import (
 	"github.com/DTineli/ez/internal/config"
 	"github.com/DTineli/ez/internal/handlers"
 	m "github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/orders"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/store/cookiesotore"
 	"github.com/DTineli/ez/internal/store/dbstore"
@@ -52,7 +53,7 @@ func main() {
 	pStore := dbstore.NewProductStore(db)
 	priceTableStore := dbstore.NewPriceTableDB(db)
 	cartStore := dbstore.NewCartStore(db)
-	orderStore := dbstore.NewOrderStore(db)
+	orderStore := orders.NewGormRepository(db)
 
 	// sessions
 	sessionStore := cookiesotore.NewSessionStore(

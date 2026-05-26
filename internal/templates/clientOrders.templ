@@ -2,13 +2,13 @@ package templates
 
 import (
 	"fmt"
-	"github.com/DTineli/ez/internal/store"
+	"github.com/DTineli/ez/internal/orders"
 )
 
-templ ClientOrdersPage(orders []store.ClientOrderListItem) {
+templ ClientOrdersPage(pedidos []orders.ClientOrderListItem) {
 	<div style="display:flex;flex-direction:column;gap:16px;">
 		<h2 style="font-family:'Manrope',sans-serif;font-size:1.25rem;font-weight:800;letter-spacing:-0.02em;color:#1C1C2E;">Meus Pedidos</h2>
-		if len(orders) == 0 {
+		if len(pedidos) == 0 {
 			<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 0;text-align:center;">
 				<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;">
 					<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"></path>
@@ -34,7 +34,7 @@ templ ClientOrdersPage(orders []store.ClientOrderListItem) {
 			</div>
 		} else {
 			<ul style="display:flex;flex-direction:column;gap:10px;list-style:none;padding:0;margin:0;">
-				for _, o := range orders {
+				for _, o := range pedidos {
 					<li>
 						<a
 							href={ templ.SafeURL(fmt.Sprintf("/client/pedidos/%d", o.ID)) }
@@ -74,7 +74,7 @@ templ ClientOrdersPage(orders []store.ClientOrderListItem) {
 	</div>
 }
 
-templ ClientOrderDetailPage(order *store.OrderDetail) {
+templ ClientOrderDetailPage(order *orders.OrderDetail) {
 	<div style="display:flex;flex-direction:column;gap:20px;">
 		<div style="display:flex;align-items:center;gap:8px;">
 			<a

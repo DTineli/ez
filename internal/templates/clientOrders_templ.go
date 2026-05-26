@@ -10,10 +10,10 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/DTineli/ez/internal/store"
+	"github.com/DTineli/ez/internal/orders"
 )
 
-func ClientOrdersPage(orders []store.ClientOrderListItem) templ.Component {
+func ClientOrdersPage(pedidos []orders.ClientOrderListItem) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -38,7 +38,7 @@ func ClientOrdersPage(orders []store.ClientOrderListItem) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if len(orders) == 0 {
+		if len(pedidos) == 0 {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div style=\"display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 0;text-align:center;\"><svg width=\"48\" height=\"48\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#D1D5DB\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"margin-bottom:12px;\"><path d=\"M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2\"></path> <path d=\"M9 5a2 2 0 002 2h2a2 2 0 002-2\"></path> <path d=\"M9 5a2 2 0 012-2h2a2 2 0 012 2\"></path> <line x1=\"9\" y1=\"12\" x2=\"15\" y2=\"12\"></line> <line x1=\"9\" y1=\"16\" x2=\"12\" y2=\"16\"></line></svg><p style=\"font-size:0.875rem;color:#6B7280;\">Você ainda não fez nenhum pedido.</p><a href=\"/client/items\" hx-get=\"/client/items\" hx-target=\"#client-content\" hx-swap=\"innerHTML\" hx-push-url=\"true\" hx-indicator=\"#client-content\" style=\"margin-top:16px;border-radius:6px;background:#6B21A8;padding:8px 20px;font-size:0.875rem;font-weight:600;color:#fff;text-decoration:none;transition:background .15s;\" onmouseover=\"this.style.background='#5B21B6'\" onmouseout=\"this.style.background='#6B21A8'\">Ver produtos</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -48,7 +48,7 @@ func ClientOrdersPage(orders []store.ClientOrderListItem) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, o := range orders {
+			for _, o := range pedidos {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<li><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -132,7 +132,7 @@ func ClientOrdersPage(orders []store.ClientOrderListItem) templ.Component {
 	})
 }
 
-func ClientOrderDetailPage(order *store.OrderDetail) templ.Component {
+func ClientOrderDetailPage(order *orders.OrderDetail) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/orders"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/DTineli/ez/internal/templates/components"
@@ -17,7 +18,7 @@ import (
 type ClientHandler struct {
 	productStore    store.ProductStore
 	cartStore       store.CartStore
-	orderStore      store.OrderStore
+	orderStore      orders.Repository
 	sessionStore    store.SessionStore
 	priceTableStore store.PriceTableStore
 	contactStore    store.ContactStore
@@ -26,7 +27,7 @@ type ClientHandler struct {
 func NewClientHandler(
 	pStore store.ProductStore,
 	cStore store.CartStore,
-	oStore store.OrderStore,
+	oStore orders.Repository,
 	sStore store.SessionStore,
 	ptStore store.PriceTableStore,
 	ccStore store.ContactStore,

@@ -1,4 +1,4 @@
-package dbstore
+package orders
 
 import (
 	"errors"
@@ -7,18 +7,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type OrderStore struct {
+type GormRepository struct {
 	db *gorm.DB
 }
 
-func NewOrderStore(db *gorm.DB) *OrderStore {
-	return &OrderStore{db: db}
+func NewGormRepository(db *gorm.DB) *GormRepository {
+	return &GormRepository{db: db}
 }
 
-func (o *OrderStore) ConfirmFromCart(
+func (o *GormRepository) ConfirmFromCart(
 	cartID, tenantID, contactID, priceTableID uint,
-) (*store.Order, error) {
-	var created store.Order
+) (*Order, error) {
+	var created Order
 
 	err := o.db.Transaction(func(tx *gorm.DB) error {
 		var cart store.Cart
@@ -72,7 +72,7 @@ func (o *OrderStore) ConfirmFromCart(
 		}
 
 		total := 0.0
-		orderItems := make([]store.OrderItem, 0, len(cartItems))
+		orderItems := make([]OrderItem, 0, len(cartItems))
 		for _, item := range cartItems {
 			name := productNameByVariantID[item.VariantID]
 			if name == "" {
@@ -86,7 +86,7 @@ func (o *OrderStore) ConfirmFromCart(
 			subtotal := float64(item.Quantity) * unitPrice
 			total += subtotal
 
-			orderItems = append(orderItems, store.OrderItem{
+			orderItems = append(orderItems, OrderItem{
 				ProductID: item.ProductID,
 				VariantID: item.VariantID,
 				Name:      name,
@@ -96,10 +96,10 @@ func (o *OrderStore) ConfirmFromCart(
 			})
 		}
 
-		order := store.Order{
+		order := Order{
 			TenantID:    tenantID,
 			ContactID:   contactID,
-			Status:      store.OrderStatusConfirmed,
+			Status:      StatusConfirmed,
 			TotalAmount: total,
 			Items:       orderItems,
 		}
@@ -122,10 +122,10 @@ func (o *OrderStore) ConfirmFromCart(
 	return &created, nil
 }
 
-func (o *OrderStore) ListByTenant(
+func (o *GormRepository) ListByTenant(
 	tenantID uint,
-) ([]store.AdminOrderListItem, error) {
-	var modelRows []store.AdminOrderListItem
+) ([]AdminOrderListItem, error) {
+	var modelRows []AdminOrderListItem
 	err := o.db.Table("orders o").
 		Select("o.id, c.name as contact_name, o.status, o.total_amount, o.created_at").
 		Joins("JOIN contacts c ON c.id = o.contact_id").
@@ -139,10 +139,10 @@ func (o *OrderStore) ListByTenant(
 	return modelRows, nil
 }
 
-func (o *OrderStore) ListByContact(
+func (o *GormRepository) ListByContact(
 	tenantID, contactID uint,
-) ([]store.ClientOrderListItem, error) {
-	var rows []store.ClientOrderListItem
+) ([]ClientOrderListItem, error) {
+	var rows []ClientOrderListItem
 	err := o.db.Table("orders").
 		Select("id, status, total_amount, created_at").
 		Where("tenant_id = ? AND contact_id = ?", tenantID, contactID).
@@ -154,8 +154,8 @@ func (o *OrderStore) ListByContact(
 	return rows, nil
 }
 
-func (o *OrderStore) GetByID(id, tenantID uint) (*store.OrderDetail, error) {
-	var order store.Order
+func (o *GormRepository) GetByID(id, tenantID uint) (*OrderDetail, error) {
+	var order Order
 	if err := o.db.Preload("Items.Variant.Attributes.AttributeValue").Where(
 		"id = ? AND tenant_id = ?",
 		id,
@@ -169,22 +169,24 @@ func (o *OrderStore) GetByID(id, tenantID uint) (*store.OrderDetail, error) {
 		return nil, err
 	}
 
-	return &store.OrderDetail{
+	return &OrderDetail{
 		ID:          order.ID,
 		ContactID:   order.ContactID,
 		ContactName: contact.Name,
 		Status:      order.Status,
 		TotalAmount: order.TotalAmount,
 		CreatedAt:   order.CreatedAt,
+		EntregueEm:  order.EntregueEm,
+		CanceladoEm: order.CanceladoEm,
 		Items:       order.Items,
 	}, nil
 }
 
-func (o *OrderStore) Create(
+func (o *GormRepository) Create(
 	tenantID, contactID uint,
-	items []store.NewOrderItem,
-) (*store.Order, error) {
-	var created store.Order
+	items []NewOrderItem,
+) (*Order, error) {
+	var created Order
 
 	err := o.db.Transaction(func(tx *gorm.DB) error {
 		if len(items) == 0 {
@@ -210,7 +212,7 @@ func (o *OrderStore) Create(
 		}
 
 		total := 0.0
-		orderItems := make([]store.OrderItem, 0, len(items))
+		orderItems := make([]OrderItem, 0, len(items))
 		for _, item := range items {
 			name := productNameByID[item.ProductID]
 			if name == "" {
@@ -218,7 +220,7 @@ func (o *OrderStore) Create(
 			}
 			subtotal := float64(item.Quantity) * item.UnitPrice
 			total += subtotal
-			orderItems = append(orderItems, store.OrderItem{
+			orderItems = append(orderItems, OrderItem{
 				ProductID: item.ProductID,
 				Name:      name,
 				Quantity:  item.Quantity,
@@ -227,10 +229,10 @@ func (o *OrderStore) Create(
 			})
 		}
 
-		order := store.Order{
+		order := Order{
 			TenantID:    tenantID,
 			ContactID:   contactID,
-			Status:      store.OrderStatusConfirmed,
+			Status:      StatusConfirmed,
 			TotalAmount: total,
 			Items:       orderItems,
 		}
@@ -247,4 +249,17 @@ func (o *OrderStore) Create(
 	}
 
 	return &created, nil
+}
+
+func (o *GormRepository) Salvar(order *OrderDetail) error {
+	updates := map[string]any{
+		"status": order.Status,
+	}
+	if order.EntregueEm != nil {
+		updates["entregue_em"] = order.EntregueEm
+	}
+	if order.CanceladoEm != nil {
+		updates["cancelado_em"] = order.CanceladoEm
+	}
+	return o.db.Model(&Order{}).Where("id = ?", order.ID).Updates(updates).Error
 }

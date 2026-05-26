@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/DTineli/ez/internal/orders"
 	"github.com/DTineli/ez/internal/store"
 )
 
@@ -17,7 +18,7 @@ func ConcatAttributeName(attrs []store.VariantAttribute) string {
 	return strings.Join(parts, " / ")
 }
 
-templ AdminOrdersPage(orders []store.AdminOrderListItem) {
+templ AdminOrdersPage(pedidos []orders.AdminOrderListItem) {
 	<div class="space-y-6">
 		<div class="flex items-center justify-between">
 			<div>
@@ -48,19 +49,19 @@ templ AdminOrdersPage(orders []store.AdminOrderListItem) {
 							</tr>
 						</thead>
 						<tbody>
-							if len(orders) == 0 {
+							if len(pedidos) == 0 {
 								<tr>
 									<td colspan="6" class="text-center text-gray-400 py-8 px-4">
 										Nenhum pedido confirmado ainda.
 									</td>
 								</tr>
 							}
-							for _, o := range orders {
+							for _, o := range pedidos {
 								<tr class="hover:bg-gray-50">
 									<td class="px-4 py-3 font-mono text-sm text-gray-400">{ fmt.Sprintf("#%d", o.ID) }</td>
 									<td class="px-4 py-3 font-medium">{ o.ContactName }</td>
 									<td class="px-4 py-3">
-										if o.Status == store.OrderStatusConfirmed {
+										if o.Status == orders.StatusConfirmed {
 											<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-green-100 text-green-800">Confirmado</span>
 										} else {
 											<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-gray-100 text-gray-700">{ string(o.Status) }</span>
@@ -88,7 +89,7 @@ templ AdminOrdersPage(orders []store.AdminOrderListItem) {
 	</div>
 }
 
-templ AdminOrderDetailPage(order *store.OrderDetail) {
+templ AdminOrderDetailPage(order *orders.OrderDetail) {
 	<div class="max-w-4xl mx-auto space-y-6">
 		<div class="flex items-center justify-between">
 			<h2 class="text-xl font-semibold">Pedido #{ fmt.Sprintf("%d", order.ID) }</h2>
