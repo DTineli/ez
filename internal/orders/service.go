@@ -43,8 +43,23 @@ func (s *Service) AtualizarStatus(
 	return s.repo.Salvar(pedido)
 }
 
-func (s *Service) tentarCompletar(pedido *OrderDetail) {
-	if pedido.Status == Entregue && PodeTransicionar(Entregue, Completo, AtorSistema) {
-		pedido.Status = Completo
+func (s *Service) MarcarPago(id, tenantID uint) error {
+	pedido, err := s.repo.GetByID(id, tenantID)
+	if err != nil {
+		return err
+	}
+
+	now := time.Now()
+	pedido.PaymentStatus = Pago
+	pedido.PaymentDate = &now
+
+	s.tentarCompletar(pedido) // mesma verificação
+
+	return s.repo.Salvar(pedido)
+}
+
+func (s *Service) tentarCompletar(p *OrderDetail) {
+	if p.Status == Entregue && p.PaymentStatus == Pago {
+		p.Status = Completo
 	}
 }
