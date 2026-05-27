@@ -99,7 +99,7 @@ func (o *GormRepository) ConfirmFromCart(
 		order := Order{
 			TenantID:    tenantID,
 			ContactID:   contactID,
-			Status:      StatusConfirmed,
+			Status:      Pendente,
 			TotalAmount: total,
 			Items:       orderItems,
 		}
@@ -137,6 +137,38 @@ func (o *GormRepository) ListByTenant(
 	}
 
 	return modelRows, nil
+}
+
+func (o *GormRepository) ListByTenantPaged(
+	tenantID uint,
+	filters OrderFilters,
+) ([]AdminOrderListItem, int64, error) {
+	var rows []AdminOrderListItem
+	var count int64
+
+	q := o.db.Table("orders o").
+		Joins("JOIN contacts c ON c.id = o.contact_id").
+		Where("o.tenant_id = ?", tenantID)
+
+	if filters.ContactName != "" {
+		q = q.Where("c.name LIKE ?", "%"+filters.ContactName+"%")
+	}
+	if filters.Status != "" {
+		q = q.Where("o.status = ?", filters.Status)
+	}
+
+	if err := q.Count(&count).Error; err != nil {
+		return nil, 0, err
+	}
+
+	offset := (filters.Page - 1) * filters.PerPage
+	err := q.Select("o.id, c.name as contact_name, o.status, o.total_amount, o.created_at").
+		Order("o.id DESC").
+		Offset(offset).
+		Limit(filters.PerPage).
+		Scan(&rows).Error
+
+	return rows, count, err
 }
 
 func (o *GormRepository) ListByContact(
@@ -232,7 +264,7 @@ func (o *GormRepository) Create(
 		order := Order{
 			TenantID:    tenantID,
 			ContactID:   contactID,
-			Status:      StatusConfirmed,
+			Status:      Pendente,
 			TotalAmount: total,
 			Items:       orderItems,
 		}

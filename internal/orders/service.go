@@ -58,6 +58,12 @@ func (s *Service) MarcarPago(id, tenantID uint) error {
 	return s.repo.Salvar(pedido)
 }
 
+func (s *Service) BulkAtualizarStatus(ids []uint, tenantID uint, status Status, ator Ator) {
+	for _, id := range ids {
+		_ = s.AtualizarStatus(id, tenantID, status, ator)
+	}
+}
+
 func (s *Service) tentarCompletar(p *OrderDetail) {
 	if p.Status == Entregue && p.PaymentStatus == Pago {
 		p.Status = Completo

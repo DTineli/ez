@@ -9,6 +9,35 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+func (h *Handler) PostBulkStatus(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Dados inválidos", http.StatusBadRequest)
+		return
+	}
+
+	idStrs := r.Form["ids"]
+	status := Status(r.FormValue("status"))
+	if status == "" || len(idStrs) == 0 {
+		http.Error(w, "IDs e status obrigatórios", http.StatusBadRequest)
+		return
+	}
+
+	sess := middleware.GetSessionFromContext(r)
+
+	var ids []uint
+	for _, s := range idStrs {
+		id, err := strconv.ParseUint(s, 10, 64)
+		if err == nil {
+			ids = append(ids, uint(id))
+		}
+	}
+
+	h.service.BulkAtualizarStatus(ids, sess.TenantID, status, AtorSeller)
+
+	w.Header().Set("HX-Redirect", "/admin/pedidos/")
+	w.WriteHeader(http.StatusOK)
+}
+
 type Handler struct {
 	service *Service
 }

@@ -24,6 +24,9 @@ func (m *mockRepo) ConfirmFromCart(cartID, tenantID, contactID, priceTableID uin
 	return nil, nil
 }
 func (m *mockRepo) ListByTenant(tenantID uint) ([]AdminOrderListItem, error) { return nil, nil }
+func (m *mockRepo) ListByTenantPaged(tenantID uint, filters OrderFilters) ([]AdminOrderListItem, int64, error) {
+	return nil, 0, nil
+}
 func (m *mockRepo) ListByContact(tenantID, contactID uint) ([]ClientOrderListItem, error) {
 	return nil, nil
 }

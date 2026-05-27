@@ -15,12 +15,13 @@ import (
 // --- mocks ---
 
 type mockOrderStore struct {
-	confirmFromCart func(cartID, tenantID, contactID, priceTableID uint) (*orders.Order, error)
-	listByTenant    func(tenantID uint) ([]orders.AdminOrderListItem, error)
-	listByContact   func(tenantID, contactID uint) ([]orders.ClientOrderListItem, error)
-	getByID         func(id, tenantID uint) (*orders.OrderDetail, error)
-	create          func(tenantID, contactID uint, items []orders.NewOrderItem) (*orders.Order, error)
-	salvar          func(order *orders.OrderDetail) error
+	confirmFromCart    func(cartID, tenantID, contactID, priceTableID uint) (*orders.Order, error)
+	listByTenant       func(tenantID uint) ([]orders.AdminOrderListItem, error)
+	listByTenantPaged  func(tenantID uint, filters orders.OrderFilters) ([]orders.AdminOrderListItem, int64, error)
+	listByContact      func(tenantID, contactID uint) ([]orders.ClientOrderListItem, error)
+	getByID            func(id, tenantID uint) (*orders.OrderDetail, error)
+	create             func(tenantID, contactID uint, items []orders.NewOrderItem) (*orders.Order, error)
+	salvar             func(order *orders.OrderDetail) error
 }
 
 func (s *mockOrderStore) ConfirmFromCart(
@@ -39,6 +40,16 @@ func (s *mockOrderStore) ListByTenant(
 		return s.listByTenant(tenantID)
 	}
 	return nil, nil
+}
+
+func (s *mockOrderStore) ListByTenantPaged(
+	tenantID uint,
+	filters orders.OrderFilters,
+) ([]orders.AdminOrderListItem, int64, error) {
+	if s.listByTenantPaged != nil {
+		return s.listByTenantPaged(tenantID, filters)
+	}
+	return nil, 0, nil
 }
 
 func (s *mockOrderStore) ListByContact(
@@ -111,8 +122,8 @@ func TestAdminGetOrdersPage_Sucesso(t *testing.T) {
 
 func TestAdminGetOrdersPage_ErroStore(t *testing.T) {
 	os := &mockOrderStore{
-		listByTenant: func(tenantID uint) ([]orders.AdminOrderListItem, error) {
-			return nil, errors.New("db error")
+		listByTenantPaged: func(tenantID uint, filters orders.OrderFilters) ([]orders.AdminOrderListItem, int64, error) {
+			return nil, 0, errors.New("db error")
 		},
 	}
 	h := newAdminOrderHandler(os, nil, nil)

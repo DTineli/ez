@@ -218,6 +218,7 @@ func registerClientRoutes(
 
 			r.Get("/pedidos", client.GetOrdersPage)
 			r.Get("/pedidos/{id}", client.GetOrderDetail)
+			r.Patch("/pedidos/{id}/status", client.PatchOrderStatus)
 
 			r.Route("/components", func(r chi.Router) {
 				r.Get("/price-tables", client.RenderSelectTableByClient)
@@ -306,6 +307,7 @@ func registerAdminRoutes(
 				r.Get("/novo", order.GetNewOrderPage)
 				r.Get("/produtos", order.SearchProductsForOrder)
 				r.Post("/", order.PostNewOrder)
+				r.Post("/bulk-status", orderHandler.PostBulkStatus)
 				r.Get("/{id}", order.GetOrderPage)
 				r.Patch("/{id}/status", orderHandler.PatchStatus)
 			})

@@ -68,3 +68,17 @@ type ClientOrderListItem struct {
 	TotalAmount float64
 	CreatedAt   time.Time
 }
+
+type OrderFilters struct {
+	Page        int
+	PerPage     int
+	ContactName string
+	Status      Status
+}
+
+type AdminOrderListPage struct {
+	Orders     []AdminOrderListItem
+	Filters    OrderFilters
+	TotalPages int
+	Total      int64
+}

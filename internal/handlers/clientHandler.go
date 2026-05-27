@@ -19,6 +19,7 @@ type ClientHandler struct {
 	productStore    store.ProductStore
 	cartStore       store.CartStore
 	orderStore      orders.Repository
+	orderService    *orders.Service
 	sessionStore    store.SessionStore
 	priceTableStore store.PriceTableStore
 	contactStore    store.ContactStore
@@ -36,6 +37,7 @@ func NewClientHandler(
 		productStore:    pStore,
 		cartStore:       cStore,
 		orderStore:      oStore,
+		orderService:    orders.NewService(oStore),
 		sessionStore:    sStore,
 		priceTableStore: ptStore,
 		contactStore:    ccStore,
