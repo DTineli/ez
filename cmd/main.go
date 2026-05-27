@@ -99,6 +99,7 @@ func main() {
 		contactStore,
 		pStore,
 	)
+	orderHandler := orders.NewHandler(orders.NewService(orderStore))
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -134,6 +135,7 @@ func main() {
 		productHandler,
 		contactHandler,
 		adminOrderHandler,
+		orderHandler,
 		sessionStore,
 	)
 
@@ -233,6 +235,7 @@ func registerAdminRoutes(
 	product *handlers.ProductHandler,
 	contact *handlers.ContactHandler,
 	order *handlers.AdminOrderHandler,
+	orderHandler *orders.Handler,
 	sessionStore *cookiesotore.SessionStore,
 ) {
 	r.Route("/admin", func(r chi.Router) {
@@ -304,6 +307,7 @@ func registerAdminRoutes(
 				r.Get("/produtos", order.SearchProductsForOrder)
 				r.Post("/", order.PostNewOrder)
 				r.Get("/{id}", order.GetOrderPage)
+				r.Patch("/{id}/status", orderHandler.PatchStatus)
 			})
 		})
 	})
