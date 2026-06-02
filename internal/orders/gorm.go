@@ -2,6 +2,7 @@ package orders
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/DTineli/ez/internal/store"
 	"gorm.io/gorm"
@@ -127,14 +128,17 @@ func (o *GormRepository) ListByTenant(
 ) ([]store.AdminOrderListItem, error) {
 	var rows []store.AdminOrderListItem
 	err := o.db.Table("orders o").
-		Select("o.id, c.name as contact_name, o.status, o.total_amount, o.created_at").
+		Select("o.id, c.name as contact_name, c.trade_name, o.status, o.total_amount, o.created_at").
 		Joins("JOIN contacts c ON c.id = o.contact_id").
 		Where("o.tenant_id = ?", tenantID).
 		Order("o.id DESC").
 		Scan(&rows).Error
+
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println(rows)
 
 	return rows, nil
 }
@@ -151,7 +155,7 @@ func (o *GormRepository) ListByTenantPaged(
 		Where("o.tenant_id = ?", tenantID)
 
 	if filters.ContactName != "" {
-		q = q.Where("c.name LIKE ?", "%"+filters.ContactName+"%")
+		q = q.Where("c.trade_name ILIKE ?", "%"+filters.ContactName+"%")
 	}
 	if filters.Status != "" {
 		q = q.Where("o.status = ?", filters.Status)
@@ -162,11 +166,12 @@ func (o *GormRepository) ListByTenantPaged(
 	}
 
 	offset := (filters.Page - 1) * filters.PerPage
-	err := q.Select("o.id, c.name as contact_name, o.status, o.total_amount, o.created_at").
+	err := q.Select("o.id, c.name as contact_name, c.trade_name, o.status, o.total_amount, o.created_at").
 		Order("o.id DESC").
 		Offset(offset).
 		Limit(filters.PerPage).
-		Scan(&rows).Error
+		Scan(&rows).
+		Error
 
 	return rows, count, err
 }
@@ -186,7 +191,9 @@ func (o *GormRepository) ListByContact(
 	return rows, nil
 }
 
-func (o *GormRepository) GetByID(id, tenantID uint) (*store.OrderDetail, error) {
+func (o *GormRepository) GetByID(
+	id, tenantID uint,
+) (*store.OrderDetail, error) {
 	var order store.Order
 	if err := o.db.Preload("Items.Variant.Attributes.AttributeValue").Where(
 		"id = ? AND tenant_id = ?",
@@ -293,5 +300,8 @@ func (o *GormRepository) Salvar(order *store.OrderDetail) error {
 	if order.CanceladoEm != nil {
 		updates["cancelado_em"] = order.CanceladoEm
 	}
-	return o.db.Model(&store.Order{}).Where("id = ?", order.ID).Updates(updates).Error
+	return o.db.Model(&store.Order{}).
+		Where("id = ?", order.ID).
+		Updates(updates).
+		Error
 }

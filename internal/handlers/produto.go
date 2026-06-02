@@ -135,9 +135,8 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	fields := map[string]any{
 		"name":             form.Get("name"),
 		"full_description": form.Get("description"),
-		"uom":              store.UOM(form.Get("uom")),
-		"ean":              form.Get("ean"),
-		"ncm":              form.Get("ncm"),
+		"uom": store.UOM(form.Get("uom")),
+		"ncm": form.Get("ncm"),
 		"weight":           form.IsFloat("weight"),
 		"height":           form.IsFloat("height"),
 		"width":            form.IsFloat("width"),
