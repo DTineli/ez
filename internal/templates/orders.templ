@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/DTineli/ez/internal/orders"
 	"github.com/DTineli/ez/internal/store"
 )
 
@@ -19,7 +18,7 @@ func ConcatAttributeName(attrs []store.VariantAttribute) string {
 	return strings.Join(parts, " / ")
 }
 
-templ OrderFilter(filters orders.OrderFilters) {
+templ OrderFilter(filters store.OrderFilters) {
 	<form
 		id="order-filter-form"
 		class="flex flex-wrap items-center gap-2"
@@ -50,13 +49,27 @@ templ OrderFilter(filters orders.OrderFilters) {
 				class="block w-full border border-gray-200 rounded-lg bg-gray-50 px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-violet-400/60 focus:bg-white focus:ring-2 focus:ring-violet-300/20 transition-all"
 			>
 				<option value="">Todos os status</option>
-				<option value="pendente" if filters.Status == orders.Pendente { selected }>Pendente</option>
-				<option value="aprovado" if filters.Status == orders.Aprovado { selected }>Aprovado</option>
-				<option value="em_separacao" if filters.Status == orders.EmSeparacao { selected }>Em separação</option>
-				<option value="aguardando_retirada" if filters.Status == orders.AguardandoRetirada { selected }>Aguardando retirada</option>
-				<option value="entregue" if filters.Status == orders.Entregue { selected }>Entregue</option>
-				<option value="completo" if filters.Status == orders.Completo { selected }>Completo</option>
-				<option value="cancelado" if filters.Status == orders.Cancelado { selected }>Cancelado</option>
+				<option value="pendente" if filters.Status == store.OrderPendente {
+	selected
+}>Pendente</option>
+				<option value="aprovado" if filters.Status == store.OrderAprovado {
+	selected
+}>Aprovado</option>
+				<option value="em_separacao" if filters.Status == store.OrderEmSeparacao {
+	selected
+}>Em separação</option>
+				<option value="aguardando_retirada" if filters.Status == store.OrderAguardandoRetirada {
+	selected
+}>Aguardando retirada</option>
+				<option value="entregue" if filters.Status == store.OrderEntregue {
+	selected
+}>Entregue</option>
+				<option value="completo" if filters.Status == store.OrderCompleto {
+	selected
+}>Completo</option>
+				<option value="cancelado" if filters.Status == store.OrderCancelado {
+	selected
+}>Cancelado</option>
 			</select>
 		</div>
 		<button
@@ -68,7 +81,7 @@ templ OrderFilter(filters orders.OrderFilters) {
 	</form>
 }
 
-templ OrderPagination(current, total int, filters orders.OrderFilters) {
+templ OrderPagination(current, total int, filters store.OrderFilters) {
 	if total > 1 {
 		<div class="flex items-center justify-center gap-1 pt-1 pb-3">
 			<button
@@ -114,7 +127,7 @@ templ OrderPagination(current, total int, filters orders.OrderFilters) {
 	}
 }
 
-templ AdminOrdersPage(page orders.AdminOrderListPage) {
+templ AdminOrdersPage(page store.AdminOrderListPage) {
 	<style>
 		.ord-row {
 			display: flex;
@@ -416,51 +429,51 @@ templ AdminOrdersPage(page orders.AdminOrderListPage) {
 	</script>
 }
 
-func adminOrderStatusStyle(s orders.Status) string {
+func adminOrderStatusStyle(s store.OrderStatus) string {
 	switch s {
-	case orders.Pendente:
+	case store.OrderPendente:
 		return "background:#F3F4F6;color:#6B7280;"
-	case orders.Aprovado:
+	case store.OrderAprovado:
 		return "background:#DBEAFE;color:#1D4ED8;"
-	case orders.EmSeparacao:
+	case store.OrderEmSeparacao:
 		return "background:#FEF9C3;color:#92400E;"
-	case orders.AguardandoRetirada:
+	case store.OrderAguardandoRetirada:
 		return "background:#FEE2E2;color:#991B1B;"
-	case orders.Entregue:
+	case store.OrderEntregue:
 		return "background:#CCFBF1;color:#065F46;"
-	case orders.Completo:
+	case store.OrderCompleto:
 		return "background:#DCFCE7;color:#15803D;"
-	case orders.Cancelado:
+	case store.OrderCancelado:
 		return "background:#F3F4F6;color:#9CA3AF;"
 	default:
 		return "background:#EDE9FE;color:#5B21B6;"
 	}
 }
 
-func orderStatusLabel(s orders.Status) string {
+func orderStatusLabel(s store.OrderStatus) string {
 	switch s {
-	case orders.Pendente:
+	case store.OrderPendente:
 		return "Pendente"
-	case orders.Aprovado:
+	case store.OrderAprovado:
 		return "Aprovado"
-	case orders.EmSeparacao:
+	case store.OrderEmSeparacao:
 		return "Em separação"
-	case orders.AguardandoRetirada:
+	case store.OrderAguardandoRetirada:
 		return "Ag. retirada"
-	case orders.Entregue:
+	case store.OrderEntregue:
 		return "Entregue"
-	case orders.Completo:
+	case store.OrderCompleto:
 		return "Completo"
-	case orders.Cancelado:
+	case store.OrderCancelado:
 		return "Cancelado"
-	case orders.StatusConfirmed:
+	case store.OrderStatusConfirmed:
 		return "Confirmado"
 	default:
 		return string(s)
 	}
 }
 
-templ AdminOrderDetailPage(order *orders.OrderDetail) {
+templ AdminOrderDetailPage(order *store.OrderDetail) {
 	<div class="max-w-4xl mx-auto space-y-6">
 		<div class="flex items-center justify-between">
 			<h2 class="text-xl font-semibold">Pedido #{ fmt.Sprintf("%d", order.ID) }</h2>
@@ -498,7 +511,7 @@ templ AdminOrderDetailPage(order *orders.OrderDetail) {
 				</div>
 			</div>
 		</div>
-		if order.Status == orders.Pendente {
+		if order.Status == store.OrderPendente {
 			<div class="flex items-center gap-3">
 				<button
 					hx-patch={ fmt.Sprintf("/admin/pedidos/%d/status", order.ID) }

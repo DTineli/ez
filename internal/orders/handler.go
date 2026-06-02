@@ -6,8 +6,40 @@ import (
 	"strconv"
 
 	"github.com/DTineli/ez/internal/middleware"
+	ordertemplates "github.com/DTineli/ez/internal/orders/templates"
+	"github.com/DTineli/ez/internal/store"
 	"github.com/go-chi/chi/v5"
 )
+
+func (h *Handler) PostGeneratePickListPage(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Dados inválidos", http.StatusBadRequest)
+		return
+	}
+	idStrs := r.Form["ids"]
+
+	sess := middleware.GetSessionFromContext(r)
+
+	var ids []uint
+	for _, s := range idStrs {
+		id, err := strconv.ParseUint(s, 10, 64)
+		if err == nil {
+			ids = append(ids, uint(id))
+		}
+	}
+
+	orders, err := h.service.FetchOrderInfo(ids, sess.TenantID)
+
+	if err != nil {
+		http.Error(w, "Erro ao gerar Lista", http.StatusBadRequest)
+		return
+	}
+
+	ordertemplates.PickList(orders).Render(r.Context(), w)
+}
 
 func (h *Handler) PostBulkStatus(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
@@ -16,7 +48,7 @@ func (h *Handler) PostBulkStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	idStrs := r.Form["ids"]
-	status := Status(r.FormValue("status"))
+	status := store.OrderStatus(r.FormValue("status"))
 	if status == "" || len(idStrs) == 0 {
 		http.Error(w, "IDs e status obrigatórios", http.StatusBadRequest)
 		return
@@ -32,7 +64,12 @@ func (h *Handler) PostBulkStatus(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	h.service.BulkAtualizarStatus(ids, sess.TenantID, status, AtorSeller)
+	h.service.BulkAtualizarStatus(
+		ids,
+		sess.TenantID,
+		status,
+		store.OrderAtorSeller,
+	)
 
 	w.Header().Set("HX-Redirect", "/admin/pedidos/")
 	w.WriteHeader(http.StatusOK)
@@ -59,7 +96,7 @@ func (h *Handler) PatchStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	status := Status(r.FormValue("status"))
+	status := store.OrderStatus(r.FormValue("status"))
 	if status == "" {
 		http.Error(w, "Status obrigatório", http.StatusBadRequest)
 		return
@@ -67,7 +104,7 @@ func (h *Handler) PatchStatus(w http.ResponseWriter, r *http.Request) {
 
 	sess := middleware.GetSessionFromContext(r)
 
-	if err := h.service.AtualizarStatus(uint(id), sess.TenantID, status, AtorSeller); err != nil {
+	if err := h.service.AtualizarStatus(uint(id), sess.TenantID, status, store.OrderAtorSeller); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

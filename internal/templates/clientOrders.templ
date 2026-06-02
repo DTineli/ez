@@ -2,27 +2,27 @@ package templates
 
 import (
 	"fmt"
-	"github.com/DTineli/ez/internal/orders"
+	"github.com/DTineli/ez/internal/store"
 )
 
-func clientOrderStatusStyle(s orders.Status) string {
+func clientOrderStatusStyle(s store.OrderStatus) string {
 	switch s {
-	case orders.Aprovado:
+	case store.OrderAprovado:
 		return "background:#DBEAFE;color:#1D4ED8;"
-	case orders.EmSeparacao:
+	case store.OrderEmSeparacao:
 		return "background:#FEF3C7;color:#92400E;"
-	case orders.AguardandoRetirada:
+	case store.OrderAguardandoRetirada:
 		return "background:#FEE2E2;color:#B91C1C;"
-	case orders.Entregue, orders.Completo:
+	case store.OrderEntregue, store.OrderCompleto:
 		return "background:#DCFCE7;color:#15803D;"
-	case orders.Cancelado:
+	case store.OrderCancelado:
 		return "background:#F3F4F6;color:#6B7280;"
 	default:
 		return "background:#EDE9FE;color:#5B21B6;"
 	}
 }
 
-templ ClientOrdersPage(pedidos []orders.ClientOrderListItem) {
+templ ClientOrdersPage(pedidos []store.ClientOrderListItem) {
 	<div style="display:flex;flex-direction:column;gap:16px;">
 		<h2 style="font-family:'Manrope',sans-serif;font-size:1.25rem;font-weight:800;letter-spacing:-0.02em;color:#1C1C2E;">Meus Pedidos</h2>
 		if len(pedidos) == 0 {
@@ -91,7 +91,7 @@ templ ClientOrdersPage(pedidos []orders.ClientOrderListItem) {
 	</div>
 }
 
-templ ClientOrderDetailPage(order *orders.OrderDetail) {
+templ ClientOrderDetailPage(order *store.OrderDetail) {
 	<div style="display:flex;flex-direction:column;gap:20px;">
 		<div style="display:flex;align-items:center;gap:8px;">
 			<a
@@ -130,7 +130,7 @@ templ ClientOrderDetailPage(order *orders.OrderDetail) {
 			</div>
 		</div>
 		<!-- ações -->
-		if order.Status == orders.Pendente {
+		if order.Status == store.OrderPendente {
 			<div>
 				<button
 					hx-patch={ fmt.Sprintf("/client/pedidos/%d/status", order.ID) }

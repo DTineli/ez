@@ -3,6 +3,8 @@ package orders
 import (
 	"fmt"
 	"time"
+
+	"github.com/DTineli/ez/internal/store"
 )
 
 type Service struct {
@@ -13,27 +15,35 @@ func NewService(repo Repository) *Service {
 	return &Service{repo: repo}
 }
 
+func (s *Service) FetchOrderInfo(
+	ids []uint,
+	tennantID uint,
+) ([]store.OrderDetail, error) {
+
+	return []store.OrderDetail{}, nil
+}
+
 func (s *Service) AtualizarStatus(
 	id, tenantID uint,
-	para Status,
-	ator Ator,
+	para store.OrderStatus,
+	ator store.OrderAtor,
 ) error {
 	pedido, err := s.repo.GetByID(id, tenantID)
 	if err != nil {
 		return err
 	}
 
-	if !PodeTransicionar(pedido.Status, para, ator) {
+	if !store.PodeTransicionarOrder(pedido.Status, para, ator) {
 		return fmt.Errorf("transição inválida: %s → %s", pedido.Status, para)
 	}
 
 	pedido.Status = para
 
 	switch para {
-	case Entregue:
+	case store.OrderEntregue:
 		now := time.Now()
 		pedido.EntregueEm = &now
-	case Cancelado:
+	case store.OrderCancelado:
 		now := time.Now()
 		pedido.CanceladoEm = &now
 	}
@@ -50,22 +60,27 @@ func (s *Service) MarcarPago(id, tenantID uint) error {
 	}
 
 	now := time.Now()
-	pedido.PaymentStatus = Pago
+	pedido.PaymentStatus = store.OrderPago
 	pedido.PaymentDate = &now
 
-	s.tentarCompletar(pedido) // mesma verificação
+	s.tentarCompletar(pedido)
 
 	return s.repo.Salvar(pedido)
 }
 
-func (s *Service) BulkAtualizarStatus(ids []uint, tenantID uint, status Status, ator Ator) {
+func (s *Service) BulkAtualizarStatus(
+	ids []uint,
+	tenantID uint,
+	status store.OrderStatus,
+	ator store.OrderAtor,
+) {
 	for _, id := range ids {
 		_ = s.AtualizarStatus(id, tenantID, status, ator)
 	}
 }
 
-func (s *Service) tentarCompletar(p *OrderDetail) {
-	if p.Status == Entregue && p.PaymentStatus == Pago {
-		p.Status = Completo
+func (s *Service) tentarCompletar(p *store.OrderDetail) {
+	if p.Status == store.OrderEntregue && p.PaymentStatus == store.OrderPago {
+		p.Status = store.OrderCompleto
 	}
 }

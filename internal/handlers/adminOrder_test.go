@@ -15,27 +15,27 @@ import (
 // --- mocks ---
 
 type mockOrderStore struct {
-	confirmFromCart    func(cartID, tenantID, contactID, priceTableID uint) (*orders.Order, error)
-	listByTenant       func(tenantID uint) ([]orders.AdminOrderListItem, error)
-	listByTenantPaged  func(tenantID uint, filters orders.OrderFilters) ([]orders.AdminOrderListItem, int64, error)
-	listByContact      func(tenantID, contactID uint) ([]orders.ClientOrderListItem, error)
-	getByID            func(id, tenantID uint) (*orders.OrderDetail, error)
-	create             func(tenantID, contactID uint, items []orders.NewOrderItem) (*orders.Order, error)
-	salvar             func(order *orders.OrderDetail) error
+	confirmFromCart   func(cartID, tenantID, contactID, priceTableID uint) (*store.Order, error)
+	listByTenant      func(tenantID uint) ([]store.AdminOrderListItem, error)
+	listByTenantPaged func(tenantID uint, filters store.OrderFilters) ([]store.AdminOrderListItem, int64, error)
+	listByContact     func(tenantID, contactID uint) ([]store.ClientOrderListItem, error)
+	getByID           func(id, tenantID uint) (*store.OrderDetail, error)
+	create            func(tenantID, contactID uint, items []store.NewOrderItem) (*store.Order, error)
+	salvar            func(order *store.OrderDetail) error
 }
 
 func (s *mockOrderStore) ConfirmFromCart(
 	cartID, tenantID, contactID, priceTableID uint,
-) (*orders.Order, error) {
+) (*store.Order, error) {
 	if s.confirmFromCart != nil {
 		return s.confirmFromCart(cartID, tenantID, contactID, priceTableID)
 	}
-	return &orders.Order{}, nil
+	return &store.Order{}, nil
 }
 
 func (s *mockOrderStore) ListByTenant(
 	tenantID uint,
-) ([]orders.AdminOrderListItem, error) {
+) ([]store.AdminOrderListItem, error) {
 	if s.listByTenant != nil {
 		return s.listByTenant(tenantID)
 	}
@@ -44,8 +44,8 @@ func (s *mockOrderStore) ListByTenant(
 
 func (s *mockOrderStore) ListByTenantPaged(
 	tenantID uint,
-	filters orders.OrderFilters,
-) ([]orders.AdminOrderListItem, int64, error) {
+	filters store.OrderFilters,
+) ([]store.AdminOrderListItem, int64, error) {
 	if s.listByTenantPaged != nil {
 		return s.listByTenantPaged(tenantID, filters)
 	}
@@ -54,7 +54,7 @@ func (s *mockOrderStore) ListByTenantPaged(
 
 func (s *mockOrderStore) ListByContact(
 	tenantID, contactID uint,
-) ([]orders.ClientOrderListItem, error) {
+) ([]store.ClientOrderListItem, error) {
 	if s.listByContact != nil {
 		return s.listByContact(tenantID, contactID)
 	}
@@ -63,24 +63,24 @@ func (s *mockOrderStore) ListByContact(
 
 func (s *mockOrderStore) GetByID(
 	id, tenantID uint,
-) (*orders.OrderDetail, error) {
+) (*store.OrderDetail, error) {
 	if s.getByID != nil {
 		return s.getByID(id, tenantID)
 	}
-	return &orders.OrderDetail{}, nil
+	return &store.OrderDetail{}, nil
 }
 
 func (s *mockOrderStore) Create(
 	tenantID, contactID uint,
-	items []orders.NewOrderItem,
-) (*orders.Order, error) {
+	items []store.NewOrderItem,
+) (*store.Order, error) {
 	if s.create != nil {
 		return s.create(tenantID, contactID, items)
 	}
-	return &orders.Order{ID: 99}, nil
+	return &store.Order{ID: 99}, nil
 }
 
-func (s *mockOrderStore) Salvar(order *orders.OrderDetail) error {
+func (s *mockOrderStore) Salvar(order *store.OrderDetail) error {
 	if s.salvar != nil {
 		return s.salvar(order)
 	}
@@ -122,7 +122,7 @@ func TestAdminGetOrdersPage_Sucesso(t *testing.T) {
 
 func TestAdminGetOrdersPage_ErroStore(t *testing.T) {
 	os := &mockOrderStore{
-		listByTenantPaged: func(tenantID uint, filters orders.OrderFilters) ([]orders.AdminOrderListItem, int64, error) {
+		listByTenantPaged: func(tenantID uint, filters store.OrderFilters) ([]store.AdminOrderListItem, int64, error) {
 			return nil, 0, errors.New("db error")
 		},
 	}
@@ -156,7 +156,7 @@ func TestAdminGetOrderPage_IDInvalido(t *testing.T) {
 
 func TestAdminGetOrderPage_NaoEncontrado(t *testing.T) {
 	os := &mockOrderStore{
-		getByID: func(id, tenantID uint) (*orders.OrderDetail, error) {
+		getByID: func(id, tenantID uint) (*store.OrderDetail, error) {
 			return nil, errors.New("not found")
 		},
 	}
@@ -305,9 +305,9 @@ func TestAdminPostNewOrder_ItensFaltando(t *testing.T) {
 func TestAdminPostNewOrder_Sucesso(t *testing.T) {
 	var pedidoCriado bool
 	os := &mockOrderStore{
-		create: func(tenantID, contactID uint, items []orders.NewOrderItem) (*orders.Order, error) {
+		create: func(tenantID, contactID uint, items []store.NewOrderItem) (*store.Order, error) {
 			pedidoCriado = true
-			return &orders.Order{ID: 42}, nil
+			return &store.Order{ID: 42}, nil
 		},
 	}
 	h := newAdminOrderHandler(os, nil, nil)
@@ -343,3 +343,6 @@ func TestAdminPostNewOrder_Sucesso(t *testing.T) {
 		)
 	}
 }
+
+// ensure orders import is used (Repository interface)
+var _ orders.Repository = (*mockOrderStore)(nil)

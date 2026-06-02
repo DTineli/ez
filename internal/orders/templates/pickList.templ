@@ -1,0 +1,9 @@
+package orders
+
+import "github.com/DTineli/ez/internal/store"
+
+templ PickList(orders []store.OrderDetail) {
+	for _, order := range orders {
+		<p>{ order.ContactName }</p>
+	}
+}

@@ -10,27 +10,27 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/DTineli/ez/internal/orders"
+	"github.com/DTineli/ez/internal/store"
 )
 
-func clientOrderStatusStyle(s orders.Status) string {
+func clientOrderStatusStyle(s store.OrderStatus) string {
 	switch s {
-	case orders.Aprovado:
+	case store.OrderAprovado:
 		return "background:#DBEAFE;color:#1D4ED8;"
-	case orders.EmSeparacao:
+	case store.OrderEmSeparacao:
 		return "background:#FEF3C7;color:#92400E;"
-	case orders.AguardandoRetirada:
+	case store.OrderAguardandoRetirada:
 		return "background:#FEE2E2;color:#B91C1C;"
-	case orders.Entregue, orders.Completo:
+	case store.OrderEntregue, store.OrderCompleto:
 		return "background:#DCFCE7;color:#15803D;"
-	case orders.Cancelado:
+	case store.OrderCancelado:
 		return "background:#F3F4F6;color:#6B7280;"
 	default:
 		return "background:#EDE9FE;color:#5B21B6;"
 	}
 }
 
-func ClientOrdersPage(pedidos []orders.ClientOrderListItem) templ.Component {
+func ClientOrdersPage(pedidos []store.ClientOrderListItem) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -175,7 +175,7 @@ func ClientOrdersPage(pedidos []orders.ClientOrderListItem) templ.Component {
 	})
 }
 
-func ClientOrderDetailPage(order *orders.OrderDetail) templ.Component {
+func ClientOrderDetailPage(order *store.OrderDetail) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -252,7 +252,7 @@ func ClientOrderDetailPage(order *orders.OrderDetail) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if order.Status == orders.Pendente {
+		if order.Status == store.OrderPendente {
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div><button hx-patch=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

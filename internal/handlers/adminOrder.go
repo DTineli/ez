@@ -43,11 +43,11 @@ func (h *AdminOrderHandler) GetOrdersPage(
 		pageNum = p
 	}
 
-	filters := orders.OrderFilters{
+	filters := store.OrderFilters{
 		Page:        pageNum,
 		PerPage:     perPage,
 		ContactName: r.URL.Query().Get("contact"),
-		Status:      orders.Status(r.URL.Query().Get("status")),
+		Status:      store.OrderStatus(r.URL.Query().Get("status")),
 	}
 
 	rows, count, err := h.orderStore.ListByTenantPaged(sess.TenantID, filters)
@@ -61,7 +61,7 @@ func (h *AdminOrderHandler) GetOrdersPage(
 		totalPages = 1
 	}
 
-	listPage := orders.AdminOrderListPage{
+	listPage := store.AdminOrderListPage{
 		Orders:     rows,
 		Filters:    filters,
 		TotalPages: totalPages,
@@ -203,7 +203,7 @@ func (h *AdminOrderHandler) PostNewOrder(
 		return
 	}
 
-	items := make([]orders.NewOrderItem, 0, len(productIDs))
+	items := make([]store.NewOrderItem, 0, len(productIDs))
 	for i := range productIDs {
 		pid, err := strconv.ParseUint(productIDs[i], 10, 64)
 		if err != nil || pid == 0 {
@@ -223,7 +223,7 @@ func (h *AdminOrderHandler) PostNewOrder(
 		if err != nil || price < 0 {
 			continue
 		}
-		items = append(items, orders.NewOrderItem{
+		items = append(items, store.NewOrderItem{
 			ProductID: uint(pid),
 			VariantID: uint(varID),
 			Quantity:  qty,

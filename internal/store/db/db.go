@@ -3,7 +3,6 @@ package db
 import (
 	"time"
 
-	"github.com/DTineli/ez/internal/orders"
 	"github.com/DTineli/ez/internal/store"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -38,8 +37,8 @@ func MustMigrate(db *gorm.DB) {
 		&store.Invite{},
 		&store.Cart{},
 		&store.CartItem{},
-		&orders.Order{},
-		&orders.OrderItem{},
+		&store.Order{},
+		&store.OrderItem{},
 
 		&store.Attribute{},
 		&store.AttributeValue{},

@@ -8,7 +8,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/DTineli/ez/internal/orders"
 	"github.com/DTineli/ez/internal/store"
 	"gorm.io/gorm"
 )
@@ -369,9 +368,9 @@ func TestPostConfirmOrder_Sucesso(t *testing.T) {
 		},
 	}
 	os := &mockOrderStore{
-		confirmFromCart: func(cartID, tenantID, contactID, priceTableID uint) (*orders.Order, error) {
+		confirmFromCart: func(cartID, tenantID, contactID, priceTableID uint) (*store.Order, error) {
 			confirmado = true
-			return &orders.Order{ID: 10}, nil
+			return &store.Order{ID: 10}, nil
 		},
 	}
 	h := newClientHandler(nil, cs, os, &mockSessionStore{}, nil)

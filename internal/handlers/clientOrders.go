@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/DTineli/ez/internal/middleware"
-	"github.com/DTineli/ez/internal/orders"
+	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/go-chi/chi/v5"
 )
@@ -77,7 +77,7 @@ func (c *ClientHandler) PatchOrderStatus(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	status := orders.Status(r.FormValue("status"))
+	status := store.OrderStatus(r.FormValue("status"))
 	if status == "" {
 		http.Error(w, "Status obrigatório", http.StatusBadRequest)
 		return
@@ -89,7 +89,7 @@ func (c *ClientHandler) PatchOrderStatus(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := c.orderService.AtualizarStatus(uint(id), sess.TenantID, status, orders.AtorBuyer); err != nil {
+	if err := c.orderService.AtualizarStatus(uint(id), sess.TenantID, status, store.OrderAtorBuyer); err != nil {
 		ShowToast(w, "Ação não permitida", "error")
 		return
 	}
