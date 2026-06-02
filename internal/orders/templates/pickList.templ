@@ -133,7 +133,7 @@ templ PickList(orders []store.OrderDetail) {
 									for _, p := range summary {
 										<tr class="border-b border-gray-50 last:border-0">
 											<td class="px-5 py-3 text-gray-700">{ p.Name }</td>
-											<td class="px-5 py-3 text-gray-400" style="font-family:'JetBrains Mono',monospace;font-size:.75rem">{ p.SKU }</td>
+											<td class="px-5 py-3 text-gray-900" style="font-family:'JetBrains Mono',monospace;font-size:.75rem">{ p.SKU }</td>
 											<td class="px-5 py-3 text-right font-bold text-gray-900">{ fmt.Sprintf("%d", p.Quantity) }</td>
 										</tr>
 									}
