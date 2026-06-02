@@ -350,6 +350,25 @@ templ AdminOrdersPage(page store.AdminOrderListPage) {
 					Aplicar
 				</button>
 			</form>
+			<form
+				id="pick-list-form"
+				method="post"
+				action="/admin/pedidos/pick-list"
+				target="_blank"
+				onsubmit="syncPickListIds(this)"
+			>
+				<button
+					type="submit"
+					class="shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-white text-violet-700 border border-violet-200 text-sm font-semibold hover:bg-violet-50 active:scale-[.97] transition-all cursor-pointer"
+				>
+					<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+						<line x1="9" y1="12" x2="15" y2="12"></line>
+						<line x1="9" y1="16" x2="13" y2="16"></line>
+					</svg>
+					Lista de Separação
+				</button>
+			</form>
 		</div>
 		<div class="flex items-center gap-2 px-1">
 			<input
@@ -425,6 +444,17 @@ templ AdminOrdersPage(page store.AdminOrderListPage) {
 				c.checked = cb.checked;
 			});
 			onOrderCheckChange();
+		}
+
+		function syncPickListIds(form) {
+			form.querySelectorAll('input[name="ids"]').forEach(function(el) { el.remove(); });
+			document.querySelectorAll('.order-checkbox:checked').forEach(function(cb) {
+				var input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = 'ids';
+				input.value = cb.value;
+				form.appendChild(input);
+			});
 		}
 	</script>
 }

@@ -17,10 +17,17 @@ func NewService(repo Repository) *Service {
 
 func (s *Service) FetchOrderInfo(
 	ids []uint,
-	tennantID uint,
+	tenantID uint,
 ) ([]store.OrderDetail, error) {
-
-	return []store.OrderDetail{}, nil
+	result := make([]store.OrderDetail, 0, len(ids))
+	for _, id := range ids {
+		o, err := s.repo.GetByID(id, tenantID)
+		if err != nil {
+			continue
+		}
+		result = append(result, *o)
+	}
+	return result, nil
 }
 
 func (s *Service) AtualizarStatus(

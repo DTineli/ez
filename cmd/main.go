@@ -308,6 +308,7 @@ func registerAdminRoutes(
 				r.Get("/produtos", order.SearchProductsForOrder)
 				r.Post("/", order.PostNewOrder)
 				r.Post("/bulk-status", orderHandler.PostBulkStatus)
+				r.Post("/pick-list", orderHandler.PostGeneratePickListPage)
 				r.Get("/{id}", order.GetOrderPage)
 				r.Patch("/{id}/status", orderHandler.PatchStatus)
 			})
