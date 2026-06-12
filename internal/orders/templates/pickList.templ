@@ -1,0 +1,148 @@
+package orders
+
+import (
+	"fmt"
+	"sort"
+
+	"github.com/DTineli/ez/internal/store"
+)
+
+templ PickList(orders []store.OrderDetail) {
+	{{
+		type productTotal struct {
+			SKU      string
+			Name     string
+			Quantity int
+		}
+
+		totals := map[string]productTotal{}
+		for _, o := range orders {
+			for _, item := range o.Items {
+				sku := item.Variant.SKU
+				e := totals[sku]
+				e.SKU = sku
+				e.Name = item.Name
+				e.Quantity += item.Quantity
+				totals[sku] = e
+			}
+		}
+		summary := make([]productTotal, 0, len(totals))
+		for _, v := range totals {
+			summary = append(summary, v)
+		}
+		sort.Slice(summary, func(i, j int) bool { return summary[i].SKU < summary[j].SKU })
+	}}
+	<!DOCTYPE html>
+	<html lang="pt-BR">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>Lista de Separação</title>
+			<link rel="preconnect" href="https://fonts.googleapis.com"/>
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+			<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+			<link rel="stylesheet" href="/static/css/style.min.css"/>
+			<style>
+				body { background: #F9FAFB; font-family: 'Inter', sans-serif; }
+				.pick-card {
+					background: white;
+					border: 1px solid #E5E7EB;
+					border-radius: 12px;
+					overflow: hidden;
+					break-inside: avoid;
+					page-break-inside: avoid;
+				}
+				.summary-page {
+					break-before: page;
+					page-break-before: always;
+				}
+				@media print {
+					.no-print { display: none !important; }
+					body { background: white; }
+					.pick-list { gap: 20px; }
+				}
+			</style>
+		</head>
+		<body>
+			<div class="max-w-2xl mx-auto py-10 px-4">
+				<div class="flex items-center justify-between mb-8 no-print">
+					<h1 style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;letter-spacing:-.02em;color:#1C1C2E">
+						Lista de Separação
+					</h1>
+					<button
+						class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-white border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-all cursor-pointer"
+						onclick="window.print()"
+					>
+						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+							<polyline points="6 9 6 2 18 2 18 9"></polyline>
+							<path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"></path>
+							<rect x="6" y="14" width="12" height="8"></rect>
+						</svg>
+						Imprimir
+					</button>
+				</div>
+				<div class="pick-list flex flex-col gap-6">
+					if len(orders) == 0 {
+						<p class="text-sm text-gray-400">Nenhum pedido selecionado.</p>
+					}
+					for _, order := range orders {
+						<div class="pick-card">
+							<div class="flex items-center justify-between px-5 py-3 bg-gray-50 border-b border-gray-200">
+								<div class="flex items-center gap-3">
+									<span style="font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:500;color:#6B7280;background:#F3F4F6;padding:2px 8px;border-radius:5px">
+										{ fmt.Sprintf("#%d", order.ID) }
+									</span>
+									<span class="font-semibold text-sm text-gray-800">{ order.ContactName }</span>
+								</div>
+								<span class="text-xs text-gray-400">{ order.CreatedAt.Format("02/01/06") }</span>
+							</div>
+							<table class="w-full text-sm">
+								<thead>
+									<tr class="border-b border-gray-100">
+										<th class="px-5 py-2 text-left font-semibold text-gray-500 text-xs">Produto</th>
+										<th class="px-5 py-2 text-right font-semibold text-gray-500 text-xs w-16">Qtd</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, item := range order.Items {
+										<tr class="border-b border-gray-50 last:border-0">
+											<td class="px-5 py-2.5 text-gray-700">{ item.Name } - SKU: { item.Variant.SKU } </td>
+											<td class="px-5 py-2.5 text-right font-bold text-gray-800">{ fmt.Sprintf("%d", item.Quantity) }</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				</div>
+				if len(summary) > 0 {
+					<div class="summary-page pt-10">
+						<h2 style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;letter-spacing:-.02em;color:#1C1C2E" class="mb-6">
+							Resumo de Produtos
+						</h2>
+						<div class="pick-card">
+							<table class="w-full text-sm">
+								<thead>
+									<tr class="border-b border-gray-200 bg-gray-50">
+										<th class="px-5 py-3 text-left font-semibold text-gray-500 text-xs">Produto</th>
+										<th class="px-5 py-3 text-left font-semibold text-gray-500 text-xs w-32">SKU</th>
+										<th class="px-5 py-3 text-right font-semibold text-gray-500 text-xs w-20">Total</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, p := range summary {
+										<tr class="border-b border-gray-50 last:border-0">
+											<td class="px-5 py-3 text-gray-700">{ p.Name }</td>
+											<td class="px-5 py-3 text-gray-900" style="font-family:'JetBrains Mono',monospace;font-size:.75rem">{ p.SKU }</td>
+											<td class="px-5 py-3 text-right font-bold text-gray-900">{ fmt.Sprintf("%d", p.Quantity) }</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				}
+			</div>
+		</body>
+	</html>
+}

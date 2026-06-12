@@ -1,21 +1,22 @@
-package dbstore
+package orders
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/DTineli/ez/internal/store"
 	"gorm.io/gorm"
 )
 
-type OrderStore struct {
+type GormRepository struct {
 	db *gorm.DB
 }
 
-func NewOrderStore(db *gorm.DB) *OrderStore {
-	return &OrderStore{db: db}
+func NewGormRepository(db *gorm.DB) *GormRepository {
+	return &GormRepository{db: db}
 }
 
-func (o *OrderStore) ConfirmFromCart(
+func (o *GormRepository) ConfirmFromCart(
 	cartID, tenantID, contactID, priceTableID uint,
 ) (*store.Order, error) {
 	var created store.Order
@@ -99,7 +100,7 @@ func (o *OrderStore) ConfirmFromCart(
 		order := store.Order{
 			TenantID:    tenantID,
 			ContactID:   contactID,
-			Status:      store.OrderStatusConfirmed,
+			Status:      store.OrderPendente,
 			TotalAmount: total,
 			Items:       orderItems,
 		}
@@ -122,24 +123,60 @@ func (o *OrderStore) ConfirmFromCart(
 	return &created, nil
 }
 
-func (o *OrderStore) ListByTenant(
+func (o *GormRepository) ListByTenant(
 	tenantID uint,
 ) ([]store.AdminOrderListItem, error) {
-	var modelRows []store.AdminOrderListItem
+	var rows []store.AdminOrderListItem
 	err := o.db.Table("orders o").
-		Select("o.id, c.name as contact_name, o.status, o.total_amount, o.created_at").
+		Select("o.id, c.name as contact_name, c.trade_name, o.status, o.total_amount, o.created_at").
 		Joins("JOIN contacts c ON c.id = o.contact_id").
 		Where("o.tenant_id = ?", tenantID).
 		Order("o.id DESC").
-		Scan(&modelRows).Error
+		Scan(&rows).Error
+
 	if err != nil {
 		return nil, err
 	}
 
-	return modelRows, nil
+	fmt.Println(rows)
+
+	return rows, nil
 }
 
-func (o *OrderStore) ListByContact(
+func (o *GormRepository) ListByTenantPaged(
+	tenantID uint,
+	filters store.OrderFilters,
+) ([]store.AdminOrderListItem, int64, error) {
+	var rows []store.AdminOrderListItem
+	var count int64
+
+	q := o.db.Table("orders o").
+		Joins("JOIN contacts c ON c.id = o.contact_id").
+		Where("o.tenant_id = ?", tenantID)
+
+	if filters.ContactName != "" {
+		q = q.Where("c.trade_name ILIKE ?", "%"+filters.ContactName+"%")
+	}
+	if filters.Status != "" {
+		q = q.Where("o.status = ?", filters.Status)
+	}
+
+	if err := q.Count(&count).Error; err != nil {
+		return nil, 0, err
+	}
+
+	offset := (filters.Page - 1) * filters.PerPage
+	err := q.Select("o.id, c.name as contact_name, c.trade_name, o.status, o.total_amount, o.created_at").
+		Order("o.id DESC").
+		Offset(offset).
+		Limit(filters.PerPage).
+		Scan(&rows).
+		Error
+
+	return rows, count, err
+}
+
+func (o *GormRepository) ListByContact(
 	tenantID, contactID uint,
 ) ([]store.ClientOrderListItem, error) {
 	var rows []store.ClientOrderListItem
@@ -154,7 +191,9 @@ func (o *OrderStore) ListByContact(
 	return rows, nil
 }
 
-func (o *OrderStore) GetByID(id, tenantID uint) (*store.OrderDetail, error) {
+func (o *GormRepository) GetByID(
+	id, tenantID uint,
+) (*store.OrderDetail, error) {
 	var order store.Order
 	if err := o.db.Preload("Items.Variant.Attributes.AttributeValue").Where(
 		"id = ? AND tenant_id = ?",
@@ -176,11 +215,13 @@ func (o *OrderStore) GetByID(id, tenantID uint) (*store.OrderDetail, error) {
 		Status:      order.Status,
 		TotalAmount: order.TotalAmount,
 		CreatedAt:   order.CreatedAt,
+		EntregueEm:  order.EntregueEm,
+		CanceladoEm: order.CanceladoEm,
 		Items:       order.Items,
 	}, nil
 }
 
-func (o *OrderStore) Create(
+func (o *GormRepository) Create(
 	tenantID, contactID uint,
 	items []store.NewOrderItem,
 ) (*store.Order, error) {
@@ -230,7 +271,7 @@ func (o *OrderStore) Create(
 		order := store.Order{
 			TenantID:    tenantID,
 			ContactID:   contactID,
-			Status:      store.OrderStatusConfirmed,
+			Status:      store.OrderPendente,
 			TotalAmount: total,
 			Items:       orderItems,
 		}
@@ -247,4 +288,20 @@ func (o *OrderStore) Create(
 	}
 
 	return &created, nil
+}
+
+func (o *GormRepository) Salvar(order *store.OrderDetail) error {
+	updates := map[string]any{
+		"status": order.Status,
+	}
+	if order.EntregueEm != nil {
+		updates["entregue_em"] = order.EntregueEm
+	}
+	if order.CanceladoEm != nil {
+		updates["cancelado_em"] = order.CanceladoEm
+	}
+	return o.db.Model(&store.Order{}).
+		Where("id = ?", order.ID).
+		Updates(updates).
+		Error
 }

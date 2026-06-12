@@ -2,23 +2,25 @@ package handlers
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 
 	m "github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/orders"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/go-chi/chi/v5"
 )
 
 type AdminOrderHandler struct {
-	orderStore   store.OrderStore
+	orderStore   orders.Repository
 	contactStore store.ContactStore
 	productStore store.ProductStore
 }
 
 func NewAdminOrderHandler(
-	orderStore store.OrderStore,
+	orderStore orders.Repository,
 	contactStore store.ContactStore,
 	productStore store.ProductStore,
 ) *AdminOrderHandler {
@@ -35,18 +37,39 @@ func (h *AdminOrderHandler) GetOrdersPage(
 ) {
 	sess := m.GetSessionFromContext(r)
 
-	orders, err := h.orderStore.ListByTenant(sess.TenantID)
+	const perPage = 20
+	pageNum := 1
+	if p, err := strconv.Atoi(r.URL.Query().Get("page")); err == nil && p > 0 {
+		pageNum = p
+	}
+
+	filters := store.OrderFilters{
+		Page:        pageNum,
+		PerPage:     perPage,
+		ContactName: r.URL.Query().Get("contact"),
+		Status:      store.OrderStatus(r.URL.Query().Get("status")),
+	}
+
+	rows, count, err := h.orderStore.ListByTenantPaged(sess.TenantID, filters)
 	if err != nil {
 		http.Error(w, "Erro ao buscar pedidos", http.StatusInternalServerError)
 		return
 	}
 
-	if err := Render(templates.AdminOrdersPage(orders), r, w); err != nil {
-		http.Error(
-			w,
-			"Error rendering template",
-			http.StatusInternalServerError,
-		)
+	totalPages := int(math.Ceil(float64(count) / float64(perPage)))
+	if totalPages < 1 {
+		totalPages = 1
+	}
+
+	listPage := store.AdminOrderListPage{
+		Orders:     rows,
+		Filters:    filters,
+		TotalPages: totalPages,
+		Total:      count,
+	}
+
+	if err := Render(templates.AdminOrdersPage(listPage), r, w); err != nil {
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 	}
 }
 

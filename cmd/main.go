@@ -15,6 +15,7 @@ import (
 	"github.com/DTineli/ez/internal/config"
 	"github.com/DTineli/ez/internal/handlers"
 	m "github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/orders"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/store/cookiesotore"
 	"github.com/DTineli/ez/internal/store/dbstore"
@@ -52,7 +53,7 @@ func main() {
 	pStore := dbstore.NewProductStore(db)
 	priceTableStore := dbstore.NewPriceTableDB(db)
 	cartStore := dbstore.NewCartStore(db)
-	orderStore := dbstore.NewOrderStore(db)
+	orderStore := orders.NewGormRepository(db)
 
 	// sessions
 	sessionStore := cookiesotore.NewSessionStore(
@@ -98,6 +99,7 @@ func main() {
 		contactStore,
 		pStore,
 	)
+	orderHandler := orders.NewHandler(orders.NewService(orderStore))
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
@@ -133,6 +135,7 @@ func main() {
 		productHandler,
 		contactHandler,
 		adminOrderHandler,
+		orderHandler,
 		sessionStore,
 	)
 
@@ -215,6 +218,7 @@ func registerClientRoutes(
 
 			r.Get("/pedidos", client.GetOrdersPage)
 			r.Get("/pedidos/{id}", client.GetOrderDetail)
+			r.Patch("/pedidos/{id}/status", client.PatchOrderStatus)
 
 			r.Route("/components", func(r chi.Router) {
 				r.Get("/price-tables", client.RenderSelectTableByClient)
@@ -232,6 +236,7 @@ func registerAdminRoutes(
 	product *handlers.ProductHandler,
 	contact *handlers.ContactHandler,
 	order *handlers.AdminOrderHandler,
+	orderHandler *orders.Handler,
 	sessionStore *cookiesotore.SessionStore,
 ) {
 	r.Route("/admin", func(r chi.Router) {
@@ -302,7 +307,10 @@ func registerAdminRoutes(
 				r.Get("/novo", order.GetNewOrderPage)
 				r.Get("/produtos", order.SearchProductsForOrder)
 				r.Post("/", order.PostNewOrder)
+				r.Post("/bulk-status", orderHandler.PostBulkStatus)
+				r.Post("/pick-list", orderHandler.PostGeneratePickListPage)
 				r.Get("/{id}", order.GetOrderPage)
+				r.Patch("/{id}/status", orderHandler.PatchStatus)
 			})
 		})
 	})

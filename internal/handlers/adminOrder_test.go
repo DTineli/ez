@@ -8,17 +8,20 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/DTineli/ez/internal/orders"
 	"github.com/DTineli/ez/internal/store"
 )
 
 // --- mocks ---
 
 type mockOrderStore struct {
-	confirmFromCart func(cartID, tenantID, contactID, priceTableID uint) (*store.Order, error)
-	listByTenant    func(tenantID uint) ([]store.AdminOrderListItem, error)
-	listByContact   func(tenantID, contactID uint) ([]store.ClientOrderListItem, error)
-	getByID         func(id, tenantID uint) (*store.OrderDetail, error)
-	create          func(tenantID, contactID uint, items []store.NewOrderItem) (*store.Order, error)
+	confirmFromCart   func(cartID, tenantID, contactID, priceTableID uint) (*store.Order, error)
+	listByTenant      func(tenantID uint) ([]store.AdminOrderListItem, error)
+	listByTenantPaged func(tenantID uint, filters store.OrderFilters) ([]store.AdminOrderListItem, int64, error)
+	listByContact     func(tenantID, contactID uint) ([]store.ClientOrderListItem, error)
+	getByID           func(id, tenantID uint) (*store.OrderDetail, error)
+	create            func(tenantID, contactID uint, items []store.NewOrderItem) (*store.Order, error)
+	salvar            func(order *store.OrderDetail) error
 }
 
 func (s *mockOrderStore) ConfirmFromCart(
@@ -37,6 +40,16 @@ func (s *mockOrderStore) ListByTenant(
 		return s.listByTenant(tenantID)
 	}
 	return nil, nil
+}
+
+func (s *mockOrderStore) ListByTenantPaged(
+	tenantID uint,
+	filters store.OrderFilters,
+) ([]store.AdminOrderListItem, int64, error) {
+	if s.listByTenantPaged != nil {
+		return s.listByTenantPaged(tenantID, filters)
+	}
+	return nil, 0, nil
 }
 
 func (s *mockOrderStore) ListByContact(
@@ -65,6 +78,13 @@ func (s *mockOrderStore) Create(
 		return s.create(tenantID, contactID, items)
 	}
 	return &store.Order{ID: 99}, nil
+}
+
+func (s *mockOrderStore) Salvar(order *store.OrderDetail) error {
+	if s.salvar != nil {
+		return s.salvar(order)
+	}
+	return nil
 }
 
 func newAdminOrderHandler(
@@ -102,8 +122,8 @@ func TestAdminGetOrdersPage_Sucesso(t *testing.T) {
 
 func TestAdminGetOrdersPage_ErroStore(t *testing.T) {
 	os := &mockOrderStore{
-		listByTenant: func(tenantID uint) ([]store.AdminOrderListItem, error) {
-			return nil, errors.New("db error")
+		listByTenantPaged: func(tenantID uint, filters store.OrderFilters) ([]store.AdminOrderListItem, int64, error) {
+			return nil, 0, errors.New("db error")
 		},
 	}
 	h := newAdminOrderHandler(os, nil, nil)
@@ -323,3 +343,6 @@ func TestAdminPostNewOrder_Sucesso(t *testing.T) {
 		)
 	}
 }
+
+// ensure orders import is used (Repository interface)
+var _ orders.Repository = (*mockOrderStore)(nil)

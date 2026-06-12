@@ -5,10 +5,27 @@ import (
 	"github.com/DTineli/ez/internal/store"
 )
 
-templ ClientOrdersPage(orders []store.ClientOrderListItem) {
+func clientOrderStatusStyle(s store.OrderStatus) string {
+	switch s {
+	case store.OrderAprovado:
+		return "background:#DBEAFE;color:#1D4ED8;"
+	case store.OrderEmSeparacao:
+		return "background:#FEF3C7;color:#92400E;"
+	case store.OrderAguardandoRetirada:
+		return "background:#FEE2E2;color:#B91C1C;"
+	case store.OrderEntregue, store.OrderCompleto:
+		return "background:#DCFCE7;color:#15803D;"
+	case store.OrderCancelado:
+		return "background:#F3F4F6;color:#6B7280;"
+	default:
+		return "background:#EDE9FE;color:#5B21B6;"
+	}
+}
+
+templ ClientOrdersPage(pedidos []store.ClientOrderListItem) {
 	<div style="display:flex;flex-direction:column;gap:16px;">
 		<h2 style="font-family:'Manrope',sans-serif;font-size:1.25rem;font-weight:800;letter-spacing:-0.02em;color:#1C1C2E;">Meus Pedidos</h2>
-		if len(orders) == 0 {
+		if len(pedidos) == 0 {
 			<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 0;text-align:center;">
 				<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px;">
 					<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"></path>
@@ -34,7 +51,7 @@ templ ClientOrdersPage(orders []store.ClientOrderListItem) {
 			</div>
 		} else {
 			<ul style="display:flex;flex-direction:column;gap:10px;list-style:none;padding:0;margin:0;">
-				for _, o := range orders {
+				for _, o := range pedidos {
 					<li>
 						<a
 							href={ templ.SafeURL(fmt.Sprintf("/client/pedidos/%d", o.ID)) }
@@ -54,8 +71,8 @@ templ ClientOrdersPage(orders []store.ClientOrderListItem) {
 								<p style="font-size:0.75rem;color:#9CA3AF;font-family:'Inter',sans-serif;">
 									{ o.CreatedAt.Format("02/01/2006") }
 								</p>
-								<span style="display:inline-block;border-radius:9999px;background:#EDE9FE;padding:2px 10px;font-size:0.75rem;font-weight:600;color:#5B21B6;align-self:flex-start;">
-									Confirmado
+								<span style={ "display:inline-block;border-radius:9999px;padding:2px 10px;font-size:0.75rem;font-weight:600;align-self:flex-start;" + clientOrderStatusStyle(o.Status) }>
+									{ orderStatusLabel(o.Status) }
 								</span>
 							</div>
 							<div style="margin-left:12px;display:flex;flex-shrink:0;align-items:center;gap:6px;">
@@ -106,12 +123,31 @@ templ ClientOrderDetailPage(order *store.OrderDetail) {
 				</div>
 				<div style="text-align:right;">
 					<p style="font-size:0.75rem;color:#9CA3AF;font-family:'Inter',sans-serif;">Status</p>
-					<span style="border-radius:9999px;background:#EDE9FE;padding:2px 10px;font-size:0.75rem;font-weight:600;color:#5B21B6;">
-						Confirmado
+					<span style={ "border-radius:9999px;padding:2px 10px;font-size:0.75rem;font-weight:600;" + clientOrderStatusStyle(order.Status) }>
+						{ orderStatusLabel(order.Status) }
 					</span>
 				</div>
 			</div>
 		</div>
+		<!-- ações -->
+		if order.Status == store.OrderPendente {
+			<div>
+				<button
+					hx-patch={ fmt.Sprintf("/client/pedidos/%d/status", order.ID) }
+					hx-vals='{"status":"cancelado"}'
+					hx-confirm="Cancelar este pedido?"
+					style="display:inline-flex;align-items:center;gap:6px;border-radius:8px;border:1px solid #FECACA;background:#FEF2F2;padding:8px 18px;font-size:0.875rem;font-weight:600;color:#DC2626;cursor:pointer;transition:background .15s;"
+					onmouseover="this.style.background='#FEE2E2'"
+					onmouseout="this.style.background='#FEF2F2'"
+				>
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<line x1="18" y1="6" x2="6" y2="18"></line>
+						<line x1="6" y1="6" x2="18" y2="18"></line>
+					</svg>
+					Cancelar pedido
+				</button>
+			</div>
+		}
 		<!-- itens -->
 		<div style="border-radius:10px;border:1px solid #E5E7EB;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.06);overflow:hidden;">
 			<div style="border-bottom:1px solid #F3F4F6;padding:12px 16px;">

@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/go-chi/chi/v5"
 )
@@ -58,4 +60,40 @@ func (c *ClientHandler) GetOrderDetail(w http.ResponseWriter, r *http.Request) {
 		c.getCartCount(sess),
 		"pedidos",
 	)
+}
+
+func (c *ClientHandler) PatchOrderStatus(w http.ResponseWriter, r *http.Request) {
+	sess := middleware.GetSessionFromContext(r)
+
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.ParseUint(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Dados inválidos", http.StatusBadRequest)
+		return
+	}
+
+	status := store.OrderStatus(r.FormValue("status"))
+	if status == "" {
+		http.Error(w, "Status obrigatório", http.StatusBadRequest)
+		return
+	}
+
+	order, err := c.orderStore.GetByID(uint(id), sess.TenantID)
+	if err != nil || order.ContactID != sess.ContactInfo.ID {
+		http.NotFound(w, r)
+		return
+	}
+
+	if err := c.orderService.AtualizarStatus(uint(id), sess.TenantID, status, store.OrderAtorBuyer); err != nil {
+		ShowToast(w, "Ação não permitida", "error")
+		return
+	}
+
+	w.Header().Set("HX-Redirect", fmt.Sprintf("/client/pedidos/%d", id))
+	w.WriteHeader(http.StatusOK)
 }

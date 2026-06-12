@@ -3,6 +3,7 @@ package templates
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,75 +18,510 @@ func ConcatAttributeName(attrs []store.VariantAttribute) string {
 	return strings.Join(parts, " / ")
 }
 
-templ AdminOrdersPage(orders []store.AdminOrderListItem) {
-	<div class="space-y-6">
-		<div class="flex items-center justify-between">
+templ OrderFilter(filters store.OrderFilters) {
+	<form
+		id="order-filter-form"
+		class="flex flex-wrap items-center gap-2"
+		hx-get="/admin/pedidos/"
+		hx-target="#main-content"
+		hx-swap="innerHTML"
+		hx-push-url="true"
+	>
+		<div class="relative flex-1 min-w-[180px]">
+			<span class="absolute left-[11px] top-1/2 -translate-y-1/2 pointer-events-none" style="color:#9CA3AF">
+				<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="11" cy="11" r="8"></circle>
+					<path d="M21 21l-4.35-4.35"></path>
+				</svg>
+			</span>
+			<input
+				class="block w-full border border-gray-200 rounded-lg bg-gray-50 pl-[30px] pr-3 py-1.5 text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-violet-400/60 focus:bg-white focus:ring-2 focus:ring-violet-300/20 transition-all"
+				type="text"
+				name="contact"
+				hx-preserve="true"
+				placeholder="Buscar por contato…"
+				value={ filters.ContactName }
+			/>
+		</div>
+		<div class="w-48">
+			<select
+				name="status"
+				class="block w-full border border-gray-200 rounded-lg bg-gray-50 px-3 py-1.5 text-sm text-gray-700 focus:outline-none focus:border-violet-400/60 focus:bg-white focus:ring-2 focus:ring-violet-300/20 transition-all"
+			>
+				<option value="">Todos os status</option>
+				<option
+					value="pendente"
+					if filters.Status == store.OrderPendente {
+						selected
+					}
+				>Pendente</option>
+				<option
+					value="aprovado"
+					if filters.Status == store.OrderAprovado {
+						selected
+					}
+				>Aprovado</option>
+				<option
+					value="em_separacao"
+					if filters.Status == store.OrderEmSeparacao {
+						selected
+					}
+				>Em separação</option>
+				<option
+					value="aguardando_retirada"
+					if filters.Status == store.OrderAguardandoRetirada {
+						selected
+					}
+				>Aguardando retirada</option>
+				<option
+					value="entregue"
+					if filters.Status == store.OrderEntregue {
+						selected
+					}
+				>Entregue</option>
+				<option
+					value="completo"
+					if filters.Status == store.OrderCompleto {
+						selected
+					}
+				>Completo</option>
+				<option
+					value="cancelado"
+					if filters.Status == store.OrderCancelado {
+						selected
+					}
+				>Cancelado</option>
+			</select>
+		</div>
+		<button
+			type="submit"
+			class="shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-primary text-primary-content text-sm font-semibold hover:brightness-95 active:scale-[.97] transition-all cursor-pointer"
+		>
+			Buscar
+		</button>
+	</form>
+}
+
+templ OrderPagination(current, total int, filters store.OrderFilters) {
+	if total > 1 {
+		<div class="flex items-center justify-center gap-1 pt-1 pb-3">
+			<button
+				class="cat-pgbtn"
+				if current <= 1 {
+					disabled="true"
+				}
+				hx-get={ fmt.Sprintf("/admin/pedidos/?page=%d", current-1) }
+				hx-target="#main-content"
+				hx-include="#order-filter-form"
+				hx-swap="innerHTML"
+			>←</button>
+			for i := 1; i <= total; i++ {
+				if i == 1 || i == total || (i >= current-2 && i <= current+2) {
+					<button
+						if i == current {
+							class="cat-pgbtn cat-pgbtn--active"
+						} else {
+							class="cat-pgbtn"
+						}
+						hx-get={ fmt.Sprintf("/admin/pedidos/?page=%d", i) }
+						hx-target="#main-content"
+						hx-include="#order-filter-form"
+						hx-push-url="true"
+						hx-swap="innerHTML"
+					>{ strconv.Itoa(i) }</button>
+				} else if i == current-3 || i == current+3 {
+					<span class="px-0.5 text-gray-300 text-xs select-none">·</span>
+				}
+			}
+			<button
+				class="cat-pgbtn"
+				if current >= total {
+					disabled="true"
+				}
+				hx-get={ fmt.Sprintf("/admin/pedidos/?page=%d", current+1) }
+				hx-push-url="true"
+				hx-target="#main-content"
+				hx-include="#order-filter-form"
+				hx-swap="innerHTML"
+			>→</button>
+		</div>
+	}
+}
+
+templ AdminOrdersPage(page store.AdminOrderListPage) {
+	<style>
+		.ord-row {
+			display: flex;
+			align-items: center;
+			gap: 14px;
+			padding: 12px 18px 12px 16px;
+			background: white;
+			border: 1px solid #E5E7EB;
+			border-radius: 11px;
+			position: relative;
+			overflow: hidden;
+			text-decoration: none;
+			color: inherit;
+			cursor: pointer;
+			transition: border-color .18s, box-shadow .18s, transform .13s;
+			opacity: 0;
+			animation: ordRowIn .3s ease forwards;
+		}
+		.ord-row::before {
+			content: '';
+			position: absolute;
+			left: 0; top: 8px; bottom: 8px;
+			width: 3px;
+			background: #7C3AED;
+			border-radius: 0 2px 2px 0;
+			transform: scaleY(0);
+			transform-origin: center;
+			transition: transform .2s ease;
+		}
+		.ord-row:hover::before { transform: scaleY(1); }
+		.ord-row:hover {
+			border-color: #C4B5FD;
+			box-shadow: 0 3px 14px rgba(124,58,237,.07);
+			transform: translateY(-1px);
+		}
+		.ord-row:nth-child(1)  { animation-delay:   0ms }
+		.ord-row:nth-child(2)  { animation-delay:  42ms }
+		.ord-row:nth-child(3)  { animation-delay:  84ms }
+		.ord-row:nth-child(4)  { animation-delay: 126ms }
+		.ord-row:nth-child(5)  { animation-delay: 168ms }
+		.ord-row:nth-child(6)  { animation-delay: 210ms }
+		.ord-row:nth-child(7)  { animation-delay: 252ms }
+		.ord-row:nth-child(8)  { animation-delay: 294ms }
+		.ord-row:nth-child(9)  { animation-delay: 336ms }
+		.ord-row:nth-child(10) { animation-delay: 378ms }
+		@keyframes ordRowIn {
+			from { opacity: 0; transform: translateY(7px) }
+			to   { opacity: 1; transform: translateY(0)   }
+		}
+		.ord-id {
+			font-family: 'JetBrains Mono', monospace;
+			font-size: .695rem;
+			font-weight: 500;
+			color: #6B7280;
+			background: #F3F4F6;
+			padding: 3px 9px;
+			border-radius: 5px;
+			white-space: nowrap;
+			min-width: 54px;
+			text-align: center;
+			flex-shrink: 0;
+		}
+		.ord-contact {
+			flex: 1;
+			font-size: .875rem;
+			font-weight: 500;
+			color: #1C1C2E;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+		.ord-total {
+			font-size: .875rem;
+			font-weight: 600;
+			color: #374151;
+			white-space: nowrap;
+			flex-shrink: 0;
+		}
+		.ord-date {
+			font-size: .75rem;
+			color: #9CA3AF;
+			white-space: nowrap;
+			flex-shrink: 0;
+			min-width: 110px;
+			text-align: right;
+		}
+		.ord-status {
+			display: inline-flex;
+			align-items: center;
+			gap: 5px;
+			font-size: .72rem;
+			font-weight: 500;
+			white-space: nowrap;
+			flex-shrink: 0;
+			padding: 2px 8px;
+			border-radius: 99px;
+		}
+		.ord-status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+		.ord-s-pendente         { background:#F3F4F6; color:#6B7280 }
+		.ord-s-pendente .ord-status-dot { background:#D1D5DB }
+		.ord-s-aprovado         { background:#DBEAFE; color:#1D4ED8 }
+		.ord-s-aprovado .ord-status-dot { background:#3B82F6; box-shadow:0 0 0 2.5px #EFF6FF }
+		.ord-s-em_separacao     { background:#FEF9C3; color:#92400E }
+		.ord-s-em_separacao .ord-status-dot { background:#F59E0B }
+		.ord-s-aguardando_retirada { background:#FEE2E2; color:#991B1B }
+		.ord-s-aguardando_retirada .ord-status-dot { background:#EF4444 }
+		.ord-s-entregue         { background:#CCFBF1; color:#065F46 }
+		.ord-s-entregue .ord-status-dot { background:#14B8A6; box-shadow:0 0 0 2.5px #F0FDFA }
+		.ord-s-completo         { background:#DCFCE7; color:#15803D }
+		.ord-s-completo .ord-status-dot { background:#22C55E; box-shadow:0 0 0 2.5px #F0FDF4 }
+		.ord-s-cancelado        { background:#F3F4F6; color:#9CA3AF }
+		.ord-s-cancelado .ord-status-dot { background:#9CA3AF }
+		.ord-s-confirmed        { background:#DCFCE7; color:#15803D }
+		.ord-s-confirmed .ord-status-dot { background:#22C55E; box-shadow:0 0 0 2.5px #F0FDF4 }
+		.ord-btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			padding: 4px 12px;
+			border-radius: 7px;
+			font-size: .75rem;
+			font-weight: 600;
+			color: #6B21A8;
+			background: #F5F3FF;
+			border: 1px solid #DDD6FE;
+			transition: background .14s, color .14s, border-color .14s;
+			white-space: nowrap;
+			flex-shrink: 0;
+		}
+		.ord-row:hover .ord-btn {
+			background: #7C3AED;
+			color: white;
+			border-color: #7C3AED;
+		}
+		.ord-empty {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 56px 32px;
+			background: white;
+			border: 1.5px dashed #E5E7EB;
+			border-radius: 12px;
+			gap: 10px;
+		}
+		.ord-empty-icon  { width: 36px; height: 36px; color: #D1D5DB }
+		.ord-empty-title { font-size: .875rem; font-weight: 600; color: #9CA3AF }
+		.ord-empty-sub   { font-size: .75rem; color: #D1D5DB }
+		.cat-pgbtn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 32px;
+			height: 32px;
+			padding: 0 10px;
+			border-radius: 8px;
+			font-size: .8125rem;
+			font-weight: 500;
+			border: 1px solid #E5E7EB;
+			background: white;
+			color: #555570;
+			cursor: pointer;
+			transition: all .14s;
+		}
+		.cat-pgbtn:not([disabled]):hover { border-color: #A78BFA; color: #6B21A8 }
+		.cat-pgbtn--active { background: #7C3AED; border-color: #7C3AED; color: white; font-weight: 600 }
+		.cat-pgbtn[disabled] { opacity: .35; cursor: not-allowed }
+	</style>
+	<div class="space-y-4">
+		<div class="flex items-end justify-between pt-1">
 			<div>
-				<h1 class="text-2xl font-bold">Pedidos</h1>
-				<p class="text-gray-400 text-sm mt-0.5">Histórico de pedidos confirmados do tenant.</p>
+				<h1 style="font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;line-height:1;letter-spacing:-.03em;color:#1C1C2E">Pedidos</h1>
+				<p class="text-xs text-gray-400 mt-1.5">
+					{ strconv.FormatInt(page.Total, 10) } resultado(s) · página { strconv.Itoa(page.Filters.Page) }
+				</p>
 			</div>
 			<button
 				hx-get="/admin/pedidos/novo"
 				hx-target="#main-content"
 				hx-push-url="true"
-				class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm"
+				class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-content text-sm font-semibold hover:brightness-95 active:scale-[.97] transition-all cursor-pointer"
 			>
-				+ Novo Pedido
+				<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M12 5v14M5 12h14"></path>
+				</svg>
+				Novo Pedido
 			</button>
 		</div>
-		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
-			<div class="p-0">
-				<div class="overflow-x-auto">
-					<table class="w-full text-sm text-left">
-						<thead>
-							<tr>
-								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Nº</th>
-								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Contato</th>
-								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Status</th>
-								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Total</th>
-								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200">Data</th>
-								<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-center">Ações</th>
-							</tr>
-						</thead>
-						<tbody>
-							if len(orders) == 0 {
-								<tr>
-									<td colspan="6" class="text-center text-gray-400 py-8 px-4">
-										Nenhum pedido confirmado ainda.
-									</td>
-								</tr>
-							}
-							for _, o := range orders {
-								<tr class="hover:bg-gray-50">
-									<td class="px-4 py-3 font-mono text-sm text-gray-400">{ fmt.Sprintf("#%d", o.ID) }</td>
-									<td class="px-4 py-3 font-medium">{ o.ContactName }</td>
-									<td class="px-4 py-3">
-										if o.Status == store.OrderStatusConfirmed {
-											<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-green-100 text-green-800">Confirmado</span>
-										} else {
-											<span class="inline-flex items-center px-1.5 py-0 text-[0.65rem] font-medium rounded-full bg-gray-100 text-gray-700">{ string(o.Status) }</span>
-										}
-									</td>
-									<td class="px-4 py-3 font-semibold">R$ { fmt.Sprintf("%.2f", o.TotalAmount) }</td>
-									<td class="px-4 py-3 text-gray-400 text-sm">{ o.CreatedAt.Format("02/01/2006 15:04") }</td>
-									<td class="px-4 py-3 text-center">
-										<a
-											class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs"
-											hx-get={ fmt.Sprintf("/admin/pedidos/%d", o.ID) }
-											hx-target="#main-content"
-											hx-push-url="true"
-										>
-											Ver
-										</a>
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			</div>
+		<div class="bg-white border border-gray-200 rounded-xl px-4 py-3">
+			@OrderFilter(page.Filters)
 		</div>
+		<div
+			id="bulk-toolbar"
+			style="display:none"
+			class="flex items-center gap-3 bg-white border border-violet-200 shadow-sm rounded-xl px-4 py-2.5"
+		>
+			<span id="bulk-count" class="text-sm font-medium text-gray-700 mr-2"></span>
+			<form
+				id="bulk-form"
+				hx-post="/admin/pedidos/bulk-status"
+				hx-target="#main-content"
+				hx-push-url="/admin/pedidos/"
+				class="flex items-center gap-2"
+			>
+				<select
+					name="status"
+					class="border border-gray-200 rounded-lg bg-gray-50 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300/20"
+				>
+					<option value="aprovado">Aprovado</option>
+					<option value="em_separacao">Em separação</option>
+					<option value="aguardando_retirada">Aguardando retirada</option>
+					<option value="entregue">Entregue</option>
+					<option value="completo">Completo</option>
+					<option value="cancelado">Cancelado</option>
+				</select>
+				<button
+					type="submit"
+					class="shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-primary text-primary-content text-sm font-semibold hover:brightness-95 active:scale-[.97] transition-all cursor-pointer"
+				>
+					Aplicar
+				</button>
+			</form>
+			<form
+				id="pick-list-form"
+				method="post"
+				action="/admin/pedidos/pick-list"
+				target="_blank"
+				onsubmit="syncPickListIds(this)"
+			>
+				<button
+					type="submit"
+					class="shrink-0 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-white text-violet-700 border border-violet-200 text-sm font-semibold hover:bg-violet-50 active:scale-[.97] transition-all cursor-pointer"
+				>
+					<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+						<line x1="9" y1="12" x2="15" y2="12"></line>
+						<line x1="9" y1="16" x2="13" y2="16"></line>
+					</svg>
+					Lista de Separação
+				</button>
+			</form>
+		</div>
+		<div class="flex items-center gap-2 px-1">
+			<input
+				type="checkbox"
+				id="select-all"
+				class="w-4 h-4 rounded border-gray-300 accent-violet-600 cursor-pointer"
+				onchange="toggleAllOrders(this)"
+			/>
+			<label for="select-all" class="text-xs text-gray-400 cursor-pointer select-none">Selecionar todos</label>
+		</div>
+		<div class="flex flex-col gap-[5px]">
+			if len(page.Orders) == 0 {
+				<div class="ord-empty">
+					<svg class="ord-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+						<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+					</svg>
+					<p class="ord-empty-title">Nenhum pedido encontrado</p>
+					<p class="ord-empty-sub">Ajuste os filtros ou crie um novo pedido</p>
+				</div>
+			}
+			for _, o := range page.Orders {
+				<div class="ord-row">
+					<input
+						type="checkbox"
+						name="ids"
+						value={ fmt.Sprintf("%d", o.ID) }
+						form="bulk-form"
+						class="order-checkbox w-4 h-4 rounded border-gray-300 accent-violet-600 cursor-pointer flex-shrink-0"
+						onchange="onOrderCheckChange()"
+						onclick="event.stopPropagation()"
+					/>
+					<span class="ord-id">{ fmt.Sprintf("#%d", o.ID) }</span>
+					<span class="ord-contact">{ o.TradeName }</span>
+					<span class={ "ord-status ord-s-" + string(o.Status) }>
+						<span class="ord-status-dot"></span>
+						{ orderStatusLabel(o.Status) }
+					</span>
+					<span class="ord-total">R$ { fmt.Sprintf("%.2f", o.TotalAmount) }</span>
+					<span class="ord-date">{ o.CreatedAt.Format("02/01/06 15:04") }</span>
+					<a
+						class="ord-btn"
+						hx-get={ fmt.Sprintf("/admin/pedidos/%d", o.ID) }
+						hx-target="#main-content"
+						hx-push-url="true"
+						onclick="event.stopPropagation()"
+					>
+						Ver
+						<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M5 12h14M12 5l7 7-7 7"></path>
+						</svg>
+					</a>
+				</div>
+			}
+		</div>
+		@OrderPagination(page.Filters.Page, page.TotalPages, page.Filters)
 	</div>
+	<script>
+		function onOrderCheckChange() {
+			var checked = document.querySelectorAll('.order-checkbox:checked');
+			var all = document.querySelectorAll('.order-checkbox');
+			var toolbar = document.getElementById('bulk-toolbar');
+			var count = document.getElementById('bulk-count');
+			var selectAll = document.getElementById('select-all');
+
+			toolbar.style.display = checked.length > 0 ? 'flex' : 'none';
+			count.textContent = checked.length + ' selecionado' + (checked.length !== 1 ? 's' : '');
+			selectAll.indeterminate = checked.length > 0 && checked.length < all.length;
+			selectAll.checked = all.length > 0 && checked.length === all.length;
+		}
+
+		function toggleAllOrders(cb) {
+			document.querySelectorAll('.order-checkbox').forEach(function(c) {
+				c.checked = cb.checked;
+			});
+			onOrderCheckChange();
+		}
+
+		function syncPickListIds(form) {
+			form.querySelectorAll('input[name="ids"]').forEach(function(el) { el.remove(); });
+			document.querySelectorAll('.order-checkbox:checked').forEach(function(cb) {
+				var input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = 'ids';
+				input.value = cb.value;
+				form.appendChild(input);
+			});
+		}
+	</script>
+}
+
+func adminOrderStatusStyle(s store.OrderStatus) string {
+	switch s {
+	case store.OrderPendente:
+		return "background:#F3F4F6;color:#6B7280;"
+	case store.OrderAprovado:
+		return "background:#DBEAFE;color:#1D4ED8;"
+	case store.OrderEmSeparacao:
+		return "background:#FEF9C3;color:#92400E;"
+	case store.OrderAguardandoRetirada:
+		return "background:#FEE2E2;color:#991B1B;"
+	case store.OrderEntregue:
+		return "background:#CCFBF1;color:#065F46;"
+	case store.OrderCompleto:
+		return "background:#DCFCE7;color:#15803D;"
+	case store.OrderCancelado:
+		return "background:#F3F4F6;color:#9CA3AF;"
+	default:
+		return "background:#EDE9FE;color:#5B21B6;"
+	}
+}
+
+func orderStatusLabel(s store.OrderStatus) string {
+	switch s {
+	case store.OrderPendente:
+		return "Pendente"
+	case store.OrderAprovado:
+		return "Aprovado"
+	case store.OrderEmSeparacao:
+		return "Em separação"
+	case store.OrderAguardandoRetirada:
+		return "Ag. retirada"
+	case store.OrderEntregue:
+		return "Entregue"
+	case store.OrderCompleto:
+		return "Completo"
+	case store.OrderCancelado:
+		return "Cancelado"
+	case store.OrderStatusConfirmed:
+		return "Confirmado"
+	default:
+		return string(s)
+	}
 }
 
 templ AdminOrderDetailPage(order *store.OrderDetail) {
@@ -111,7 +547,9 @@ templ AdminOrderDetailPage(order *store.OrderDetail) {
 					</div>
 					<div>
 						<p class="text-gray-400">Status</p>
-						<p class="font-medium">{ string(order.Status) }</p>
+						<span style={ "display:inline-block;border-radius:9999px;padding:2px 10px;font-size:0.75rem;font-weight:600;" + adminOrderStatusStyle(order.Status) }>
+							{ orderStatusLabel(order.Status) }
+						</span>
 					</div>
 					<div>
 						<p class="text-gray-400">Total</p>
@@ -124,6 +562,37 @@ templ AdminOrderDetailPage(order *store.OrderDetail) {
 				</div>
 			</div>
 		</div>
+		if order.Status == store.OrderPendente {
+			<div class="flex items-center gap-3">
+				<button
+					hx-patch={ fmt.Sprintf("/admin/pedidos/%d/status", order.ID) }
+					hx-vals='{"status":"aprovado"}'
+					hx-target="#main-content"
+					hx-push-url="true"
+					hx-confirm="Aprovar este pedido?"
+					class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 active:scale-[.97] transition-all cursor-pointer"
+				>
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<polyline points="20 6 9 17 4 12"></polyline>
+					</svg>
+					Aprovar
+				</button>
+				<button
+					hx-patch={ fmt.Sprintf("/admin/pedidos/%d/status", order.ID) }
+					hx-vals='{"status":"cancelado"}'
+					hx-target="#main-content"
+					hx-push-url="true"
+					hx-confirm="Cancelar este pedido?"
+					class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 border border-red-200 text-sm font-semibold hover:bg-red-100 active:scale-[.97] transition-all cursor-pointer"
+				>
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<line x1="18" y1="6" x2="6" y2="18"></line>
+						<line x1="6" y1="6" x2="18" y2="18"></line>
+					</svg>
+					Cancelar
+				</button>
+			</div>
+		}
 		<div class="bg-white shadow-md rounded-xl">
 			<div class="p-6">
 				<h3 class="text-base font-bold mb-4">Itens</h3>

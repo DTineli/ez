@@ -12,9 +12,11 @@ make templ-watch / tailwind-watch
 **Never edit `*_templ.go` directly — always regenerate.**
 
 ## Architecture
-Multi-tenant e-commerce/order mgmt. Roles: **admin**, **client**. Tenant = hostname slug (`company.localhost` → `"company"`). All data filtered by `TenantID`.
+Multi-tenant e-commerce/order mgmt. Roles: **seller**, **buyer**. Tenant = hostname slug (`company.localhost` → `"company"`). All data filtered by `TenantID`.
 
-Routes: `/admin/*` (dashboard) · `/client/*` (storefront)
+Routes: `/seller/*` (dashboard) · `/buyer/*` (storefront)
+
+> **Note:** Terminologia seller/buyer é a nomenclatura alvo. O código ainda usa `admin`/`client` — renomear é trabalho pendente.
 
 ## Key Packages
 | Path | Role |
@@ -31,20 +33,20 @@ Routes: `/admin/*` (dashboard) · `/client/*` (storefront)
 | `static/css/` | Tailwind (`input.css` → `style.min.css`) |
 
 ## Data Flow
-- Admin login: email+pass → bcrypt → session → `HX-Redirect /admin/`
-- Client login: phone+pass → session (CartID + PriceTable) → `HX-Redirect /client/items`
-- Cart: `POST /client/cart/items` add/increment; `POST /client/confirmacao` → Order
+- Seller login: email+pass → bcrypt → session → `HX-Redirect /seller/`
+- Buyer login: phone+pass → session (CartID + PriceTable) → `HX-Redirect /buyer/items`
+- Cart: `POST /buyer/cart/items` add/increment; `POST /buyer/confirmacao` → Order
 
 ## Session
-Cookies: `ez_admin_session`, `ez_client_session`. Secret hardcoded `"VERYSECRETKEY"` in `cookiesotore/session.go` — move to env before prod.
+Cookies: `ez_seller_session`, `ez_buyer_session`. Secret hardcoded `"VERYSECRETKEY"` in `cookiesotore/session.go` — move to env before prod.
 
 ## UI
 Templ + HTMX (partial updates, `HX-Redirect` after POSTs). Tailwind CLI only — no npm.
 
 ## Pricing Rules
 - Price stored in cart = **cost price** (base for calculation)
-- Final price calculated at checkout (`POST /client/confirmacao`)
-- Client selects price table → system applies multiplier → order saved with final price
+- Final price calculated at checkout (`POST /buyer/confirmacao`)
+- Buyer selects price table → system applies multiplier → order saved with final price
 - Never use cart price as sale price; always recalculate at confirmation
 
 ## Env Defaults
