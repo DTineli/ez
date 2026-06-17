@@ -19,6 +19,10 @@ func (p PriceTableDB) CreatePriceTable(table *store.PriceTable) error {
 	return p.db.Create(table).Error
 }
 
+func (p *PriceTableDB) CreateProductPrice(pPrice store.ProductPrice) error {
+	return p.db.Create(pPrice).Error
+}
+
 func (p PriceTableDB) FindAllActiveByTenantAndClient(
 	tenantID, clientID uint,
 ) ([]store.PriceTable, error) {

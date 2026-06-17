@@ -16,6 +16,10 @@ type PriceTableService interface {
 	FindAllActiveByContact(tenantID, contactID uint) ([]store.PriceTable, error)
 	GetOne(id, tenantID uint) (*store.PriceTable, error)
 	Apply(costPrice float64, pt *store.PriceTable) float64
+
+	AddPrice(tableID, variationID uint) error
+	UpdatePrice(id uint) error
+	RemovePrice(priceID uint) error
 }
 
 type priceTableService struct {
@@ -24,6 +28,21 @@ type priceTableService struct {
 
 func NewPriceTableService(s store.PriceTableStore) PriceTableService {
 	return &priceTableService{store: s}
+}
+
+func (p *priceTableService) AddPrice(tableID, variationID uint) error {
+
+	return nil
+}
+
+// RemovePrice implements [PriceTableService].
+func (p *priceTableService) RemovePrice(priceID uint) error {
+	panic("unimplemented")
+}
+
+// UpdatePrice implements [PriceTableService].
+func (p *priceTableService) UpdatePrice(id uint) error {
+	panic("unimplemented")
 }
 
 func (p *priceTableService) Create(tenantID uint, name string, percentage float64) (*store.PriceTable, error) {
