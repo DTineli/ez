@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/DTineli/ez/internal/services"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/a-h/templ"
@@ -38,14 +39,11 @@ func (c *ClientHandler) getCartCount(sess *store.Session) int64 {
 }
 
 func applyPrice(table store.PriceTable, variant store.Variant) float64 {
-	return variant.CostPrice * (1 + table.Percentage/100)
+	return services.ApplyPriceTable(variant.CostPrice, &table)
 }
 
 func applyCheckoutPrice(costPrice float64, table *store.PriceTable) float64 {
-	if table == nil {
-		return costPrice
-	}
-	return costPrice * (1 + table.Percentage/100)
+	return services.ApplyPriceTable(costPrice, table)
 }
 
 func queryParamUintOrZero(r *http.Request, paramName string) uint64 {

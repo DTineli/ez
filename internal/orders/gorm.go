@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/DTineli/ez/internal/services"
 	"github.com/DTineli/ez/internal/store"
 	"gorm.io/gorm"
 )
@@ -80,10 +81,7 @@ func (o *GormRepository) ConfirmFromCart(
 				return errors.New("product not found for cart item")
 			}
 
-			unitPrice := item.CostPrice
-			if priceTable != nil {
-				unitPrice = item.CostPrice * (1 + priceTable.Percentage/100)
-			}
+			unitPrice := services.ApplyPriceTable(item.CostPrice, priceTable)
 			subtotal := float64(item.Quantity) * unitPrice
 			total += subtotal
 
