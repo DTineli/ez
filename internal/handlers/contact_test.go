@@ -75,6 +75,22 @@ func (s *mockInviteStore) DeleteByID(id uuid.UUID) error {
 	return nil
 }
 
+type mockPriceTableStore struct{}
+
+func (s *mockPriceTableStore) CreatePriceTable(p *store.PriceTable) error  { return nil }
+func (s *mockPriceTableStore) FindAllByTenant(id uint) ([]store.PriceTable, error) { return nil, nil }
+func (s *mockPriceTableStore) FindAllActiveByTenant(id uint) ([]store.PriceTable, error) {
+	return nil, nil
+}
+func (s *mockPriceTableStore) FindAllActiveByTenantAndClient(tenantID, clientID uint) ([]store.PriceTable, error) {
+	return nil, nil
+}
+func (s *mockPriceTableStore) GetOne(id, tenantID uint) (*store.PriceTable, error) { return nil, nil }
+func (s *mockPriceTableStore) HasContacts(priceTableID, tenantID uint) (bool, error) {
+	return false, nil
+}
+func (s *mockPriceTableStore) Delete(id, tenantID uint) error { return nil }
+
 func newContactHandler(cs *mockContactStore, is *mockInviteStore, pts *mockPriceTableStore) *ContactHandler {
 	if cs == nil {
 		cs = &mockContactStore{}

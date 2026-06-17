@@ -9,6 +9,7 @@ import (
 
 	"github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/orders"
+	"github.com/DTineli/ez/internal/services"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/DTineli/ez/internal/templates/components"
@@ -16,13 +17,13 @@ import (
 )
 
 type ClientHandler struct {
-	productStore    store.ProductStore
-	cartStore       store.CartStore
-	orderStore      orders.Repository
-	orderService    *orders.Service
-	sessionStore    store.SessionStore
-	priceTableStore store.PriceTableStore
-	contactStore    store.ContactStore
+	productStore  store.ProductStore
+	cartStore     store.CartStore
+	orderStore    orders.Repository
+	orderService  *orders.Service
+	sessionStore  store.SessionStore
+	priceTableSvc services.PriceTableService
+	contactStore  store.ContactStore
 }
 
 func NewClientHandler(
@@ -30,17 +31,17 @@ func NewClientHandler(
 	cStore store.CartStore,
 	oStore orders.Repository,
 	sStore store.SessionStore,
-	ptStore store.PriceTableStore,
+	ptSvc services.PriceTableService,
 	ccStore store.ContactStore,
 ) *ClientHandler {
 	return &ClientHandler{
-		productStore:    pStore,
-		cartStore:       cStore,
-		orderStore:      oStore,
-		orderService:    orders.NewService(oStore),
-		sessionStore:    sStore,
-		priceTableStore: ptStore,
-		contactStore:    ccStore,
+		productStore:  pStore,
+		cartStore:     cStore,
+		orderStore:    oStore,
+		orderService:  orders.NewService(oStore),
+		sessionStore:  sStore,
+		priceTableSvc: ptSvc,
+		contactStore:  ccStore,
 	}
 }
 
@@ -94,7 +95,7 @@ func (c *ClientHandler) RenderCheckoutContent(
 
 		var pt *store.PriceTable
 		if price_tableID != 0 {
-			fetched, err := c.priceTableStore.GetOne(
+			fetched, err := c.priceTableSvc.GetOne(
 				uint(price_tableID),
 				sess.TenantID,
 			)
@@ -104,7 +105,7 @@ func (c *ClientHandler) RenderCheckoutContent(
 		}
 
 		for i := range items {
-			items[i].UnitPrice = applyCheckoutPrice(items[i].CostPrice, pt)
+			items[i].UnitPrice = c.priceTableSvc.Apply(items[i].CostPrice, pt)
 			items[i].Subtotal = items[i].UnitPrice * float64(items[i].Quantity)
 			totalAmount += items[i].Subtotal
 		}
@@ -224,7 +225,7 @@ func (c *ClientHandler) FetchItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	prices, err := c.priceTableStore.GetOne(
+	prices, err := c.priceTableSvc.GetOne(
 		uint(priceTable),
 		sess.TenantID,
 	)
@@ -237,7 +238,7 @@ func (c *ClientHandler) FetchItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cards := makeCardData(products.Results, *prices)
+	cards := makeCardData(products.Results, *prices, c.priceTableSvc)
 	nextPage := 0
 	totalPages := int(math.Ceil(float64(products.Count) / float64(perPage)))
 	if page < totalPages {
@@ -271,6 +272,7 @@ func (c *ClientHandler) GetCheckoutPage(
 func makeCardData(
 	products []store.Product,
 	table store.PriceTable,
+	ptSvc services.PriceTableService,
 ) []store.CardData {
 	cards := make([]store.CardData, 0, len(products))
 	for _, p := range products {
@@ -285,7 +287,7 @@ func makeCardData(
 			}
 			variants = append(variants, store.VariantData{
 				ID:        v.ID,
-				Price:     applyPrice(table, v),
+				Price:     ptSvc.Apply(v.CostPrice, &table),
 				IsDefault: v.IsDefault,
 				Attrs:     attrs,
 			})

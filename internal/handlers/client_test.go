@@ -75,7 +75,7 @@ func (s *mockCartStore) UpdateItemQty(cartID, productID, variantID uint, quantit
 	return nil
 }
 
-func newClientHandler(ps *mockProductStore, cs *mockCartStore, os *mockOrderStore, ss *mockSessionStore, pts *mockPriceTableStoreExt) *ClientHandler {
+func newClientHandler(ps *mockProductStore, cs *mockCartStore, os *mockOrderStore, ss *mockSessionStore, pts *mockPriceTableServiceExt) *ClientHandler {
 	if ps == nil {
 		ps = &mockProductStore{}
 	}
@@ -89,7 +89,7 @@ func newClientHandler(ps *mockProductStore, cs *mockCartStore, os *mockOrderStor
 		ss = &mockSessionStore{}
 	}
 	if pts == nil {
-		pts = &mockPriceTableStoreExt{}
+		pts = &mockPriceTableServiceExt{}
 	}
 	return NewClientHandler(ps, cs, os, ss, pts, &mockContactStore{})
 }
@@ -111,7 +111,7 @@ func newClientSessionWithCart(cartID uint) *store.Session {
 // --- GetItemsPage ---
 
 func TestGetItemsPage_Sucesso(t *testing.T) {
-	pts := &mockPriceTableStoreExt{
+	pts := &mockPriceTableServiceExt{
 		getOne: func(id, tenantID uint) (*store.PriceTable, error) {
 			return &store.PriceTable{ID: id, Percentage: 10}, nil
 		},
@@ -130,7 +130,7 @@ func TestGetItemsPage_Sucesso(t *testing.T) {
 }
 
 func TestFetchItems_TabelaPrecoNaoEncontrada(t *testing.T) {
-	pts := &mockPriceTableStoreExt{
+	pts := &mockPriceTableServiceExt{
 		getOne: func(id, tenantID uint) (*store.PriceTable, error) {
 			return nil, errors.New("not found")
 		},
@@ -215,7 +215,7 @@ func TestPostAddToCart_Sucesso(t *testing.T) {
 			return &store.Variant{ID: id, TenantID: tenantID, ProductID: 1, CostPrice: 50.0}, nil
 		},
 	}
-	pts := &mockPriceTableStoreExt{
+	pts := &mockPriceTableServiceExt{
 		getOne: func(id, tenantID uint) (*store.PriceTable, error) {
 			return &store.PriceTable{ID: id, Percentage: 10}, nil
 		},

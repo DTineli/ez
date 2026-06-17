@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	m "github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/services"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/go-chi/chi/v5"
 )
@@ -168,25 +169,27 @@ func (s *mockProductStore) RecalcularStatusProduto(productID, tenantID uint) err
 	return nil
 }
 
-type mockPriceTableStore struct{}
+type mockPriceTableService struct{}
 
-func (s *mockPriceTableStore) CreatePriceTable(p *store.PriceTable) error { return nil }
-func (s *mockPriceTableStore) FindAllByTenant(id uint) ([]store.PriceTable, error) {
+func (s *mockPriceTableService) Create(tenantID uint, name string, pct float64) (*store.PriceTable, error) {
+	return &store.PriceTable{Name: name, Percentage: pct, TenantID: tenantID}, nil
+}
+func (s *mockPriceTableService) Delete(id, tenantID uint) error { return nil }
+func (s *mockPriceTableService) FindAll(tenantID uint) ([]store.PriceTable, error) {
 	return nil, nil
 }
-func (s *mockPriceTableStore) FindAllActiveByTenant(id uint) ([]store.PriceTable, error) {
+func (s *mockPriceTableService) FindAllActive(tenantID uint) ([]store.PriceTable, error) {
 	return nil, nil
 }
-func (s *mockPriceTableStore) FindAllActiveByTenantAndClient(tenantID, clientID uint) ([]store.PriceTable, error) {
+func (s *mockPriceTableService) FindAllActiveByContact(tenantID, contactID uint) ([]store.PriceTable, error) {
 	return nil, nil
 }
-func (s *mockPriceTableStore) GetOne(id, tenantID uint) (*store.PriceTable, error) {
+func (s *mockPriceTableService) GetOne(id, tenantID uint) (*store.PriceTable, error) {
 	return nil, nil
 }
-func (s *mockPriceTableStore) HasContacts(priceTableID, tenantID uint) (bool, error) {
-	return false, nil
+func (s *mockPriceTableService) Apply(costPrice float64, pt *store.PriceTable) float64 {
+	return services.ApplyPriceTable(costPrice, pt)
 }
-func (s *mockPriceTableStore) Delete(id, tenantID uint) error { return nil }
 
 // --- helpers ---
 
@@ -222,7 +225,7 @@ func htmxRequest(r *http.Request) *http.Request {
 }
 
 func newHandler() *ProductHandler {
-	return NewProductHandler(&mockProductStore{}, &mockPriceTableStore{})
+	return NewProductHandler(&mockProductStore{}, &mockPriceTableService{})
 }
 
 // --- testes ---
@@ -267,7 +270,7 @@ func TestPostNewProduct_SKUDuplicado(t *testing.T) {
 			return errors.New("UNIQUE constraint failed: products.sku")
 		},
 	}
-	h := NewProductHandler(ps, &mockPriceTableStore{})
+	h := NewProductHandler(ps, &mockPriceTableService{})
 
 	body := url.Values{
 		"name": {"Produto Teste"},
@@ -298,7 +301,7 @@ func TestPostNewProduct_Sucesso(t *testing.T) {
 			return nil
 		},
 	}
-	h := NewProductHandler(ps, &mockPriceTableStore{})
+	h := NewProductHandler(ps, &mockPriceTableService{})
 
 	body := url.Values{
 		"name": {"Produto Teste"},
@@ -335,7 +338,7 @@ func TestGetEditPage_ProdutoNaoEncontrado(t *testing.T) {
 			return nil, errors.New("record not found")
 		},
 	}
-	h := NewProductHandler(ps, &mockPriceTableStore{})
+	h := NewProductHandler(ps, &mockPriceTableService{})
 
 	r := httptest.NewRequest(http.MethodGet, "/admin/produtos/99", nil)
 	r = htmxRequest(withSession(r, newSession(1)))
@@ -355,7 +358,7 @@ func TestGetEditPage_TenantErrado(t *testing.T) {
 			return &store.Product{ID: id, TenantID: 99}, nil // tenant diferente
 		},
 	}
-	h := NewProductHandler(ps, &mockPriceTableStore{})
+	h := NewProductHandler(ps, &mockPriceTableService{})
 
 	r := httptest.NewRequest(http.MethodGet, "/admin/produtos/1", nil)
 	r = htmxRequest(withSession(r, newSession(1))) // session tenant=1
@@ -378,7 +381,7 @@ func TestGetEditPage_Sucesso(t *testing.T) {
 			return nil, nil
 		},
 	}
-	h := NewProductHandler(ps, &mockPriceTableStore{})
+	h := NewProductHandler(ps, &mockPriceTableService{})
 
 	r := httptest.NewRequest(http.MethodGet, "/admin/produtos/1", nil)
 	r = htmxRequest(withSession(r, newSession(1)))
@@ -403,7 +406,7 @@ func TestUpdateProduct_Sucesso(t *testing.T) {
 			return nil, nil
 		},
 	}
-	h := NewProductHandler(ps, &mockPriceTableStore{})
+	h := NewProductHandler(ps, &mockPriceTableService{})
 
 	body := url.Values{
 		"name": {"Produto Atualizado"},
@@ -449,7 +452,7 @@ func TestGetProductPage_ErroStore(t *testing.T) {
 			return nil, errors.New("db error")
 		},
 	}
-	h := NewProductHandler(ps, &mockPriceTableStore{})
+	h := NewProductHandler(ps, &mockPriceTableService{})
 
 	r := httptest.NewRequest(http.MethodGet, "/admin/produtos", nil)
 	r = htmxRequest(withSession(r, newSession(1)))
@@ -505,7 +508,7 @@ func TestPostVariant_Sucesso(t *testing.T) {
 			return []store.Variant{}, nil
 		},
 	}
-	h := NewProductHandler(ps, &mockPriceTableStore{})
+	h := NewProductHandler(ps, &mockPriceTableService{})
 
 	body := url.Values{
 		"sku":           {"VAR-01"},
@@ -549,7 +552,7 @@ func TestPostVariant_ErroCreate(t *testing.T) {
 			return errors.New("db error")
 		},
 	}
-	h := NewProductHandler(ps, &mockPriceTableStore{})
+	h := NewProductHandler(ps, &mockPriceTableService{})
 
 	body := url.Values{"sku": {"VAR-01"}}
 	r := httptest.NewRequest(http.MethodPost, "/admin/produtos/1/variants", strings.NewReader(body.Encode()))
@@ -576,7 +579,7 @@ func TestUpdateVariant_Sucesso(t *testing.T) {
 			return nil
 		},
 	}
-	h := NewProductHandler(ps, &mockPriceTableStore{})
+	h := NewProductHandler(ps, &mockPriceTableService{})
 
 	body := url.Values{
 		"cost_price":    {"29.90"},
@@ -608,7 +611,7 @@ func TestUpdateVariant_ErroStore(t *testing.T) {
 			return errors.New("not found")
 		},
 	}
-	h := NewProductHandler(ps, &mockPriceTableStore{})
+	h := NewProductHandler(ps, &mockPriceTableService{})
 
 	body := url.Values{"cost_price": {"10"}, "current_stock": {"1"}, "minimum_stock": {"0"}}
 	r := httptest.NewRequest(http.MethodPost, "/admin/produtos/1/variants/5", strings.NewReader(body.Encode()))
@@ -630,7 +633,7 @@ func TestGetVariantRow_NaoEncontrado(t *testing.T) {
 			return nil, errors.New("not found")
 		},
 	}
-	h := NewProductHandler(ps, &mockPriceTableStore{})
+	h := NewProductHandler(ps, &mockPriceTableService{})
 
 	r := httptest.NewRequest(http.MethodGet, "/admin/produtos/1/variants/99", nil)
 	r = htmxRequest(withSession(r, newSession(1)))

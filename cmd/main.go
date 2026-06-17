@@ -16,6 +16,7 @@ import (
 	"github.com/DTineli/ez/internal/handlers"
 	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/orders"
+	"github.com/DTineli/ez/internal/services"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/store/cookiesotore"
 	"github.com/DTineli/ez/internal/store/dbstore"
@@ -77,7 +78,9 @@ func main() {
 		contactStore,
 		clientSessionStore)
 
-	productHandler := handlers.NewProductHandler(pStore, priceTableStore)
+	ptService := services.NewPriceTableService(priceTableStore)
+
+	productHandler := handlers.NewProductHandler(pStore, ptService)
 
 	contactHandler := handlers.NewContactHandler(
 		handlers.NewContactHandlerParams{
@@ -91,7 +94,7 @@ func main() {
 		cartStore,
 		orderStore,
 		clientSessionStore,
-		priceTableStore,
+		ptService,
 		contactStore,
 	)
 	adminOrderHandler := handlers.NewAdminOrderHandler(

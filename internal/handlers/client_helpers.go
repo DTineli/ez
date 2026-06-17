@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/DTineli/ez/internal/services"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/a-h/templ"
@@ -36,14 +35,6 @@ func (c *ClientHandler) getCartCount(sess *store.Session) int64 {
 		return 0
 	}
 	return total
-}
-
-func applyPrice(table store.PriceTable, variant store.Variant) float64 {
-	return services.ApplyPriceTable(variant.CostPrice, &table)
-}
-
-func applyCheckoutPrice(costPrice float64, table *store.PriceTable) float64 {
-	return services.ApplyPriceTable(costPrice, table)
 }
 
 func queryParamUintOrZero(r *http.Request, paramName string) uint64 {

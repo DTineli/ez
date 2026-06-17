@@ -8,6 +8,7 @@ import (
 
 	"github.com/DTineli/ez/internal/forms"
 	m "github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/services"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/go-chi/chi/v5"
@@ -15,16 +16,16 @@ import (
 
 type ProductHandler struct {
 	productStore    store.ProductStore
-	priceTableStore store.PriceTableStore
+	priceTableSvc   services.PriceTableService
 }
 
 func NewProductHandler(
 	productDB store.ProductStore,
-	priceTableDB store.PriceTableStore,
+	ptSvc services.PriceTableService,
 ) *ProductHandler {
 	return &ProductHandler{
-		productStore:    productDB,
-		priceTableStore: priceTableDB,
+		productStore:  productDB,
+		priceTableSvc: ptSvc,
 	}
 }
 
