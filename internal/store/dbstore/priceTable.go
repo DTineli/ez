@@ -19,8 +19,24 @@ func (p PriceTableDB) CreatePriceTable(table *store.PriceTable) error {
 	return p.db.Create(table).Error
 }
 
-func (p *PriceTableDB) CreateProductPrice(pPrice store.ProductPrice) error {
+func (p *PriceTableDB) CreateProductPrice(pPrice *store.ProductPrice) error {
 	return p.db.Create(pPrice).Error
+}
+
+func (p *PriceTableDB) FindProductPrices(
+	productID uint,
+) ([]store.ProductPrice, error) {
+	var prices []store.ProductPrice
+
+	err := p.db.
+		Joins("JOIN variants ON variants.id = product_prices.variant_id").
+		Where("variants.product_id = ?", productID).
+		Find(&prices).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return prices, nil
 }
 
 func (p PriceTableDB) FindAllActiveByTenantAndClient(
@@ -95,4 +111,23 @@ func (p PriceTableDB) Delete(id, tenantID uint) error {
 	return p.db.
 		Where("id = ? AND tenant_id = ?", id, tenantID).
 		Delete(&store.PriceTable{}).Error
+}
+
+func (p *PriceTableDB) GetOneProductPrice(id uint) (*store.ProductPrice, error) {
+	var price store.ProductPrice
+	err := p.db.First(&price, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &price, nil
+}
+
+func (p *PriceTableDB) UpdateProductPrice(id uint, price float64) error {
+	return p.db.Model(&store.ProductPrice{}).
+		Where("id = ?", id).
+		Update("price", price).Error
+}
+
+func (p *PriceTableDB) DeleteProductPrice(PriceID uint) error {
+	return p.db.Delete(&store.ProductPrice{}, PriceID).Error
 }

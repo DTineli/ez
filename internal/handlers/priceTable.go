@@ -13,6 +13,52 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+func (p *ProductHandler) PostProductPrice(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	sess := m.GetSessionFromContext(r)
+
+	price, err := strconv.ParseFloat(r.FormValue("price"), 64)
+	if err != nil || price <= 0 {
+		ShowToast(w, "Preço inválido", "error")
+		return
+	}
+
+	tableID, err := strconv.ParseUint(r.FormValue("table_id"), 10, 64)
+	if err != nil || tableID == 0 {
+		ShowToast(w, "Tabela inválida", "error")
+		return
+	}
+
+	variantID, err := strconv.ParseUint(r.FormValue("variant_id"), 10, 64)
+	if err != nil || variantID == 0 {
+		ShowToast(w, "Variante inválida", "error")
+		return
+	}
+
+	if _, err := p.priceTableSvc.GetOne(uint(tableID), sess.TenantID); err != nil {
+		ShowToast(w, "Tabela inválida", "error")
+		return
+	}
+
+	if err := p.priceTableSvc.AddPrice(uint(tableID), uint(variantID), price); err != nil {
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") ||
+			strings.Contains(err.Error(), "Duplicate") {
+			ShowToast(
+				w,
+				"Preço já cadastrado para essa variante nessa tabela",
+				"error",
+			)
+			return
+		}
+		ShowToast(w, "Erro ao salvar preço", "error")
+		return
+	}
+
+	ShowToast(w, "Preço salvo", "success")
+}
+
 func (p *ProductHandler) RenderMultiSelectTables(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -78,7 +124,11 @@ func (p *ProductHandler) CreatePriceTable(
 		return
 	}
 
-	table, err := p.priceTableSvc.Create(sess.TenantID, dto.Name, dto.Percentage)
+	table, err := p.priceTableSvc.Create(
+		sess.TenantID,
+		dto.Name,
+		dto.Percentage,
+	)
 	if err != nil {
 		w.Header().Set("HX-Retarget", "#price-table-form")
 		w.Header().Set("HX-Reswap", "outerHTML")

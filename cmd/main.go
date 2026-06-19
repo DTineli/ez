@@ -259,6 +259,7 @@ func registerAdminRoutes(
 
 			r.Route("/components", func(r chi.Router) {
 				r.Get("/price-tables", product.RenderMultiSelectTables)
+				// r.Get("/price/search", )
 			})
 
 			r.Route("/produtos", func(r chi.Router) {
@@ -268,6 +269,8 @@ func registerAdminRoutes(
 				r.Post("/", product.PostNewProduct)
 				r.Post("/{id}", product.UpdateProduct)
 				r.Delete("/{id}", product.DeleteProduct)
+
+				// colocar um /search aqui
 
 				r.Route("/{id}/variants", func(r chi.Router) {
 					r.Get("/form", product.GetVariantForm)
@@ -308,7 +311,9 @@ func registerAdminRoutes(
 			r.Route("/pedidos", func(r chi.Router) {
 				r.Get("/", order.GetOrdersPage)
 				r.Get("/novo", order.GetNewOrderPage)
+
 				r.Get("/produtos", order.SearchProductsForOrder)
+
 				r.Post("/", order.PostNewOrder)
 				r.Post("/bulk-status", orderHandler.PostBulkStatus)
 				r.Post("/pick-list", orderHandler.PostGeneratePickListPage)

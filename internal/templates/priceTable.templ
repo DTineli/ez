@@ -7,6 +7,43 @@ import (
 	"github.com/DTineli/ez/internal/store"
 )
 
+templ EditPricesPage(tableID uint) {
+	<div>
+		<input
+			class="form-control"
+			type="search"
+			name="search"
+			placeholder="Procute por produtos"
+			hx-post="/admin/components/price/search"
+			hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load "
+			hx-target="#search-results"
+			hx-indicator=".htmx-indicator"
+		/>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>SKU</th>
+					<th>Nome</th>
+					<th>Preço</th>
+				</tr>
+			</thead>
+			<tbody id="search-results"></tbody>
+		</table>
+	</div>
+}
+
+templ PriceSeachTbody(prods []store.Variant) {
+	<tbody id="search-results">
+		for _,p := range prods {
+			<tr>
+				<td>{ p.SKU }</td>
+				<td>{ p.Product.Name }</td>
+				<td>{ fmt.Sprintf("%.2f", p.CostPrice) }</td>
+			</tr>
+		}
+	</tbody>
+}
+
 templ PriceTableForm(errors map[string]string) {
 	<div id="price-table-form">
 		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">

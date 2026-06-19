@@ -165,7 +165,11 @@ type PriceTableStore interface {
 	HasContacts(priceTableID, tenantID uint) (bool, error)
 	Delete(id, tenantID uint) error
 
-	CreateProductPrice(ProductPrice) error
+	CreateProductPrice(*ProductPrice) error
+	FindProductPrices(productID uint) ([]ProductPrice, error)
+	GetOneProductPrice(id uint) (*ProductPrice, error)
+	UpdateProductPrice(id uint, price float64) error
+	DeleteProductPrice(PriceID uint) error
 }
 
 type ProductFilters struct {

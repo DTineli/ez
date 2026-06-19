@@ -9,7 +9,11 @@ import (
 var ErrPriceTableHasContacts = errors.New("tabela possui clientes vinculados")
 
 type PriceTableService interface {
-	Create(tenantID uint, name string, percentage float64) (*store.PriceTable, error)
+	Create(
+		tenantID uint,
+		name string,
+		percentage float64,
+	) (*store.PriceTable, error)
 	Delete(id, tenantID uint) error
 	FindAll(tenantID uint) ([]store.PriceTable, error)
 	FindAllActive(tenantID uint) ([]store.PriceTable, error)
@@ -17,9 +21,9 @@ type PriceTableService interface {
 	GetOne(id, tenantID uint) (*store.PriceTable, error)
 	Apply(costPrice float64, pt *store.PriceTable) float64
 
-	AddPrice(tableID, variationID uint) error
-	UpdatePrice(id uint) error
-	RemovePrice(priceID uint) error
+	AddPrice(tableID, variationID uint, price float64) error
+	UpdatePrice(id, tenantID uint, price float64) error
+	RemovePrice(priceID, tenantID uint) error
 }
 
 type priceTableService struct {
@@ -30,22 +34,49 @@ func NewPriceTableService(s store.PriceTableStore) PriceTableService {
 	return &priceTableService{store: s}
 }
 
-func (p *priceTableService) AddPrice(tableID, variationID uint) error {
+func (p *priceTableService) AddPrice(
+	tableID, variationID uint,
+	price float64,
+) error {
+	pPrice := store.ProductPrice{
+		Price:        price,
+		VariantID:    variationID,
+		PriceTableID: tableID,
+	}
 
-	return nil
+	return p.store.CreateProductPrice(&pPrice)
 }
 
-// RemovePrice implements [PriceTableService].
-func (p *priceTableService) RemovePrice(priceID uint) error {
-	panic("unimplemented")
+func (p *priceTableService) RemovePrice(priceID, tenantID uint) error {
+	pp, err := p.store.GetOneProductPrice(priceID)
+	if err != nil {
+		return err
+	}
+	if _, err := p.store.GetOne(pp.PriceTableID, tenantID); err != nil {
+		return err
+	}
+	return p.store.DeleteProductPrice(priceID)
 }
 
-// UpdatePrice implements [PriceTableService].
-func (p *priceTableService) UpdatePrice(id uint) error {
-	panic("unimplemented")
+func (p *priceTableService) UpdatePrice(
+	id, tenantID uint,
+	price float64,
+) error {
+	pp, err := p.store.GetOneProductPrice(id)
+	if err != nil {
+		return err
+	}
+	if _, err := p.store.GetOne(pp.PriceTableID, tenantID); err != nil {
+		return err
+	}
+	return p.store.UpdateProductPrice(id, price)
 }
 
-func (p *priceTableService) Create(tenantID uint, name string, percentage float64) (*store.PriceTable, error) {
+func (p *priceTableService) Create(
+	tenantID uint,
+	name string,
+	percentage float64,
+) (*store.PriceTable, error) {
 	table := &store.PriceTable{
 		Name:       name,
 		Percentage: percentage,
@@ -72,19 +103,28 @@ func (p *priceTableService) FindAll(tenantID uint) ([]store.PriceTable, error) {
 	return p.store.FindAllByTenant(tenantID)
 }
 
-func (p *priceTableService) FindAllActive(tenantID uint) ([]store.PriceTable, error) {
+func (p *priceTableService) FindAllActive(
+	tenantID uint,
+) ([]store.PriceTable, error) {
 	return p.store.FindAllActiveByTenant(tenantID)
 }
 
-func (p *priceTableService) FindAllActiveByContact(tenantID, contactID uint) ([]store.PriceTable, error) {
+func (p *priceTableService) FindAllActiveByContact(
+	tenantID, contactID uint,
+) ([]store.PriceTable, error) {
 	return p.store.FindAllActiveByTenantAndClient(tenantID, contactID)
 }
 
-func (p *priceTableService) GetOne(id, tenantID uint) (*store.PriceTable, error) {
+func (p *priceTableService) GetOne(
+	id, tenantID uint,
+) (*store.PriceTable, error) {
 	return p.store.GetOne(id, tenantID)
 }
 
-func (p *priceTableService) Apply(costPrice float64, pt *store.PriceTable) float64 {
+func (p *priceTableService) Apply(
+	costPrice float64,
+	pt *store.PriceTable,
+) float64 {
 	return ApplyPriceTable(costPrice, pt)
 }
 
