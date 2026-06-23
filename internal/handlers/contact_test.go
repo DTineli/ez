@@ -100,6 +100,9 @@ func (s *mockPriceTableStore) FindProductPrices(productID uint) ([]store.Product
 func (s *mockPriceTableStore) GetOneProductPrice(id uint) (*store.ProductPrice, error) {
 	return nil, nil
 }
+func (s *mockPriceTableStore) GetOneProductPriceWithVariant(id uint) (*store.ProductPrice, error) {
+	return nil, nil
+}
 func (s *mockPriceTableStore) UpdateProductPrice(id uint, price float64) error { return nil }
 func (s *mockPriceTableStore) DeleteProductPrice(priceID uint) error           { return nil }
 func (s *mockPriceTableStore) SearchVariantsForPriceTable(tenantID, priceTableID uint, q string) ([]store.Variant, error) {

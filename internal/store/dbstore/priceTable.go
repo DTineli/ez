@@ -136,6 +136,15 @@ func (p *PriceTableDB) GetOneProductPrice(id uint) (*store.ProductPrice, error) 
 	return &price, nil
 }
 
+func (p *PriceTableDB) GetOneProductPriceWithVariant(id uint) (*store.ProductPrice, error) {
+	var price store.ProductPrice
+	err := p.db.Preload("Variant.Product").First(&price, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &price, nil
+}
+
 func (p *PriceTableDB) UpdateProductPrice(id uint, price float64) error {
 	return p.db.Model(&store.ProductPrice{}).
 		Where("id = ?", id).

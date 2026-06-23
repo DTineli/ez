@@ -22,7 +22,8 @@ type PriceTableService interface {
 	GetOne(id, tenantID uint) (*store.PriceTable, error)
 	Apply(costPrice float64, pt *store.PriceTable) float64
 
-	AddPrice(tableID, variationID uint, price float64) error
+	AddPrice(tableID, variationID uint, price float64) (uint, error)
+	GetProductPrice(id uint) (*store.ProductPrice, error)
 	UpdatePrice(id, tenantID uint, price float64) error
 	RemovePrice(priceID, tenantID uint) error
 	SearchVariants(tenantID, priceTableID uint, q string) ([]store.Variant, error)
@@ -39,14 +40,20 @@ func NewPriceTableService(s store.PriceTableStore) PriceTableService {
 func (p *priceTableService) AddPrice(
 	tableID, variationID uint,
 	price float64,
-) error {
+) (uint, error) {
 	pPrice := store.ProductPrice{
 		Price:        price,
 		VariantID:    variationID,
 		PriceTableID: tableID,
 	}
+	if err := p.store.CreateProductPrice(&pPrice); err != nil {
+		return 0, err
+	}
+	return pPrice.ID, nil
+}
 
-	return p.store.CreateProductPrice(&pPrice)
+func (p *priceTableService) GetProductPrice(id uint) (*store.ProductPrice, error) {
+	return p.store.GetOneProductPriceWithVariant(id)
 }
 
 func (p *priceTableService) RemovePrice(priceID, tenantID uint) error {

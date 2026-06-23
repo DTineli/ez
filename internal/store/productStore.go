@@ -169,6 +169,7 @@ type PriceTableStore interface {
 	CreateProductPrice(*ProductPrice) error
 	FindProductPrices(productID uint) ([]ProductPrice, error)
 	GetOneProductPrice(id uint) (*ProductPrice, error)
+	GetOneProductPriceWithVariant(id uint) (*ProductPrice, error)
 	UpdateProductPrice(id uint, price float64) error
 	DeleteProductPrice(PriceID uint) error
 	SearchVariantsForPriceTable(tenantID, priceTableID uint, q string) ([]Variant, error)

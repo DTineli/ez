@@ -90,15 +90,15 @@ func (p *ProductHandler) PostProductPrice(
 ) {
 	sess := m.GetSessionFromContext(r)
 
-	price, err := strconv.ParseFloat(r.FormValue("price"), 64)
-	if err != nil || price <= 0 {
-		ShowToast(w, "Preço inválido", "error")
+	tableID, err := strconv.ParseUint(chi.URLParam(r, "tableID"), 10, 64)
+	if err != nil || tableID == 0 {
+		ShowToast(w, "Tabela inválida", "error")
 		return
 	}
 
-	tableID, err := strconv.ParseUint(r.FormValue("table_id"), 10, 64)
-	if err != nil || tableID == 0 {
-		ShowToast(w, "Tabela inválida", "error")
+	price, err := strconv.ParseFloat(r.FormValue("price"), 64)
+	if err != nil || price <= 0 {
+		ShowToast(w, "Preço inválido", "error")
 		return
 	}
 
@@ -113,21 +113,85 @@ func (p *ProductHandler) PostProductPrice(
 		return
 	}
 
-	if err := p.priceTableSvc.AddPrice(uint(tableID), uint(variantID), price); err != nil {
+	priceID, err := p.priceTableSvc.AddPrice(uint(tableID), uint(variantID), price)
+	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") ||
 			strings.Contains(err.Error(), "Duplicate") {
-			ShowToast(
-				w,
-				"Preço já cadastrado para essa variante nessa tabela",
-				"error",
-			)
+			ShowToast(w, "Preço já cadastrado para essa variante nessa tabela", "error")
 			return
 		}
 		ShowToast(w, "Erro ao salvar preço", "error")
 		return
 	}
 
+	pp, err := p.priceTableSvc.GetProductPrice(priceID)
+	if err != nil {
+		ShowToast(w, "Preço salvo", "success")
+		return
+	}
+
 	ShowToast(w, "Preço salvo", "success")
+	Render(templates.PriceRow(*pp, uint(tableID)), r, w)
+}
+
+func (p *ProductHandler) PatchProductPrice(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	sess := m.GetSessionFromContext(r)
+
+	tableID, err := strconv.ParseUint(chi.URLParam(r, "tableID"), 10, 64)
+	if err != nil || tableID == 0 {
+		ShowToast(w, "Tabela inválida", "error")
+		return
+	}
+
+	priceID, err := strconv.ParseUint(chi.URLParam(r, "priceID"), 10, 64)
+	if err != nil || priceID == 0 {
+		ShowToast(w, "Preço inválido", "error")
+		return
+	}
+
+	price, err := strconv.ParseFloat(r.FormValue("price"), 64)
+	if err != nil || price <= 0 {
+		ShowToast(w, "Valor inválido", "error")
+		return
+	}
+
+	if err := p.priceTableSvc.UpdatePrice(uint(priceID), sess.TenantID, price); err != nil {
+		ShowToast(w, "Erro ao salvar preço", "error")
+		return
+	}
+
+	pp, err := p.priceTableSvc.GetProductPrice(uint(priceID))
+	if err != nil {
+		ShowToast(w, "Preço atualizado", "success")
+		return
+	}
+
+	ShowToast(w, "Preço atualizado", "success")
+	Render(templates.PriceRow(*pp, uint(tableID)), r, w)
+}
+
+func (p *ProductHandler) DeleteProductPrice(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	sess := m.GetSessionFromContext(r)
+
+	priceID, err := strconv.ParseUint(chi.URLParam(r, "priceID"), 10, 64)
+	if err != nil || priceID == 0 {
+		ShowToast(w, "Preço inválido", "error")
+		return
+	}
+
+	if err := p.priceTableSvc.RemovePrice(uint(priceID), sess.TenantID); err != nil {
+		ShowToast(w, "Erro ao remover preço", "error")
+		return
+	}
+
+	ShowToast(w, "Preço removido", "success")
+	w.WriteHeader(http.StatusOK)
 }
 
 func (p *ProductHandler) RenderMultiSelectTables(

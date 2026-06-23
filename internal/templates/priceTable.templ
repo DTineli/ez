@@ -69,10 +69,10 @@ templ PriceRow(p store.ProductPrice, tableID uint) {
 		<td class="px-4 py-3 text-gray-500">R$ { fmt.Sprintf("%.2f", p.Variant.CostPrice) }</td>
 		<td class="px-4 py-3">
 			<form
+				id={ fmt.Sprintf("patch-form-%d", p.ID) }
 				hx-patch={ fmt.Sprintf("/admin/pricetable/%d/prices/%d", tableID, p.ID) }
 				hx-target={ fmt.Sprintf("#price-row-%d", p.ID) }
 				hx-swap="outerHTML"
-				class="flex items-center gap-2"
 			>
 				<div class="flex items-center border border-gray-300 rounded-field bg-white px-2 py-1 text-sm focus-within:ring-2 focus-within:ring-primary/50 focus-within:border-transparent">
 					<span class="text-gray-400 text-xs mr-1">R$</span>
@@ -82,28 +82,31 @@ templ PriceRow(p store.ProductPrice, tableID uint) {
 						min="0"
 						step="0.01"
 						value={ fmt.Sprintf("%.2f", p.Price) }
-						class="w-24 bg-transparent outline-none text-sm"
+						class="w-20 bg-transparent outline-none text-sm"
 					/>
 				</div>
+			</form>
+		</td>
+		<td class="px-4 py-3">
+			<div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 justify-center">
 				<button
 					type="submit"
-					class="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center gap-1 cursor-pointer font-medium rounded-field bg-primary text-primary-content hover:brightness-90 px-2 py-1 text-xs"
+					form={ fmt.Sprintf("patch-form-%d", p.ID) }
+					class="inline-flex items-center justify-center cursor-pointer font-medium rounded-field bg-primary text-primary-content hover:brightness-90 px-2 py-0.5 text-xs"
 				>
 					Salvar
 				</button>
-			</form>
-		</td>
-		<td class="px-4 py-3 text-center">
-			<button
-				type="button"
-				hx-delete={ fmt.Sprintf("/admin/pricetable/%d/prices/%d", tableID, p.ID) }
-				hx-target={ fmt.Sprintf("#price-row-%d", p.ID) }
-				hx-swap="delete"
-				hx-confirm="Remover este preço da tabela?"
-				class="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center gap-1 cursor-pointer font-medium rounded-field bg-transparent hover:bg-red-50 text-red-500 px-2 py-1 text-xs"
-			>
-				Remover
-			</button>
+				<button
+					type="button"
+					hx-delete={ fmt.Sprintf("/admin/pricetable/%d/prices/%d", tableID, p.ID) }
+					hx-target={ fmt.Sprintf("#price-row-%d", p.ID) }
+					hx-swap="delete"
+					hx-confirm="Remover este preço da tabela?"
+					class="inline-flex items-center justify-center cursor-pointer font-medium rounded-field bg-transparent hover:bg-red-50 text-red-500 border border-red-200 px-2 py-0.5 text-xs"
+				>
+					Remover
+				</button>
+			</div>
 		</td>
 	</tr>
 }
@@ -160,6 +163,7 @@ templ PriceSeachTbody(prods []store.Variant, tableID uint) {
 							hx-post={ fmt.Sprintf("/admin/pricetable/%d/prices", tableID) }
 							hx-target="#price-list"
 							hx-swap="beforeend"
+							hx-on::after-request="if(event.detail.successful) htmx.trigger(document.querySelector('[name=q]'), 'search')"
 						>
 							<input type="hidden" name="variant_id" value={ strconv.Itoa(int(p.ID)) }/>
 							<input type="hidden" name="table_id" value={ strconv.Itoa(int(tableID)) }/>

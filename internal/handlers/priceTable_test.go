@@ -249,8 +249,11 @@ func (s *mockPriceTableServiceExt) FindOne(id, tenantID uint) (*store.PriceTable
 func (s *mockPriceTableServiceExt) Apply(costPrice float64, pt *store.PriceTable) float64 {
 	return services.ApplyPriceTable(costPrice, pt)
 }
-func (s *mockPriceTableServiceExt) AddPrice(tableID, variationID uint, price float64) error {
-	return nil
+func (s *mockPriceTableServiceExt) AddPrice(tableID, variationID uint, price float64) (uint, error) {
+	return 0, nil
+}
+func (s *mockPriceTableServiceExt) GetProductPrice(id uint) (*store.ProductPrice, error) {
+	return nil, nil
 }
 func (s *mockPriceTableServiceExt) UpdatePrice(id, tenantID uint, price float64) error { return nil }
 func (s *mockPriceTableServiceExt) RemovePrice(priceID, tenantID uint) error           { return nil }
