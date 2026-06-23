@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
 	m "github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/orders"
@@ -46,7 +47,7 @@ func (h *AdminOrderHandler) GetOrdersPage(
 	filters := store.OrderFilters{
 		Page:        pageNum,
 		PerPage:     perPage,
-		ContactName: r.URL.Query().Get("contact"),
+		ContactName: strings.TrimSpace(r.URL.Query().Get("contact")),
 		Status:      store.OrderStatus(r.URL.Query().Get("status")),
 	}
 
@@ -131,7 +132,7 @@ func (h *AdminOrderHandler) SearchProductsForOrder(
 ) {
 	sess := m.GetSessionFromContext(r)
 
-	q := r.URL.Query().Get("q")
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
 	if len(q) < 2 {
 		w.WriteHeader(http.StatusOK)
 		return

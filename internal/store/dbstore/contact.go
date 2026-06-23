@@ -142,7 +142,7 @@ func ApplyFilters(query *gorm.DB, filters any) *gorm.DB {
 
 		switch op {
 		case "like":
-			query = query.Where(column+" LIKE ?", "%"+field.String()+"%")
+			query = query.Where("LOWER("+column+") LIKE LOWER(?)", "%"+field.String()+"%")
 		case "eq":
 			query = query.Where(column+" = ?", field.Interface())
 		}

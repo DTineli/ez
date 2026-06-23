@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/DTineli/ez/internal/forms"
 	m "github.com/DTineli/ez/internal/middleware"
@@ -202,8 +203,8 @@ func (p *ProductHandler) GetProductPage(
 		store.ProductFilters{
 			Page:    page,
 			PerPage: perPage,
-			SKU:     r.URL.Query().Get("sku"),
-			Name:    r.URL.Query().Get("name"),
+			SKU:     strings.TrimSpace(r.URL.Query().Get("sku")),
+			Name:    strings.TrimSpace(r.URL.Query().Get("name")),
 		},
 	)
 

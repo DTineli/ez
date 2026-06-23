@@ -6,6 +6,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/orders"
@@ -152,7 +153,7 @@ func (c *ClientHandler) RenderSelectTableByClient(
 
 func (c *ClientHandler) GetItemsPage(w http.ResponseWriter, r *http.Request) {
 	sess := middleware.GetSessionFromContext(r)
-	query := r.URL.Query().Get("q")
+	query := strings.TrimSpace(r.URL.Query().Get("q"))
 
 	tables, err := c.contactStore.FindContactPriceTables(
 		sess.ContactInfo.ID,
@@ -200,7 +201,7 @@ func (c *ClientHandler) FetchItems(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	query := r.URL.Query().Get("q")
+	query := strings.TrimSpace(r.URL.Query().Get("q"))
 	priceTable, ok := parseQueryParamUint(
 		w,
 		r,
