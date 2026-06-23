@@ -162,6 +162,7 @@ type PriceTableStore interface {
 		tenantID, clientID uint,
 	) ([]PriceTable, error)
 	GetOne(id uint, tenantID uint) (*PriceTable, error)
+	GetOneWithPrices(id, tenantID uint) (*PriceTable, error)
 	HasContacts(priceTableID, tenantID uint) (bool, error)
 	Delete(id, tenantID uint) error
 

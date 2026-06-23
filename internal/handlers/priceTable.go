@@ -13,6 +13,26 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+func (p *ProductHandler) RenderEditPriceTable(
+	w http.ResponseWriter,
+	r *http.Request) {
+
+	sess := m.GetSessionFromContext(r)
+	tableID, err := strconv.ParseUint(chi.URLParam(r, "tableID"), 10, 64)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	table, err := p.priceTableSvc.FindOne(uint(tableID), sess.TenantID)
+	if err != nil {
+		http.Error(w, "Tabela não encontrada", http.StatusNotFound)
+		return
+	}
+
+	Render(templates.EditPricesPage(table.ID), r, w)
+}
+
 func (p *ProductHandler) PostProductPrice(
 	w http.ResponseWriter,
 	r *http.Request,

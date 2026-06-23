@@ -82,6 +82,18 @@ func (p PriceTableDB) FindAllByTenant(id uint) ([]store.PriceTable, error) {
 	return priceTables, nil
 }
 
+func (p PriceTableDB) GetOneWithPrices(id, tenantID uint) (*store.PriceTable, error) {
+	var table store.PriceTable
+	err := p.db.
+		Preload("Prices.Variant.Product").
+		Where("id = ? AND tenant_id = ?", id, tenantID).
+		First(&table).Error
+	if err != nil {
+		return nil, err
+	}
+	return &table, nil
+}
+
 func (p PriceTableDB) GetOne(
 	id uint,
 	tenantID uint,

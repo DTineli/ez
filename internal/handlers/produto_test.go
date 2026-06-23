@@ -187,9 +187,17 @@ func (s *mockPriceTableService) FindAllActiveByContact(tenantID, contactID uint)
 func (s *mockPriceTableService) GetOne(id, tenantID uint) (*store.PriceTable, error) {
 	return nil, nil
 }
+func (s *mockPriceTableService) FindOne(id, tenantID uint) (*store.PriceTable, error) {
+	return nil, nil
+}
 func (s *mockPriceTableService) Apply(costPrice float64, pt *store.PriceTable) float64 {
 	return services.ApplyPriceTable(costPrice, pt)
 }
+func (s *mockPriceTableService) AddPrice(tableID, variationID uint, price float64) error {
+	return nil
+}
+func (s *mockPriceTableService) UpdatePrice(id, tenantID uint, price float64) error { return nil }
+func (s *mockPriceTableService) RemovePrice(priceID, tenantID uint) error           { return nil }
 
 // --- helpers ---
 

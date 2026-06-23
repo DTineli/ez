@@ -86,10 +86,22 @@ func (s *mockPriceTableStore) FindAllActiveByTenantAndClient(tenantID, clientID 
 	return nil, nil
 }
 func (s *mockPriceTableStore) GetOne(id, tenantID uint) (*store.PriceTable, error) { return nil, nil }
+func (s *mockPriceTableStore) GetOneWithPrices(id, tenantID uint) (*store.PriceTable, error) {
+	return nil, nil
+}
 func (s *mockPriceTableStore) HasContacts(priceTableID, tenantID uint) (bool, error) {
 	return false, nil
 }
 func (s *mockPriceTableStore) Delete(id, tenantID uint) error { return nil }
+func (s *mockPriceTableStore) CreateProductPrice(p *store.ProductPrice) error  { return nil }
+func (s *mockPriceTableStore) FindProductPrices(productID uint) ([]store.ProductPrice, error) {
+	return nil, nil
+}
+func (s *mockPriceTableStore) GetOneProductPrice(id uint) (*store.ProductPrice, error) {
+	return nil, nil
+}
+func (s *mockPriceTableStore) UpdateProductPrice(id uint, price float64) error { return nil }
+func (s *mockPriceTableStore) DeleteProductPrice(priceID uint) error           { return nil }
 
 func newContactHandler(cs *mockContactStore, is *mockInviteStore, pts *mockPriceTableStore) *ContactHandler {
 	if cs == nil {

@@ -18,6 +18,7 @@ type PriceTableService interface {
 	FindAll(tenantID uint) ([]store.PriceTable, error)
 	FindAllActive(tenantID uint) ([]store.PriceTable, error)
 	FindAllActiveByContact(tenantID, contactID uint) ([]store.PriceTable, error)
+	FindOne(id, tenantID uint) (*store.PriceTable, error)
 	GetOne(id, tenantID uint) (*store.PriceTable, error)
 	Apply(costPrice float64, pt *store.PriceTable) float64
 
@@ -113,6 +114,10 @@ func (p *priceTableService) FindAllActiveByContact(
 	tenantID, contactID uint,
 ) ([]store.PriceTable, error) {
 	return p.store.FindAllActiveByTenantAndClient(tenantID, contactID)
+}
+
+func (p *priceTableService) FindOne(id, tenantID uint) (*store.PriceTable, error) {
+	return p.store.GetOneWithPrices(id, tenantID)
 }
 
 func (p *priceTableService) GetOne(

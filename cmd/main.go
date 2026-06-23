@@ -286,6 +286,7 @@ func registerAdminRoutes(
 
 			r.Route("/pricetable", func(r chi.Router) {
 				r.Get("/", product.GetTablePage)
+				r.Get("/{tableID}", product.RenderEditPriceTable)
 				r.Post("/", product.CreatePriceTable)
 				r.Delete("/{id}", product.DeletePriceTable)
 			})

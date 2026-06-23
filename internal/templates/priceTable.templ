@@ -128,6 +128,9 @@ templ TableRow(table store.PriceTable) {
 			<div class="flex justify-center gap-2">
 				<button
 					type="button"
+					hx-get={ fmt.Sprintf("/admin/pricetable/%d", table.ID) }
+					hx-target="#main-content"
+					hx-push-url="true"
 					class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs"
 				>
 					Editar
