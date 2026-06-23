@@ -30,7 +30,45 @@ func (p *ProductHandler) RenderEditPriceTable(
 		return
 	}
 
-	Render(templates.EditPricesPage(table.ID), r, w)
+	Render(templates.EditPricesPage(*table), r, w)
+}
+
+func (p *ProductHandler) SearchVariantsForPriceTable(w http.ResponseWriter, r *http.Request) {
+	sess := m.GetSessionFromContext(r)
+	tableID, err := strconv.ParseUint(chi.URLParam(r, "tableID"), 10, 64)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	q := r.URL.Query().Get("q")
+	if len(q) < 2 {
+		Render(templates.PriceSeachTbody(nil, uint(tableID)), r, w)
+		return
+	}
+	variants, err := p.priceTableSvc.SearchVariants(sess.TenantID, uint(tableID), q)
+	if err != nil {
+		ShowToast(w, "Erro ao buscar produtos", "error")
+		return
+	}
+	Render(templates.PriceSeachTbody(variants, uint(tableID)), r, w)
+}
+
+func (p *ProductHandler) RenderSearchPanel(w http.ResponseWriter, r *http.Request) {
+	tableID, err := strconv.ParseUint(chi.URLParam(r, "tableID"), 10, 64)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	Render(templates.SearchPanel(uint(tableID)), r, w)
+}
+
+func (p *ProductHandler) CloseSearchPanel(w http.ResponseWriter, r *http.Request) {
+	tableID, err := strconv.ParseUint(chi.URLParam(r, "tableID"), 10, 64)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+	Render(templates.AddProductButton(uint(tableID)), r, w)
 }
 
 func (p *ProductHandler) PostProductPrice(

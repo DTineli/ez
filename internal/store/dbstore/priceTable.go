@@ -1,6 +1,8 @@
 package dbstore
 
 import (
+	"strings"
+
 	"github.com/DTineli/ez/internal/store"
 	"gorm.io/gorm"
 )
@@ -142,4 +144,18 @@ func (p *PriceTableDB) UpdateProductPrice(id uint, price float64) error {
 
 func (p *PriceTableDB) DeleteProductPrice(PriceID uint) error {
 	return p.db.Delete(&store.ProductPrice{}, PriceID).Error
+}
+
+func (p *PriceTableDB) SearchVariantsForPriceTable(tenantID, priceTableID uint, q string) ([]store.Variant, error) {
+	var variants []store.Variant
+	like := "%" + strings.ToLower(strings.TrimSpace(q)) + "%"
+	err := p.db.
+		Preload("Product").
+		Preload("Prices", "price_table_id = ?", priceTableID).
+		Joins("JOIN products ON products.id = variants.product_id").
+		Where("variants.tenant_id = ? AND variants.deleted_at IS NULL", tenantID).
+		Where("LOWER(variants.sku) LIKE ? OR LOWER(products.name) LIKE ?", like, like).
+		Limit(20).
+		Find(&variants).Error
+	return variants, err
 }

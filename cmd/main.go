@@ -286,9 +286,12 @@ func registerAdminRoutes(
 
 			r.Route("/pricetable", func(r chi.Router) {
 				r.Get("/", product.GetTablePage)
-				r.Get("/{tableID}", product.RenderEditPriceTable)
 				r.Post("/", product.CreatePriceTable)
 				r.Delete("/{id}", product.DeletePriceTable)
+				r.Get("/{tableID}", product.RenderEditPriceTable)
+				r.Get("/{tableID}/search", product.SearchVariantsForPriceTable)
+				r.Get("/{tableID}/search-panel", product.RenderSearchPanel)
+				r.Get("/{tableID}/search-panel/close", product.CloseSearchPanel)
 			})
 
 			r.Route("/atributos", func(r chi.Router) {

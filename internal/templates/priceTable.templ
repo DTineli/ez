@@ -7,41 +7,242 @@ import (
 	"github.com/DTineli/ez/internal/store"
 )
 
-templ EditPricesPage(tableID uint) {
-	<div>
-		<input
-			class="form-control"
-			type="search"
-			name="search"
-			placeholder="Procute por produtos"
-			hx-post="/admin/components/price/search"
-			hx-trigger="input changed delay:500ms, keyup[key=='Enter'], load "
-			hx-target="#search-results"
-			hx-indicator=".htmx-indicator"
-		/>
-		<table class="table">
-			<thead>
-				<tr>
-					<th>SKU</th>
-					<th>Nome</th>
-					<th>Preço</th>
-				</tr>
-			</thead>
-			<tbody id="search-results"></tbody>
-		</table>
+templ EditPricesPage(table store.PriceTable) {
+	<div class="space-y-6">
+		<div class="flex items-center gap-4">
+			<a
+				href="#"
+				hx-get="/admin/pricetable"
+				hx-target="#main-content"
+				hx-push-url="true"
+				class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+			</a>
+			<div class="flex-1">
+				<div class="flex items-center gap-2">
+					<h1 class="text-2xl font-bold">{ table.Name }</h1>
+					<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full border border-current bg-transparent text-gray-500">
+						{ fmt.Sprintf("%.2f", table.Percentage) }% margem
+					</span>
+				</div>
+				<p class="text-gray-400 text-sm mt-0.5">Preços individuais por produto nesta tabela.</p>
+			</div>
+		</div>
+		<div id="search-area">
+			@AddProductButton(table.ID)
+		</div>
+		<div class="bg-white shadow-sm border border-gray-200 rounded-xl">
+			<div class="overflow-x-auto">
+				<table class="w-full text-sm text-left">
+					<thead>
+						<tr>
+							<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-xs uppercase tracking-wide">SKU</th>
+							<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-xs uppercase tracking-wide">Produto</th>
+							<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-xs uppercase tracking-wide">Preço Custo</th>
+							<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-xs uppercase tracking-wide">Preço Venda</th>
+							<th class="px-4 py-3 font-semibold text-gray-700 border-b border-gray-200 text-xs uppercase tracking-wide text-center">Ações</th>
+						</tr>
+					</thead>
+					<tbody id="price-list">
+						if len(table.Prices) == 0 {
+							<tr>
+								<td colspan="5" class="text-center text-gray-400 py-10 px-4">
+									Nenhum produto nesta tabela. Clique em <strong>Adicionar Produto</strong> para começar.
+								</td>
+							</tr>
+						}
+						for _, p := range table.Prices {
+							@PriceRow(p, table.ID)
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
 	</div>
 }
 
-templ PriceSeachTbody(prods []store.Variant) {
-	<tbody id="search-results">
-		for _,p := range prods {
+templ PriceRow(p store.ProductPrice, tableID uint) {
+	<tr class="hover:bg-gray-50 group" id={ fmt.Sprintf("price-row-%d", p.ID) }>
+		<td class="px-4 py-3 text-gray-400 font-mono text-xs">{ p.Variant.SKU }</td>
+		<td class="px-4 py-3 font-medium text-gray-800">{ p.Variant.Product.Name }</td>
+		<td class="px-4 py-3 text-gray-500">R$ { fmt.Sprintf("%.2f", p.Variant.CostPrice) }</td>
+		<td class="px-4 py-3">
+			<form
+				hx-patch={ fmt.Sprintf("/admin/pricetable/%d/prices/%d", tableID, p.ID) }
+				hx-target={ fmt.Sprintf("#price-row-%d", p.ID) }
+				hx-swap="outerHTML"
+				class="flex items-center gap-2"
+			>
+				<div class="flex items-center border border-gray-300 rounded-field bg-white px-2 py-1 text-sm focus-within:ring-2 focus-within:ring-primary/50 focus-within:border-transparent">
+					<span class="text-gray-400 text-xs mr-1">R$</span>
+					<input
+						name="price"
+						type="number"
+						min="0"
+						step="0.01"
+						value={ fmt.Sprintf("%.2f", p.Price) }
+						class="w-24 bg-transparent outline-none text-sm"
+					/>
+				</div>
+				<button
+					type="submit"
+					class="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center gap-1 cursor-pointer font-medium rounded-field bg-primary text-primary-content hover:brightness-90 px-2 py-1 text-xs"
+				>
+					Salvar
+				</button>
+			</form>
+		</td>
+		<td class="px-4 py-3 text-center">
+			<button
+				type="button"
+				hx-delete={ fmt.Sprintf("/admin/pricetable/%d/prices/%d", tableID, p.ID) }
+				hx-target={ fmt.Sprintf("#price-row-%d", p.ID) }
+				hx-swap="delete"
+				hx-confirm="Remover este preço da tabela?"
+				class="opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center gap-1 cursor-pointer font-medium rounded-field bg-transparent hover:bg-red-50 text-red-500 px-2 py-1 text-xs"
+			>
+				Remover
+			</button>
+		</td>
+	</tr>
+}
+
+templ PriceSeachTbody(prods []store.Variant, tableID uint) {
+	<tbody id="variant-search-results">
+		if len(prods) == 0 {
 			<tr>
-				<td>{ p.SKU }</td>
-				<td>{ p.Product.Name }</td>
-				<td>{ fmt.Sprintf("%.2f", p.CostPrice) }</td>
+				<td colspan="5" class="text-center text-gray-400 py-6 text-sm">Nenhum produto encontrado.</td>
+			</tr>
+		}
+		for _, p := range prods {
+			{{ hasPrice := len(p.Prices) > 0 }}
+			{{ existingPrice := 0.0 }}
+			if hasPrice {
+				{{ existingPrice = p.Prices[0].Price }}
+			}
+			<tr class="hover:bg-gray-50 border-t border-gray-100">
+				<td class="px-4 py-3 text-gray-400 font-mono text-xs">{ p.SKU }</td>
+				<td class="px-4 py-3 font-medium text-gray-800">{ p.Product.Name }</td>
+				<td class="px-4 py-3 text-gray-500">R$ { fmt.Sprintf("%.2f", p.CostPrice) }</td>
+				<td class="px-4 py-3">
+					<div class="flex items-center border border-gray-300 rounded-field bg-white px-2 py-1 text-sm focus-within:ring-2 focus-within:ring-primary/50 focus-within:border-transparent w-fit">
+						<span class="text-gray-400 text-xs mr-1">R$</span>
+						<input
+							form={ fmt.Sprintf("price-form-%d", p.ID) }
+							name="price"
+							type="number"
+							min="0"
+							step="0.01"
+							value={ fmt.Sprintf("%.2f", existingPrice) }
+							class="w-24 bg-transparent outline-none text-sm"
+						/>
+					</div>
+				</td>
+				<td class="px-4 py-3">
+					if hasPrice {
+						<form
+							id={ fmt.Sprintf("price-form-%d", p.ID) }
+							hx-patch={ fmt.Sprintf("/admin/pricetable/%d/prices/%d", tableID, p.Prices[0].ID) }
+							hx-target="#price-list"
+							hx-swap="none"
+						>
+							<button
+								type="submit"
+								class="inline-flex items-center justify-center gap-1 cursor-pointer font-medium rounded-field bg-transparent border border-gray-300 hover:bg-gray-50 px-2 py-1 text-xs"
+							>
+								Atualizar
+							</button>
+						</form>
+					} else {
+						<form
+							id={ fmt.Sprintf("price-form-%d", p.ID) }
+							hx-post={ fmt.Sprintf("/admin/pricetable/%d/prices", tableID) }
+							hx-target="#price-list"
+							hx-swap="beforeend"
+						>
+							<input type="hidden" name="variant_id" value={ strconv.Itoa(int(p.ID)) }/>
+							<input type="hidden" name="table_id" value={ strconv.Itoa(int(tableID)) }/>
+							<button
+								type="submit"
+								class="inline-flex items-center justify-center gap-1 cursor-pointer font-medium rounded-field bg-primary text-primary-content hover:brightness-90 px-2 py-1 text-xs"
+							>
+								Adicionar
+							</button>
+						</form>
+					}
+				</td>
 			</tr>
 		}
 	</tbody>
+}
+
+templ AddProductButton(tableID uint) {
+	<div id="search-area">
+		<button
+			type="button"
+			hx-get={ fmt.Sprintf("/admin/pricetable/%d/search-panel", tableID) }
+			hx-target="#search-area"
+			hx-swap="outerHTML"
+			class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm"
+		>
+			<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+			Adicionar Produto
+		</button>
+	</div>
+}
+
+templ SearchPanel(tableID uint) {
+	<div id="search-area" class="bg-white shadow-sm border border-gray-200 rounded-xl">
+		<div class="p-5 border-b border-gray-100 flex items-center justify-between">
+			<div>
+				<h2 class="text-sm font-semibold text-gray-700">Buscar produto</h2>
+				<p class="text-xs text-gray-400 mt-0.5">Digite o SKU ou nome para encontrar uma variante.</p>
+			</div>
+			<button
+				type="button"
+				hx-get={ fmt.Sprintf("/admin/pricetable/%d/search-panel/close", tableID) }
+				hx-target="#search-area"
+				hx-swap="outerHTML"
+				class="inline-flex items-center justify-center w-7 h-7 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+			</button>
+		</div>
+		<div class="p-5 space-y-4">
+			<div class="relative">
+				<svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+				<input
+					type="search"
+					name="q"
+					placeholder="Buscar por SKU ou nome..."
+					hx-get={ fmt.Sprintf("/admin/pricetable/%d/search", tableID) }
+					hx-trigger="input changed delay:300ms, search"
+					hx-target="#variant-search-results"
+					hx-swap="outerHTML"
+					class="block w-full border border-gray-300 rounded-field bg-white pl-9 pr-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+				/>
+			</div>
+			<div class="overflow-x-auto rounded-lg border border-gray-100">
+				<table class="w-full text-sm text-left">
+					<thead>
+						<tr class="bg-gray-50">
+							<th class="px-4 py-2.5 font-semibold text-gray-600 text-xs uppercase tracking-wide">SKU</th>
+							<th class="px-4 py-2.5 font-semibold text-gray-600 text-xs uppercase tracking-wide">Produto</th>
+							<th class="px-4 py-2.5 font-semibold text-gray-600 text-xs uppercase tracking-wide">Preço Custo</th>
+							<th class="px-4 py-2.5 font-semibold text-gray-600 text-xs uppercase tracking-wide">Preço Venda</th>
+							<th class="px-4 py-2.5"></th>
+						</tr>
+					</thead>
+					<tbody id="variant-search-results">
+						<tr>
+							<td colspan="5" class="text-center text-gray-400 py-6 text-sm">Digite para buscar produtos.</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 }
 
 templ PriceTableForm(errors map[string]string) {

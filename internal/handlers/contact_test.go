@@ -102,6 +102,9 @@ func (s *mockPriceTableStore) GetOneProductPrice(id uint) (*store.ProductPrice, 
 }
 func (s *mockPriceTableStore) UpdateProductPrice(id uint, price float64) error { return nil }
 func (s *mockPriceTableStore) DeleteProductPrice(priceID uint) error           { return nil }
+func (s *mockPriceTableStore) SearchVariantsForPriceTable(tenantID, priceTableID uint, q string) ([]store.Variant, error) {
+	return nil, nil
+}
 
 func newContactHandler(cs *mockContactStore, is *mockInviteStore, pts *mockPriceTableStore) *ContactHandler {
 	if cs == nil {

@@ -254,3 +254,6 @@ func (s *mockPriceTableServiceExt) AddPrice(tableID, variationID uint, price flo
 }
 func (s *mockPriceTableServiceExt) UpdatePrice(id, tenantID uint, price float64) error { return nil }
 func (s *mockPriceTableServiceExt) RemovePrice(priceID, tenantID uint) error           { return nil }
+func (s *mockPriceTableServiceExt) SearchVariants(tenantID, priceTableID uint, q string) ([]store.Variant, error) {
+	return nil, nil
+}

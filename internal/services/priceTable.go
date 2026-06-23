@@ -25,6 +25,7 @@ type PriceTableService interface {
 	AddPrice(tableID, variationID uint, price float64) error
 	UpdatePrice(id, tenantID uint, price float64) error
 	RemovePrice(priceID, tenantID uint) error
+	SearchVariants(tenantID, priceTableID uint, q string) ([]store.Variant, error)
 }
 
 type priceTableService struct {
@@ -131,6 +132,10 @@ func (p *priceTableService) Apply(
 	pt *store.PriceTable,
 ) float64 {
 	return ApplyPriceTable(costPrice, pt)
+}
+
+func (p *priceTableService) SearchVariants(tenantID, priceTableID uint, q string) ([]store.Variant, error) {
+	return p.store.SearchVariantsForPriceTable(tenantID, priceTableID, q)
 }
 
 // ApplyPriceTable aplica o multiplicador da tabela ao custo base.

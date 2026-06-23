@@ -171,6 +171,7 @@ type PriceTableStore interface {
 	GetOneProductPrice(id uint) (*ProductPrice, error)
 	UpdateProductPrice(id uint, price float64) error
 	DeleteProductPrice(PriceID uint) error
+	SearchVariantsForPriceTable(tenantID, priceTableID uint, q string) ([]Variant, error)
 }
 
 type ProductFilters struct {
