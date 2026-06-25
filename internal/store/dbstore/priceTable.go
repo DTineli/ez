@@ -84,7 +84,9 @@ func (p PriceTableDB) FindAllByTenant(id uint) ([]store.PriceTable, error) {
 	return priceTables, nil
 }
 
-func (p PriceTableDB) GetOneWithPrices(id, tenantID uint) (*store.PriceTable, error) {
+func (p PriceTableDB) GetOneWithPrices(
+	id, tenantID uint,
+) (*store.PriceTable, error) {
 	var table store.PriceTable
 	err := p.db.
 		Preload("Prices.Variant.Product").
@@ -127,7 +129,9 @@ func (p PriceTableDB) Delete(id, tenantID uint) error {
 		Delete(&store.PriceTable{}).Error
 }
 
-func (p *PriceTableDB) GetOneProductPrice(id uint) (*store.ProductPrice, error) {
+func (p *PriceTableDB) GetOneProductPrice(
+	id uint,
+) (*store.ProductPrice, error) {
 	var price store.ProductPrice
 	err := p.db.First(&price, id).Error
 	if err != nil {
@@ -136,7 +140,9 @@ func (p *PriceTableDB) GetOneProductPrice(id uint) (*store.ProductPrice, error) 
 	return &price, nil
 }
 
-func (p *PriceTableDB) GetOneProductPriceWithVariant(id uint) (*store.ProductPrice, error) {
+func (p *PriceTableDB) GetOneProductPriceWithVariant(
+	id uint,
+) (*store.ProductPrice, error) {
 	var price store.ProductPrice
 	err := p.db.Preload("Variant.Product").First(&price, id).Error
 	if err != nil {
@@ -155,7 +161,10 @@ func (p *PriceTableDB) DeleteProductPrice(PriceID uint) error {
 	return p.db.Delete(&store.ProductPrice{}, PriceID).Error
 }
 
-func (p *PriceTableDB) SearchVariantsForPriceTable(tenantID, priceTableID uint, q string) ([]store.Variant, error) {
+func (p *PriceTableDB) SearchVariantsForPriceTable(
+	tenantID, priceTableID uint,
+	q string,
+) ([]store.Variant, error) {
 	var variants []store.Variant
 	like := "%" + strings.ToLower(strings.TrimSpace(q)) + "%"
 	err := p.db.

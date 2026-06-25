@@ -26,7 +26,10 @@ type PriceTableService interface {
 	GetProductPrice(id uint) (*store.ProductPrice, error)
 	UpdatePrice(id, tenantID uint, price float64) error
 	RemovePrice(priceID, tenantID uint) error
-	SearchVariants(tenantID, priceTableID uint, q string) ([]store.Variant, error)
+	SearchVariants(
+		tenantID, priceTableID uint,
+		q string,
+	) ([]store.Variant, error)
 }
 
 type priceTableService struct {
@@ -52,7 +55,19 @@ func (p *priceTableService) AddPrice(
 	return pPrice.ID, nil
 }
 
-func (p *priceTableService) GetProductPrice(id uint) (*store.ProductPrice, error) {
+type PriceProductInfo struct {
+}
+
+func (p *priceTableService) GetAllPriceTablesInfoByProduct(
+	id uint,
+) (*PriceProductInfo, error) {
+
+	return &PriceProductInfo{}, nil
+}
+
+func (p *priceTableService) GetProductPrice(
+	id uint,
+) (*store.ProductPrice, error) {
 	return p.store.GetOneProductPriceWithVariant(id)
 }
 
@@ -124,7 +139,9 @@ func (p *priceTableService) FindAllActiveByContact(
 	return p.store.FindAllActiveByTenantAndClient(tenantID, contactID)
 }
 
-func (p *priceTableService) FindOne(id, tenantID uint) (*store.PriceTable, error) {
+func (p *priceTableService) FindOne(
+	id, tenantID uint,
+) (*store.PriceTable, error) {
 	return p.store.GetOneWithPrices(id, tenantID)
 }
 
@@ -141,7 +158,10 @@ func (p *priceTableService) Apply(
 	return ApplyPriceTable(costPrice, pt)
 }
 
-func (p *priceTableService) SearchVariants(tenantID, priceTableID uint, q string) ([]store.Variant, error) {
+func (p *priceTableService) SearchVariants(
+	tenantID, priceTableID uint,
+	q string,
+) ([]store.Variant, error) {
 	return p.store.SearchVariantsForPriceTable(tenantID, priceTableID, q)
 }
 
