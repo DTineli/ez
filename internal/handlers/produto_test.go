@@ -204,6 +204,12 @@ func (s *mockPriceTableService) RemovePrice(priceID, tenantID uint) error       
 func (s *mockPriceTableService) SearchVariants(tenantID, priceTableID uint, q string) ([]store.Variant, error) {
 	return nil, nil
 }
+func (s *mockPriceTableService) GetPriceTablesByProduct(productID, tenantID uint) ([]store.PriceTable, error) {
+	return nil, nil
+}
+func (s *mockPriceTableService) FindAllWithProductPrices(productID, tenantID uint, allVariants []store.Variant) ([]store.PriceTableProductView, error) {
+	return nil, nil
+}
 
 // --- helpers ---
 

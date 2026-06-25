@@ -36,7 +36,7 @@ func (p *ProductHandler) GetProductForm(
 	sess := m.GetSessionFromContext(r)
 	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
 	Render(
-		templates.ProductForm(forms.New(nil), false, false, nil, attrs),
+		templates.ProductForm(forms.New(nil), false, false, nil, attrs, nil),
 		r,
 		w,
 	)
@@ -64,7 +64,7 @@ func (p *ProductHandler) PostNewProduct(
 
 	if !form.Valid() {
 		attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
-		_ = Render(templates.ProductForm(form, false, false, nil, attrs), r, w)
+		_ = Render(templates.ProductForm(form, false, false, nil, attrs, nil), r, w)
 		return
 	}
 
@@ -89,7 +89,7 @@ func (p *ProductHandler) PostNewProduct(
 			form.Errors.Add("general", "Erro ao cadastrar produto. Tente novamente.")
 		}
 		attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
-		_ = Render(templates.ProductForm(form, false, false, nil, attrs), r, w)
+		_ = Render(templates.ProductForm(form, false, false, nil, attrs, nil), r, w)
 		return
 	}
 
@@ -130,10 +130,11 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 
 	variants, _ := p.productStore.FindVariantsByProduct(uint(id), sess.TenantID)
 	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+	priceTableViews, _ := p.priceTableSvc.FindAllWithProductPrices(uint(id), sess.TenantID, variants)
 
 	if !form.Valid() {
 		_ = Render(
-			templates.ProductForm(form, true, false, variants, attrs),
+			templates.ProductForm(form, true, false, variants, attrs, priceTableViews),
 			r,
 			w,
 		)
@@ -155,7 +156,7 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		form.Errors.Add("general", "Erro ao salvar produto. Tente novamente.")
 		_ = Render(
-			templates.ProductForm(form, true, false, variants, attrs),
+			templates.ProductForm(form, true, false, variants, attrs, priceTableViews),
 			r,
 			w,
 		)
@@ -163,7 +164,7 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ShowToast(w, "Alteracoes Salvas", "success")
-	_ = Render(templates.ProductForm(form, true, false, variants, attrs), r, w)
+	_ = Render(templates.ProductForm(form, true, false, variants, attrs, priceTableViews), r, w)
 }
 
 func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
@@ -183,9 +184,10 @@ func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 
 	form := mapProductToForm(product)
 	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+	priceTableViews, _ := p.priceTableSvc.FindAllWithProductPrices(uint(id), sess.TenantID, product.Variants)
 
 	_ = Render(
-		templates.ProductForm(form, true, false, product.Variants, attrs),
+		templates.ProductForm(form, true, false, product.Variants, attrs, priceTableViews),
 		r,
 		w,
 	)

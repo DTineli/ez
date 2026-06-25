@@ -108,6 +108,12 @@ func (s *mockPriceTableStore) DeleteProductPrice(priceID uint) error           {
 func (s *mockPriceTableStore) SearchVariantsForPriceTable(tenantID, priceTableID uint, q string) ([]store.Variant, error) {
 	return nil, nil
 }
+func (s *mockPriceTableStore) FindPriceTablesByProduct(productID, tenantID uint) ([]store.PriceTable, error) {
+	return nil, nil
+}
+func (s *mockPriceTableStore) FindProductPricesForProduct(productID uint) ([]store.ProductPrice, error) {
+	return nil, nil
+}
 
 func newContactHandler(cs *mockContactStore, is *mockInviteStore, pts *mockPriceTableStore) *ContactHandler {
 	if cs == nil {

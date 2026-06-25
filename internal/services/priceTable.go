@@ -30,6 +30,8 @@ type PriceTableService interface {
 		tenantID, priceTableID uint,
 		q string,
 	) ([]store.Variant, error)
+	GetPriceTablesByProduct(productID, tenantID uint) ([]store.PriceTable, error)
+	FindAllWithProductPrices(productID, tenantID uint, allVariants []store.Variant) ([]store.PriceTableProductView, error)
 }
 
 type priceTableService struct {
@@ -163,6 +165,56 @@ func (p *priceTableService) SearchVariants(
 	q string,
 ) ([]store.Variant, error) {
 	return p.store.SearchVariantsForPriceTable(tenantID, priceTableID, q)
+}
+
+func (p *priceTableService) GetPriceTablesByProduct(
+	productID, tenantID uint,
+) ([]store.PriceTable, error) {
+	return p.store.FindPriceTablesByProduct(productID, tenantID)
+}
+
+func (p *priceTableService) FindAllWithProductPrices(
+	productID, tenantID uint,
+	allVariants []store.Variant,
+) ([]store.PriceTableProductView, error) {
+	allTables, err := p.store.FindAllByTenant(tenantID)
+	if err != nil {
+		return nil, err
+	}
+
+	prices, err := p.store.FindProductPricesForProduct(productID)
+	if err != nil {
+		return nil, err
+	}
+
+	byTable := make(map[uint][]store.ProductPrice, len(prices))
+	for _, pp := range prices {
+		byTable[pp.PriceTableID] = append(byTable[pp.PriceTableID], pp)
+	}
+
+	views := make([]store.PriceTableProductView, len(allTables))
+	for i, t := range allTables {
+		tablePrices := byTable[t.ID]
+
+		rows := make([]store.VariantTableRow, 0, len(tablePrices))
+		pricedIDs := make(map[uint]struct{}, len(tablePrices))
+		for _, pp := range tablePrices {
+			ppCopy := pp
+			rows = append(rows, store.VariantTableRow{Variant: pp.Variant, Price: &ppCopy})
+			pricedIDs[pp.VariantID] = struct{}{}
+		}
+
+		missing := make([]store.Variant, 0)
+		for _, v := range allVariants {
+			if _, priced := pricedIDs[v.ID]; !priced {
+				missing = append(missing, v)
+			}
+		}
+
+		views[i] = store.PriceTableProductView{Table: t, Rows: rows, MissingVariants: missing}
+	}
+
+	return views, nil
 }
 
 // ApplyPriceTable aplica o multiplicador da tabela ao custo base.

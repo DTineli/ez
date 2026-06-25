@@ -9,10 +9,103 @@ import (
 	"github.com/DTineli/ez/internal/templates/components"
 )
 
-templ PriceTablePerProduct(tables []any) {
-	<div>
-		<table></table>
+templ PriceTablesForProduct(tables []store.PriceTableProductView) {
+	<div class="space-y-4 mt-6">
+		<p class="text-xs font-bold tracking-widest uppercase text-gray-400">Tabelas de Preço</p>
+		if len(tables) == 0 {
+			<div class="bg-white border border-gray-200 rounded-xl px-5 py-4">
+				<p class="text-sm text-gray-400">Nenhuma tabela de preço cadastrada.</p>
+			</div>
+		} else {
+			for _, tv := range tables {
+				<div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
+					<div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-gray-50">
+						<span class="text-sm font-semibold text-gray-800">{ tv.Table.Name }</span>
+						<div class="flex items-center gap-3">
+							if tv.Table.Status {
+								<span class="inline-flex items-center gap-1.5 text-xs font-medium text-green-700">
+									<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+									Ativa
+								</span>
+							} else {
+								<span class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400">
+									<span class="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+									Inativa
+								</span>
+							}
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/admin/pricetable/%d", tv.Table.ID)) }
+								class="text-xs text-violet-600 hover:underline font-medium"
+							>Ver tabela →</a>
+						</div>
+					</div>
+					if len(tv.Rows) == 0 && len(tv.MissingVariants) == 0 {
+						<p class="px-5 py-4 text-sm text-gray-400">Produto não possui variações.</p>
+					} else {
+						<div class="overflow-x-auto">
+							<table class="w-full text-sm">
+								<thead>
+									<tr class="border-b border-gray-100">
+										<th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wide">SKU</th>
+										<th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wide">Nome</th>
+										<th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wide">Custo</th>
+										<th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wide">Preço de Venda</th>
+										<th class="px-4 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wide">Ações</th>
+									</tr>
+								</thead>
+								<tbody id={ fmt.Sprintf("prices-body-%d", tv.Table.ID) }>
+									for _, row := range tv.Rows {
+										@PriceRow(*row.Price, tv.Table.ID)
+									}
+									for _, mv := range tv.MissingVariants {
+										@ProductPriceAddRow(mv, tv.Table.ID)
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				</div>
+			}
+		}
 	</div>
+}
+
+templ ProductPriceAddRow(v store.Variant, tableID uint) {
+	<tr id={ fmt.Sprintf("add-row-%d-%d", v.ID, tableID) } class="hover:bg-violet-50/30 group border-t border-gray-100">
+		<td class="px-4 py-3 text-gray-400 font-mono text-xs">{ v.SKU }</td>
+		<td class="px-4 py-3 text-gray-400 text-xs">—</td>
+		<td class="px-4 py-3 text-gray-400 text-xs">R$ { fmt.Sprintf("%.2f", v.CostPrice) }</td>
+		<td class="px-4 py-3" colspan="2">
+			<form
+				hx-post={ fmt.Sprintf("/admin/pricetable/%d/prices", tableID) }
+				hx-target="closest tr"
+				hx-swap="outerHTML"
+				class="flex items-center gap-2"
+			>
+				<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", v.ID) }/>
+				<div class="flex items-center border border-gray-300 rounded-field bg-white px-2 py-1 text-sm focus-within:ring-2 focus-within:ring-primary/50 focus-within:border-transparent">
+					<span class="text-gray-400 text-xs mr-1">R$</span>
+					<input
+						name="price"
+						type="number"
+						min="0"
+						step="0.01"
+						placeholder="0.00"
+						class="w-24 bg-transparent outline-none text-sm"
+					/>
+				</div>
+				<button
+					type="submit"
+					class="inline-flex items-center gap-1 cursor-pointer font-medium rounded-field bg-violet-600 text-white hover:brightness-90 px-3 py-1 text-xs"
+				>
+					<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M12 5v14M5 12h14"></path>
+					</svg>
+					Adicionar
+				</button>
+			</form>
+		</td>
+	</tr>
 }
 
 // ─── PRODUTO ────────────────────────────────────────────────────────────────
@@ -329,7 +422,7 @@ templ ProductsPage(params store.GetProductPageParams) {
 	</div>
 }
 
-templ ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants []store.Variant, attrs []store.Attribute) {
+templ ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants []store.Variant, attrs []store.Attribute, priceTables []store.PriceTableProductView) {
 	{{
 		var action string
 		if isUpdate {
@@ -556,6 +649,7 @@ templ ProductForm(form *forms.Form, isUpdate bool, hasVariations bool, variants 
 			</div>
 		</div>
 		if isUpdate {
+			@PriceTablesForProduct(priceTables)
 			@VariationArea(form.Get("ID"), variants, attrs)
 		}
 	</div>

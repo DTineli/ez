@@ -41,6 +41,23 @@ func (p *PriceTableDB) FindProductPrices(
 	return prices, nil
 }
 
+func (p *PriceTableDB) FindProductPricesForProduct(
+	productID uint,
+) ([]store.ProductPrice, error) {
+	var prices []store.ProductPrice
+
+	err := p.db.
+		Preload("Variant").
+		Joins("JOIN variants ON variants.id = product_prices.variant_id").
+		Where("variants.product_id = ?", productID).
+		Find(&prices).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return prices, nil
+}
+
 func (p PriceTableDB) FindAllActiveByTenantAndClient(
 	tenantID, clientID uint,
 ) ([]store.PriceTable, error) {
@@ -159,6 +176,22 @@ func (p *PriceTableDB) UpdateProductPrice(id uint, price float64) error {
 
 func (p *PriceTableDB) DeleteProductPrice(PriceID uint) error {
 	return p.db.Delete(&store.ProductPrice{}, PriceID).Error
+}
+
+func (p *PriceTableDB) FindPriceTablesByProduct(
+	productID, tenantID uint,
+) ([]store.PriceTable, error) {
+	var tables []store.PriceTable
+	err := p.db.
+		Distinct("price_tables.*").
+		Joins("JOIN product_prices ON product_prices.price_table_id = price_tables.id").
+		Joins("JOIN variants ON variants.id = product_prices.variant_id").
+		Where("variants.product_id = ? AND price_tables.tenant_id = ?", productID, tenantID).
+		Find(&tables).Error
+	if err != nil {
+		return nil, err
+	}
+	return tables, nil
 }
 
 func (p *PriceTableDB) SearchVariantsForPriceTable(

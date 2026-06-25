@@ -177,6 +177,19 @@ type PriceTableStore interface {
 		tenantID, priceTableID uint,
 		q string,
 	) ([]Variant, error)
+	FindPriceTablesByProduct(productID, tenantID uint) ([]PriceTable, error)
+	FindProductPricesForProduct(productID uint) ([]ProductPrice, error)
+}
+
+type VariantTableRow struct {
+	Variant Variant
+	Price   *ProductPrice
+}
+
+type PriceTableProductView struct {
+	Table           PriceTable
+	Rows            []VariantTableRow
+	MissingVariants []Variant
 }
 
 type ProductFilters struct {
