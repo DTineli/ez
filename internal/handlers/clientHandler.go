@@ -212,33 +212,23 @@ func (c *ClientHandler) FetchItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	products, err := c.productStore.FindAllByUserWithFilters(
+	products, err := c.productStore.FindAllByUserWithFiltersAndPriceTable(
 		sess.TenantID,
+		uint(priceTable),
 		store.ProductFilters{
 			Page:    page,
 			PerPage: perPage,
 			Search:  query,
 		},
 	)
+
 	if err != nil {
 		ShowToast(w, "Erro ao buscar produtos", "error")
 		return
 	}
 
-	prices, err := c.priceTableSvc.GetOne(
-		uint(priceTable),
-		sess.TenantID,
-	)
-	if err != nil {
-		http.Error(
-			w,
-			"Tabela de preço não encontrada. Contate o administrador.",
-			http.StatusUnprocessableEntity,
-		)
-		return
-	}
+	cards := makeCardData(products.Results)
 
-	cards := makeCardData(products.Results, *prices, c.priceTableSvc)
 	nextPage := 0
 	totalPages := int(math.Ceil(float64(products.Count) / float64(perPage)))
 	if page < totalPages {
@@ -271,9 +261,8 @@ func (c *ClientHandler) GetCheckoutPage(
 
 func makeCardData(
 	products []store.Product,
-	table store.PriceTable,
-	ptSvc services.PriceTableService,
 ) []store.CardData {
+
 	cards := make([]store.CardData, 0, len(products))
 	for _, p := range products {
 		variants := make([]store.VariantData, 0, len(p.Variants))
@@ -285,9 +274,14 @@ func makeCardData(
 					Value: a.AttributeValue.Value,
 				})
 			}
+
+			if len(v.Prices) == 0 {
+				continue
+			}
+
 			variants = append(variants, store.VariantData{
 				ID:        v.ID,
-				Price:     ptSvc.Apply(v.CostPrice, &table),
+				Price:     v.Prices[0].Price,
 				IsDefault: v.IsDefault,
 				Attrs:     attrs,
 			})

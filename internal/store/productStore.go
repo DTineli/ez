@@ -204,10 +204,18 @@ type ProductStore interface {
 	CreateProduct(*Product) error
 	UpdateFields(id uint, tenantID uint, fields map[string]any) error
 	GetProduct(id uint) (*Product, error)
+
 	FindAllByUserWithFilters(
 		id uint,
 		filters ProductFilters,
 	) (*FindResults[Product], error)
+
+	FindAllByUserWithFiltersAndPriceTable(
+		id uint,
+		priceTableID uint,
+		filters ProductFilters,
+	) (*FindResults[Product], error)
+
 	AdminFindAllByUserWithFilters(
 		id uint,
 		filters ProductFilters,
