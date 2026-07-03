@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"net/http"
 	"strconv"
@@ -93,25 +92,24 @@ func (c *ClientHandler) RenderCheckoutContent(
 			return
 		}
 
-		var pt *store.PriceTable
-		if price_tableID != 0 {
-			fetched, err := c.priceTableSvc.GetOne(
+		for i, item := range items {
+			items[i].UnitPrice, err = c.priceTableSvc.GetVariantPrice(
+				item.VariantID,
 				uint(price_tableID),
-				sess.TenantID,
 			)
-			if err == nil {
-				pt = fetched
-			}
-		}
 
-		for i := range items {
-			items[i].UnitPrice = c.priceTableSvc.Apply(items[i].CostPrice, pt)
+			if err != nil {
+				if errors.Is(err, services.ErrPriceNotFound) {
+					continue
+				}
+				ShowToast(w, "Erro ao calcular preço", "error")
+				return
+			}
+
 			items[i].Subtotal = items[i].UnitPrice * float64(items[i].Quantity)
 			totalAmount += items[i].Subtotal
 		}
 	}
-
-	fmt.Println(items)
 
 	showPrice := price_tableID != 0
 	Render(templates.ClientCartContent(items, totalAmount, showPrice), r, w)

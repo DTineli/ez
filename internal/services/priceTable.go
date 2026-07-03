@@ -8,6 +8,10 @@ import (
 
 var ErrPriceTableHasContacts = errors.New("tabela possui clientes vinculados")
 
+var ErrPriceNotFound = errors.New(
+	"preço não encontrado para essa variante na tabela",
+)
+
 type PriceTableService interface {
 	Create(
 		tenantID uint,
@@ -22,6 +26,8 @@ type PriceTableService interface {
 	GetOne(id, tenantID uint) (*store.PriceTable, error)
 	Apply(costPrice float64, pt *store.PriceTable) float64
 
+	GetVariantPrice(variantID, tableID uint) (float64, error)
+
 	AddPrice(tableID, variationID uint, price float64) (uint, error)
 	GetProductPrice(id uint) (*store.ProductPrice, error)
 	UpdatePrice(id, tenantID uint, price float64) error
@@ -30,8 +36,13 @@ type PriceTableService interface {
 		tenantID, priceTableID uint,
 		q string,
 	) ([]store.Variant, error)
-	GetPriceTablesByProduct(productID, tenantID uint) ([]store.PriceTable, error)
-	FindAllWithProductPrices(productID, tenantID uint, allVariants []store.Variant) ([]store.PriceTableProductView, error)
+	GetPriceTablesByProduct(
+		productID, tenantID uint,
+	) ([]store.PriceTable, error)
+	FindAllWithProductPrices(
+		productID, tenantID uint,
+		allVariants []store.Variant,
+	) ([]store.PriceTableProductView, error)
 }
 
 type priceTableService struct {
@@ -40,6 +51,31 @@ type priceTableService struct {
 
 func NewPriceTableService(s store.PriceTableStore) PriceTableService {
 	return &priceTableService{store: s}
+}
+
+func (p *priceTableService) GetVariantPrice(
+	variantID,
+	tableID uint,
+) (float64, error) {
+	prices, err := p.store.FindProductPrices(variantID)
+	if err != nil {
+		return 0, err
+	}
+
+	var price float64
+
+	for _, pp := range prices {
+		if pp.PriceTableID == tableID {
+			price = pp.Price
+			break
+		}
+	}
+
+	if price == 0 {
+		return price, ErrPriceNotFound
+	}
+
+	return price, nil
 }
 
 func (p *priceTableService) AddPrice(
@@ -200,7 +236,10 @@ func (p *priceTableService) FindAllWithProductPrices(
 		pricedIDs := make(map[uint]struct{}, len(tablePrices))
 		for _, pp := range tablePrices {
 			ppCopy := pp
-			rows = append(rows, store.VariantTableRow{Variant: pp.Variant, Price: &ppCopy})
+			rows = append(
+				rows,
+				store.VariantTableRow{Variant: pp.Variant, Price: &ppCopy},
+			)
 			pricedIDs[pp.VariantID] = struct{}{}
 		}
 
@@ -211,7 +250,11 @@ func (p *priceTableService) FindAllWithProductPrices(
 			}
 		}
 
-		views[i] = store.PriceTableProductView{Table: t, Rows: rows, MissingVariants: missing}
+		views[i] = store.PriceTableProductView{
+			Table:           t,
+			Rows:            rows,
+			MissingVariants: missing,
+		}
 	}
 
 	return views, nil
