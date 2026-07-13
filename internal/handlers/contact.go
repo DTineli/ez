@@ -176,10 +176,10 @@ func (c ContactHandler) GetContactsPage(
 	results, err := c.contactStore.FindAll(sess.TenantID, store.ContactFilters{
 		Pagination: pagination,
 
-		Name:        r.URL.Query().Get("name"),
-		TradeName:   r.URL.Query().Get("trade_name"),
-		Document:    r.URL.Query().Get("document"),
-		ContactType: r.URL.Query().Get("contact_type"),
+		Name:        strings.TrimSpace(r.URL.Query().Get("name")),
+		TradeName:   strings.TrimSpace(r.URL.Query().Get("trade_name")),
+		Document:    strings.TrimSpace(r.URL.Query().Get("document")),
+		ContactType: strings.TrimSpace(r.URL.Query().Get("contact_type")),
 	})
 
 	if err != nil {

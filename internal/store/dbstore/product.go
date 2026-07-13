@@ -108,7 +108,7 @@ func (p *ProductStore) FindAllByUserWithFilters(
 	if filters.Search != "" {
 		like := "%" + filters.Search + "%"
 		query = query.Where(
-			"products.name LIKE ? OR products.sku LIKE ?",
+			"LOWER(products.name) LIKE LOWER(?) OR LOWER(products.sku) LIKE LOWER(?)",
 			like,
 			like,
 		)
@@ -117,7 +117,7 @@ func (p *ProductStore) FindAllByUserWithFilters(
 			query = query.Where("products.sku = ?", filters.SKU)
 		}
 		if filters.Name != "" {
-			query = query.Where("products.name LIKE ?", "%"+filters.Name+"%")
+			query = query.Where("LOWER(products.name) LIKE LOWER(?)", "%"+filters.Name+"%")
 		}
 	}
 
@@ -154,7 +154,7 @@ func (p *ProductStore) AdminFindAllByUserWithFilters(
 	if filters.Search != "" {
 		like := "%" + filters.Search + "%"
 		query = query.Where(
-			"products.name LIKE ? OR products.sku LIKE ?",
+			"LOWER(products.name) LIKE LOWER(?) OR LOWER(products.sku) LIKE LOWER(?)",
 			like,
 			like,
 		)
@@ -163,7 +163,7 @@ func (p *ProductStore) AdminFindAllByUserWithFilters(
 			query = query.Where("products.sku = ?", filters.SKU)
 		}
 		if filters.Name != "" {
-			query = query.Where("products.name LIKE ?", "%"+filters.Name+"%")
+			query = query.Where("LOWER(products.name) LIKE LOWER(?)", "%"+filters.Name+"%")
 		}
 	}
 

@@ -178,7 +178,7 @@ func (o *GormRepository) ListByTenantPaged(
 		Where("o.tenant_id = ?", tenantID)
 
 	if filters.ContactName != "" {
-		q = q.Where("c.trade_name ILIKE ?", "%"+filters.ContactName+"%")
+		q = q.Where("LOWER(c.trade_name) LIKE LOWER(?)", "%"+filters.ContactName+"%")
 	}
 	if filters.Status != "" {
 		q = q.Where("o.status = ?", filters.Status)
