@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/DTineli/ez/internal/services"
 	"github.com/DTineli/ez/internal/store"
 )
 
@@ -26,8 +27,8 @@ func TestGetTablePage_Sucesso(t *testing.T) {
 }
 
 func TestGetTablePage_ErroStore(t *testing.T) {
-	pts := &mockPriceTableStoreExt{
-		findAllByTenant: func(id uint) ([]store.PriceTable, error) {
+	pts := &mockPriceTableServiceExt{
+		findAll: func(id uint) ([]store.PriceTable, error) {
 			return nil, errors.New("db error")
 		},
 	}
@@ -39,8 +40,6 @@ func TestGetTablePage_ErroStore(t *testing.T) {
 
 	h.GetTablePage(w, r)
 
-	// ShowToast escreve WriteHeader(200) antes de http.Error, então status é 200
-	// mas o toast de erro deve estar presente
 	if !strings.Contains(w.Header().Get("HX-Trigger"), "error") {
 		t.Error("esperado toast de erro")
 	}
@@ -82,11 +81,13 @@ func TestCreatePriceTable_ValidacaoFalha_PercentualInvalido(t *testing.T) {
 }
 
 func TestCreatePriceTable_Sucesso(t *testing.T) {
-	var criada *store.PriceTable
-	pts := &mockPriceTableStoreExt{
-		createPriceTable: func(p *store.PriceTable) error {
-			criada = p
-			return nil
+	var capturedName string
+	var capturedPct float64
+	pts := &mockPriceTableServiceExt{
+		create: func(tenantID uint, name string, pct float64) (*store.PriceTable, error) {
+			capturedName = name
+			capturedPct = pct
+			return &store.PriceTable{Name: name, Percentage: pct, TenantID: tenantID}, nil
 		},
 	}
 	h := NewProductHandler(&mockProductStore{}, pts)
@@ -102,14 +103,11 @@ func TestCreatePriceTable_Sucesso(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Errorf("esperado 200, obteve %d", w.Code)
 	}
-	if criada == nil {
-		t.Fatal("CreatePriceTable não foi chamado")
+	if capturedName != "Tabela A" {
+		t.Errorf("nome incorreto: %q", capturedName)
 	}
-	if criada.Name != "Tabela A" {
-		t.Errorf("nome incorreto: %q", criada.Name)
-	}
-	if criada.Percentage != 10 {
-		t.Errorf("percentual incorreto: %v", criada.Percentage)
+	if capturedPct != 10 {
+		t.Errorf("percentual incorreto: %v", capturedPct)
 	}
 	if !strings.Contains(w.Header().Get("HX-Trigger"), "success") {
 		t.Error("esperado toast de sucesso")
@@ -117,9 +115,9 @@ func TestCreatePriceTable_Sucesso(t *testing.T) {
 }
 
 func TestCreatePriceTable_NomeDuplicado(t *testing.T) {
-	pts := &mockPriceTableStoreExt{
-		createPriceTable: func(p *store.PriceTable) error {
-			return errors.New("UNIQUE constraint failed: price_tables.name")
+	pts := &mockPriceTableServiceExt{
+		create: func(tenantID uint, name string, pct float64) (*store.PriceTable, error) {
+			return nil, errors.New("UNIQUE constraint failed: price_tables.name")
 		},
 	}
 	h := NewProductHandler(&mockProductStore{}, pts)
@@ -156,9 +154,9 @@ func TestDeletePriceTable_IDInvalido(t *testing.T) {
 }
 
 func TestDeletePriceTable_PossuiClientes(t *testing.T) {
-	pts := &mockPriceTableStoreExt{
-		hasContacts: func(priceTableID, tenantID uint) (bool, error) {
-			return true, nil
+	pts := &mockPriceTableServiceExt{
+		delete: func(id, tenantID uint) error {
+			return services.ErrPriceTableHasContacts
 		},
 	}
 	h := NewProductHandler(&mockProductStore{}, pts)
@@ -177,8 +175,7 @@ func TestDeletePriceTable_PossuiClientes(t *testing.T) {
 
 func TestDeletePriceTable_Sucesso(t *testing.T) {
 	deleted := false
-	pts := &mockPriceTableStoreExt{
-		hasContacts: func(priceTableID, tenantID uint) (bool, error) { return false, nil },
+	pts := &mockPriceTableServiceExt{
 		delete: func(id, tenantID uint) error {
 			deleted = true
 			return nil
@@ -199,56 +196,73 @@ func TestDeletePriceTable_Sucesso(t *testing.T) {
 	if !deleted {
 		t.Error("Delete não foi chamado")
 	}
-	// handler sobrescreve HX-Trigger com priceTableDeleted após ShowToast
 	if !strings.Contains(w.Header().Get("HX-Trigger"), "priceTableDeleted") {
 		t.Errorf("esperado trigger priceTableDeleted, obteve %q", w.Header().Get("HX-Trigger"))
 	}
 }
 
-// mockPriceTableStoreExt permite controle fino por teste sem sobrescrever o stub global
-type mockPriceTableStoreExt struct {
-	createPriceTable func(*store.PriceTable) error
-	findAllByTenant  func(id uint) ([]store.PriceTable, error)
-	getOne           func(id, tenantID uint) (*store.PriceTable, error)
-	hasContacts      func(priceTableID, tenantID uint) (bool, error)
-	delete           func(id, tenantID uint) error
+// mockPriceTableServiceExt permite controle fino por teste
+type mockPriceTableServiceExt struct {
+	create      func(tenantID uint, name string, pct float64) (*store.PriceTable, error)
+	delete      func(id, tenantID uint) error
+	findAll     func(tenantID uint) ([]store.PriceTable, error)
+	findAllActive func(tenantID uint) ([]store.PriceTable, error)
+	getOne      func(id, tenantID uint) (*store.PriceTable, error)
 }
 
-func (s *mockPriceTableStoreExt) CreatePriceTable(p *store.PriceTable) error {
-	if s.createPriceTable != nil {
-		return s.createPriceTable(p)
+func (s *mockPriceTableServiceExt) Create(tenantID uint, name string, pct float64) (*store.PriceTable, error) {
+	if s.create != nil {
+		return s.create(tenantID, name, pct)
 	}
-	return nil
+	return &store.PriceTable{Name: name, Percentage: pct}, nil
 }
-func (s *mockPriceTableStoreExt) FindAllByTenant(id uint) ([]store.PriceTable, error) {
-	if s.findAllByTenant != nil {
-		return s.findAllByTenant(id)
-	}
-	return nil, nil
-}
-func (s *mockPriceTableStoreExt) GetOne(id, tenantID uint) (*store.PriceTable, error) {
-	if s.getOne != nil {
-		return s.getOne(id, tenantID)
-	}
-	return &store.PriceTable{ID: id}, nil
-}
-func (s *mockPriceTableStoreExt) HasContacts(priceTableID, tenantID uint) (bool, error) {
-	if s.hasContacts != nil {
-		return s.hasContacts(priceTableID, tenantID)
-	}
-	return false, nil
-}
-func (s *mockPriceTableStoreExt) Delete(id, tenantID uint) error {
+func (s *mockPriceTableServiceExt) Delete(id, tenantID uint) error {
 	if s.delete != nil {
 		return s.delete(id, tenantID)
 	}
 	return nil
 }
-
-func (s *mockPriceTableStoreExt) FindAllActiveByTenant(id uint) ([]store.PriceTable, error) {
+func (s *mockPriceTableServiceExt) FindAll(tenantID uint) ([]store.PriceTable, error) {
+	if s.findAll != nil {
+		return s.findAll(tenantID)
+	}
 	return nil, nil
 }
-
-func (s *mockPriceTableStoreExt) FindAllActiveByTenantAndClient(tenantID, clientID uint) ([]store.PriceTable, error) {
+func (s *mockPriceTableServiceExt) FindAllActive(tenantID uint) ([]store.PriceTable, error) {
+	if s.findAllActive != nil {
+		return s.findAllActive(tenantID)
+	}
+	return nil, nil
+}
+func (s *mockPriceTableServiceExt) FindAllActiveByContact(tenantID, contactID uint) ([]store.PriceTable, error) {
+	return nil, nil
+}
+func (s *mockPriceTableServiceExt) GetOne(id, tenantID uint) (*store.PriceTable, error) {
+	if s.getOne != nil {
+		return s.getOne(id, tenantID)
+	}
+	return &store.PriceTable{ID: id}, nil
+}
+func (s *mockPriceTableServiceExt) FindOne(id, tenantID uint) (*store.PriceTable, error) {
+	return &store.PriceTable{ID: id}, nil
+}
+func (s *mockPriceTableServiceExt) Apply(costPrice float64, pt *store.PriceTable) float64 {
+	return services.ApplyPriceTable(costPrice, pt)
+}
+func (s *mockPriceTableServiceExt) AddPrice(tableID, variationID uint, price float64) (uint, error) {
+	return 0, nil
+}
+func (s *mockPriceTableServiceExt) GetProductPrice(id uint) (*store.ProductPrice, error) {
+	return nil, nil
+}
+func (s *mockPriceTableServiceExt) UpdatePrice(id, tenantID uint, price float64) error { return nil }
+func (s *mockPriceTableServiceExt) RemovePrice(priceID, tenantID uint) error           { return nil }
+func (s *mockPriceTableServiceExt) SearchVariants(tenantID, priceTableID uint, q string) ([]store.Variant, error) {
+	return nil, nil
+}
+func (s *mockPriceTableServiceExt) GetPriceTablesByProduct(productID, tenantID uint) ([]store.PriceTable, error) {
+	return nil, nil
+}
+func (s *mockPriceTableServiceExt) FindAllWithProductPrices(productID, tenantID uint, allVariants []store.Variant) ([]store.PriceTableProductView, error) {
 	return nil, nil
 }

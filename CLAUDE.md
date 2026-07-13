@@ -44,10 +44,20 @@ Cookies: `ez_seller_session`, `ez_buyer_session`. Secret hardcoded `"VERYSECRETK
 Templ + HTMX (partial updates, `HX-Redirect` after POSTs). Tailwind CLI only — no npm.
 
 ## Pricing Rules
-- Price stored in cart = **cost price** (base for calculation)
-- Final price calculated at checkout (`POST /buyer/confirmacao`)
-- Buyer selects price table → system applies multiplier → order saved with final price
-- Never use cart price as sale price; always recalculate at confirmation
+
+### Estrutura
+- `PriceTable`: tabela de preço com `Percentage` (multiplicador) e `Prices []ProductPrice`
+- `ProductPrice`: preço explícito por variante por tabela (`VariantID + PriceTableID`, unique)
+- `Variant.CostPrice`: preço de custo base (usado internamente, nunca exposto ao buyer)
+
+### Fluxo
+1. **Cadastro (seller):** registra `ProductPrice.Price` por variante por tabela via `/seller/products/{id}/price-tables/{tableID}/prices`
+2. **Catálogo buyer:** `FindAllByUserWithFiltersAndPriceTable` — produto só aparece se tiver `ProductPrice` na tabela do buyer (JOIN em `product_prices`); `VariantData.Price = v.Prices[0].Price` (preço explícito)
+3. **Cart add:** `price = variant.CostPrice` salvo no `CartItem` (base de cálculo)
+4. **Cart view:** exibe `CostPrice * (1 + Percentage/100)` via `priceTableSvc.Apply`
+5. **Checkout confirm (`POST /buyer/confirmacao`):** `unitPrice = ApplyPriceTable(item.CostPrice, pt)` — recalcula com multiplicador; salva no pedido
+
+> **Regra:** preço final = `ProductPrice.Price` da tabela escolhida pelo buyer. Checkout deve usar esse valor — não o multiplicador `CostPrice * Percentage`. `ConfirmFromCart` ainda usa `ApplyPriceTable` (pendente de correção).
 
 ## Env Defaults
 `PORT=:4000` · `DATABASE_NAME=ez.db` · `SESSION_COOKIE_NAME=session`

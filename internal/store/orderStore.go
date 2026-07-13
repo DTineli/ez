@@ -72,6 +72,9 @@ type Order struct {
 	PaymentStatus OrderStatus `gorm:"type:varchar(30);not null;index;default:pagamento_pendente" json:"payment_status"`
 	PaymentDate   *time.Time  `                                                                  json:"payment_date"`
 
+	PriceTableId uint       `gorm:"index"                                                      json:"price_table_id"`
+	PriceTable   PriceTable `gorm:"foreignKey:PriceTableId"                                    json:"-"`
+
 	TotalAmount float64     `gorm:"not null"           json:"total_amount"`
 	CreatedAt   time.Time   `                          json:"created_at"`
 	EntregueEm  *time.Time  `                          json:"entregue_em"`

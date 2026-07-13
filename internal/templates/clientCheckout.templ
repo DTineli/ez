@@ -21,9 +21,13 @@ templ ClientCartContent(items []store.CartCheckoutItem, totalAmount float64, sho
 						</p>
 						<p style="font-size:0.75rem;color:#6B7280;margin-top:2px;">
 							if showPrice {
-								R$ { fmt.Sprintf("%.2f", item.UnitPrice) } / un
+								if item.UnitPrice == 0 {
+									Tabela sem preco 
+								} else {
+									R$ { fmt.Sprintf("%.2f", item.UnitPrice) } / un
+								}
 							} else {
-								-
+								- 
 							}
 						</p>
 					</div>
@@ -73,7 +77,11 @@ templ ClientCartContent(items []store.CartCheckoutItem, totalAmount float64, sho
 					</form>
 					<p style="flex-shrink:0;font-size:0.875rem;font-weight:700;color:#1C1C2E;font-family:'Inter',sans-serif;">
 						if showPrice {
-							R$ { fmt.Sprintf("%.2f", item.Subtotal) }
+							if item.Subtotal == 0 {
+								<span style="color:#DC2626;">Produto sem preco cadastrado na tabela nao sera incluido no pedido</span>
+							} else {
+								R$ { fmt.Sprintf("%.2f", item.Subtotal) }
+							}
 						} else {
 							-
 						}

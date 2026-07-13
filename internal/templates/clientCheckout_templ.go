@@ -81,145 +81,159 @@ func ClientCartContent(items []store.CartCheckoutItem, totalAmount float64, show
 				return templ_7745c5c3_Err
 			}
 			if showPrice {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "R$ ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var4 string
-				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.UnitPrice))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 24, Col: 48}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " / un")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
+				if item.UnitPrice == 0 {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "Tabela sem preco ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "R$ ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var4 string
+					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.UnitPrice))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 27, Col: 49}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " / un")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "-")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "- ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</p></div><button type=\"button\" hx-delete=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</p></div><button type=\"button\" hx-delete=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/client/cart/items/%d/%d", item.ProductID, item.VariantID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 32, Col: 89}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 36, Col: 89}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\" hx-swap=\"none\" hx-confirm=\"Remover este item?\" style=\"flex-shrink:0;border-radius:6px;padding:6px;color:#9CA3AF;border:none;background:none;cursor:pointer;transition:background .15s,color .15s;\" onmouseover=\"this.style.background='#FEE2E2';this.style.color='#B91C1C'\" onmouseout=\"this.style.background='none';this.style.color='#9CA3AF'\" title=\"Remover item\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"3 6 5 6 21 6\"></polyline> <path d=\"M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6\"></path> <path d=\"M10 11v6\"></path> <path d=\"M14 11v6\"></path> <path d=\"M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2\"></path></svg></button></div><!-- bottom: qty form + subtotal --><div style=\"margin-top:8px;display:flex;align-items:center;justify-content:space-between;\"><form hx-patch=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" hx-swap=\"none\" hx-confirm=\"Remover este item?\" style=\"flex-shrink:0;border-radius:6px;padding:6px;color:#9CA3AF;border:none;background:none;cursor:pointer;transition:background .15s,color .15s;\" onmouseover=\"this.style.background='#FEE2E2';this.style.color='#B91C1C'\" onmouseout=\"this.style.background='none';this.style.color='#9CA3AF'\" title=\"Remover item\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"3 6 5 6 21 6\"></polyline> <path d=\"M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6\"></path> <path d=\"M10 11v6\"></path> <path d=\"M14 11v6\"></path> <path d=\"M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2\"></path></svg></button></div><!-- bottom: qty form + subtotal --><div style=\"margin-top:8px;display:flex;align-items:center;justify-content:space-between;\"><form hx-patch=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/client/cart/items/%d/%d", item.ProductID, item.VariantID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 52, Col: 88}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 56, Col: 88}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\" hx-swap=\"none\" style=\"display:flex;align-items:center;gap:4px;\"><input type=\"number\" name=\"qty\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" hx-swap=\"none\" style=\"display:flex;align-items:center;gap:4px;\"><input type=\"number\" name=\"qty\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(item.Quantity))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 59, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 63, Col: 42}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" min=\"1\" style=\"width:64px;border-radius:6px;border:1px solid #D1D5DB;background:#fff;padding:4px 8px;text-align:center;font-size:0.875rem;font-weight:600;color:#1C1C2E;outline:none;font-family:'Inter',sans-serif;\" onfocus=\"this.style.borderColor='#6B21A8';this.style.boxShadow='0 0 0 3px #EDE9FE';\" onblur=\"this.style.borderColor='#D1D5DB';this.style.boxShadow='none';\"> <button type=\"submit\" style=\"border-radius:6px;background:#E5E7EB;padding:4px 8px;font-size:0.75rem;font-weight:600;color:#3F3F5A;border:none;cursor:pointer;transition:background .15s;\" onmouseover=\"this.style.background='#D1D5DB'\" onmouseout=\"this.style.background='#E5E7EB'\">OK</button></form><p style=\"flex-shrink:0;font-size:0.875rem;font-weight:700;color:#1C1C2E;font-family:'Inter',sans-serif;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" min=\"1\" style=\"width:64px;border-radius:6px;border:1px solid #D1D5DB;background:#fff;padding:4px 8px;text-align:center;font-size:0.875rem;font-weight:600;color:#1C1C2E;outline:none;font-family:'Inter',sans-serif;\" onfocus=\"this.style.borderColor='#6B21A8';this.style.boxShadow='0 0 0 3px #EDE9FE';\" onblur=\"this.style.borderColor='#D1D5DB';this.style.boxShadow='none';\"> <button type=\"submit\" style=\"border-radius:6px;background:#E5E7EB;padding:4px 8px;font-size:0.75rem;font-weight:600;color:#3F3F5A;border:none;cursor:pointer;transition:background .15s;\" onmouseover=\"this.style.background='#D1D5DB'\" onmouseout=\"this.style.background='#E5E7EB'\">OK</button></form><p style=\"flex-shrink:0;font-size:0.875rem;font-weight:700;color:#1C1C2E;font-family:'Inter',sans-serif;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if showPrice {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "R$ ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.Subtotal))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 76, Col: 46}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
+				if item.Subtotal == 0 {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span style=\"color:#DC2626;\">Produto sem preco cadastrado na tabela nao sera incluido no pedido</span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "R$ ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var8 string
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", item.Subtotal))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 83, Col: 47}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "-")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "-")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div><div style=\"margin-top:24px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #E5E7EB;padding-top:16px;\"><p style=\"font-size:0.875rem;font-weight:600;color:#6B7280;font-family:'Inter',sans-serif;\">Total</p><p style=\"font-size:1.25rem;font-weight:800;color:#1C1C2E;font-family:'Manrope',sans-serif;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><div style=\"margin-top:24px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #E5E7EB;padding-top:16px;\"><p style=\"font-size:0.875rem;font-weight:600;color:#6B7280;font-family:'Inter',sans-serif;\">Total</p><p style=\"font-size:1.25rem;font-weight:800;color:#1C1C2E;font-family:'Manrope',sans-serif;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if showPrice {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "R$ ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "R$ ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", totalAmount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 89, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 97, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "-")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "-")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</p></div><div x-data=\"{ confirming: false }\" style=\"margin-top:20px;\"><button x-show=\"!confirming\" type=\"button\" @click=\"confirming = true\" style=\"width:100%;border-radius:6px;background:#6B21A8;padding:12px;font-size:0.875rem;font-weight:700;color:#fff;border:none;cursor:pointer;transition:background .15s;\" onmouseover=\"this.style.background='#5B21B6'\" onmouseout=\"this.style.background='#6B21A8'\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</p></div><div x-data=\"{ confirming: false }\" style=\"margin-top:20px;\"><button x-show=\"!confirming\" type=\"button\" @click=\"confirming = true\" style=\"width:100%;border-radius:6px;background:#6B21A8;padding:12px;font-size:0.875rem;font-weight:700;color:#fff;border:none;cursor:pointer;transition:background .15s;\" onmouseover=\"this.style.background='#5B21B6'\" onmouseout=\"this.style.background='#6B21A8'\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if !showPrice {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " disabled")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, " disabled")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, ">Confirmar pedido</button><div x-show=\"confirming\" x-cloak style=\"border-radius:10px;border:1px solid #DDD6FE;background:#F5F3FF;padding:16px;\"><p style=\"margin-bottom:12px;text-align:center;font-size:0.875rem;font-weight:600;color:#3B0764;font-family:'Inter',sans-serif;\">Confirmar o pedido de <span style=\"font-weight:800;\">R$ ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, ">Confirmar pedido</button><div x-show=\"confirming\" x-cloak style=\"border-radius:10px;border:1px solid #DDD6FE;background:#F5F3FF;padding:16px;\"><p style=\"margin-bottom:12px;text-align:center;font-size:0.875rem;font-weight:600;color:#3B0764;font-family:'Inter',sans-serif;\">Confirmar o pedido de <span style=\"font-weight:800;\">R$ ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", totalAmount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 111, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/clientCheckout.templ`, Line: 119, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span>?</p><div style=\"display:flex;gap:12px;\"><button type=\"button\" @click=\"confirming = false\" style=\"flex:1;border-radius:6px;border:1px solid #D1D5DB;background:#fff;padding:10px;font-size:0.875rem;font-weight:600;color:#555570;cursor:pointer;transition:background .15s;\" onmouseover=\"this.style.background='#F3F4F6'\" onmouseout=\"this.style.background='#fff'\">Cancelar</button> <button type=\"button\" hx-post=\"/client/confirmacao\" hx-swap=\"none\" hx-include=\"#sel-hidden-price_table\" style=\"flex:1;border-radius:6px;background:#6B21A8;padding:10px;font-size:0.875rem;font-weight:700;color:#fff;border:none;cursor:pointer;transition:background .15s;\" onmouseover=\"this.style.background='#5B21B6'\" onmouseout=\"this.style.background='#6B21A8'\">Sim, confirmar</button></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</span>?</p><div style=\"display:flex;gap:12px;\"><button type=\"button\" @click=\"confirming = false\" style=\"flex:1;border-radius:6px;border:1px solid #D1D5DB;background:#fff;padding:10px;font-size:0.875rem;font-weight:600;color:#555570;cursor:pointer;transition:background .15s;\" onmouseover=\"this.style.background='#F3F4F6'\" onmouseout=\"this.style.background='#fff'\">Cancelar</button> <button type=\"button\" hx-post=\"/client/confirmacao\" hx-swap=\"none\" hx-include=\"#sel-hidden-price_table\" style=\"flex:1;border-radius:6px;background:#6B21A8;padding:10px;font-size:0.875rem;font-weight:700;color:#fff;border:none;cursor:pointer;transition:background .15s;\" onmouseover=\"this.style.background='#5B21B6'\" onmouseout=\"this.style.background='#6B21A8'\">Sim, confirmar</button></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -248,22 +262,22 @@ func ClientCheckoutPage(isEmpty bool) templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<section style=\"margin:0 auto;width:100%;max-width:48rem;\"><div style=\"overflow:hidden;border-radius:10px;border:1px solid #E5E7EB;background:#fff;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.06);\"><p style=\"font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B7280;font-family:'Inter',sans-serif;\">Carrinho</p><h2 style=\"margin-top:8px;font-family:'Manrope',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;color:#1C1C2E;\">Confirmação de pedido</h2><p style=\"margin-top:12px;font-size:0.875rem;color:#6B7280;font-family:'Inter',sans-serif;\">Revise os itens adicionados e finalize o pedido.</p>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<section style=\"margin:0 auto;width:100%;max-width:48rem;\"><div style=\"overflow:hidden;border-radius:10px;border:1px solid #E5E7EB;background:#fff;padding:24px;box-shadow:0 1px 2px rgba(0,0,0,.06);\"><p style=\"font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#6B7280;font-family:'Inter',sans-serif;\">Carrinho</p><h2 style=\"margin-top:8px;font-family:'Manrope',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;color:#1C1C2E;\">Confirmação de pedido</h2><p style=\"margin-top:12px;font-size:0.875rem;color:#6B7280;font-family:'Inter',sans-serif;\">Revise os itens adicionados e finalize o pedido.</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if isEmpty {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div style=\"margin-top:24px;border-radius:10px;border:1px dashed #D1D5DB;background:#F9FAFB;padding:20px;font-size:0.875rem;color:#6B7280;font-family:'Inter',sans-serif;\">Seu carrinho está vazio.</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div style=\"margin-top:24px;border-radius:10px;border:1px dashed #D1D5DB;background:#F9FAFB;padding:20px;font-size:0.875rem;color:#6B7280;font-family:'Inter',sans-serif;\">Seu carrinho está vazio.</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div id=\"price_table\" hx-get=\"/client/components/price-tables\" hx-trigger=\"load\" hx-swap=\"innerHTML\" hx-target=\"this\"></div><div id=\"cart_content\" hx-get=\"/client/components/cart-content\" hx-trigger=\"htmx:afterSettle from:#price_table, change from:#price_table, cartUpdated from:body\" hx-swap=\"innerHTML\" hx-target=\"this\" hx-include=\"#sel-hidden-price_table\"></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div id=\"price_table\" hx-get=\"/client/components/price-tables\" hx-trigger=\"load\" hx-swap=\"innerHTML\" hx-target=\"this\"></div><div id=\"cart_content\" hx-get=\"/client/components/cart-content\" hx-trigger=\"htmx:afterSettle from:#price_table, change from:#price_table, cartUpdated from:body\" hx-swap=\"innerHTML\" hx-target=\"this\" hx-include=\"#sel-hidden-price_table\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

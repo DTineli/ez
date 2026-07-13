@@ -99,7 +99,7 @@ func (c *CartStore) CountItems(cartID uint) (int64, error) {
 }
 
 func (c *CartStore) ListCheckoutItems(
-	cartID, tenantID uint,
+	cartID, tenantID, priceTableID uint,
 ) ([]store.CartCheckoutItem, error) {
 	type checkoutRow struct {
 		ID           uint
@@ -109,17 +109,19 @@ func (c *CartStore) ListCheckoutItems(
 		VariantID    uint
 		Quantity     int
 		CostPrice    float64
+		UnitPrice    float64
 	}
 
 	var rows []checkoutRow
 	err := c.db.
 		Table("cart_items ci").
-		Select("ci.id, ci.product_id, p.name, ci.quantity, ci.cost_price, ci.variant_id, STRING_AGG(av.value, ' / ') as variant_label").
+		Select("ci.id, ci.product_id, p.name, ci.quantity, ci.cost_price, ci.variant_id, STRING_AGG(av.value, ' / ') as variant_label, COALESCE(pp.price, 0) as unit_price").
 		Joins("JOIN products p ON p.id = ci.product_id").
 		Joins("LEFT JOIN variant_attributes va ON va.variant_id = ci.variant_id").
 		Joins("LEFT JOIN attribute_values av ON av.id = va.attribute_value_id").
+		Joins("LEFT JOIN product_prices pp ON pp.variant_id = ci.variant_id AND pp.price_table_id = ?", priceTableID).
 		Where("ci.cart_id = ? AND p.tenant_id = ?", cartID, tenantID).
-		Group("ci.id, p.name").
+		Group("ci.id, p.name, pp.price").
 		Order("ci.id ASC").
 		Scan(&rows).Error
 	if err != nil {
@@ -136,6 +138,8 @@ func (c *CartStore) ListCheckoutItems(
 			VariantLabel: row.VariantLabel,
 			Quantity:     row.Quantity,
 			CostPrice:    row.CostPrice,
+			UnitPrice:    row.UnitPrice,
+			Subtotal:     row.UnitPrice * float64(row.Quantity),
 		})
 	}
 

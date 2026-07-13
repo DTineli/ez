@@ -37,17 +37,6 @@ func (c *ClientHandler) getCartCount(sess *store.Session) int64 {
 	return total
 }
 
-func applyPrice(table store.PriceTable, variant store.Variant) float64 {
-	return variant.CostPrice * (1 + table.Percentage/100)
-}
-
-func applyCheckoutPrice(costPrice float64, table *store.PriceTable) float64 {
-	if table == nil {
-		return costPrice
-	}
-	return costPrice * (1 + table.Percentage/100)
-}
-
 func queryParamUintOrZero(r *http.Request, paramName string) uint64 {
 	val, err := strconv.ParseUint(r.URL.Query().Get(paramName), 10, 64)
 	if err != nil {

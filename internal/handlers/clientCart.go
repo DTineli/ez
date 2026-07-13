@@ -228,10 +228,12 @@ func (c *ClientHandler) PostConfirmOrder(
 			sess.TenantID,
 			sess.ContactInfo.ID,
 		)
+
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			ShowToast(w, "Erro ao preparar carrinho", "error")
 			return
 		}
+
 	}
 
 	if cart == nil {
@@ -258,7 +260,9 @@ func (c *ClientHandler) PostConfirmOrder(
 		return
 	}
 
-	_ = c.sessionStore.SetCartID(r, w, 0)
+	if remaining, err := c.cartStore.CountItems(cart.ID); err == nil && remaining == 0 {
+		_ = c.sessionStore.SetCartID(r, w, 0)
+	}
 	w.Header().Set(HXRedirect, "/client/items")
 	w.WriteHeader(http.StatusOK)
 }

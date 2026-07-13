@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"math"
 	"net/http"
 	"strconv"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/DTineli/ez/internal/middleware"
 	"github.com/DTineli/ez/internal/orders"
+	"github.com/DTineli/ez/internal/services"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/DTineli/ez/internal/templates/components"
@@ -17,13 +17,13 @@ import (
 )
 
 type ClientHandler struct {
-	productStore    store.ProductStore
-	cartStore       store.CartStore
-	orderStore      orders.Repository
-	orderService    *orders.Service
-	sessionStore    store.SessionStore
-	priceTableStore store.PriceTableStore
-	contactStore    store.ContactStore
+	productStore  store.ProductStore
+	cartStore     store.CartStore
+	orderStore    orders.Repository
+	orderService  *orders.Service
+	sessionStore  store.SessionStore
+	priceTableSvc services.PriceTableService
+	contactStore  store.ContactStore
 }
 
 func NewClientHandler(
@@ -31,17 +31,17 @@ func NewClientHandler(
 	cStore store.CartStore,
 	oStore orders.Repository,
 	sStore store.SessionStore,
-	ptStore store.PriceTableStore,
+	ptSvc services.PriceTableService,
 	ccStore store.ContactStore,
 ) *ClientHandler {
 	return &ClientHandler{
-		productStore:    pStore,
-		cartStore:       cStore,
-		orderStore:      oStore,
-		orderService:    orders.NewService(oStore),
-		sessionStore:    sStore,
-		priceTableStore: ptStore,
-		contactStore:    ccStore,
+		productStore:  pStore,
+		cartStore:     cStore,
+		orderStore:    oStore,
+		orderService:  orders.NewService(oStore),
+		sessionStore:  sStore,
+		priceTableSvc: ptSvc,
+		contactStore:  ccStore,
 	}
 }
 
@@ -66,6 +66,7 @@ func (c *ClientHandler) RenderCheckoutContent(
 			sess.TenantID,
 			sess.ContactInfo.ID,
 		)
+
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			ShowToast(w, "Erro ao carregar carrinho", "error")
 			return
@@ -86,32 +87,17 @@ func (c *ClientHandler) RenderCheckoutContent(
 	}
 
 	if openCart != nil {
-		items, err = c.cartStore.ListCheckoutItems(openCart.ID, sess.TenantID)
+		items, err = c.cartStore.ListCheckoutItems(openCart.ID, sess.TenantID, uint(price_tableID))
 
 		if err != nil {
 			ShowToast(w, "Erro ao carregar itens", "error")
 			return
 		}
 
-		var pt *store.PriceTable
-		if price_tableID != 0 {
-			fetched, err := c.priceTableStore.GetOne(
-				uint(price_tableID),
-				sess.TenantID,
-			)
-			if err == nil {
-				pt = fetched
-			}
-		}
-
-		for i := range items {
-			items[i].UnitPrice = applyCheckoutPrice(items[i].CostPrice, pt)
-			items[i].Subtotal = items[i].UnitPrice * float64(items[i].Quantity)
-			totalAmount += items[i].Subtotal
+		for _, item := range items {
+			totalAmount += item.Subtotal
 		}
 	}
-
-	fmt.Println(items)
 
 	showPrice := price_tableID != 0
 	Render(templates.ClientCartContent(items, totalAmount, showPrice), r, w)
@@ -212,33 +198,23 @@ func (c *ClientHandler) FetchItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	products, err := c.productStore.FindAllByUserWithFilters(
+	products, err := c.productStore.FindAllByUserWithFiltersAndPriceTable(
 		sess.TenantID,
+		uint(priceTable),
 		store.ProductFilters{
 			Page:    page,
 			PerPage: perPage,
 			Search:  query,
 		},
 	)
+
 	if err != nil {
 		ShowToast(w, "Erro ao buscar produtos", "error")
 		return
 	}
 
-	prices, err := c.priceTableStore.GetOne(
-		uint(priceTable),
-		sess.TenantID,
-	)
-	if err != nil {
-		http.Error(
-			w,
-			"Tabela de preço não encontrada. Contate o administrador.",
-			http.StatusUnprocessableEntity,
-		)
-		return
-	}
+	cards := makeCardData(products.Results)
 
-	cards := makeCardData(products.Results, *prices)
 	nextPage := 0
 	totalPages := int(math.Ceil(float64(products.Count) / float64(perPage)))
 	if page < totalPages {
@@ -271,8 +247,8 @@ func (c *ClientHandler) GetCheckoutPage(
 
 func makeCardData(
 	products []store.Product,
-	table store.PriceTable,
 ) []store.CardData {
+
 	cards := make([]store.CardData, 0, len(products))
 	for _, p := range products {
 		variants := make([]store.VariantData, 0, len(p.Variants))
@@ -284,9 +260,14 @@ func makeCardData(
 					Value: a.AttributeValue.Value,
 				})
 			}
+
+			if len(v.Prices) == 0 {
+				continue
+			}
+
 			variants = append(variants, store.VariantData{
 				ID:        v.ID,
-				Price:     applyPrice(table, v),
+				Price:     v.Prices[0].Price,
 				IsDefault: v.IsDefault,
 				Attrs:     attrs,
 			})

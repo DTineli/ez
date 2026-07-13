@@ -9,23 +9,24 @@ import (
 
 	"github.com/DTineli/ez/internal/forms"
 	m "github.com/DTineli/ez/internal/middleware"
+	"github.com/DTineli/ez/internal/services"
 	"github.com/DTineli/ez/internal/store"
 	"github.com/DTineli/ez/internal/templates"
 	"github.com/go-chi/chi/v5"
 )
 
 type ProductHandler struct {
-	productStore    store.ProductStore
-	priceTableStore store.PriceTableStore
+	productStore  store.ProductStore
+	priceTableSvc services.PriceTableService
 }
 
 func NewProductHandler(
 	productDB store.ProductStore,
-	priceTableDB store.PriceTableStore,
+	ptSvc services.PriceTableService,
 ) *ProductHandler {
 	return &ProductHandler{
-		productStore:    productDB,
-		priceTableStore: priceTableDB,
+		productStore:  productDB,
+		priceTableSvc: ptSvc,
 	}
 }
 
@@ -36,10 +37,17 @@ func (p *ProductHandler) GetProductForm(
 	sess := m.GetSessionFromContext(r)
 	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
 	Render(
-		templates.ProductForm(forms.New(nil), false, false, nil, attrs),
+		templates.ProductForm(forms.New(nil), false, false, nil, attrs, nil),
 		r,
 		w,
 	)
+}
+
+func (p *ProductHandler) RenderPriceTablePerProduct(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+
 }
 
 func (p *ProductHandler) PostNewProduct(
@@ -57,7 +65,7 @@ func (p *ProductHandler) PostNewProduct(
 
 	if !form.Valid() {
 		attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
-		_ = Render(templates.ProductForm(form, false, false, nil, attrs), r, w)
+		_ = Render(templates.ProductForm(form, false, false, nil, attrs, nil), r, w)
 		return
 	}
 
@@ -82,7 +90,7 @@ func (p *ProductHandler) PostNewProduct(
 			form.Errors.Add("general", "Erro ao cadastrar produto. Tente novamente.")
 		}
 		attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
-		_ = Render(templates.ProductForm(form, false, false, nil, attrs), r, w)
+		_ = Render(templates.ProductForm(form, false, false, nil, attrs, nil), r, w)
 		return
 	}
 
@@ -123,10 +131,11 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 
 	variants, _ := p.productStore.FindVariantsByProduct(uint(id), sess.TenantID)
 	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+	priceTableViews, _ := p.priceTableSvc.FindAllWithProductPrices(uint(id), sess.TenantID, variants)
 
 	if !form.Valid() {
 		_ = Render(
-			templates.ProductForm(form, true, false, variants, attrs),
+			templates.ProductForm(form, true, false, variants, attrs, priceTableViews),
 			r,
 			w,
 		)
@@ -136,8 +145,8 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	fields := map[string]any{
 		"name":             form.Get("name"),
 		"full_description": form.Get("description"),
-		"uom": store.UOM(form.Get("uom")),
-		"ncm": form.Get("ncm"),
+		"uom":              store.UOM(form.Get("uom")),
+		"ncm":              form.Get("ncm"),
 		"weight":           form.IsFloat("weight"),
 		"height":           form.IsFloat("height"),
 		"width":            form.IsFloat("width"),
@@ -148,7 +157,7 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		form.Errors.Add("general", "Erro ao salvar produto. Tente novamente.")
 		_ = Render(
-			templates.ProductForm(form, true, false, variants, attrs),
+			templates.ProductForm(form, true, false, variants, attrs, priceTableViews),
 			r,
 			w,
 		)
@@ -156,7 +165,7 @@ func (p *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ShowToast(w, "Alteracoes Salvas", "success")
-	_ = Render(templates.ProductForm(form, true, false, variants, attrs), r, w)
+	_ = Render(templates.ProductForm(form, true, false, variants, attrs, priceTableViews), r, w)
 }
 
 func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
@@ -176,9 +185,10 @@ func (p *ProductHandler) GetEditPage(w http.ResponseWriter, r *http.Request) {
 
 	form := mapProductToForm(product)
 	attrs, _ := p.productStore.FindAttributesByTenant(sess.TenantID)
+	priceTableViews, _ := p.priceTableSvc.FindAllWithProductPrices(uint(id), sess.TenantID, product.Variants)
 
 	_ = Render(
-		templates.ProductForm(form, true, false, product.Variants, attrs),
+		templates.ProductForm(form, true, false, product.Variants, attrs, priceTableViews),
 		r,
 		w,
 	)

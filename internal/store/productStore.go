@@ -162,8 +162,34 @@ type PriceTableStore interface {
 		tenantID, clientID uint,
 	) ([]PriceTable, error)
 	GetOne(id uint, tenantID uint) (*PriceTable, error)
+	GetOneWithPrices(id, tenantID uint) (*PriceTable, error)
 	HasContacts(priceTableID, tenantID uint) (bool, error)
 	Delete(id, tenantID uint) error
+
+	CreateProductPrice(*ProductPrice) error
+	FindProductPrices(productID uint) ([]ProductPrice, error)
+	GetOneProductPrice(id uint) (*ProductPrice, error)
+
+	GetOneProductPriceWithVariant(id uint) (*ProductPrice, error)
+	UpdateProductPrice(id uint, price float64) error
+	DeleteProductPrice(PriceID uint) error
+	SearchVariantsForPriceTable(
+		tenantID, priceTableID uint,
+		q string,
+	) ([]Variant, error)
+	FindPriceTablesByProduct(productID, tenantID uint) ([]PriceTable, error)
+	FindProductPricesForProduct(productID uint) ([]ProductPrice, error)
+}
+
+type VariantTableRow struct {
+	Variant Variant
+	Price   *ProductPrice
+}
+
+type PriceTableProductView struct {
+	Table           PriceTable
+	Rows            []VariantTableRow
+	MissingVariants []Variant
 }
 
 // VariantGenInput representa uma combinação de atributos a ser criada como Variant.
@@ -186,10 +212,18 @@ type ProductStore interface {
 	CreateProduct(*Product) error
 	UpdateFields(id uint, tenantID uint, fields map[string]any) error
 	GetProduct(id uint) (*Product, error)
+
 	FindAllByUserWithFilters(
 		id uint,
 		filters ProductFilters,
 	) (*FindResults[Product], error)
+
+	FindAllByUserWithFiltersAndPriceTable(
+		id uint,
+		priceTableID uint,
+		filters ProductFilters,
+	) (*FindResults[Product], error)
+
 	AdminFindAllByUserWithFilters(
 		id uint,
 		filters ProductFilters,

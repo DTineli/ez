@@ -1,6 +1,8 @@
 package dbstore
 
 import (
+	"strings"
+
 	"github.com/DTineli/ez/internal/store"
 	"gorm.io/gorm"
 )
@@ -17,6 +19,43 @@ func NewPriceTableDB(db *gorm.DB) *PriceTableDB {
 
 func (p PriceTableDB) CreatePriceTable(table *store.PriceTable) error {
 	return p.db.Create(table).Error
+}
+
+func (p *PriceTableDB) CreateProductPrice(pPrice *store.ProductPrice) error {
+	return p.db.Create(pPrice).Error
+}
+
+func (p *PriceTableDB) FindProductPrices(
+	productID uint,
+) ([]store.ProductPrice, error) {
+	var prices []store.ProductPrice
+
+	err := p.db.
+		Joins("JOIN variants ON variants.id = product_prices.variant_id").
+		Where("variants.product_id = ?", productID).
+		Find(&prices).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return prices, nil
+}
+
+func (p *PriceTableDB) FindProductPricesForProduct(
+	productID uint,
+) ([]store.ProductPrice, error) {
+	var prices []store.ProductPrice
+
+	err := p.db.
+		Preload("Variant").
+		Joins("JOIN variants ON variants.id = product_prices.variant_id").
+		Where("variants.product_id = ?", productID).
+		Find(&prices).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return prices, nil
 }
 
 func (p PriceTableDB) FindAllActiveByTenantAndClient(
@@ -62,6 +101,20 @@ func (p PriceTableDB) FindAllByTenant(id uint) ([]store.PriceTable, error) {
 	return priceTables, nil
 }
 
+func (p PriceTableDB) GetOneWithPrices(
+	id, tenantID uint,
+) (*store.PriceTable, error) {
+	var table store.PriceTable
+	err := p.db.
+		Preload("Prices.Variant.Product").
+		Where("id = ? AND tenant_id = ?", id, tenantID).
+		First(&table).Error
+	if err != nil {
+		return nil, err
+	}
+	return &table, nil
+}
+
 func (p PriceTableDB) GetOne(
 	id uint,
 	tenantID uint,
@@ -91,4 +144,69 @@ func (p PriceTableDB) Delete(id, tenantID uint) error {
 	return p.db.
 		Where("id = ? AND tenant_id = ?", id, tenantID).
 		Delete(&store.PriceTable{}).Error
+}
+
+func (p *PriceTableDB) GetOneProductPrice(
+	id uint,
+) (*store.ProductPrice, error) {
+	var price store.ProductPrice
+	err := p.db.First(&price, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &price, nil
+}
+
+func (p *PriceTableDB) GetOneProductPriceWithVariant(
+	id uint,
+) (*store.ProductPrice, error) {
+	var price store.ProductPrice
+	err := p.db.Preload("Variant.Product").First(&price, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &price, nil
+}
+
+func (p *PriceTableDB) UpdateProductPrice(id uint, price float64) error {
+	return p.db.Model(&store.ProductPrice{}).
+		Where("id = ?", id).
+		Update("price", price).Error
+}
+
+func (p *PriceTableDB) DeleteProductPrice(PriceID uint) error {
+	return p.db.Delete(&store.ProductPrice{}, PriceID).Error
+}
+
+func (p *PriceTableDB) FindPriceTablesByProduct(
+	productID, tenantID uint,
+) ([]store.PriceTable, error) {
+	var tables []store.PriceTable
+	err := p.db.
+		Distinct("price_tables.*").
+		Joins("JOIN product_prices ON product_prices.price_table_id = price_tables.id").
+		Joins("JOIN variants ON variants.id = product_prices.variant_id").
+		Where("variants.product_id = ? AND price_tables.tenant_id = ?", productID, tenantID).
+		Find(&tables).Error
+	if err != nil {
+		return nil, err
+	}
+	return tables, nil
+}
+
+func (p *PriceTableDB) SearchVariantsForPriceTable(
+	tenantID, priceTableID uint,
+	q string,
+) ([]store.Variant, error) {
+	var variants []store.Variant
+	like := "%" + strings.ToLower(strings.TrimSpace(q)) + "%"
+	err := p.db.
+		Preload("Product").
+		Preload("Prices", "price_table_id = ?", priceTableID).
+		Joins("JOIN products ON products.id = variants.product_id").
+		Where("variants.tenant_id = ? AND variants.deleted_at IS NULL", tenantID).
+		Where("LOWER(variants.sku) LIKE ? OR LOWER(products.name) LIKE ?", like, like).
+		Limit(20).
+		Find(&variants).Error
+	return variants, err
 }

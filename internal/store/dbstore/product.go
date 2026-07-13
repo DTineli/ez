@@ -41,6 +41,58 @@ func (p *ProductStore) FindAllByUser(userID uint) ([]store.Product, error) {
 	return products, nil
 }
 
+func (p *ProductStore) FindAllByUserWithFiltersAndPriceTable(
+	id,
+	PriceTableID uint,
+	filters store.ProductFilters,
+) (*store.FindResults[store.Product], error) {
+	var products []store.Product
+
+	query := p.db.Model(&store.Product{}).
+		Preload("Variants", "status = ?", true).
+		Preload("Variants.Attributes").
+		Preload("Variants.Attributes.AttributeValue").
+		Preload("Variants.Prices", "price_table_id = ?", PriceTableID).
+		Joins("JOIN variants v ON v.product_id = products.id AND v.deleted_at IS NULL").
+		Joins("JOIN product_prices ON product_prices.variant_id = v.id AND product_prices.price_table_id = ?", PriceTableID).
+		Where("products.tenant_id = ? AND products.status = ?", id, true).
+		Distinct("products.*")
+
+	if filters.Search != "" {
+		like := "%" + filters.Search + "%"
+		query = query.Where(
+			"products.name LIKE ? OR products.sku LIKE ?",
+			like,
+			like,
+		)
+	} else {
+		if filters.SKU != "" {
+			query = query.Where("products.sku = ?", filters.SKU)
+		}
+		if filters.Name != "" {
+			query = query.Where("products.name LIKE ?", "%"+filters.Name+"%")
+		}
+	}
+
+	var count int64
+	if err := query.Session(&gorm.Session{}).Select("COUNT(DISTINCT products.id)").Count(&count).Error; err != nil {
+		return nil, err
+	}
+
+	query = query.Order("products.id DESC").
+		Offset((filters.Page - 1) * filters.PerPage).
+		Limit(filters.PerPage)
+
+	if err := query.Find(&products).Error; err != nil {
+		return nil, err
+	}
+
+	return &store.FindResults[store.Product]{
+		Count:   count,
+		Results: products,
+	}, nil
+}
+
 func (p *ProductStore) FindAllByUserWithFilters(
 	id uint,
 	filters store.ProductFilters,
@@ -134,7 +186,10 @@ func (p *ProductStore) AdminFindAllByUserWithFilters(
 	}, nil
 }
 
-func (p *ProductStore) RecalcularStatusProduto(productID uint, tenantID uint) error {
+func (p *ProductStore) RecalcularStatusProduto(
+	productID uint,
+	tenantID uint,
+) error {
 	var count int64
 	p.db.Model(&store.Variant{}).
 		Where("product_id = ? AND tenant_id = ? AND status = ? AND deleted_at IS NULL", productID, tenantID, true).
