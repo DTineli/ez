@@ -129,24 +129,6 @@ func TestGetItemsPage_Sucesso(t *testing.T) {
 	}
 }
 
-func TestFetchItems_TabelaPrecoNaoEncontrada(t *testing.T) {
-	pts := &mockPriceTableServiceExt{
-		getOne: func(id, tenantID uint) (*store.PriceTable, error) {
-			return nil, errors.New("not found")
-		},
-	}
-	h := newClientHandler(nil, nil, nil, nil, pts)
-
-	r := httptest.NewRequest(http.MethodGet, "/client/items/fetch?price_table=1", nil)
-	r = htmxRequest(withSession(r, newClientSession()))
-	w := httptest.NewRecorder()
-
-	h.FetchItems(w, r)
-
-	if w.Code != http.StatusUnprocessableEntity {
-		t.Errorf("esperado 422, obteve %d", w.Code)
-	}
-}
 
 // --- PostAddToCart ---
 

@@ -252,6 +252,9 @@ func (s *mockPriceTableServiceExt) Apply(costPrice float64, pt *store.PriceTable
 func (s *mockPriceTableServiceExt) AddPrice(tableID, variationID uint, price float64) (uint, error) {
 	return 0, nil
 }
+func (s *mockPriceTableServiceExt) GetVariantPrice(variantID, tableID uint) (float64, error) {
+	return 0, nil
+}
 func (s *mockPriceTableServiceExt) GetProductPrice(id uint) (*store.ProductPrice, error) {
 	return nil, nil
 }

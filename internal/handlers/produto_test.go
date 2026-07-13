@@ -68,6 +68,12 @@ func (s *mockProductStore) AdminFindAllByUserWithFilters(id uint, f store.Produc
 	}
 	return &store.FindResults[store.Product]{Count: 0, Results: nil}, nil
 }
+func (s *mockProductStore) FindAllByUserWithFiltersAndPriceTable(id, priceTableID uint, f store.ProductFilters) (*store.FindResults[store.Product], error) {
+	if s.findAllByUserFilters != nil {
+		return s.findAllByUserFilters(id, f)
+	}
+	return &store.FindResults[store.Product]{Count: 0, Results: nil}, nil
+}
 func (s *mockProductStore) FindAllByUser(userID uint) ([]store.Product, error) {
 	if s.findAllByUser != nil {
 		return s.findAllByUser(userID)
@@ -201,6 +207,9 @@ func (s *mockPriceTableService) Apply(costPrice float64, pt *store.PriceTable) f
 	return services.ApplyPriceTable(costPrice, pt)
 }
 func (s *mockPriceTableService) AddPrice(tableID, variationID uint, price float64) (uint, error) {
+	return 0, nil
+}
+func (s *mockPriceTableService) GetVariantPrice(variantID, tableID uint) (float64, error) {
 	return 0, nil
 }
 func (s *mockPriceTableService) GetProductPrice(id uint) (*store.ProductPrice, error) {
@@ -615,7 +624,7 @@ func TestPostVariant_ErroCreate(t *testing.T) {
 			return nil, errors.New("db error")
 		},
 	}
-	h := NewProductHandler(ps, &mockPriceTableStore{})
+	h := NewProductHandler(ps, &mockPriceTableService{})
 
 	body := url.Values{
 		"sku":           {"VAR-01"},
