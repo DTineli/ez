@@ -117,6 +117,51 @@ func (p *ProductStore) DeleteVariant(id uint, tenantID uint) error {
 	return nil
 }
 
+// CreateVariants cria em lote as Variants (e seus VariantAttribute) descritas
+// em inputs, tudo em uma única transação — se qualquer combo falhar (ex: SKU
+// duplicado), nada é persistido.
+func (p *ProductStore) CreateVariants(
+	productID uint,
+	tenantID uint,
+	inputs []store.VariantGenInput,
+) ([]store.Variant, error) {
+	created := make([]store.Variant, 0, len(inputs))
+
+	err := p.db.Transaction(func(tx *gorm.DB) error {
+		for _, in := range inputs {
+			v := store.Variant{
+				SKU:          in.SKU,
+				CostPrice:    in.CostPrice,
+				CurrentStock: in.CurrentStock,
+				ProductID:    productID,
+				TenantID:     tenantID,
+			}
+			if err := tx.Create(&v).Error; err != nil {
+				return err
+			}
+
+			for _, avID := range in.AttributeValueIDs {
+				va := store.VariantAttribute{
+					VariantID:        v.ID,
+					AttributeValueID: avID,
+				}
+				if err := tx.Create(&va).Error; err != nil {
+					return err
+				}
+			}
+
+			created = append(created, v)
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return created, nil
+}
+
 func (p *ProductStore) SetVariantAttributes(
 	variantID uint,
 	attributeValueIDs []uint,

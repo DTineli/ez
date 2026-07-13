@@ -28,6 +28,7 @@ type mockProductStore struct {
 	updateVariantFields    func(id, tenantID uint, fields map[string]any) error
 	deleteVariant          func(id, tenantID uint) error
 	setVariantAttributes   func(variantID uint, ids []uint) error
+	createVariants         func(productID, tenantID uint, inputs []store.VariantGenInput) ([]store.Variant, error)
 	createAttribute        func(*store.Attribute) error
 	getAttribute           func(id, tenantID uint) (*store.Attribute, error)
 	findAttributesByTenant func(tenantID uint) ([]store.Attribute, error)
@@ -111,6 +112,12 @@ func (s *mockProductStore) SetVariantAttributes(variantID uint, ids []uint) erro
 		return s.setVariantAttributes(variantID, ids)
 	}
 	return nil
+}
+func (s *mockProductStore) CreateVariants(productID, tenantID uint, inputs []store.VariantGenInput) ([]store.Variant, error) {
+	if s.createVariants != nil {
+		return s.createVariants(productID, tenantID, inputs)
+	}
+	return nil, nil
 }
 func (s *mockProductStore) CreateAttribute(a *store.Attribute) error {
 	if s.createAttribute != nil {
@@ -493,14 +500,12 @@ func TestCancelVariantForm_Sucesso(t *testing.T) {
 }
 
 func TestPostVariant_Sucesso(t *testing.T) {
-	var criado *store.Variant
+	var criados []store.VariantGenInput
 	ps := &mockProductStore{
-		createVariant: func(v *store.Variant) error {
-			v.ID = 10
-			criado = v
-			return nil
+		createVariants: func(productID, tenantID uint, inputs []store.VariantGenInput) ([]store.Variant, error) {
+			criados = inputs
+			return nil, nil
 		},
-		setVariantAttributes: func(variantID uint, ids []uint) error { return nil },
 		findVariantsByProduct: func(productID, tenantID uint) ([]store.Variant, error) {
 			return []store.Variant{}, nil
 		},
@@ -511,9 +516,8 @@ func TestPostVariant_Sucesso(t *testing.T) {
 		"sku":           {"VAR-01"},
 		"cost_price":    {"19.90"},
 		"current_stock": {"5"},
-		"minimum_stock": {"1"},
 		"attr_name_1":   {"Cor"},
-		"attr_value_1":  {"Vermelho"},
+		"attr_values_1": {"Vermelho"},
 	}
 	r := httptest.NewRequest(http.MethodPost, "/admin/produtos/1/variants", strings.NewReader(body.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -526,14 +530,12 @@ func TestPostVariant_Sucesso(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Errorf("esperado 200, obteve %d", w.Code)
 	}
-	if criado == nil {
-		t.Fatal("CreateVariant não foi chamado")
+	if len(criados) != 1 {
+		t.Fatalf("esperado 1 variação gerada, obteve %d", len(criados))
 	}
-	if criado.SKU != "VAR-01" {
+	criado := criados[0]
+	if criado.SKU != "VAR-01-Vermelho" {
 		t.Errorf("SKU incorreto: %q", criado.SKU)
-	}
-	if criado.ProductID != 1 {
-		t.Errorf("ProductID incorreto: %d", criado.ProductID)
 	}
 	if criado.CostPrice != 19.90 {
 		t.Errorf("CostPrice incorreto: %v", criado.CostPrice)
@@ -543,15 +545,60 @@ func TestPostVariant_Sucesso(t *testing.T) {
 	}
 }
 
-func TestPostVariant_ErroCreate(t *testing.T) {
+func TestPostVariant_MultiplasCombinacoes(t *testing.T) {
+	var criados []store.VariantGenInput
 	ps := &mockProductStore{
-		createVariant: func(v *store.Variant) error {
-			return errors.New("db error")
+		createVariants: func(productID, tenantID uint, inputs []store.VariantGenInput) ([]store.Variant, error) {
+			criados = inputs
+			return nil, nil
+		},
+		findVariantsByProduct: func(productID, tenantID uint) ([]store.Variant, error) {
+			return []store.Variant{}, nil
 		},
 	}
 	h := NewProductHandler(ps, &mockPriceTableStore{})
 
-	body := url.Values{"sku": {"VAR-01"}}
+	body := url.Values{
+		"sku":           {"VAR-01"},
+		"cost_price":    {"19.90"},
+		"current_stock": {"5"},
+		"attr_name_0":   {"Cor"},
+		"attr_values_0": {"Vermelho", "Azul"},
+		"attr_name_1":   {"Tamanho"},
+		"attr_values_1": {"P", "M", "G"},
+	}
+	r := httptest.NewRequest(http.MethodPost, "/admin/produtos/1/variants", strings.NewReader(body.Encode()))
+	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	r = htmxRequest(withSession(r, newSession(1)))
+	r = withChiParam(r, "id", "1")
+	w := httptest.NewRecorder()
+
+	h.PostVariant(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("esperado 200, obteve %d", w.Code)
+	}
+	if len(criados) != 6 {
+		t.Fatalf("esperado 6 variações geradas (2x3), obteve %d", len(criados))
+	}
+	if !strings.Contains(w.Header().Get("HX-Trigger"), "success") {
+		t.Error("esperado toast de sucesso")
+	}
+}
+
+func TestPostVariant_ErroCreate(t *testing.T) {
+	ps := &mockProductStore{
+		createVariants: func(productID, tenantID uint, inputs []store.VariantGenInput) ([]store.Variant, error) {
+			return nil, errors.New("db error")
+		},
+	}
+	h := NewProductHandler(ps, &mockPriceTableStore{})
+
+	body := url.Values{
+		"sku":           {"VAR-01"},
+		"attr_name_0":   {"Cor"},
+		"attr_values_0": {"Vermelho"},
+	}
 	r := httptest.NewRequest(http.MethodPost, "/admin/produtos/1/variants", strings.NewReader(body.Encode()))
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	r = htmxRequest(withSession(r, newSession(1)))

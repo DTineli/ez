@@ -74,16 +74,22 @@ func formPosInt(r *http.Request, key string) (int, error) {
 	return v, nil
 }
 
-type variantAttrInput struct {
-	Name  string
-	Value string
+// maxVariantCombos limita o produto cartesiano de atributos pra evitar
+// explosão combinatória acidental num único submit.
+const maxVariantCombos = 200
+
+type attrAxis struct {
+	Name   string
+	Values []string
 }
 
-// parseVariantAttributes lê pares attr_name_X/attr_value_X do form.
-// Retorna erro se o mesmo nome aparecer mais de uma vez.
-func parseVariantAttributes(r *http.Request) ([]variantAttrInput, error) {
+// parseVariantAxes lê os eixos de atributo do form: attr_name_N (nome, um por
+// eixo) e attr_values_N (repetido, um campo por valor escolhido no eixo N).
+// Eixos sem nome ou sem nenhum valor são ignorados. Retorna erro se o mesmo
+// nome de atributo aparecer em mais de um eixo.
+func parseVariantAxes(r *http.Request) ([]attrAxis, error) {
 	seen := map[string]bool{}
-	var attrs []variantAttrInput
+	var axes []attrAxis
 	for key, vals := range r.Form {
 		if !strings.HasPrefix(key, "attr_name_") || len(vals) == 0 {
 			continue
@@ -93,16 +99,53 @@ func parseVariantAttributes(r *http.Request) ([]variantAttrInput, error) {
 			continue
 		}
 		idxStr := strings.TrimPrefix(key, "attr_name_")
-		value := strings.TrimSpace(r.FormValue("attr_value_" + idxStr))
-		if value == "" {
+
+		var values []string
+		seenValues := map[string]bool{}
+		for _, raw := range r.Form["attr_values_"+idxStr] {
+			value := strings.TrimSpace(raw)
+			if value == "" {
+				continue
+			}
+			valueLower := strings.ToLower(value)
+			if seenValues[valueLower] {
+				continue
+			}
+			seenValues[valueLower] = true
+			values = append(values, value)
+		}
+		if len(values) == 0 {
 			continue
 		}
+
 		nameLower := strings.ToLower(name)
 		if seen[nameLower] {
 			return nil, fmt.Errorf("atributo duplicado: %s", name)
 		}
 		seen[nameLower] = true
-		attrs = append(attrs, variantAttrInput{Name: name, Value: value})
+		axes = append(axes, attrAxis{Name: name, Values: values})
 	}
-	return attrs, nil
+	return axes, nil
+}
+
+// cartesianCombos gera o produto cartesiano dos valores de cada eixo. Cada
+// combo resultante é uma tupla ordenada com um valor por eixo, na mesma
+// ordem de axes.
+func cartesianCombos(axes []attrAxis) [][]string {
+	if len(axes) == 0 {
+		return nil
+	}
+	combos := [][]string{{}}
+	for _, axis := range axes {
+		next := make([][]string, 0, len(combos)*len(axis.Values))
+		for _, combo := range combos {
+			for _, value := range axis.Values {
+				extended := make([]string, len(combo), len(combo)+1)
+				copy(extended, combo)
+				next = append(next, append(extended, value))
+			}
+		}
+		combos = next
+	}
+	return combos
 }

@@ -8,6 +8,10 @@ import (
 	"github.com/DTineli/ez/internal/templates/components"
 )
 
+// maxVariantCombosJS mantém o mesmo limite de combinações do backend
+// (internal/handlers/helpers.go:maxVariantCombos), usado só pro preview.
+const maxVariantCombosJS = 200
+
 templ VariationArea(productID string, variants []store.Variant, attrs []store.Attribute) {
 	<div id="variation-area" class="space-y-6">
 		@VariantsSection(variants, productID)
@@ -268,7 +272,31 @@ templ NewVariantForm(productID string, parentSku string, attrs []store.Attribute
 			nameToVlist += fmt.Sprintf(`%q:"datalist-vals-%d"`, attr.Name, attr.ID)
 		}
 		nameToVlist += "}"
-		xData := fmt.Sprintf(`{ sku: '', parentSku: %q, rows: [{ name: '', value: '', vlist: '' }], nameToVlist: %s, addRow() { this.rows.push({ name: '', value: '', vlist: '' }); this.updateSku() }, removeRow(i) { if(this.rows.length > 1) { this.rows.splice(i, 1); this.updateSku() } }, onNameInput(row) { row.vlist = this.nameToVlist[row.name] || ''; this.updateSku() }, onValueInput() { this.updateSku() }, updateSku() { const vals = this.rows.map(r => r.value.trim()).filter(v => v !== ''); if (vals.length > 0 && this.parentSku) { this.sku = this.parentSku + '-' + vals.join('-') } } }`, parentSku, nameToVlist)
+		xData := fmt.Sprintf(`{
+			parentSku: %q,
+			nameToVlist: %s,
+			maxCombos: %d,
+			axes: [{ name: '', vlist: '', valuesInput: '', values: [] }],
+			addAxis() { this.axes.push({ name: '', vlist: '', valuesInput: '', values: [] }) },
+			removeAxis(i) { if (this.axes.length > 1) this.axes.splice(i, 1) },
+			onNameInput(axis) { axis.vlist = this.nameToVlist[axis.name] || '' },
+			addValue(axis) {
+				const v = axis.valuesInput.trim();
+				if (v && !axis.values.some(x => x.toLowerCase() === v.toLowerCase())) {
+					axis.values.push(v);
+				}
+				axis.valuesInput = '';
+			},
+			removeValue(axis, i) { axis.values.splice(i, 1) },
+			get combos() {
+				const active = this.axes.filter(a => a.name.trim() && a.values.length > 0);
+				if (!active.length) return [];
+				return active.reduce((acc, axis) => acc.length
+					? acc.flatMap(c => axis.values.map(v => [...c, v]))
+					: axis.values.map(v => [v]), []);
+			},
+			skuFor(combo) { return this.parentSku ? this.parentSku + '-' + combo.join('-') : combo.join('-') }
+		}`, parentSku, nameToVlist, maxVariantCombosJS)
 	}}
 	<div class="bg-white shadow-sm border border-gray-200 rounded-xl mt-1">
 		<div class="p-5">
@@ -302,14 +330,14 @@ templ NewVariantForm(productID string, parentSku string, attrs []store.Attribute
 							<input
 								type="text"
 								name="sku"
-								x-model="sku"
+								value={ parentSku }
 								placeholder="SKU-01"
 								required
 								class="block w-full border border-gray-300 rounded-field bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
 							/>
 						</div>
 					</div>
-					<div class="basis-[20%] grow">
+					<div class="basis-[25%] grow">
 						@components.BasicInput(components.BasicInputParams{
 							Name:        "cost_price",
 							Label:       "Preço de Custo (R$)",
@@ -324,18 +352,10 @@ templ NewVariantForm(productID string, parentSku string, attrs []store.Attribute
 							}(),
 						})
 					</div>
-					<div class="basis-[20%] grow">
+					<div class="basis-[25%] grow">
 						@components.BasicInput(components.BasicInputParams{
 							Name:        "current_stock",
 							Label:       "Estoque Atual",
-							InputType:   "number",
-							Placeholder: "0",
-						})
-					</div>
-					<div class="basis-[20%] grow">
-						@components.BasicInput(components.BasicInputParams{
-							Name:        "ean",
-							Label:       "EAN",
 							InputType:   "number",
 							Placeholder: "0",
 						})
@@ -358,47 +378,57 @@ templ NewVariantForm(productID string, parentSku string, attrs []store.Attribute
 						<p class="text-sm font-medium text-gray-700">Atributos</p>
 						<button
 							type="button"
-							@click="addRow()"
+							@click="addAxis()"
 							class="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline cursor-pointer"
 						>
 							<svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
 								<path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
 							</svg>
-							Adicionar
+							Adicionar atributo
 						</button>
 					</div>
-					<template x-for="(row, idx) in rows" :key="idx">
-						<div class="flex gap-2 items-end">
-							<div class="flex-1">
+					<template x-for="(axis, axisIdx) in axes" :key="axisIdx">
+						<div class="flex gap-2 items-start bg-gray-50/60 border border-gray-100 rounded-field p-2.5">
+							<div class="w-40 shrink-0">
 								<label class="block text-[0.65rem] font-semibold text-gray-400 uppercase tracking-wider mb-1">Atributo</label>
 								<input
 									type="text"
-									:name="'attr_name_' + idx"
+									:name="'attr_name_' + axisIdx"
 									list="datalist-attr-names"
-									x-model="row.name"
-									@input="onNameInput(row)"
-									@change="onNameInput(row)"
+									x-model="axis.name"
+									@input="onNameInput(axis)"
+									@change="onNameInput(axis)"
 									placeholder="Ex: Cor, Tamanho…"
 									class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-colors"
 								/>
 							</div>
 							<div class="flex-1">
-								<label class="block text-[0.65rem] font-semibold text-gray-400 uppercase tracking-wider mb-1">Valor</label>
+								<label class="block text-[0.65rem] font-semibold text-gray-400 uppercase tracking-wider mb-1">Valores</label>
+								<div class="flex flex-wrap gap-1.5 mb-1.5" x-show="axis.values.length > 0">
+									<template x-for="(val, vIdx) in axis.values" :key="vIdx">
+										<span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-primary/10 text-primary">
+											<input type="hidden" :name="'attr_values_' + axisIdx" :value="val"/>
+											<span x-text="val"></span>
+											<button type="button" @click="removeValue(axis, vIdx)" class="text-primary/60 hover:text-primary cursor-pointer">&times;</button>
+										</span>
+									</template>
+								</div>
 								<input
 									type="text"
-									:name="'attr_value_' + idx"
-									:list="row.vlist || false"
-									x-model="row.value"
-									@input="updateSku()"
-									placeholder="Ex: Vermelho, P…"
+									:list="axis.vlist || false"
+									x-model="axis.valuesInput"
+									@keydown.enter.prevent="addValue(axis)"
+									@keydown.comma.prevent="addValue(axis)"
+									@blur="addValue(axis)"
+									placeholder="Digite um valor e Enter (Ex: Vermelho, P…)"
 									class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-colors"
 								/>
 							</div>
 							<button
 								type="button"
-								@click="removeRow(idx)"
-								x-show="rows.length > 1"
-								class="mb-0.5 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-field transition-colors cursor-pointer"
+								@click="removeAxis(axisIdx)"
+								x-show="axes.length > 1"
+								class="mt-5 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-field transition-colors cursor-pointer"
 							>
 								<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
 									<path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
@@ -406,6 +436,22 @@ templ NewVariantForm(productID string, parentSku string, attrs []store.Attribute
 							</button>
 						</div>
 					</template>
+				</div>
+				<div class="border-t border-gray-100 pt-3" x-show="combos.length > 0">
+					<div class="flex items-center justify-between mb-2">
+						<p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+							<span x-text="combos.length"></span>
+							<span x-text="combos.length === 1 ? ' variação será criada' : ' variações serão criadas'"></span>
+						</p>
+						<p x-show="combos.length > maxCombos" class="text-xs font-semibold text-error">
+							Limite de <span x-text="maxCombos"></span> combinações excedido, reduza os valores.
+						</p>
+					</div>
+					<div class="max-h-40 overflow-y-auto flex flex-wrap gap-1.5">
+						<template x-for="(combo, i) in combos" :key="i">
+							<span class="inline-flex items-center px-2 py-1 text-xs font-mono rounded-field bg-gray-100 text-gray-700" x-text="skuFor(combo)"></span>
+						</template>
+					</div>
 				</div>
 				<div class="flex justify-end gap-2 pt-1">
 					<button
@@ -417,8 +463,13 @@ templ NewVariantForm(productID string, parentSku string, attrs []store.Attribute
 					>
 						Cancelar
 					</button>
-					<button type="submit" class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm">
-						Salvar Variação
+					<button
+						type="submit"
+						:disabled="combos.length === 0 || combos.length > maxCombos"
+						class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						<span x-show="combos.length <= 1">Salvar Variação</span>
+						<span x-show="combos.length > 1">Salvar <span x-text="combos.length"></span> Variações</span>
 					</button>
 				</div>
 			</form>

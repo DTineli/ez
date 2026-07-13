@@ -16,6 +16,10 @@ import (
 	"github.com/DTineli/ez/internal/templates/components"
 )
 
+// maxVariantCombosJS mantém o mesmo limite de combinações do backend
+// (internal/handlers/helpers.go:maxVariantCombos), usado só pro preview.
+const maxVariantCombosJS = 200
+
 func VariationArea(productID string, variants []store.Variant, attrs []store.Attribute) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -129,7 +133,7 @@ func VariantsSection(variants []store.Variant, productID string) templ.Component
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(newVariantFormURL(productID, variants))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 37, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 41, Col: 51}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -147,7 +151,7 @@ func VariantsSection(variants []store.Variant, productID string) templ.Component
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/produtos/%s/variants/bulk", productID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 52, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 56, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -210,7 +214,7 @@ func VariantRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("variant-row-%v", v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 129, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 133, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -237,7 +241,7 @@ func VariantRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(v.SKU)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 139, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 143, Col: 79}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -255,7 +259,7 @@ func VariantRow(v store.Variant, productID string) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(va.AttributeValue.Attribute.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 144, Col: 40}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 148, Col: 40}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -268,7 +272,7 @@ func VariantRow(v store.Variant, productID string) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(va.AttributeValue.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 144, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 148, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -292,7 +296,7 @@ func VariantRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", v.CostPrice))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 152, Col: 71}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 156, Col: 71}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -305,7 +309,7 @@ func VariantRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(v.CurrentStock))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 153, Col: 64}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 157, Col: 64}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -318,7 +322,7 @@ func VariantRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(v.EAN)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 154, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 158, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -331,7 +335,7 @@ func VariantRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/produtos/%s/variants/%v/edit", productID, v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 159, Col: 81}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 163, Col: 81}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -344,7 +348,7 @@ func VariantRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#variant-row-%v", v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 160, Col: 53}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 164, Col: 53}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -357,7 +361,7 @@ func VariantRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 167, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 171, Col: 79}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -370,7 +374,7 @@ func VariantRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#variant-row-%v", v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 168, Col: 53}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 172, Col: 53}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -412,7 +416,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("variant-row-%v", v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 180, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 184, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
@@ -440,7 +444,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(v.SKU)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 191, Col: 63}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 195, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
@@ -458,7 +462,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(va.AttributeValue.Attribute.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 196, Col: 40}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 200, Col: 40}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -471,7 +475,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(va.AttributeValue.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 196, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 200, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {
@@ -489,7 +493,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("variant-edit-form-%v", v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 205, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 209, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
@@ -502,7 +506,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", v.CostPrice))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 207, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 211, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
@@ -515,7 +519,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("variant-edit-form-%v", v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 216, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 220, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
@@ -528,7 +532,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var26 string
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(v.CurrentStock))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 218, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 222, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {
@@ -541,7 +545,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var27 string
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("variant-edit-form-%v", v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 226, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 230, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
@@ -554,7 +558,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var28 string
 		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(v.EAN)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 228, Col: 17}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 232, Col: 17}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
@@ -567,7 +571,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var29 string
 		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("variant-edit-form-%v", v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 234, Col: 50}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 238, Col: 50}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 		if templ_7745c5c3_Err != nil {
@@ -580,7 +584,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var30 string
 		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 235, Col: 76}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 239, Col: 76}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {
@@ -593,7 +597,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var31 string
 		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#variant-row-%v", v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 236, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 240, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 		if templ_7745c5c3_Err != nil {
@@ -606,7 +610,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var32 string
 		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/produtos/%s/variants/%v", productID, v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 243, Col: 76}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 247, Col: 76}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 		if templ_7745c5c3_Err != nil {
@@ -619,7 +623,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var33 string
 		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#variant-row-%v", v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 244, Col: 53}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 248, Col: 53}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {
@@ -632,7 +636,7 @@ func VariantEditRow(v store.Variant, productID string) templ.Component {
 		var templ_7745c5c3_Var34 string
 		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("variant-edit-form-%v", v.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 251, Col: 53}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 255, Col: 53}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 		if templ_7745c5c3_Err != nil {
@@ -675,7 +679,31 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute,
 			nameToVlist += fmt.Sprintf(`%q:"datalist-vals-%d"`, attr.Name, attr.ID)
 		}
 		nameToVlist += "}"
-		xData := fmt.Sprintf(`{ sku: '', parentSku: %q, rows: [{ name: '', value: '', vlist: '' }], nameToVlist: %s, addRow() { this.rows.push({ name: '', value: '', vlist: '' }); this.updateSku() }, removeRow(i) { if(this.rows.length > 1) { this.rows.splice(i, 1); this.updateSku() } }, onNameInput(row) { row.vlist = this.nameToVlist[row.name] || ''; this.updateSku() }, onValueInput() { this.updateSku() }, updateSku() { const vals = this.rows.map(r => r.value.trim()).filter(v => v !== ''); if (vals.length > 0 && this.parentSku) { this.sku = this.parentSku + '-' + vals.join('-') } } }`, parentSku, nameToVlist)
+		xData := fmt.Sprintf(`{
+			parentSku: %q,
+			nameToVlist: %s,
+			maxCombos: %d,
+			axes: [{ name: '', vlist: '', valuesInput: '', values: [] }],
+			addAxis() { this.axes.push({ name: '', vlist: '', valuesInput: '', values: [] }) },
+			removeAxis(i) { if (this.axes.length > 1) this.axes.splice(i, 1) },
+			onNameInput(axis) { axis.vlist = this.nameToVlist[axis.name] || '' },
+			addValue(axis) {
+				const v = axis.valuesInput.trim();
+				if (v && !axis.values.some(x => x.toLowerCase() === v.toLowerCase())) {
+					axis.values.push(v);
+				}
+				axis.valuesInput = '';
+			},
+			removeValue(axis, i) { axis.values.splice(i, 1) },
+			get combos() {
+				const active = this.axes.filter(a => a.name.trim() && a.values.length > 0);
+				if (!active.length) return [];
+				return active.reduce((acc, axis) => acc.length
+					? acc.flatMap(c => axis.values.map(v => [...c, v]))
+					: axis.values.map(v => [v]), []);
+			},
+			skuFor(combo) { return this.parentSku ? this.parentSku + '-' + combo.join('-') : combo.join('-') }
+		}`, parentSku, nameToVlist, maxVariantCombosJS)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"bg-white shadow-sm border border-gray-200 rounded-xl mt-1\"><div class=\"p-5\"><div class=\"flex items-center justify-between mb-4\"><h3 class=\"text-sm font-semibold text-gray-700\">Nova Variação</h3><button type=\"button\" class=\"text-gray-400 hover:text-gray-600 cursor-pointer\" hx-get=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -683,7 +711,7 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute,
 		var templ_7745c5c3_Var36 string
 		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/produtos/%s/variants/form/cancel", productID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 280, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 308, Col: 79}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 		if templ_7745c5c3_Err != nil {
@@ -696,7 +724,7 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute,
 		var templ_7745c5c3_Var37 string
 		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(xData)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 290, Col: 18}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 318, Col: 18}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 		if templ_7745c5c3_Err != nil {
@@ -709,13 +737,26 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute,
 		var templ_7745c5c3_Var38 string
 		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/produtos/%s/variants", productID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 291, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 319, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\" hx-target=\"#variants-section\" hx-swap=\"outerHTML\" class=\"space-y-4\"><div class=\"flex flex-wrap gap-3\"><div class=\"basis-[20%] grow\"><div class=\"flex flex-col gap-1\"><label class=\"flex items-center gap-2\"><span class=\"text-sm font-medium text-gray-700\">SKU</span></label> <input type=\"text\" name=\"sku\" x-model=\"sku\" placeholder=\"SKU-01\" required class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\"></div></div><div class=\"basis-[20%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\" hx-target=\"#variants-section\" hx-swap=\"outerHTML\" class=\"space-y-4\"><div class=\"flex flex-wrap gap-3\"><div class=\"basis-[20%] grow\"><div class=\"flex flex-col gap-1\"><label class=\"flex items-center gap-2\"><span class=\"text-sm font-medium text-gray-700\">SKU</span></label> <input type=\"text\" name=\"sku\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var39 string
+		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(parentSku)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 333, Col: 25}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\" placeholder=\"SKU-01\" required class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50\"></div></div><div class=\"basis-[25%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -735,26 +776,13 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute,
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</div><div class=\"basis-[20%] grow\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div><div class=\"basis-[25%] grow\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
 			Name:        "current_stock",
 			Label:       "Estoque Atual",
-			InputType:   "number",
-			Placeholder: "0",
-		}).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div><div class=\"basis-[20%] grow\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.BasicInput(components.BasicInputParams{
-			Name:        "ean",
-			Label:       "EAN",
 			InputType:   "number",
 			Placeholder: "0",
 		}).Render(ctx, templ_7745c5c3_Buffer)
@@ -770,12 +798,12 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute,
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var39 string
-			templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(attr.Name)
+			var templ_7745c5c3_Var40 string
+			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(attr.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 347, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 367, Col: 32}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -793,12 +821,12 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute,
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var40 string
-			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs("datalist-vals-" + strconv.Itoa(int(attr.ID)))
+			var templ_7745c5c3_Var41 string
+			templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs("datalist-vals-" + strconv.Itoa(int(attr.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 351, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 371, Col: 66}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -811,12 +839,12 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute,
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var41 string
-				templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(val.Value)
+				var templ_7745c5c3_Var42 string
+				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(val.Value)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 353, Col: 33}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 373, Col: 33}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -830,20 +858,20 @@ func NewVariantForm(productID string, parentSku string, attrs []store.Attribute,
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<div class=\"flex items-center justify-between\"><p class=\"text-sm font-medium text-gray-700\">Atributos</p><button type=\"button\" @click=\"addRow()\" class=\"inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline cursor-pointer\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-3.5 w-3.5\" viewBox=\"0 0 20 20\" fill=\"currentColor\"><path fill-rule=\"evenodd\" d=\"M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z\" clip-rule=\"evenodd\"></path></svg> Adicionar</button></div><template x-for=\"(row, idx) in rows\" :key=\"idx\"><div class=\"flex gap-2 items-end\"><div class=\"flex-1\"><label class=\"block text-[0.65rem] font-semibold text-gray-400 uppercase tracking-wider mb-1\">Atributo</label> <input type=\"text\" :name=\"'attr_name_' + idx\" list=\"datalist-attr-names\" x-model=\"row.name\" @input=\"onNameInput(row)\" @change=\"onNameInput(row)\" placeholder=\"Ex: Cor, Tamanho…\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-colors\"></div><div class=\"flex-1\"><label class=\"block text-[0.65rem] font-semibold text-gray-400 uppercase tracking-wider mb-1\">Valor</label> <input type=\"text\" :name=\"'attr_value_' + idx\" :list=\"row.vlist || false\" x-model=\"row.value\" @input=\"updateSku()\" placeholder=\"Ex: Vermelho, P…\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-colors\"></div><button type=\"button\" @click=\"removeRow(idx)\" x-show=\"rows.length > 1\" class=\"mb-0.5 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-field transition-colors cursor-pointer\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-4 w-4\" viewBox=\"0 0 20 20\" fill=\"currentColor\"><path fill-rule=\"evenodd\" d=\"M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z\" clip-rule=\"evenodd\"></path></svg></button></div></template></div><div class=\"flex justify-end gap-2 pt-1\"><button type=\"button\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm text-gray-600\" hx-get=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<div class=\"flex items-center justify-between\"><p class=\"text-sm font-medium text-gray-700\">Atributos</p><button type=\"button\" @click=\"addAxis()\" class=\"inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline cursor-pointer\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-3.5 w-3.5\" viewBox=\"0 0 20 20\" fill=\"currentColor\"><path fill-rule=\"evenodd\" d=\"M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z\" clip-rule=\"evenodd\"></path></svg> Adicionar atributo</button></div><template x-for=\"(axis, axisIdx) in axes\" :key=\"axisIdx\"><div class=\"flex gap-2 items-start bg-gray-50/60 border border-gray-100 rounded-field p-2.5\"><div class=\"w-40 shrink-0\"><label class=\"block text-[0.65rem] font-semibold text-gray-400 uppercase tracking-wider mb-1\">Atributo</label> <input type=\"text\" :name=\"'attr_name_' + axisIdx\" list=\"datalist-attr-names\" x-model=\"axis.name\" @input=\"onNameInput(axis)\" @change=\"onNameInput(axis)\" placeholder=\"Ex: Cor, Tamanho…\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-colors\"></div><div class=\"flex-1\"><label class=\"block text-[0.65rem] font-semibold text-gray-400 uppercase tracking-wider mb-1\">Valores</label><div class=\"flex flex-wrap gap-1.5 mb-1.5\" x-show=\"axis.values.length > 0\"><template x-for=\"(val, vIdx) in axis.values\" :key=\"vIdx\"><span class=\"inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-primary/10 text-primary\"><input type=\"hidden\" :name=\"'attr_values_' + axisIdx\" :value=\"val\"> <span x-text=\"val\"></span> <button type=\"button\" @click=\"removeValue(axis, vIdx)\" class=\"text-primary/60 hover:text-primary cursor-pointer\">&times;</button></span></template></div><input type=\"text\" :list=\"axis.vlist || false\" x-model=\"axis.valuesInput\" @keydown.enter.prevent=\"addValue(axis)\" @keydown.comma.prevent=\"addValue(axis)\" @blur=\"addValue(axis)\" placeholder=\"Digite um valor e Enter (Ex: Vermelho, P…)\" class=\"block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-colors\"></div><button type=\"button\" @click=\"removeAxis(axisIdx)\" x-show=\"axes.length > 1\" class=\"mt-5 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-field transition-colors cursor-pointer\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"h-4 w-4\" viewBox=\"0 0 20 20\" fill=\"currentColor\"><path fill-rule=\"evenodd\" d=\"M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z\" clip-rule=\"evenodd\"></path></svg></button></div></template></div><div class=\"border-t border-gray-100 pt-3\" x-show=\"combos.length > 0\"><div class=\"flex items-center justify-between mb-2\"><p class=\"text-xs font-semibold text-gray-500 uppercase tracking-wider\"><span x-text=\"combos.length\"></span> <span x-text=\"combos.length === 1 ? ' variação será criada' : ' variações serão criadas'\"></span></p><p x-show=\"combos.length > maxCombos\" class=\"text-xs font-semibold text-error\">Limite de <span x-text=\"maxCombos\"></span> combinações excedido, reduza os valores.</p></div><div class=\"max-h-40 overflow-y-auto flex flex-wrap gap-1.5\"><template x-for=\"(combo, i) in combos\" :key=\"i\"><span class=\"inline-flex items-center px-2 py-1 text-xs font-mono rounded-field bg-gray-100 text-gray-700\" x-text=\"skuFor(combo)\"></span></template></div></div><div class=\"flex justify-end gap-2 pt-1\"><button type=\"button\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-3 py-1.5 text-sm text-gray-600\" hx-get=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var42 string
-		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/produtos/%s/variants/form/cancel", productID))
+		var templ_7745c5c3_Var43 string
+		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/admin/produtos/%s/variants/form/cancel", productID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 414, Col: 80}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/variation.templ`, Line: 460, Col: 80}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "\" hx-target=\"#new-variant-area\" hx-swap=\"innerHTML\">Cancelar</button> <button type=\"submit\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm\">Salvar Variação</button></div></form></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "\" hx-target=\"#new-variant-area\" hx-swap=\"innerHTML\">Cancelar</button> <button type=\"submit\" :disabled=\"combos.length === 0 || combos.length > maxCombos\" class=\"inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-primary text-primary-content hover:brightness-90 px-3 py-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed\"><span x-show=\"combos.length <= 1\">Salvar Variação</span> <span x-show=\"combos.length > 1\">Salvar <span x-text=\"combos.length\"></span> Variações</span></button></div></form></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

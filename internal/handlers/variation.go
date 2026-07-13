@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -262,28 +263,62 @@ func (p *ProductHandler) PostVariant(w http.ResponseWriter, r *http.Request) {
 		)
 	}
 
-	sku := strings.TrimSpace(r.FormValue("sku"))
-	if sku == "" {
+	skuBase := strings.TrimSpace(r.FormValue("sku"))
+	if skuBase == "" {
 		renderVariantForm("SKU é obrigatório")
 		return
 	}
 
-	attrInputs, err := parseVariantAttributes(r)
+	axes, err := parseVariantAxes(r)
 	if err != nil {
 		renderVariantForm(err.Error())
 		return
 	}
-	if len(attrInputs) == 0 {
-		renderVariantForm("Informe ao menos um valor de atributo")
+	if len(axes) == 0 {
+		renderVariantForm("Informe ao menos um atributo e valor")
+		return
+	}
+
+	combos := cartesianCombos(axes)
+	if len(combos) > maxVariantCombos {
+		renderVariantForm(fmt.Sprintf("Muitas combinações (%d), limite é %d. Reduza os valores.", len(combos), maxVariantCombos))
 		return
 	}
 
 	costPrice, _ := strconv.ParseFloat(r.FormValue("cost_price"), 64)
 	currentStock, _ := strconv.Atoi(r.FormValue("current_stock"))
-	ean, err := validate.EAN(r.FormValue("ean"))
-	if err != nil {
-		renderVariantForm(err.Error())
-		return
+
+	// Resolve Attribute/AttributeValue uma vez por valor único de cada eixo.
+	valueIDs := make([]map[string]uint, len(axes))
+	for i, axis := range axes {
+		attr, err := p.productStore.FindOrCreateAttribute(axis.Name, sess.TenantID)
+		if err != nil {
+			renderVariantForm("Erro ao resolver atributo: " + axis.Name)
+			return
+		}
+		valueIDs[i] = make(map[string]uint, len(axis.Values))
+		for _, value := range axis.Values {
+			av, err := p.productStore.FindOrCreateAttributeValue(value, attr.ID)
+			if err != nil {
+				renderVariantForm("Erro ao resolver valor: " + value)
+				return
+			}
+			valueIDs[i][value] = av.ID
+		}
+	}
+
+	inputs := make([]store.VariantGenInput, 0, len(combos))
+	for _, combo := range combos {
+		attributeValueIDs := make([]uint, len(combo))
+		for i, value := range combo {
+			attributeValueIDs[i] = valueIDs[i][value]
+		}
+		inputs = append(inputs, store.VariantGenInput{
+			SKU:               skuBase + "-" + strings.Join(combo, "-"),
+			CostPrice:         costPrice,
+			CurrentStock:      currentStock,
+			AttributeValueIDs: attributeValueIDs,
+		})
 	}
 
 	if defaultVariant, err := p.productStore.FindDefaultVariant(uint(productID), sess.TenantID); err == nil &&
@@ -291,48 +326,20 @@ func (p *ProductHandler) PostVariant(w http.ResponseWriter, r *http.Request) {
 		_ = p.productStore.DeleteVariant(defaultVariant.ID, sess.TenantID)
 	}
 
-	variant := &store.Variant{
-		SKU:          sku,
-		CostPrice:    costPrice,
-		CurrentStock: currentStock,
-		EAN:          ean,
-		ProductID:    uint(productID),
-		TenantID:     sess.TenantID,
-	}
-
-	if err := p.productStore.CreateVariant(variant); err != nil {
-		ShowToast(w, "Erro ao cadastrar variação", "error")
-		variants, _ := p.productStore.FindVariantsByProduct(
-			uint(productID),
-			sess.TenantID,
-		)
-		Render(templates.VariantsSection(variants, chi.URLParam(r, "id")), r, w)
+	if _, err := p.productStore.CreateVariants(uint(productID), sess.TenantID, inputs); err != nil {
+		if isDuplicateError(err) {
+			renderVariantForm("SKU já existe, verifique os valores dos atributos")
+		} else {
+			renderVariantForm("Erro ao cadastrar variações")
+		}
 		return
 	}
 
-	var attributeValueIDs []uint
-	for _, ai := range attrInputs {
-		attr, err := p.productStore.FindOrCreateAttribute(
-			ai.Name,
-			sess.TenantID,
-		)
-		if err != nil {
-			continue
-		}
-		av, err := p.productStore.FindOrCreateAttributeValue(ai.Value, attr.ID)
-		if err != nil {
-			continue
-		}
-		attributeValueIDs = append(attributeValueIDs, av.ID)
+	if len(inputs) == 1 {
+		ShowToast(w, "Variação cadastrada", "success")
+	} else {
+		ShowToast(w, fmt.Sprintf("%d variações cadastradas", len(inputs)), "success")
 	}
-
-	if err := p.productStore.SetVariantAttributes(variant.ID, attributeValueIDs); err != nil {
-		_ = p.productStore.DeleteVariant(variant.ID, sess.TenantID)
-		renderVariantForm("Erro ao salvar atributos, variação não cadastrada")
-		return
-	}
-
-	ShowToast(w, "Variação cadastrada", "success")
 	variants, _ := p.productStore.FindVariantsByProduct(
 		uint(productID),
 		sess.TenantID,

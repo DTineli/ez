@@ -166,6 +166,14 @@ type PriceTableStore interface {
 	Delete(id, tenantID uint) error
 }
 
+// VariantGenInput representa uma combinação de atributos a ser criada como Variant.
+type VariantGenInput struct {
+	SKU               string
+	CostPrice         float64
+	CurrentStock      int
+	AttributeValueIDs []uint
+}
+
 type ProductFilters struct {
 	Page    int
 	PerPage int
@@ -197,6 +205,7 @@ type ProductStore interface {
 	DeleteVariant(id uint, tenantID uint) error
 	FindDefaultVariant(productID uint, tenantID uint) (*Variant, error)
 	SetVariantAttributes(variantID uint, attributeValueIDs []uint) error
+	CreateVariants(productID uint, tenantID uint, inputs []VariantGenInput) ([]Variant, error)
 
 	RecalcularStatusProduto(productID uint, tenantID uint) error
 
