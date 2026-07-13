@@ -65,6 +65,7 @@ func (c *ClientHandler) RenderCheckoutContent(
 			sess.TenantID,
 			sess.ContactInfo.ID,
 		)
+
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			ShowToast(w, "Erro ao carregar carrinho", "error")
 			return
@@ -85,29 +86,15 @@ func (c *ClientHandler) RenderCheckoutContent(
 	}
 
 	if openCart != nil {
-		items, err = c.cartStore.ListCheckoutItems(openCart.ID, sess.TenantID)
+		items, err = c.cartStore.ListCheckoutItems(openCart.ID, sess.TenantID, uint(price_tableID))
 
 		if err != nil {
 			ShowToast(w, "Erro ao carregar itens", "error")
 			return
 		}
 
-		for i, item := range items {
-			items[i].UnitPrice, err = c.priceTableSvc.GetVariantPrice(
-				item.VariantID,
-				uint(price_tableID),
-			)
-
-			if err != nil {
-				if errors.Is(err, services.ErrPriceNotFound) {
-					continue
-				}
-				ShowToast(w, "Erro ao calcular preço", "error")
-				return
-			}
-
-			items[i].Subtotal = items[i].UnitPrice * float64(items[i].Quantity)
-			totalAmount += items[i].Subtotal
+		for _, item := range items {
+			totalAmount += item.Subtotal
 		}
 	}
 

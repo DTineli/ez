@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/DTineli/ez/internal/services"
 	"github.com/DTineli/ez/internal/store"
 	"gorm.io/gorm"
 )
@@ -18,7 +17,10 @@ func NewGormRepository(db *gorm.DB) *GormRepository {
 }
 
 func (o *GormRepository) ConfirmFromCart(
-	cartID, tenantID, contactID, priceTableID uint,
+	cartID,
+	tenantID,
+	contactID,
+	priceTableID uint,
 ) (*store.Order, error) {
 	var created store.Order
 
@@ -65,23 +67,34 @@ func (o *GormRepository) ConfirmFromCart(
 			productNameByVariantID[p.ID] = p.Product.Name
 		}
 
-		var priceTable *store.PriceTable
-		if priceTableID != 0 {
-			var pt store.PriceTable
-			if err := tx.Where("id = ? AND tenant_id = ?", priceTableID, tenantID).First(&pt).Error; err == nil {
-				priceTable = &pt
-			}
+		var productPrices []store.ProductPrice
+		if err := tx.Where(
+			"price_table_id = ? AND variant_id IN ?",
+			priceTableID,
+			variantIDs,
+		).Find(&productPrices).Error; err != nil {
+			return err
+		}
+
+		priceByVariantID := make(map[uint]float64, len(productPrices))
+		for _, pp := range productPrices {
+			priceByVariantID[pp.VariantID] = pp.Price
 		}
 
 		total := 0.0
 		orderItems := make([]store.OrderItem, 0, len(cartItems))
+		orderedCartItemIDs := make([]uint, 0, len(cartItems))
 		for _, item := range cartItems {
 			name := productNameByVariantID[item.VariantID]
 			if name == "" {
 				return errors.New("product not found for cart item")
 			}
 
-			unitPrice := services.ApplyPriceTable(item.CostPrice, priceTable)
+			// sem preco cadastrado na tabela: item fica no carrinho p/ compra futura
+			unitPrice, ok := priceByVariantID[item.VariantID]
+			if !ok {
+				continue
+			}
 			subtotal := float64(item.Quantity) * unitPrice
 			total += subtotal
 
@@ -93,21 +106,33 @@ func (o *GormRepository) ConfirmFromCart(
 				UnitPrice: unitPrice,
 				Subtotal:  subtotal,
 			})
+			orderedCartItemIDs = append(orderedCartItemIDs, item.ID)
+		}
+
+		if len(orderItems) == 0 {
+			return errors.New("nenhum item do carrinho possui preco cadastrado")
 		}
 
 		order := store.Order{
-			TenantID:    tenantID,
-			ContactID:   contactID,
-			Status:      store.OrderPendente,
-			TotalAmount: total,
-			Items:       orderItems,
+			TenantID:     tenantID,
+			ContactID:    contactID,
+			PriceTableId: priceTableID,
+			Status:       store.OrderPendente,
+			TotalAmount:  total,
+			Items:        orderItems,
 		}
 		if err := tx.Create(&order).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Model(&store.Cart{}).Where("id = ?", cartID).Update("status", "confirmed").Error; err != nil {
+		if err := tx.Where("id IN ?", orderedCartItemIDs).Delete(&store.CartItem{}).Error; err != nil {
 			return err
+		}
+
+		if len(orderedCartItemIDs) == len(cartItems) {
+			if err := tx.Model(&store.Cart{}).Where("id = ?", cartID).Update("status", "confirmed").Error; err != nil {
+				return err
+			}
 		}
 
 		created = order
