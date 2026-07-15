@@ -95,9 +95,21 @@ type OrderItem struct {
 }
 
 type PaymentMethod struct {
-	ID       uint   `gorm:"primaryKey"                                                          json:"id"`
-	Name     string `gorm:"type:varchar(100);not null;uniqueIndex:idx_tenant_pm_name,priority:2" json:"name"`
-	TenantID uint   `gorm:"not null;uniqueIndex:idx_tenant_pm_name,priority:1"                  json:"tenant_id"`
+	ID        uint   `gorm:"primaryKey"                                                          json:"id"`
+	Name      string `gorm:"type:varchar(100);not null;uniqueIndex:idx_tenant_pm_name,priority:2" json:"name"`
+	Ativo     bool   `gorm:"default:true"                                                        json:"active"`
+	CanDivide bool   `gorm:"default:false"                                                       json:"can_divide"`
+	TenantID  uint   `gorm:"not null;uniqueIndex:idx_tenant_pm_name,priority:1"                  json:"tenant_id"`
+
+	PriceTables []PriceTable `gorm:"many2many:price_table_payment_methods;" json:"price_tables,omitempty"`
+}
+
+type PaymentMethodStore interface {
+	CreatePaymentMethod(pm *PaymentMethod) error
+	GetPaymentMethod(id, tenantID uint) (*PaymentMethod, error)
+	FindAllPaymentMethodsByTenant(tenantID uint) ([]PaymentMethod, error)
+	UpdatePaymentMethod(pm *PaymentMethod) error
+	DeletePaymentMethod(id, tenantID uint) error
 }
 
 type AdminOrderListItem struct {

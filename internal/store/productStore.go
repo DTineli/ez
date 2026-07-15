@@ -142,6 +142,8 @@ type PriceTable struct {
 
 	TenantID uint           `gorm:"not null;uniqueIndex:idx_tenant_name,priority:1" json:"tenant_id"`
 	Prices   []ProductPrice `gorm:"foreignKey:PriceTableID"                         json:"prices,omitempty"`
+
+	PaymentMethods []PaymentMethod `gorm:"many2many:price_table_payment_methods;" json:"payment_methods,omitempty"`
 }
 
 type ProductPrice struct {
