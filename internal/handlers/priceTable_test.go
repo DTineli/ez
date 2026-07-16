@@ -12,8 +12,12 @@ import (
 	"github.com/DTineli/ez/internal/store"
 )
 
+func newPriceTableHandler() *PriceTableHandler {
+	return NewPriceTableHandler(&mockPriceTableServiceExt{})
+}
+
 func TestGetTablePage_Sucesso(t *testing.T) {
-	h := newHandler()
+	h := newPriceTableHandler()
 
 	r := httptest.NewRequest(http.MethodGet, "/admin/tabelas", nil)
 	r = htmxRequest(withSession(r, newSession(1)))
@@ -32,7 +36,7 @@ func TestGetTablePage_ErroStore(t *testing.T) {
 			return nil, errors.New("db error")
 		},
 	}
-	h := NewProductHandler(&mockProductStore{}, pts)
+	h := NewPriceTableHandler(pts)
 
 	r := httptest.NewRequest(http.MethodGet, "/admin/tabelas", nil)
 	r = htmxRequest(withSession(r, newSession(1)))
@@ -46,7 +50,7 @@ func TestGetTablePage_ErroStore(t *testing.T) {
 }
 
 func TestCreatePriceTable_ValidacaoFalha_NomeFaltando(t *testing.T) {
-	h := newHandler()
+	h := newPriceTableHandler()
 
 	body := url.Values{"percentage": {"10"}} // sem name
 	r := httptest.NewRequest(http.MethodPost, "/admin/tabelas", strings.NewReader(body.Encode()))
@@ -65,7 +69,7 @@ func TestCreatePriceTable_ValidacaoFalha_NomeFaltando(t *testing.T) {
 }
 
 func TestCreatePriceTable_ValidacaoFalha_PercentualInvalido(t *testing.T) {
-	h := newHandler()
+	h := newPriceTableHandler()
 
 	body := url.Values{"name": {"Tabela A"}, "percentage": {"abc"}}
 	r := httptest.NewRequest(http.MethodPost, "/admin/tabelas", strings.NewReader(body.Encode()))
@@ -90,7 +94,7 @@ func TestCreatePriceTable_Sucesso(t *testing.T) {
 			return &store.PriceTable{Name: name, Percentage: pct, TenantID: tenantID}, nil
 		},
 	}
-	h := NewProductHandler(&mockProductStore{}, pts)
+	h := NewPriceTableHandler(pts)
 
 	body := url.Values{"name": {"Tabela A"}, "percentage": {"10"}}
 	r := httptest.NewRequest(http.MethodPost, "/admin/tabelas", strings.NewReader(body.Encode()))
@@ -120,7 +124,7 @@ func TestCreatePriceTable_NomeDuplicado(t *testing.T) {
 			return nil, errors.New("UNIQUE constraint failed: price_tables.name")
 		},
 	}
-	h := NewProductHandler(&mockProductStore{}, pts)
+	h := NewPriceTableHandler(pts)
 
 	body := url.Values{"name": {"Tabela Existente"}, "percentage": {"5"}}
 	r := httptest.NewRequest(http.MethodPost, "/admin/tabelas", strings.NewReader(body.Encode()))
@@ -139,7 +143,7 @@ func TestCreatePriceTable_NomeDuplicado(t *testing.T) {
 }
 
 func TestDeletePriceTable_IDInvalido(t *testing.T) {
-	h := newHandler()
+	h := newPriceTableHandler()
 
 	r := httptest.NewRequest(http.MethodDelete, "/admin/tabelas/abc", nil)
 	r = htmxRequest(withSession(r, newSession(1)))
@@ -159,7 +163,7 @@ func TestDeletePriceTable_PossuiClientes(t *testing.T) {
 			return services.ErrPriceTableHasContacts
 		},
 	}
-	h := NewProductHandler(&mockProductStore{}, pts)
+	h := NewPriceTableHandler(pts)
 
 	r := httptest.NewRequest(http.MethodDelete, "/admin/tabelas/1", nil)
 	r = htmxRequest(withSession(r, newSession(1)))
@@ -181,7 +185,7 @@ func TestDeletePriceTable_Sucesso(t *testing.T) {
 			return nil
 		},
 	}
-	h := NewProductHandler(&mockProductStore{}, pts)
+	h := NewPriceTableHandler(pts)
 
 	r := httptest.NewRequest(http.MethodDelete, "/admin/tabelas/1", nil)
 	r = htmxRequest(withSession(r, newSession(1)))
@@ -203,11 +207,11 @@ func TestDeletePriceTable_Sucesso(t *testing.T) {
 
 // mockPriceTableServiceExt permite controle fino por teste
 type mockPriceTableServiceExt struct {
-	create      func(tenantID uint, name string, pct float64) (*store.PriceTable, error)
-	delete      func(id, tenantID uint) error
-	findAll     func(tenantID uint) ([]store.PriceTable, error)
+	create        func(tenantID uint, name string, pct float64) (*store.PriceTable, error)
+	delete        func(id, tenantID uint) error
+	findAll       func(tenantID uint) ([]store.PriceTable, error)
 	findAllActive func(tenantID uint) ([]store.PriceTable, error)
-	getOne      func(id, tenantID uint) (*store.PriceTable, error)
+	getOne        func(id, tenantID uint) (*store.PriceTable, error)
 }
 
 func (s *mockPriceTableServiceExt) Create(tenantID uint, name string, pct float64) (*store.PriceTable, error) {

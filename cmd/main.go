@@ -53,6 +53,8 @@ func main() {
 	contactStore := dbstore.NewContactStore(db)
 	pStore := dbstore.NewProductStore(db)
 	priceTableStore := dbstore.NewPriceTableDB(db)
+	paymentMethodStore := dbstore.NewPaymentMethodStore(db)
+	paymentTermStore := dbstore.NewPaymentTermStore(db)
 	cartStore := dbstore.NewCartStore(db)
 	orderStore := orders.NewGormRepository(db)
 
@@ -72,6 +74,7 @@ func main() {
 		TenantStore:  *tenantStore,
 		CookieName:   cfg.SessionCookieName,
 	})
+
 	registerHandler := handlers.NewRegisterHandler(userStore,
 		tenantStore,
 		invite,
@@ -79,8 +82,14 @@ func main() {
 		clientSessionStore)
 
 	ptService := services.NewPriceTableService(priceTableStore)
+	pmService := services.NewPaymentMethodService(
+		paymentMethodStore,
+		paymentTermStore,
+	)
 
 	productHandler := handlers.NewProductHandler(pStore, ptService)
+
+	priceTableHandler := handlers.NewPriceTableHandler(ptService, pmService)
 
 	contactHandler := handlers.NewContactHandler(
 		handlers.NewContactHandlerParams{
@@ -136,6 +145,7 @@ func main() {
 		loginHandler,
 		registerHandler,
 		productHandler,
+		priceTableHandler,
 		contactHandler,
 		adminOrderHandler,
 		orderHandler,
@@ -237,6 +247,7 @@ func registerAdminRoutes(
 	login *handlers.LoginHandler,
 	reg *handlers.RegisterHandler,
 	product *handlers.ProductHandler,
+	priceTable *handlers.PriceTableHandler,
 	contact *handlers.ContactHandler,
 	order *handlers.AdminOrderHandler,
 	orderHandler *orders.Handler,
@@ -258,7 +269,7 @@ func registerAdminRoutes(
 			r.Get("/", handlers.NewHomeHandler(sessionStore).ServeHTTP)
 
 			r.Route("/components", func(r chi.Router) {
-				r.Get("/price-tables", product.RenderMultiSelectTables)
+				r.Get("/price-tables", priceTable.RenderMultiSelectTables)
 				// r.Get("/price/search", )
 			})
 
@@ -285,21 +296,21 @@ func registerAdminRoutes(
 			})
 
 			r.Route("/pricetable", func(r chi.Router) {
-				r.Get("/", product.GetTablePage)
-				r.Post("/", product.CreatePriceTable)
-				r.Delete("/{id}", product.DeletePriceTable)
-				r.Get("/{tableID}", product.RenderEditPriceTable)
-				r.Get("/{tableID}/search", product.SearchVariantsForPriceTable)
-				r.Get("/{tableID}/search-panel", product.RenderSearchPanel)
-				r.Get("/{tableID}/search-panel/close", product.CloseSearchPanel)
-				r.Post("/{tableID}/prices", product.PostProductPrice)
+				r.Get("/", priceTable.GetTablePage)
+				r.Post("/", priceTable.CreatePriceTable)
+				r.Delete("/{id}", priceTable.DeletePriceTable)
+				r.Get("/{tableID}", priceTable.RenderEditPriceTable)
+				r.Get("/{tableID}/search", priceTable.SearchVariantsForPriceTable)
+				r.Get("/{tableID}/search-panel", priceTable.RenderSearchPanel)
+				r.Get("/{tableID}/search-panel/close", priceTable.CloseSearchPanel)
+				r.Post("/{tableID}/prices", priceTable.PostProductPrice)
 				r.Patch(
 					"/{tableID}/prices/{priceID}",
-					product.PatchProductPrice,
+					priceTable.PatchProductPrice,
 				)
 				r.Delete(
 					"/{tableID}/prices/{priceID}",
-					product.DeleteProductPrice,
+					priceTable.DeleteProductPrice,
 				)
 			})
 

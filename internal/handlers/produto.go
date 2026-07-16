@@ -43,13 +43,6 @@ func (p *ProductHandler) GetProductForm(
 	)
 }
 
-func (p *ProductHandler) RenderPriceTablePerProduct(
-	w http.ResponseWriter,
-	r *http.Request,
-) {
-
-}
-
 func (p *ProductHandler) PostNewProduct(
 	w http.ResponseWriter,
 	r *http.Request,

@@ -13,7 +13,22 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func (p *ProductHandler) RenderEditPriceTable(
+type PriceTableHandler struct {
+	priceTableSvc    services.PriceTableService
+	paymentMethodSvc services.PaymentMethodService
+}
+
+func NewPriceTableHandler(
+	pService services.PriceTableService,
+	mService services.PaymentMethodService,
+) *PriceTableHandler {
+	return &PriceTableHandler{
+		priceTableSvc:    pService,
+		paymentMethodSvc: mService,
+	}
+}
+
+func (p *PriceTableHandler) RenderEditPriceTable(
 	w http.ResponseWriter,
 	r *http.Request) {
 
@@ -33,7 +48,7 @@ func (p *ProductHandler) RenderEditPriceTable(
 	Render(templates.EditPricesPage(*table), r, w)
 }
 
-func (p *ProductHandler) SearchVariantsForPriceTable(
+func (p *PriceTableHandler) SearchVariantsForPriceTable(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -60,7 +75,7 @@ func (p *ProductHandler) SearchVariantsForPriceTable(
 	Render(templates.PriceSeachTbody(variants, uint(tableID)), r, w)
 }
 
-func (p *ProductHandler) RenderSearchPanel(
+func (p *PriceTableHandler) RenderSearchPanel(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -72,7 +87,7 @@ func (p *ProductHandler) RenderSearchPanel(
 	Render(templates.SearchPanel(uint(tableID)), r, w)
 }
 
-func (p *ProductHandler) CloseSearchPanel(
+func (p *PriceTableHandler) CloseSearchPanel(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -84,7 +99,7 @@ func (p *ProductHandler) CloseSearchPanel(
 	Render(templates.AddProductButton(uint(tableID)), r, w)
 }
 
-func (p *ProductHandler) PostProductPrice(
+func (p *PriceTableHandler) PostProductPrice(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -134,7 +149,7 @@ func (p *ProductHandler) PostProductPrice(
 	Render(templates.PriceRow(*pp, uint(tableID)), r, w)
 }
 
-func (p *ProductHandler) PatchProductPrice(
+func (p *PriceTableHandler) PatchProductPrice(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -173,7 +188,7 @@ func (p *ProductHandler) PatchProductPrice(
 	Render(templates.PriceRow(*pp, uint(tableID)), r, w)
 }
 
-func (p *ProductHandler) DeleteProductPrice(
+func (p *PriceTableHandler) DeleteProductPrice(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -194,7 +209,7 @@ func (p *ProductHandler) DeleteProductPrice(
 	w.WriteHeader(http.StatusOK)
 }
 
-func (p *ProductHandler) RenderMultiSelectTables(
+func (p *PriceTableHandler) RenderMultiSelectTables(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -230,7 +245,7 @@ func (p *ProductHandler) RenderMultiSelectTables(
 	Render(components.MultiSelect(componentParams), r, w)
 }
 
-func (p *ProductHandler) GetTablePage(w http.ResponseWriter, r *http.Request) {
+func (p *PriceTableHandler) GetTablePage(w http.ResponseWriter, r *http.Request) {
 	sess := m.GetSessionFromContext(r)
 
 	tables, err := p.priceTableSvc.FindAll(sess.TenantID)
@@ -243,7 +258,7 @@ func (p *ProductHandler) GetTablePage(w http.ResponseWriter, r *http.Request) {
 	Render(templates.PriceTablePage(tables), r, w)
 }
 
-func (p *ProductHandler) CreatePriceTable(
+func (p *PriceTableHandler) CreatePriceTable(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
@@ -284,7 +299,7 @@ func (p *ProductHandler) CreatePriceTable(
 	templates.TableRow(*table).Render(r.Context(), w)
 }
 
-func (p *ProductHandler) DeletePriceTable(
+func (p *PriceTableHandler) DeletePriceTable(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {

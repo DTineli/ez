@@ -31,3 +31,12 @@ type PaymentMethodStore interface {
 	UpdatePaymentMethod(pm *PaymentMethod) error
 	DeletePaymentMethod(id, tenantID uint) error
 }
+
+type PaymentTermStore interface {
+	CreatePaymentTerm(pt *PaymentTerm) error
+	GetPaymentTerm(id, tenantID uint) (*PaymentTerm, error)
+	FindAllPaymentTermsByTenant(tenantID uint) ([]PaymentTerm, error)
+	FindAllByPaymentMethod(methodID, tenantID uint) ([]PaymentTerm, error)
+	UpdatePaymentTerm(pt *PaymentTerm) error
+	DeletePaymentTerm(id, tenantID uint) error
+}
