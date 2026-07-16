@@ -181,6 +181,8 @@ type PriceTableStore interface {
 	) ([]Variant, error)
 	FindPriceTablesByProduct(productID, tenantID uint) ([]PriceTable, error)
 	FindProductPricesForProduct(productID uint) ([]ProductPrice, error)
+
+	FindPaymentMethods(tableID, tenantID uint) ([]PaymentMethod, error)
 }
 
 type VariantTableRow struct {

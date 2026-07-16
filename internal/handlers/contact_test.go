@@ -114,6 +114,9 @@ func (s *mockPriceTableStore) FindPriceTablesByProduct(productID, tenantID uint)
 func (s *mockPriceTableStore) FindProductPricesForProduct(productID uint) ([]store.ProductPrice, error) {
 	return nil, nil
 }
+func (s *mockPriceTableStore) FindPaymentMethods(tableID, tenantID uint) ([]store.PaymentMethod, error) {
+	return nil, nil
+}
 
 func newContactHandler(cs *mockContactStore, is *mockInviteStore, pts *mockPriceTableStore) *ContactHandler {
 	if cs == nil {

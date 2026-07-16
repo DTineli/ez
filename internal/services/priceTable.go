@@ -43,6 +43,7 @@ type PriceTableService interface {
 		productID, tenantID uint,
 		allVariants []store.Variant,
 	) ([]store.PriceTableProductView, error)
+	FindPaymentMethods(tableID, tenantID uint) ([]store.PaymentMethod, error)
 }
 
 type priceTableService struct {
@@ -258,6 +259,12 @@ func (p *priceTableService) FindAllWithProductPrices(
 	}
 
 	return views, nil
+}
+
+func (p *priceTableService) FindPaymentMethods(
+	tableID, tenantID uint,
+) ([]store.PaymentMethod, error) {
+	return p.store.FindPaymentMethods(tableID, tenantID)
 }
 
 // ApplyPriceTable aplica o multiplicador da tabela ao custo base.

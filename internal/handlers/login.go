@@ -123,7 +123,6 @@ func (h *LoginHandler) customerLogin(w http.ResponseWriter, r *http.Request) {
 	tenant, err := h.tenantStore.GetTenantBySlug(page_slug)
 
 	if err != nil {
-		fmt.Errorf("%v", err.Error())
 		writeLoginError(r, w, "Erro ao criar sessão. Tente novamente.")
 		return
 	}

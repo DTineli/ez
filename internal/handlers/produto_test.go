@@ -226,6 +226,9 @@ func (s *mockPriceTableService) GetPriceTablesByProduct(productID, tenantID uint
 func (s *mockPriceTableService) FindAllWithProductPrices(productID, tenantID uint, allVariants []store.Variant) ([]store.PriceTableProductView, error) {
 	return nil, nil
 }
+func (s *mockPriceTableService) FindPaymentMethods(tableID, tenantID uint) ([]store.PaymentMethod, error) {
+	return nil, nil
+}
 
 // --- helpers ---
 

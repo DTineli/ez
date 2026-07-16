@@ -43,14 +43,26 @@ func (p *PaymentMethod) FindAllPaymentMethodsByTenant(
 	return pms, nil
 }
 
+func (p *PaymentMethod) FindAllByPriceTable(
+	tableID, tenantID uint,
+) ([]store.PaymentMethod, error) {
+	var pms []store.PaymentMethod
+	err := p.db.
+		Joins("JOIN price_table_payment_methods ptpm ON ptpm.payment_method_id = payment_methods.id").
+		Where("ptpm.price_table_id = ? AND payment_methods.tenant_id = ?", tableID, tenantID).
+		Find(&pms).Error
+	if err != nil {
+		return nil, err
+	}
+	return pms, nil
+}
+
 func (p *PaymentMethod) UpdatePaymentMethod(pm *store.PaymentMethod) error {
 	result := p.db.
 		Model(&store.PaymentMethod{}).
 		Where("id = ? AND tenant_id = ?", pm.ID, pm.TenantID).
 		Updates(map[string]any{
-			"name":       pm.Name,
-			"ativo":      pm.Ativo,
-			"can_divide": pm.CanDivide,
+			"name": pm.Name,
 		})
 
 	if result.Error != nil {

@@ -132,7 +132,8 @@ func (p PriceTableDB) GetOne(
 func (p PriceTableDB) HasContacts(priceTableID, tenantID uint) (bool, error) {
 	var count int64
 	err := p.db.Model(&store.Contact{}).
-		Where("price_table_id = ? AND tenant_id = ?", priceTableID, tenantID).
+		Joins("JOIN contact_price_tables cpt ON cpt.contact_id = contacts.id").
+		Where("cpt.price_table_id = ? AND contacts.tenant_id = ?", priceTableID, tenantID).
 		Count(&count).Error
 	if err != nil {
 		return false, err
@@ -192,6 +193,20 @@ func (p *PriceTableDB) FindPriceTablesByProduct(
 		return nil, err
 	}
 	return tables, nil
+}
+
+func (p *PriceTableDB) FindPaymentMethods(
+	tableID, tenantID uint,
+) ([]store.PaymentMethod, error) {
+	var table store.PriceTable
+	err := p.db.
+		Preload("PaymentMethods").
+		Where("id = ? AND tenant_id = ?", tableID, tenantID).
+		First(&table).Error
+	if err != nil {
+		return nil, err
+	}
+	return table.PaymentMethods, nil
 }
 
 func (p *PriceTableDB) SearchVariantsForPriceTable(

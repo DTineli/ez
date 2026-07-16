@@ -40,6 +40,7 @@ func MustMigrate(db *gorm.DB) {
 		&store.Order{},
 		&store.OrderItem{},
 		&store.PaymentMethod{},
+		&store.PaymentTerm{},
 
 		&store.Attribute{},
 		&store.AttributeValue{},
