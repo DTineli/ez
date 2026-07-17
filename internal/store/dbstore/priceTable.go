@@ -209,6 +209,46 @@ func (p *PriceTableDB) FindPaymentMethods(
 	return table.PaymentMethods, nil
 }
 
+func (p *PriceTableDB) AddPaymentMethod(tableID, methodID, tenantID uint) error {
+	var table store.PriceTable
+	err := p.db.
+		Where("id = ? AND tenant_id = ?", tableID, tenantID).
+		First(&table).Error
+	if err != nil {
+		return err
+	}
+
+	var pm store.PaymentMethod
+	err = p.db.
+		Where("id = ? AND tenant_id = ?", methodID, tenantID).
+		First(&pm).Error
+	if err != nil {
+		return err
+	}
+
+	return p.db.Model(&table).Association("PaymentMethods").Append(&pm)
+}
+
+func (p *PriceTableDB) RemovePaymentMethod(tableID, methodID, tenantID uint) error {
+	var table store.PriceTable
+	err := p.db.
+		Where("id = ? AND tenant_id = ?", tableID, tenantID).
+		First(&table).Error
+	if err != nil {
+		return err
+	}
+
+	var pm store.PaymentMethod
+	err = p.db.
+		Where("id = ? AND tenant_id = ?", methodID, tenantID).
+		First(&pm).Error
+	if err != nil {
+		return err
+	}
+
+	return p.db.Model(&table).Association("PaymentMethods").Delete(&pm)
+}
+
 func (p *PriceTableDB) SearchVariantsForPriceTable(
 	tenantID, priceTableID uint,
 	q string,

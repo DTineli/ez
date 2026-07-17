@@ -49,6 +49,8 @@ type PriceTableStore interface {
 	FindProductPricesForProduct(productID uint) ([]ProductPrice, error)
 
 	FindPaymentMethods(tableID, tenantID uint) ([]PaymentMethod, error)
+	AddPaymentMethod(tableID, methodID, tenantID uint) error
+	RemovePaymentMethod(tableID, methodID, tenantID uint) error
 }
 
 type VariantTableRow struct {

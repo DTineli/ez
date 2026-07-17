@@ -55,6 +55,7 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 				if (p.startsWith('/admin/relatorios')) return 'reports';
 				if (p.startsWith('/admin/configuracoes')) return 'config';
 				if (p.startsWith('/admin/pricetable')) return 'priceTable';
+				if (p.startsWith('/admin/pagamentos')) return 'paymentMethods';
 				return 'dashboard';
 			},
 			pageLabel() {
@@ -67,6 +68,7 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 					reports:    'Relatórios',
 					config:     'Configurações',
 					priceTable: 'Tabela de Preços',
+					paymentMethods: 'Formas de Pagamento',
 				};
 				return labels[this.active] || this.active;
 			},
@@ -216,6 +218,24 @@ templ Layout(contents templ.Component, title string, loggedIn bool, email string
 								</svg>
 							</span>
 							<span class="cs-nav-item-label" x-show="!collapsed">Tabela de Preços</span>
+						</a>
+						<a
+							class="cs-nav-item"
+							:class="{ 'active': active === 'paymentMethods' }"
+							hx-get="/admin/pagamentos"
+							hx-target="#main-content"
+							hx-push-url="true"
+							hx-swap="innerHTML"
+							hx-indicator="#main-content"
+							@click="active = 'paymentMethods'"
+						>
+							<span class="cs-nav-item-icon">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+									<rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+									<line x1="1" y1="10" x2="23" y2="10"></line>
+								</svg>
+							</span>
+							<span class="cs-nav-item-label" x-show="!collapsed">Formas de Pagamento</span>
 						</a>
 						<!-- ANÁLISE -->
 						<div class="cs-nav-group-label">Análise</div>

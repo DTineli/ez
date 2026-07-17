@@ -29,6 +29,11 @@ templ EditPricesPage(table store.PriceTable) {
 				<p class="text-gray-400 text-sm mt-0.5">Preços individuais por produto nesta tabela.</p>
 			</div>
 		</div>
+		<div
+			hx-get={ fmt.Sprintf("/admin/pricetable/%d/payment-methods", table.ID) }
+			hx-trigger="load"
+			hx-swap="outerHTML"
+		></div>
 		<div id="search-area">
 			@AddProductButton(table.ID)
 		</div>

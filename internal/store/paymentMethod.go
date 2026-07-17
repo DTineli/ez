@@ -14,7 +14,6 @@ type PaymentTerm struct {
 	gorm.Model
 	Name string `gorm:"type:varchar(100);not null;uniqueIndex:idx_tenant_pt_name,priority:2,where:deleted_at IS NULL" json:"name"`
 
-	Number     int     `json:"number"`
 	DueDays    int     `json:"due_days"`
 	Percentage float64 `json:"percentage"`
 

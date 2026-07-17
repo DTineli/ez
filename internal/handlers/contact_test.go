@@ -118,6 +118,14 @@ func (s *mockPriceTableStore) FindPaymentMethods(tableID, tenantID uint) ([]stor
 	return nil, nil
 }
 
+func (s *mockPriceTableStore) AddPaymentMethod(tableID, methodID, tenantID uint) error {
+	return nil
+}
+
+func (s *mockPriceTableStore) RemovePaymentMethod(tableID, methodID, tenantID uint) error {
+	return nil
+}
+
 func newContactHandler(cs *mockContactStore, is *mockInviteStore, pts *mockPriceTableStore) *ContactHandler {
 	if cs == nil {
 		cs = &mockContactStore{}

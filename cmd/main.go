@@ -312,6 +312,31 @@ func registerAdminRoutes(
 					"/{tableID}/prices/{priceID}",
 					priceTable.DeleteProductPrice,
 				)
+				r.Get(
+					"/{tableID}/payment-methods",
+					priceTable.RenderTablePaymentMethods,
+				)
+				r.Post(
+					"/{tableID}/payment-methods",
+					priceTable.PostTablePaymentMethod,
+				)
+				r.Delete(
+					"/{tableID}/payment-methods/{methodID}",
+					priceTable.DeleteTablePaymentMethod,
+				)
+			})
+
+			r.Route("/pagamentos", func(r chi.Router) {
+				r.Get("/", priceTable.RenderPaymentMethods)
+				r.Post("/", priceTable.CreatePaymentMethod)
+				r.Delete("/{id}", priceTable.DeletePaymentMethod)
+				r.Get("/{id}/parcelas", priceTable.RenderPaymentTerms)
+				r.Get("/{id}/parcelas/close", priceTable.ClosePaymentTerms)
+				r.Post("/{id}/parcelas", priceTable.CreatePaymentTerm)
+				r.Delete(
+					"/{id}/parcelas/{termID}",
+					priceTable.DeletePaymentTerm,
+				)
 			})
 
 			r.Route("/atributos", func(r chi.Router) {

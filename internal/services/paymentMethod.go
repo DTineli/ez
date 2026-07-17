@@ -10,6 +10,15 @@ type PaymentMethodService interface {
 	FindAllByPriceTable(tableID, tenantID uint) ([]store.PaymentMethod, error)
 	Update(pm *store.PaymentMethod) error
 	Delete(id, tenantID uint) error
+
+	CreateTerm(
+		tenantID, methodID uint,
+		name string,
+		dueDays int,
+		percentage float64,
+	) (*store.PaymentTerm, error)
+	FindTermsByMethod(methodID, tenantID uint) ([]store.PaymentTerm, error)
+	DeleteTerm(id, tenantID uint) error
 }
 
 type paymentMethodService struct {
@@ -56,4 +65,34 @@ func (p *paymentMethodService) FindAllByPriceTable(
 	tableID, tenantID uint,
 ) ([]store.PaymentMethod, error) {
 	return p.methodStore.FindAllByPriceTable(tableID, tenantID)
+}
+
+func (p *paymentMethodService) CreateTerm(
+	tenantID,
+	methodID uint,
+	dueDays int,
+) (*store.PaymentTerm, error) {
+	if _, err := p.methodStore.GetPaymentMethod(methodID, tenantID); err != nil {
+		return nil, err
+	}
+
+	pt := &store.PaymentTerm{
+		DueDays:         dueDays,
+		PaymentMethodID: methodID,
+		TenantID:        tenantID,
+	}
+	if err := p.termStore.CreatePaymentTerm(pt); err != nil {
+		return nil, err
+	}
+	return pt, nil
+}
+
+func (p *paymentMethodService) FindTermsByMethod(
+	methodID, tenantID uint,
+) ([]store.PaymentTerm, error) {
+	return p.termStore.FindAllByPaymentMethod(methodID, tenantID)
+}
+
+func (p *paymentMethodService) DeleteTerm(id, tenantID uint) error {
+	return p.termStore.DeletePaymentTerm(id, tenantID)
 }

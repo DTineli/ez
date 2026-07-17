@@ -230,6 +230,14 @@ func (s *mockPriceTableService) FindPaymentMethods(tableID, tenantID uint) ([]st
 	return nil, nil
 }
 
+func (s *mockPriceTableService) AddPaymentMethod(tableID, methodID, tenantID uint) error {
+	return nil
+}
+
+func (s *mockPriceTableService) RemovePaymentMethod(tableID, methodID, tenantID uint) error {
+	return nil
+}
+
 // --- helpers ---
 
 func newSession(tenantID uint) *store.Session {

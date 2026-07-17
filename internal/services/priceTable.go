@@ -44,6 +44,8 @@ type PriceTableService interface {
 		allVariants []store.Variant,
 	) ([]store.PriceTableProductView, error)
 	FindPaymentMethods(tableID, tenantID uint) ([]store.PaymentMethod, error)
+	AddPaymentMethod(tableID, methodID, tenantID uint) error
+	RemovePaymentMethod(tableID, methodID, tenantID uint) error
 }
 
 type priceTableService struct {
@@ -265,6 +267,18 @@ func (p *priceTableService) FindPaymentMethods(
 	tableID, tenantID uint,
 ) ([]store.PaymentMethod, error) {
 	return p.store.FindPaymentMethods(tableID, tenantID)
+}
+
+func (p *priceTableService) AddPaymentMethod(
+	tableID, methodID, tenantID uint,
+) error {
+	return p.store.AddPaymentMethod(tableID, methodID, tenantID)
+}
+
+func (p *priceTableService) RemovePaymentMethod(
+	tableID, methodID, tenantID uint,
+) error {
+	return p.store.RemovePaymentMethod(tableID, methodID, tenantID)
 }
 
 // ApplyPriceTable aplica o multiplicador da tabela ao custo base.

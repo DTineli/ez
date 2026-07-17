@@ -13,7 +13,10 @@ import (
 )
 
 func newPriceTableHandler() *PriceTableHandler {
-	return NewPriceTableHandler(&mockPriceTableServiceExt{})
+	return NewPriceTableHandler(
+		&mockPriceTableServiceExt{},
+		&mockPaymentMethodService{},
+	)
 }
 
 func TestGetTablePage_Sucesso(t *testing.T) {
@@ -36,7 +39,7 @@ func TestGetTablePage_ErroStore(t *testing.T) {
 			return nil, errors.New("db error")
 		},
 	}
-	h := NewPriceTableHandler(pts)
+	h := NewPriceTableHandler(pts, &mockPaymentMethodService{})
 
 	r := httptest.NewRequest(http.MethodGet, "/admin/tabelas", nil)
 	r = htmxRequest(withSession(r, newSession(1)))
@@ -94,7 +97,7 @@ func TestCreatePriceTable_Sucesso(t *testing.T) {
 			return &store.PriceTable{Name: name, Percentage: pct, TenantID: tenantID}, nil
 		},
 	}
-	h := NewPriceTableHandler(pts)
+	h := NewPriceTableHandler(pts, &mockPaymentMethodService{})
 
 	body := url.Values{"name": {"Tabela A"}, "percentage": {"10"}}
 	r := httptest.NewRequest(http.MethodPost, "/admin/tabelas", strings.NewReader(body.Encode()))
@@ -124,7 +127,7 @@ func TestCreatePriceTable_NomeDuplicado(t *testing.T) {
 			return nil, errors.New("UNIQUE constraint failed: price_tables.name")
 		},
 	}
-	h := NewPriceTableHandler(pts)
+	h := NewPriceTableHandler(pts, &mockPaymentMethodService{})
 
 	body := url.Values{"name": {"Tabela Existente"}, "percentage": {"5"}}
 	r := httptest.NewRequest(http.MethodPost, "/admin/tabelas", strings.NewReader(body.Encode()))
@@ -163,7 +166,7 @@ func TestDeletePriceTable_PossuiClientes(t *testing.T) {
 			return services.ErrPriceTableHasContacts
 		},
 	}
-	h := NewPriceTableHandler(pts)
+	h := NewPriceTableHandler(pts, &mockPaymentMethodService{})
 
 	r := httptest.NewRequest(http.MethodDelete, "/admin/tabelas/1", nil)
 	r = htmxRequest(withSession(r, newSession(1)))
@@ -185,7 +188,7 @@ func TestDeletePriceTable_Sucesso(t *testing.T) {
 			return nil
 		},
 	}
-	h := NewPriceTableHandler(pts)
+	h := NewPriceTableHandler(pts, &mockPaymentMethodService{})
 
 	r := httptest.NewRequest(http.MethodDelete, "/admin/tabelas/1", nil)
 	r = htmxRequest(withSession(r, newSession(1)))
@@ -276,3 +279,54 @@ func (s *mockPriceTableServiceExt) FindAllWithProductPrices(productID, tenantID 
 func (s *mockPriceTableServiceExt) FindPaymentMethods(tableID, tenantID uint) ([]store.PaymentMethod, error) {
 	return nil, nil
 }
+
+func (s *mockPriceTableServiceExt) AddPaymentMethod(tableID, methodID, tenantID uint) error {
+	return nil
+}
+
+func (s *mockPriceTableServiceExt) RemovePaymentMethod(tableID, methodID, tenantID uint) error {
+	return nil
+}
+
+// mockPaymentMethodService implementa services.PaymentMethodService
+type mockPaymentMethodService struct{}
+
+func (s *mockPaymentMethodService) Create(tenantID uint, name string) (*store.PaymentMethod, error) {
+	return &store.PaymentMethod{Name: name, TenantID: tenantID}, nil
+}
+
+func (s *mockPaymentMethodService) GetOne(id, tenantID uint) (*store.PaymentMethod, error) {
+	return nil, nil
+}
+
+func (s *mockPaymentMethodService) FindAll(tenantID uint) ([]store.PaymentMethod, error) {
+	return nil, nil
+}
+
+func (s *mockPaymentMethodService) FindAllByPriceTable(tableID, tenantID uint) ([]store.PaymentMethod, error) {
+	return nil, nil
+}
+
+func (s *mockPaymentMethodService) Update(pm *store.PaymentMethod) error { return nil }
+func (s *mockPaymentMethodService) Delete(id, tenantID uint) error       { return nil }
+
+func (s *mockPaymentMethodService) CreateTerm(
+	tenantID, methodID uint,
+	name string,
+	number, dueDays int,
+	percentage float64,
+) (*store.PaymentTerm, error) {
+	return &store.PaymentTerm{
+		Name:            name,
+		DueDays:         dueDays,
+		Percentage:      percentage,
+		PaymentMethodID: methodID,
+		TenantID:        tenantID,
+	}, nil
+}
+
+func (s *mockPaymentMethodService) FindTermsByMethod(methodID, tenantID uint) ([]store.PaymentTerm, error) {
+	return nil, nil
+}
+
+func (s *mockPaymentMethodService) DeleteTerm(id, tenantID uint) error { return nil }
