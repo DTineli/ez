@@ -217,6 +217,19 @@ func (c *ClientHandler) PostConfirmOrder(
 		priceTableID = uint(v)
 	}
 
+	var payment_method_id uint
+	if vv, err := strconv.ParseUint(r.FormValue("payment_method"), 10, 64); err == nil {
+		payment_method_id = uint(vv)
+	}
+
+	if payment_method_id == 0 {
+		w.Header().
+			Set("HX-Trigger", `{"showToast":{"type":"error","message":"Selecione um Metodo de pagamento"}}`)
+		w.Header().Set(HXRedirect, "/client/confirmacao")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	sess := middleware.GetSessionFromContext(r)
 
 	var cart *store.Cart
