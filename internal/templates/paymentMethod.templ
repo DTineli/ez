@@ -153,16 +153,6 @@ templ PaymentTermsRow(pm store.PaymentMethod, terms []store.PaymentTerm) {
 					hx-swap="outerHTML"
 					class="flex flex-wrap items-end gap-3"
 				>
-					<div class="flex-1 min-w-[160px]">
-						<label class="block text-xs font-medium text-gray-600 py-1">Nome <span class="text-red-600">*</span></label>
-						<input
-							name="name"
-							type="text"
-							placeholder="Ex: 30/60/90"
-							required
-							class="block w-full border border-gray-300 rounded-field bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-						/>
-					</div>
 					<div class="w-32">
 						<label class="block text-xs font-medium text-gray-600 py-1">Vencimento (dias) <span class="text-red-600">*</span></label>
 						<input
@@ -189,18 +179,14 @@ templ PaymentTermsRow(pm store.PaymentMethod, terms []store.PaymentTerm) {
 						<table class="w-full text-sm text-left">
 							<thead>
 								<tr>
-									<th class="px-3 py-2 text-xs font-semibold text-gray-500 border-b border-gray-200">Nome</th>
 									<th class="px-3 py-2 text-xs font-semibold text-gray-500 border-b border-gray-200 text-right">Vencimento (dias)</th>
-									<th class="px-3 py-2 text-xs font-semibold text-gray-500 border-b border-gray-200 text-right">Acréscimo (%)</th>
 									<th class="px-3 py-2 text-xs font-semibold text-gray-500 border-b border-gray-200 text-center">Ações</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, t := range terms {
 									<tr class="hover:bg-white">
-										<td class="px-3 py-2 font-medium">{ t.Name }</td>
 										<td class="px-3 py-2 text-right">{ strconv.Itoa(t.DueDays) }</td>
-										<td class="px-3 py-2 text-right">{ fmt.Sprintf("%.2f", t.Percentage) }</td>
 										<td class="px-3 py-2">
 											<div class="flex justify-center">
 												<button
@@ -208,7 +194,7 @@ templ PaymentTermsRow(pm store.PaymentMethod, terms []store.PaymentTerm) {
 													hx-delete={ fmt.Sprintf("/admin/pagamentos/%d/parcelas/%d", pm.ID, t.ID) }
 													hx-target={ fmt.Sprintf("#payment-terms-row-%d", pm.ID) }
 													hx-swap="outerHTML"
-													hx-confirm={ fmt.Sprintf("Excluir a parcela \"%s\"?", t.Name) }
+													hx-confirm={ fmt.Sprintf("Excluir a parcela com vencimento em %d dias?", t.DueDays) }
 													class="inline-flex items-center justify-center gap-2 cursor-pointer font-medium rounded-field transition-all bg-transparent hover:bg-black/5 px-2 py-1 text-xs text-red-600"
 												>
 													Excluir

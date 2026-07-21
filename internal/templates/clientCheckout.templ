@@ -167,6 +167,14 @@ templ ClientCheckoutPage(isEmpty bool) {
 					hx-target="this"
 				></div>
 				<div
+					class="mt-4"
+					hx-trigger="htmx:afterSettle from:#price_table, change from:#price_table, cartUpdated from:body"
+					hx-target="this"
+					hx-swap="innerHTML"
+					hx-get="/client/components/payment-methods"
+					hx-include="#sel-hidden-price_table"
+				></div>
+				<div
 					id="cart_content"
 					hx-get="/client/components/cart-content"
 					hx-trigger="htmx:afterSettle from:#price_table, change from:#price_table, cartUpdated from:body"

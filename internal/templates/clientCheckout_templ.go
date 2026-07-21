@@ -272,7 +272,7 @@ func ClientCheckoutPage(isEmpty bool) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div id=\"price_table\" hx-get=\"/client/components/price-tables\" hx-trigger=\"load\" hx-swap=\"innerHTML\" hx-target=\"this\"></div><div id=\"cart_content\" hx-get=\"/client/components/cart-content\" hx-trigger=\"htmx:afterSettle from:#price_table, change from:#price_table, cartUpdated from:body\" hx-swap=\"innerHTML\" hx-target=\"this\" hx-include=\"#sel-hidden-price_table\"></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div id=\"price_table\" hx-get=\"/client/components/price-tables\" hx-trigger=\"load\" hx-swap=\"innerHTML\" hx-target=\"this\"></div><div class=\"mt-4\" hx-trigger=\"htmx:afterSettle from:#price_table, change from:#price_table, cartUpdated from:body\" hx-target=\"this\" hx-swap=\"innerHTML\" hx-get=\"/client/components/payment-methods\" hx-include=\"#sel-hidden-price_table\"></div><div id=\"cart_content\" hx-get=\"/client/components/cart-content\" hx-trigger=\"htmx:afterSettle from:#price_table, change from:#price_table, cartUpdated from:body\" hx-swap=\"innerHTML\" hx-target=\"this\" hx-include=\"#sel-hidden-price_table\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

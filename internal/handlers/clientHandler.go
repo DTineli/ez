@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
 	"strconv"
@@ -87,7 +88,11 @@ func (c *ClientHandler) RenderCheckoutContent(
 	}
 
 	if openCart != nil {
-		items, err = c.cartStore.ListCheckoutItems(openCart.ID, sess.TenantID, uint(price_tableID))
+		items, err = c.cartStore.ListCheckoutItems(
+			openCart.ID,
+			sess.TenantID,
+			uint(price_tableID),
+		)
 
 		if err != nil {
 			ShowToast(w, "Erro ao carregar itens", "error")
@@ -101,6 +106,59 @@ func (c *ClientHandler) RenderCheckoutContent(
 
 	showPrice := price_tableID != 0
 	Render(templates.ClientCartContent(items, totalAmount, showPrice), r, w)
+}
+
+func (c *ClientHandler) Fetch_payment_methods(
+	w http.ResponseWriter,
+	r *http.Request) {
+
+	sess := middleware.GetSessionFromContext(r)
+
+	table_id_str := r.URL.Query().Get("price_table")
+	if table_id_str == "" {
+		renderEmptyPaymentMethodsSelect(w, r)
+		return
+	}
+
+	table_id, err := strconv.Atoi(table_id_str)
+	if err != nil {
+		renderEmptyPaymentMethodsSelect(w, r)
+		return
+	}
+
+	methods, err := c.priceTableSvc.FindPaymentMethods(
+		uint(table_id),
+		sess.TenantID,
+	)
+	if err != nil {
+		ShowToast(w, "Erro ao carregar formas de pagamento", "error")
+		renderEmptyPaymentMethodsSelect(w, r)
+		return
+	}
+
+	opts := make([]components.SelectOption, 0, len(methods))
+	for _, method := range methods {
+		opts = append(opts, components.SelectOption{
+			Label: method.Name,
+			Value: fmt.Sprintf("%v", method.ID),
+		})
+	}
+
+	Render(components.Select(components.SelectParams{
+		Label:       "Forma de Pagamento",
+		Name:        "payment_methods",
+		Options:     opts,
+		Placeholder: "Escolha uma forma de pagamento",
+	}), r, w)
+}
+
+func renderEmptyPaymentMethodsSelect(w http.ResponseWriter, r *http.Request) {
+	Render(components.Select(components.SelectParams{
+		Label:       "Forma De Pagamento",
+		Name:        "payment_methods",
+		Options:     []components.SelectOption{},
+		Placeholder: "Escolha uma tabela primeiro",
+	}), r, w)
 }
 
 func (c *ClientHandler) RenderSelectTableByClient(

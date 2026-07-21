@@ -146,9 +146,7 @@ func (p *PaymentTerm) UpdatePaymentTerm(pt *store.PaymentTerm) error {
 		Model(&store.PaymentTerm{}).
 		Where("id = ? AND tenant_id = ?", pt.ID, pt.TenantID).
 		Updates(map[string]any{
-			"name":              pt.Name,
 			"due_days":          pt.DueDays,
-			"percentage":        pt.Percentage,
 			"payment_method_id": pt.PaymentMethodID,
 		})
 

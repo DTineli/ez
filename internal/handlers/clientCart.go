@@ -260,7 +260,8 @@ func (c *ClientHandler) PostConfirmOrder(
 		return
 	}
 
-	if remaining, err := c.cartStore.CountItems(cart.ID); err == nil && remaining == 0 {
+	if remaining, err := c.cartStore.CountItems(cart.ID); err == nil &&
+		remaining == 0 {
 		_ = c.sessionStore.SetCartID(r, w, 0)
 	}
 	w.Header().Set(HXRedirect, "/client/items")

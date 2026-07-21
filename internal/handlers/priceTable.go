@@ -128,11 +128,19 @@ func (p *PriceTableHandler) PostProductPrice(
 		return
 	}
 
-	priceID, err := p.priceTableSvc.AddPrice(uint(tableID), uint(variantID), price)
+	priceID, err := p.priceTableSvc.AddPrice(
+		uint(tableID),
+		uint(variantID),
+		price,
+	)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") ||
 			strings.Contains(err.Error(), "Duplicate") {
-			ShowToast(w, "Preço já cadastrado para essa variante nessa tabela", "error")
+			ShowToast(
+				w,
+				"Preço já cadastrado para essa variante nessa tabela",
+				"error",
+			)
 			return
 		}
 		ShowToast(w, "Erro ao salvar preço", "error")

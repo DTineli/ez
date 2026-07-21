@@ -312,14 +312,10 @@ func (s *mockPaymentMethodService) Delete(id, tenantID uint) error       { retur
 
 func (s *mockPaymentMethodService) CreateTerm(
 	tenantID, methodID uint,
-	name string,
-	number, dueDays int,
-	percentage float64,
+	dueDays int,
 ) (*store.PaymentTerm, error) {
 	return &store.PaymentTerm{
-		Name:            name,
 		DueDays:         dueDays,
-		Percentage:      percentage,
 		PaymentMethodID: methodID,
 		TenantID:        tenantID,
 	}, nil

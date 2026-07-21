@@ -13,9 +13,7 @@ type PaymentMethodService interface {
 
 	CreateTerm(
 		tenantID, methodID uint,
-		name string,
 		dueDays int,
-		percentage float64,
 	) (*store.PaymentTerm, error)
 	FindTermsByMethod(methodID, tenantID uint) ([]store.PaymentTerm, error)
 	DeleteTerm(id, tenantID uint) error
@@ -26,8 +24,10 @@ type paymentMethodService struct {
 	termStore   store.PaymentTermStore
 }
 
-func NewPaymentMethodService(mStore store.PaymentMethodStore,
-	tStore store.PaymentTermStore) PaymentMethodService {
+func NewPaymentMethodService(
+	mStore store.PaymentMethodStore,
+	tStore store.PaymentTermStore,
+) PaymentMethodService {
 	return &paymentMethodService{methodStore: mStore, termStore: tStore}
 }
 
@@ -45,11 +45,15 @@ func (p *paymentMethodService) Create(
 	return pm, nil
 }
 
-func (p *paymentMethodService) GetOne(id, tenantID uint) (*store.PaymentMethod, error) {
+func (p *paymentMethodService) GetOne(
+	id, tenantID uint,
+) (*store.PaymentMethod, error) {
 	return p.methodStore.GetPaymentMethod(id, tenantID)
 }
 
-func (p *paymentMethodService) FindAll(tenantID uint) ([]store.PaymentMethod, error) {
+func (p *paymentMethodService) FindAll(
+	tenantID uint,
+) ([]store.PaymentMethod, error) {
 	return p.methodStore.FindAllPaymentMethodsByTenant(tenantID)
 }
 

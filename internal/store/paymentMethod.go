@@ -12,14 +12,11 @@ type PaymentMethod struct {
 
 type PaymentTerm struct {
 	gorm.Model
-	Name string `gorm:"type:varchar(100);not null;uniqueIndex:idx_tenant_pt_name,priority:2,where:deleted_at IS NULL" json:"name"`
-
-	DueDays    int     `json:"due_days"`
-	Percentage float64 `json:"percentage"`
+	DueDays int `json:"due_days"`
 
 	PaymentMethodID uint          `gorm:"not null" json:"payment_method_id"`
 	PaymentMethod   PaymentMethod `gorm:"foreignKey:PaymentMethodID" json:"-"`
-	TenantID        uint          `gorm:"not null;uniqueIndex:idx_tenant_pt_name,priority:1" json:"tenant_id"`
+	TenantID        uint          `gorm:"not null" json:"tenant_id"`
 }
 
 type PaymentMethodStore interface {

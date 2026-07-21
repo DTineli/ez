@@ -117,15 +117,8 @@ func (p *PriceTableHandler) CreatePaymentTerm(
 		return
 	}
 
-	name := strings.TrimSpace(r.FormValue("name"))
 	dueDays, errDue := strconv.Atoi(r.FormValue("due_days"))
-	percentage, errPct := strconv.ParseFloat(r.FormValue("percentage"), 64)
-	if r.FormValue("percentage") == "" {
-		percentage, errPct = 0, nil
-	}
-
-	if name == "" || errDue != nil ||
-		dueDays < 0 || errPct != nil {
+	if errDue != nil || dueDays < 0 {
 		ShowToast(w, "Dados da parcela inválidos", "error")
 		p.renderPaymentTermsSection(w, r, *pm, sess.TenantID)
 		return
@@ -134,16 +127,9 @@ func (p *PriceTableHandler) CreatePaymentTerm(
 	if _, err := p.paymentMethodSvc.CreateTerm(
 		sess.TenantID,
 		uint(methodID),
-		name,
 		dueDays,
-		percentage,
 	); err != nil {
-		msg := "Erro ao salvar parcela"
-		if strings.Contains(err.Error(), "UNIQUE constraint failed") ||
-			strings.Contains(err.Error(), "Duplicate") {
-			msg = "Nome de parcela ja existe"
-		}
-		ShowToast(w, msg, "error")
+		ShowToast(w, "Erro ao salvar parcela", "error")
 		p.renderPaymentTermsSection(w, r, *pm, sess.TenantID)
 		return
 	}
