@@ -146,7 +146,7 @@ func (c *ClientHandler) Fetch_payment_methods(
 
 	Render(components.Select(components.SelectParams{
 		Label:       "Forma de Pagamento",
-		Name:        "payment_methods",
+		Name:        "payment_method",
 		Options:     opts,
 		Placeholder: "Escolha uma forma de pagamento",
 	}), r, w)
@@ -155,7 +155,7 @@ func (c *ClientHandler) Fetch_payment_methods(
 func renderEmptyPaymentMethodsSelect(w http.ResponseWriter, r *http.Request) {
 	Render(components.Select(components.SelectParams{
 		Label:       "Forma De Pagamento",
-		Name:        "payment_methods",
+		Name:        "payment_method",
 		Options:     []components.SelectOption{},
 		Placeholder: "Escolha uma tabela primeiro",
 	}), r, w)

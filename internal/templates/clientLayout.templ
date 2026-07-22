@@ -163,6 +163,8 @@ templ Layout_Client(content templ.Component, cartCount int64, activeTab string) 
 				@content
 			</main>
 			@bottonNavBar(activeTab)
+			<!-- Toast container -->
+			<div id="toast-container" class="fixed top-6 right-6 z-50 space-y-4 w-80"></div>
 			<script>
 				(function() {
 					document.addEventListener('htmx:beforeRequest', function() {
@@ -186,6 +188,29 @@ templ Layout_Client(content templ.Component, cartCount int64, activeTab string) 
 					} else {
 						badge.style.display = 'none';
 					}
+				});
+
+				document.body.addEventListener("showToast", function (event) {
+					const { type, message } = event.detail;
+					const container = document.getElementById("toast-container");
+					const toast = document.createElement("div");
+
+					toast.className = "px-4 py-3 rounded-xl shadow-lg text-white transition-all duration-300 opacity-0 translate-y-2 " +
+						(type === "success"
+						? "bg-green-600"
+						: "bg-red-600");
+
+					toast.textContent = message;
+					container.appendChild(toast);
+
+					requestAnimationFrame(() => {
+						toast.classList.remove("opacity-0", "translate-y-2");
+					});
+
+					setTimeout(() => {
+						toast.classList.add("opacity-0", "translate-y-2");
+						setTimeout(() => toast.remove(), 300);
+					}, 3000);
 				});
 			</script>
 		</body>

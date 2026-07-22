@@ -222,11 +222,10 @@ func (c *ClientHandler) PostConfirmOrder(
 		payment_method_id = uint(vv)
 	}
 
+	fmt.Printf("FORMA DE PAGAMENTO - %v \n", r.FormValue("payment_method"))
+
 	if payment_method_id == 0 {
-		w.Header().
-			Set("HX-Trigger", `{"showToast":{"type":"error","message":"Selecione um Metodo de pagamento"}}`)
-		w.Header().Set(HXRedirect, "/client/confirmacao")
-		w.WriteHeader(http.StatusOK)
+		ShowToast(w, "Selecione um Metodo de pagamento", "error")
 		return
 	}
 
